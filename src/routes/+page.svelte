@@ -1,39 +1,25 @@
 <script lang="ts">
 	import { page } from "$app/state";
-	import {
-		PUBLIC_TWITCH_CLIENT_ID,
-		PUBLIC_TWITCH_REDIRECT_URL,
-	} from "$env/static/public";
-	import { SCOPES } from "$lib/scopes";
+	import Chat from "$lib/components/Chat.svelte";
+	import Input from "$lib/components/Input.svelte";
 
-	const generatedState = crypto.randomUUID();
-
-	const authSearchParams = {
-		client_id: PUBLIC_TWITCH_CLIENT_ID,
-		redirect_uri: PUBLIC_TWITCH_REDIRECT_URL,
-		response_type: "token",
-		scope: SCOPES.join(" "),
-		state: generatedState,
-	};
-
-	async function signIn() {
-		const authUrl = new URL("https://id.twitch.tv/oauth2/authorize");
-
-		for (const [key, value] of Object.entries(authSearchParams)) {
-			authUrl.searchParams.set(key, value);
-		}
-
-		location.href = authUrl.toString();
-	}
+	const isLoggedIn = $derived(!!page.data.user);
 </script>
 
-{#if page.data.user}
-	{page.data.user.display_name}
-{:else}
-	<button
-		class="bg-neutral-300 px-3 py-2 hover:bg-neutral-200"
-		onclick={signIn}
-	>
-		sign in
-	</button>
-{/if}
+<div class="flex h-screen flex-col">
+	<Chat class="grow" />
+
+	<div class="border-t p-2">
+		<Input
+			class="focus-visible:ring-twitch focus-visible:border-twitch focus-visible:ring-1"
+			type="text"
+			disabled={!isLoggedIn}
+			placeholder={isLoggedIn
+				? "Send a message"
+				: "Log in to start chatting"}
+			maxlength={500}
+			autocapitalize="off"
+			autocorrect="off"
+		/>
+	</div>
+</div>
