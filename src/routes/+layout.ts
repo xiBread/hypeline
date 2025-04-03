@@ -1,15 +1,10 @@
-import { Store } from "@tauri-apps/plugin-store";
-import type { User } from "$lib/auth";
+import { LazyStore } from "@tauri-apps/plugin-store";
 
 export const prerender = true;
 export const ssr = false;
 
-export async function load() {
-	const settings = await Store.load("settings.json");
-	const user = await settings.get<User>("user");
-
+export function load() {
 	return {
-		user,
-		settings,
+		settingsStore: new LazyStore("settings.json"),
 	};
 }

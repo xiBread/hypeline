@@ -1,11 +1,11 @@
 <script lang="ts">
 	import WebSocket from "@tauri-apps/plugin-websocket";
-	import { page } from "$app/state";
 	import { getAuthUrl } from "$lib/auth";
 	import Chat from "$lib/components/Chat.svelte";
 	import Input from "$lib/components/Input.svelte";
 	import { onDestroy, onMount } from "svelte";
-	import { subscribe, websocketData } from "$lib/event-sub";
+	import { subscribe, websocketData, type Message } from "$lib/event-sub";
+	import { settings } from "$lib/settings.svelte";
 
 	let messages = $state<string[]>([]);
 
@@ -31,7 +31,7 @@
 				}
 
 				case "Text": {
-					if (!page.data.user) return;
+					if (!settings.user) return;
 
 					const data = websocketData.parse(JSON.parse(message.data));
 
@@ -41,7 +41,7 @@
 							await subscribe(
 								data.payload.session.id,
 								"user.update",
-								{ user_id: page.data.user.id },
+								{ user_id: settings.user.id },
 							);
 
 							// temporary
@@ -50,7 +50,7 @@
 								"channel.chat.message",
 								{
 									broadcaster_user_id: "91067577",
-									user_id: page.data.user.id,
+									user_id: settings.user.id,
 								},
 							);
 						}
@@ -82,8 +82,8 @@
 </script>
 
 <div class="flex h-screen flex-col">
-	{#if page.data.user}
-		<Chat class="grow" {messages} />
+	{#if settings.user}
+		<Chat class="h-full grow" {messages} />
 
 		<div class="border-t p-2">
 			<Input

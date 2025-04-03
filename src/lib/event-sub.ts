@@ -1,8 +1,7 @@
 import { PUBLIC_TWITCH_CLIENT_ID } from "$env/static/public";
-import { Store } from "@tauri-apps/plugin-store";
 import { createEventSubSubscription } from "./twitch-api";
-import type { User } from "./auth";
 import { z } from "zod";
+import { settings } from "./settings.svelte";
 
 interface EventSubMap {
 	"automod.message.hold": [];
@@ -114,15 +113,12 @@ export const websocketData = z.object({
 	payload: z.record(z.any()),
 });
 
-const settings = await Store.load("settings.json");
-const user = await settings.get<User>("user");
-
 export async function subscribe<E extends keyof EventSubMap>(
 	sessionId: string,
 	event: E,
 	condition: EventSubMap[E],
 ) {
-	if (!user) {
+	if (!settings.user) {
 		throw new Error("Must be logged in to subscribe to events");
 	}
 
@@ -131,7 +127,7 @@ export async function subscribe<E extends keyof EventSubMap>(
 		{
 			method: "POST",
 			headers: {
-				Authorization: `Bearer ${user.accessToken}`,
+				Authorization: `Bearer ${settings.user.accessToken}`,
 				"Client-Id": PUBLIC_TWITCH_CLIENT_ID,
 				"Content-Type": "application/json",
 			},
