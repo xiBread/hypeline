@@ -7,7 +7,7 @@
 	import { subscribe, websocketData, type Message } from "$lib/event-sub";
 	import { settings } from "$lib/settings.svelte";
 
-	let messages = $state<string[]>([]);
+	let messages = $state<Message[]>([]);
 
 	let disconnect = async (): Promise<void> => {};
 
@@ -53,6 +53,8 @@
 									user_id: settings.user.id,
 								},
 							);
+
+							break;
 						}
 
 						case "notification": {
@@ -61,8 +63,7 @@
 								data.payload.subscription.type ===
 								"channel.chat.message"
 							) {
-								console.log(data.payload.event);
-								messages.push(data.payload.event.message.text);
+								messages.push(data.payload.event);
 							}
 						}
 					}
