@@ -1,5 +1,5 @@
-import type { User } from "$lib/types";
 import { Store } from "@tauri-apps/plugin-store";
+import type { User } from "$lib/auth";
 
 export const prerender = true;
 export const ssr = false;

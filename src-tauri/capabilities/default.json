@@ -11,6 +11,7 @@
     "notification:default",
     "clipboard-manager:allow-read-text",
     "clipboard-manager:allow-write-text",
-    "store:default"
+    "store:default",
+    "websocket:default"
   ]
 }

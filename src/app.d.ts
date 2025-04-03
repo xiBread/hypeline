@@ -1,4 +1,4 @@
-import type { User } from "$lib/types";
+import type { User } from "$lib/auth";
 import type { Store } from "@tauri-apps/plugin-store";
 
 declare global {

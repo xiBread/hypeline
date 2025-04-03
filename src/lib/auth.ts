@@ -1,3 +1,11 @@
+import {
+	PUBLIC_TWITCH_CLIENT_ID,
+	PUBLIC_TWITCH_REDIRECT_URL,
+} from "$env/static/public";
+import type { GetUsers } from "./twitch-api";
+
+export type User = GetUsers[number] & { accessToken: string };
+
 export const SCOPES = [
 	// Channel
 	"channel:edit:commercial",
@@ -50,3 +58,23 @@ export const SCOPES = [
 	"clips:edit",
 	"whispers:read",
 ];
+
+export function getAuthUrl() {
+	const generatedState = crypto.randomUUID();
+
+	const authSearchParams = {
+		client_id: PUBLIC_TWITCH_CLIENT_ID,
+		redirect_uri: PUBLIC_TWITCH_REDIRECT_URL,
+		response_type: "token",
+		scope: SCOPES.join(" "),
+		state: generatedState,
+	};
+
+	const authUrl = new URL("https://id.twitch.tv/oauth2/authorize");
+
+	for (const [key, value] of Object.entries(authSearchParams)) {
+		authUrl.searchParams.set(key, value);
+	}
+
+	return authUrl;
+}
