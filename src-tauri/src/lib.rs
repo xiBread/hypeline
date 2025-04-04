@@ -1,6 +1,9 @@
-use tauri::async_runtime::Mutex;
+use std::error::Error;
+
+use tauri::async_runtime::{self, Mutex};
 use tauri::Manager;
-use twitch_api::twitch_oauth2::UserToken;
+use tauri_plugin_store::StoreExt;
+use twitch_api::twitch_oauth2::{AccessToken, UserToken};
 use twitch_api::HelixClient;
 
 mod api;
@@ -20,12 +23,27 @@ pub fn run() {
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
+            async_runtime::block_on(async {
+                let store = app.store("settings.json")?;
+                let stored_token = store
+                    .get("user")
+                    .and_then(|user| user["accessToken"].as_str().map(|s| s.to_string()));
+
+                let helix = HelixClient::new();
+
             let app_state = AppState {
-                access_token: None,
-                helix: HelixClient::new(),
+                    helix: helix.clone(),
+                    access_token: if let Some(token) = stored_token {
+                        UserToken::from_token(&helix, AccessToken::from(token))
+                            .await
+                            .ok()
+                    } else {
+                        None
+                    },
             };
 
-            app.manage(Mutex::new(app_state));
+                Ok::<_, Box<dyn Error>>(app.manage(Mutex::new(app_state)))
+            })?;
 
             Ok(())
         })

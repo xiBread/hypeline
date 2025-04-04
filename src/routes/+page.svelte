@@ -13,12 +13,6 @@
 
 	let disconnect = async () => {};
 
-	$effect(() => {
-		if (settings.user) {
-			invoke("set_access_token", { token: settings.user.accessToken });
-		}
-	});
-
 	onMount(async () => {
 		const ws = await WebSocket.connect(
 			"wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds=30",
@@ -62,7 +56,7 @@
 								sessionId: appState.wsSessionId,
 								event: "channel.chat.message",
 								condition: {
-									broadcaster_user_id: "91067577",
+									broadcaster_user_id: "81628627",
 									user_id: settings.user.id,
 								},
 							});
