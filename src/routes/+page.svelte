@@ -4,12 +4,20 @@
 	import Chat from "$lib/components/Chat.svelte";
 	import Input from "$lib/components/Input.svelte";
 	import { onDestroy, onMount } from "svelte";
-	import { subscribe, websocketData, type Message } from "$lib/event-sub";
+	import type { WebSocketMessage, Message } from "$lib/twitch-api";
 	import { settings } from "$lib/settings.svelte";
+	import { appState } from "$lib/app-state.svelte";
+	import { invoke } from "@tauri-apps/api/core";
 
 	let messages = $state<Message[]>([]);
 
-	let disconnect = async (): Promise<void> => {};
+	let disconnect = async () => {};
+
+	$effect(() => {
+		if (settings.user) {
+			invoke("set_access_token", { token: settings.user.accessToken });
+		}
+	});
 
 	onMount(async () => {
 		const ws = await WebSocket.connect(
@@ -33,26 +41,31 @@
 				case "Text": {
 					if (!settings.user) return;
 
-					const data = websocketData.parse(JSON.parse(message.data));
+					const data: WebSocketMessage = JSON.parse(message.data);
 
 					// todo: extract this to a function
 					switch (data.metadata.message_type) {
 						case "session_welcome": {
-							await subscribe(
-								data.payload.session.id,
-								"user.update",
-								{ user_id: settings.user.id },
-							);
+							console.log("Session welcome");
+							appState.wsSessionId = data.payload.session.id;
+
+							await invoke("create_eventsub_subscription", {
+								sessionId: appState.wsSessionId,
+								event: "user.update",
+								condition: {
+									user_id: settings.user.id,
+								},
+							});
 
 							// temporary
-							await subscribe(
-								data.payload.session.id,
-								"channel.chat.message",
-								{
+							await invoke("create_eventsub_subscription", {
+								sessionId: appState.wsSessionId,
+								event: "channel.chat.message",
+								condition: {
 									broadcaster_user_id: "91067577",
 									user_id: settings.user.id,
 								},
-							);
+							});
 
 							break;
 						}

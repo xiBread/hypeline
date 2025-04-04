@@ -1,31 +1,26 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { page } from "$app/state";
-	import { getUsers } from "$lib/twitch-api";
-	import { PUBLIC_TWITCH_CLIENT_ID } from "$env/static/public";
 	import { goto } from "$app/navigation";
+	import { settings } from "$lib/settings.svelte";
+	import { invoke } from "@tauri-apps/api/core";
+	import type { User } from "$lib/twitch-api";
 
 	onMount(async () => {
 		const [accessToken] = location.hash.slice(1).split("=")[1].split("&");
-		// TODO: validate state
 
-		const response = await fetch("https://api.twitch.tv/helix/users", {
-			headers: {
-				Authorization: `Bearer ${accessToken}`,
-				"Client-Id": PUBLIC_TWITCH_CLIENT_ID,
-			},
-		});
+		await invoke("set_access_token", { token: accessToken });
+		const user = await invoke<User>("get_current_user");
 
-		const { data } = await response.json();
-		const [user] = getUsers.parse(data);
-
-		const userExists = await page.data.settings.has("user");
+		const authUser = { ...user, accessToken };
+		const userExists = await page.data.settingsStore.has("user");
 
 		if (!userExists) {
-			await page.data.settings.set("user", { ...user, accessToken });
-			await page.data.settings.save();
+			await page.data.settingsStore.set("user", authUser);
+			await page.data.settingsStore.save();
 		}
 
+		settings.user = authUser;
 		await goto("/");
 	});
 </script>

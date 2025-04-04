@@ -1,7 +1,7 @@
-import type { User } from "./auth";
+import { type AuthUser } from "./twitch-api";
 
 export interface Settings {
-	user: User | undefined;
+	user: AuthUser | undefined;
 }
 
 export const settings = $state<Settings>({
