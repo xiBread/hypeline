@@ -21,6 +21,13 @@
 			"csp": null
 		}
 	},
+	"plugins": {
+		"sql": {
+			"preload": [
+				"sqlite:emotes.db"
+			]
+		}
+	},
 	"bundle": {
 		"active": true,
 		"targets": "all",

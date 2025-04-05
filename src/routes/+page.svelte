@@ -1,15 +1,17 @@
 <script lang="ts">
 	import WebSocket from "@tauri-apps/plugin-websocket";
 	import { getAuthUrl } from "$lib/auth";
-	import Chat from "$lib/components/Chat.svelte";
+	import Chat, { type ChatMessage } from "$lib/components/Chat.svelte";
 	import Input from "$lib/components/Input.svelte";
 	import { onDestroy, onMount } from "svelte";
-	import type { WebSocketMessage, Message } from "$lib/twitch-api";
+	import type { WebSocketMessage } from "$lib/twitch-api";
 	import { settings } from "$lib/settings.svelte";
 	import { appState } from "$lib/app-state.svelte";
 	import { invoke } from "@tauri-apps/api/core";
+	import { joinChat, type Emote } from "$lib/chat";
+	import { extractFragments } from "$lib/chat";
 
-	let messages = $state<Message[]>([]);
+	let messages = $state<ChatMessage[]>([]);
 
 	let disconnect = async () => {};
 
@@ -19,6 +21,8 @@
 		);
 
 		disconnect = () => ws.disconnect();
+
+		let emotes = new Map<string, Emote>();
 
 		ws.addListener(async (message) => {
 			switch (message.type) {
@@ -52,15 +56,7 @@
 							});
 
 							// temporary
-							await invoke("create_eventsub_subscription", {
-								sessionId: appState.wsSessionId,
-								event: "channel.chat.message",
-								condition: {
-									broadcaster_user_id: "81628627",
-									user_id: settings.user.id,
-								},
-							});
-
+							emotes = await joinChat("emiru");
 							break;
 						}
 
@@ -70,7 +66,15 @@
 								data.payload.subscription.type ===
 								"channel.chat.message"
 							) {
-								messages.push(data.payload.event);
+								const raw = data.payload.event;
+
+								messages.push({
+									...raw,
+									fragments: extractFragments(
+										raw.message.text,
+										emotes,
+									),
+								});
 							}
 						}
 					}

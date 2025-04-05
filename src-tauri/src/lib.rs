@@ -1,5 +1,7 @@
 use std::error::Error;
 
+use anyhow::anyhow;
+use sqlx::SqlitePool;
 use tauri::async_runtime::{self, Mutex};
 use tauri::Manager;
 use tauri_plugin_store::StoreExt;
@@ -7,22 +9,45 @@ use twitch_api::twitch_oauth2::{AccessToken, UserToken};
 use twitch_api::HelixClient;
 
 mod api;
+mod chat;
+mod emotes;
+mod error;
+mod migrations;
+mod seventv;
 
 pub struct AppState {
     helix: HelixClient<'static, reqwest::Client>,
     access_token: Option<UserToken>,
+    emotes: SqlitePool,
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_log::Builder::new().build())
+        .plugin(
+            tauri_plugin_sql::Builder::new()
+                .add_migrations("sqlite:emotes.db", migrations::emotes())
+                .build(),
+        )
+        .plugin(
+            tauri_plugin_log::Builder::new()
+                .level_for("rustls", log::LevelFilter::Off)
+                .level_for("sqlx", log::LevelFilter::Off)
+                .level_for("tao", log::LevelFilter::Off)
+                .level_for("tokio_tungstenite", log::LevelFilter::Off)
+                .level_for("tungstenite", log::LevelFilter::Off)
+                .build(),
+        )
         .plugin(tauri_plugin_websocket::init())
         .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
+            let config_dir = app.path().app_config_dir()?;
+
+            let emote_db_path = config_dir.join("emotes.db");
+
             async_runtime::block_on(async {
                 let store = app.store("settings.json")?;
                 let stored_token = store
@@ -31,16 +56,23 @@ pub fn run() {
 
                 let helix = HelixClient::new();
 
-            let app_state = AppState {
+                let access_token = if let Some(token) = stored_token {
+                    UserToken::from_token(&helix, AccessToken::from(token))
+                        .await
+                        .ok()
+                } else {
+                    None
+                };
+
+                let emotes = SqlitePool::connect(emote_db_path.to_str().unwrap())
+                    .await
+                    .map_err(|e| anyhow!("error connecting to emote database: {}", e))?;
+
+                let app_state = AppState {
                     helix: helix.clone(),
-                    access_token: if let Some(token) = stored_token {
-                        UserToken::from_token(&helix, AccessToken::from(token))
-                            .await
-                            .ok()
-                    } else {
-                        None
-                    },
-            };
+                    access_token,
+                    emotes,
+                };
 
                 Ok::<_, Box<dyn Error>>(app.manage(Mutex::new(app_state)))
             })?;
@@ -51,6 +83,7 @@ pub fn run() {
             api::set_access_token,
             api::get_current_user,
             api::create_eventsub_subscription,
+            chat::join_chat
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

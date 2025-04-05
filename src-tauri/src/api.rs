@@ -57,20 +57,6 @@ pub async fn create_eventsub_subscription(
                     .await
                     .ok();
             }
-            "channel.chat.message" => {
-                state
-                    .helix
-                    .create_eventsub_subscription(
-                        eventsub::channel::ChannelChatMessageV1::new(
-                            condition["broadcaster_user_id"].as_str().unwrap(),
-                            user_id,
-                        ),
-                        transport,
-                        token,
-                    )
-                    .await
-                    .ok();
-            }
             _ => {
                 eprintln!("Invalid or unimplemented event type");
             }
