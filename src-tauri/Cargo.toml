@@ -36,3 +36,6 @@ sqlx = { version = "0.8.3", features = ["runtime-tokio", "tls-rustls-ring-native
 log = "0.4.27"
 anyhow = "1.0.97"
 thiserror = "2.0.12"
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-single-instance = "2"
