@@ -43,10 +43,12 @@ pub fn run() {
         )
         .plugin(
             tauri_plugin_log::Builder::new()
+                .level_for("hyper_util", log::LevelFilter::Off)
                 .level_for("rustls", log::LevelFilter::Off)
                 .level_for("sqlx", log::LevelFilter::Off)
                 .level_for("tao", log::LevelFilter::Off)
                 .level_for("tokio_tungstenite", log::LevelFilter::Off)
+                .level_for("tracing", log::LevelFilter::Off)
                 .level_for("tungstenite", log::LevelFilter::Off)
                 .build(),
         )

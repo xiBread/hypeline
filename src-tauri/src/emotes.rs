@@ -19,7 +19,7 @@ pub type EmoteMap = HashMap<String, Emote>;
 pub async fn save_emotes(
     db: &Pool<Sqlite>,
     user: &User,
-    emotes: HashMap<String, Emote>,
+    emotes: &HashMap<String, Emote>,
 ) -> Result<()> {
     let mut tx = db.begin().await?;
     let username = user.login.as_str();

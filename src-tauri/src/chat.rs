@@ -3,7 +3,7 @@ use tauri::async_runtime::Mutex;
 use tauri::State;
 use twitch_api::eventsub;
 
-use crate::emotes::save_emotes;
+use crate::emotes::{save_emotes, EmoteMap};
 use crate::error::Error;
 use crate::providers::{bttv, ffz, seventv};
 use crate::AppState;
@@ -13,14 +13,14 @@ pub async fn join_chat(
     state: State<'_, Mutex<AppState>>,
     session_id: String,
     channel: String,
-) -> Result<String, Error> {
+) -> Result<(String, EmoteMap), Error> {
     let state = state.lock().await;
 
-    if state.access_token.is_none() {
-        return Err(Error::Generic(anyhow!("Access token not set")));
-    }
+    let token = state
+        .access_token
+        .as_ref()
+        .ok_or_else(|| Error::Generic(anyhow!("Access token not set")))?;
 
-    let token = state.access_token.as_ref().unwrap();
     let user_id = token.user_id.clone();
 
     let broadcaster = state
@@ -38,7 +38,7 @@ pub async fn join_chat(
     seventv_emotes.extend(bttv_emotes);
     seventv_emotes.extend(ffz_emotes);
 
-    save_emotes(&state.emotes, &broadcaster, seventv_emotes).await?;
+    save_emotes(&state.emotes, &broadcaster, &seventv_emotes).await?;
 
     state
         .helix
@@ -49,7 +49,7 @@ pub async fn join_chat(
         )
         .await?;
 
-    Ok(broadcaster_id.to_string())
+    Ok((broadcaster_id.to_string(), seventv_emotes))
 }
 
 #[tauri::command]
