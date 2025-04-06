@@ -10,7 +10,7 @@ const BASE_URL: &str = "https://7tv.io/v3";
 #[derive(Deserialize)]
 
 pub struct User {
-    pub emote_set: EmoteSet,
+    pub emote_set: Option<EmoteSet>,
 }
 
 #[derive(Deserialize)]
@@ -122,5 +122,10 @@ async fn fetch_user_emotes(id: &str) -> Result<Vec<Emote>> {
         .json::<User>()
         .await?;
 
-    Ok(user.emote_set.emotes)
+    let emotes = match user.emote_set {
+        Some(emote_set) => emote_set.emotes,
+        None => vec![],
+    };
+
+    Ok(emotes)
 }

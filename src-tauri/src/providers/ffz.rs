@@ -88,12 +88,14 @@ async fn fetch_global_emotes() -> Result<Vec<Emote>> {
 }
 
 async fn fetch_user_emotes(id: &str) -> Result<Vec<Emote>> {
-    let room = reqwest::get(format!("{BASE_URL}/room/id/{id}"))
-        .await?
-        .json::<Room>()
-        .await?;
-
+    let response = reqwest::get(format!("{BASE_URL}/room/id/{id}")).await?;
     let mut emotes = Vec::new();
+
+    if !response.status().is_success() {
+        return Ok(emotes);
+    }
+
+    let room = response.json::<Room>().await?;
 
     if let Some(emote_set) = room.sets.get(&room.room.set) {
         emotes.extend(emote_set.emoticons.iter().cloned());
