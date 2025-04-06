@@ -67,7 +67,7 @@
 					{:else if frag.type === "url"}
 						<!-- svelte-ignore a11y_click_events_have_key_events -->
 						<span
-							class="text-blue-600 underline"
+							class="wrap-anywhere text-blue-600 underline"
 							role="link"
 							tabindex="-1"
 							onclick={() => openUrl(frag.url)}
@@ -84,7 +84,9 @@
 							height={frag.height}
 						/>
 					{:else}
-						<span>{frag.value}</span>
+						<span class="wrap-anywhere">
+							{frag.value}
+						</span>
 					{/if}
 
 					{#if i < message.fragments.length - 1}
