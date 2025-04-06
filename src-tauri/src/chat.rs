@@ -12,7 +12,7 @@ pub async fn join_chat(
     state: State<'_, Mutex<AppState>>,
     session_id: String,
     channel: String,
-) -> Result<(), Error> {
+) -> Result<String, Error> {
     let state = state.lock().await;
 
     if state.access_token.is_none() {
@@ -22,12 +22,12 @@ pub async fn join_chat(
     let token = state.access_token.as_ref().unwrap();
     let user_id = token.user_id.clone();
 
-    let response = state
+    let broadcaster = state
         .helix
         .get_user_from_login(channel.as_str(), token)
         .await?;
 
-    let broadcaster = response.expect("user not found");
+    let broadcaster = broadcaster.expect("user not found");
     let broadcaster_id = broadcaster.id.as_str();
 
     let mut seventv_emotes = fetch_7tv_emotes(broadcaster_id).await?;
@@ -46,6 +46,29 @@ pub async fn join_chat(
             eventsub::Transport::websocket(session_id),
             token,
         )
+        .await?;
+
+    Ok(broadcaster_id.to_string())
+}
+
+#[tauri::command]
+pub async fn send_message(
+    state: State<'_, Mutex<AppState>>,
+    content: String,
+    broadcaster_id: String,
+) -> Result<(), Error> {
+    let state = state.lock().await;
+
+    if state.access_token.is_none() {
+        return Err(Error::Generic(anyhow!("Access token not set")));
+    }
+
+    let token = state.access_token.as_ref().unwrap();
+    let user_id = token.user_id.clone();
+
+    state
+        .helix
+        .send_chat_message(broadcaster_id.as_str(), user_id, content.as_str(), token)
         .await?;
 
     Ok(())

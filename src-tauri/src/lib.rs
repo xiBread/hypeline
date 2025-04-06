@@ -95,7 +95,8 @@ pub fn run() {
             api::set_access_token,
             api::get_current_user,
             api::create_eventsub_subscription,
-            chat::join_chat
+            chat::join_chat,
+            chat::send_message,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

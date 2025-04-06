@@ -1,3 +1,4 @@
+<!-- MOST CODE IN THIS FILE (and related) IS TEMPORARY DURING DEVELOPMENT; WILL CLEAN UP LATER -->
 <script lang="ts">
 	import WebSocket from "@tauri-apps/plugin-websocket";
 	import { getAuthUrl } from "$lib/auth";
@@ -12,6 +13,7 @@
 	import { extractFragments } from "$lib/chat";
 
 	let messages = $state<ChatMessage[]>([]);
+	let channelId = $state("");
 
 	let disconnect = async () => {};
 
@@ -56,7 +58,10 @@
 							});
 
 							// temporary
-							emotes = await joinChat("emiru");
+							const channel = await joinChat("gladd");
+							emotes = channel.emotes;
+							channelId = channel.id;
+
 							break;
 						}
 
@@ -91,6 +96,23 @@
 	});
 
 	onDestroy(() => disconnect());
+
+	async function send(event: KeyboardEvent) {
+		if (event.key !== "Enter") return;
+
+		event.preventDefault();
+
+		const input = event.currentTarget as HTMLInputElement;
+		const message = input.value.trim();
+
+		if (!message) return;
+		input.value = "";
+
+		await invoke("send_message", {
+			content: message,
+			broadcasterId: channelId,
+		});
+	}
 </script>
 
 <div class="flex h-screen flex-col">
@@ -105,6 +127,7 @@
 				maxlength={500}
 				autocapitalize="off"
 				autocorrect="off"
+				onkeypress={send}
 			/>
 		</div>
 	{:else}

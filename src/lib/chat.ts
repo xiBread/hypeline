@@ -11,8 +11,13 @@ export interface Emote {
 	height: number;
 }
 
-export async function joinChat(channel: string) {
-	await invoke("join_chat", { sessionId: appState.wsSessionId, channel });
+export async function joinChat(
+	channel: string,
+): Promise<{ id: string; emotes: Map<string, Emote> }> {
+	const id = await invoke<string>("join_chat", {
+		sessionId: appState.wsSessionId,
+		channel,
+	});
 
 	if (!emotes) {
 		emotes = await Database.load("sqlite:emotes.db");
@@ -29,7 +34,7 @@ export async function joinChat(channel: string) {
 		channelEmotes.set(emote.name, emote);
 	}
 
-	return channelEmotes;
+	return { id, emotes: channelEmotes };
 }
 
 export type Fragment =
