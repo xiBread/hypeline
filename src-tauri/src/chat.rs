@@ -3,7 +3,7 @@ use tauri::async_runtime::Mutex;
 use tauri::State;
 use twitch_api::eventsub;
 
-use crate::emotes::{fetch_7tv_emotes, fetch_bttv_emotes, save_emotes};
+use crate::emotes::{fetch_7tv_emotes, fetch_bttv_emotes, fetch_ffz_emotes, save_emotes};
 use crate::error::Error;
 use crate::AppState;
 
@@ -32,8 +32,10 @@ pub async fn join_chat(
 
     let mut seventv_emotes = fetch_7tv_emotes(broadcaster_id).await?;
     let bttv_emotes = fetch_bttv_emotes(broadcaster_id).await?;
+    let ffz_emotes = fetch_ffz_emotes(broadcaster_id).await?;
 
     seventv_emotes.extend(bttv_emotes);
+    seventv_emotes.extend(ffz_emotes);
 
     save_emotes(&state.emotes, &broadcaster, seventv_emotes).await?;
 

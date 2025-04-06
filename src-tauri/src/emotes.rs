@@ -5,7 +5,7 @@ use serde::Serialize;
 use sqlx::{Pool, Sqlite};
 use twitch_api::helix::users::User;
 
-use crate::{bttv, seventv};
+use crate::providers::{bttv, ffz, seventv};
 
 #[derive(Serialize)]
 pub struct Emote {
@@ -15,6 +15,8 @@ pub struct Emote {
     pub width: u32,
     pub height: u32,
 }
+
+type EmoteMap = HashMap<String, Emote>;
 
 pub async fn save_emotes(
     db: &Pool<Sqlite>,
@@ -66,7 +68,7 @@ pub async fn save_emotes(
     Ok(())
 }
 
-pub async fn fetch_bttv_emotes(id: &str) -> Result<HashMap<String, Emote>> {
+pub async fn fetch_bttv_emotes(id: &str) -> Result<EmoteMap> {
     let mut emotes = HashMap::new();
 
     let user = reqwest::get(format!(
@@ -89,8 +91,8 @@ pub async fn fetch_bttv_emotes(id: &str) -> Result<HashMap<String, Emote>> {
             id: emote.id,
             name: name.clone(),
             url,
-            width: emote.width.unwrap_or(112),
-            height: emote.height.unwrap_or(112),
+            width: emote.width.unwrap_or(28),
+            height: emote.height.unwrap_or(28),
         };
 
         emotes.insert(name, emote);
@@ -99,7 +101,43 @@ pub async fn fetch_bttv_emotes(id: &str) -> Result<HashMap<String, Emote>> {
     Ok(emotes)
 }
 
-pub async fn fetch_7tv_emotes(id: &str) -> Result<HashMap<String, Emote>> {
+pub async fn fetch_ffz_emotes(id: &str) -> Result<EmoteMap> {
+    let mut emotes = HashMap::new();
+
+    let room = reqwest::get(format!("https://api.frankerfacez.com/v1/room/id/{id}"))
+        .await?
+        .json::<ffz::Room>()
+        .await?;
+
+    let Some(emote_set) = room.sets.get(&room.room.set.to_string()) else {
+        return Ok(emotes);
+    };
+
+    for emote in emote_set.emoticons.iter() {
+        let name = emote.name.to_string();
+
+        let url = emote
+            .urls
+            .get("4")
+            .or_else(|| emote.urls.get("2").or_else(|| emote.urls.get("1")))
+            .expect("missing url")
+            .to_string();
+
+        let emote = Emote {
+            id: emote.id.to_string(),
+            name: name.clone(),
+            url,
+            width: emote.width,
+            height: emote.height,
+        };
+
+        emotes.insert(name, emote);
+    }
+
+    Ok(emotes)
+}
+
+pub async fn fetch_7tv_emotes(id: &str) -> Result<EmoteMap> {
     let mut emotes = HashMap::new();
 
     let user = reqwest::get(format!("https://7tv.io/v3/users/twitch/{id}"))
@@ -147,8 +185,8 @@ pub async fn fetch_7tv_emotes(id: &str) -> Result<HashMap<String, Emote>> {
                 id: emote.id,
                 name: name.clone(),
                 url: format!("https:{}/{}", host.url, file.name),
-                width: file.width,
-                height: file.height,
+                width: file.width / 4,
+                height: file.height / 4,
             };
 
             emotes.insert(name, new_emote);

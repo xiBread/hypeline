@@ -9,12 +9,11 @@ use twitch_api::twitch_oauth2::{AccessToken, UserToken};
 use twitch_api::HelixClient;
 
 mod api;
-mod bttv;
 mod chat;
 mod emotes;
 mod error;
 mod migrations;
-mod seventv;
+mod providers;
 
 pub struct AppState {
     helix: HelixClient<'static, reqwest::Client>,
