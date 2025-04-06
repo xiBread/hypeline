@@ -10,7 +10,7 @@
 	import { appState } from "$lib/app-state.svelte";
 	import { invoke } from "@tauri-apps/api/core";
 	import { joinChat, type Emote } from "$lib/chat";
-	import { extractFragments } from "$lib/chat";
+	import { reinterpretFragments } from "$lib/chat";
 
 	let messages = $state<ChatMessage[]>([]);
 	let channelId = $state("");
@@ -75,8 +75,8 @@
 
 								messages.push({
 									...raw,
-									fragments: extractFragments(
-										raw.message.text,
+									fragments: reinterpretFragments(
+										raw.message.fragments,
 										emotes,
 									),
 								});

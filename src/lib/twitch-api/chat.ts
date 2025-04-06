@@ -28,7 +28,7 @@ export interface Message {
 
 export interface StructuredMessage {
 	text: string;
-	fragments: (Fragment & { text: string })[];
+	fragments: Fragment[];
 }
 
 export interface TextFragment {
@@ -38,24 +38,33 @@ export interface TextFragment {
 
 export interface CheermoteFragment {
 	type: "cheermote";
-	prefix: string;
-	bits: number;
-	tier: number;
+	text: string;
+	cheermote: {
+		prefix: string;
+		bits: number;
+		tier: number;
+	};
 }
 
 export interface EmoteFragment {
 	type: "emote";
-	id: string;
-	emote_set_id: string;
-	owner_id: string;
-	format: ("static" | "animated")[];
+	text: string;
+	emote: {
+		id: string;
+		emote_set_id: string;
+		owner_id: string;
+		format: ("static" | "animated")[];
+	};
 }
 
 export interface MentionFragment {
 	type: "mention";
-	user_id: string;
-	user_name: string;
-	user_login: string;
+	text: string;
+	mention: {
+		user_id: string;
+		user_name: string;
+		user_login: string;
+	};
 }
 
 export type Fragment =

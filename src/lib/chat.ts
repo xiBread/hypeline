@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import Database from "@tauri-apps/plugin-sql";
 import { appState } from "./app-state.svelte";
+import type { Fragment as ApiFragment } from "./twitch-api";
 
 let emotes: Database | undefined;
 
@@ -44,41 +45,66 @@ export type Fragment =
 	| ({ type: "emote" } & Emote);
 
 const URL_RE =
-	/^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/;
+	/https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/;
 
-export function extractFragments(content: string, emotes: Map<string, Emote>) {
+export function reinterpretFragments(
+	original: ApiFragment[],
+	emotes: Map<string, Emote>,
+): Fragment[] {
 	const fragments: Fragment[] = [];
-	let buffer = "";
 
-	for (const part of content.split(/\s+/)) {
-		if (part.startsWith("@")) {
-			if (buffer) {
-				fragments.push({ type: "text", value: buffer.trim() });
-				buffer = "";
+	for (const f of original) {
+		if (f.type === "text") {
+			const urlMatch = URL_RE.exec(f.text);
+
+			if (urlMatch) {
+				const [url] = urlMatch;
+				const [before, after] = f.text.split(url);
+
+				if (before) {
+					fragments.push({ type: "text", value: before });
+				}
+
+				fragments.push({
+					type: "url",
+					text: url,
+					url: new URL(url),
+				});
+
+				if (after) {
+					fragments.push({ type: "text", value: after });
+				}
+			} else if (emotes.has(f.text)) {
+				fragments.push({
+					type: "emote",
+					...emotes.get(f.text)!,
+				});
+			} else {
+				fragments.push({
+					type: "text",
+					value: f.text,
+				});
 			}
+		} else if (f.type === "emote") {
+			const format = f.emote.format.includes("animated")
+				? "animated"
+				: "static";
 
-			fragments.push({ type: "mention", value: part });
-		} else if (URL_RE.test(part)) {
-			if (buffer) {
-				fragments.push({ type: "text", value: buffer.trim() });
-				buffer = "";
-			}
-
-			fragments.push({ type: "url", text: part, url: new URL(part) });
-		} else if (emotes.has(part)) {
-			if (buffer) {
-				fragments.push({ type: "text", value: buffer.trim() });
-				buffer = "";
-			}
-
-			fragments.push({ type: "emote", ...emotes.get(part)! });
+			fragments.push({
+				type: "emote",
+				name: f.text,
+				url: `https://static-cdn.jtvnw.net/emoticons/v2/${f.emote.id}/${format}/dark/3.0`,
+				width: 28,
+				height: 28,
+			});
+		} else if (f.type === "mention") {
+			fragments.push({
+				type: "mention",
+				value: f.text,
+			});
 		} else {
-			buffer += part + " ";
+			// todo: cheermotes
 		}
-	}
-
-	if (buffer) {
-		fragments.push({ type: "text", value: buffer.trim() });
 	}
 
 	return fragments;
