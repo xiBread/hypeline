@@ -1,8 +1,8 @@
 <script module lang="ts">
 	import * as opener from "@tauri-apps/plugin-opener";
-	import type { Message } from "$lib/twitch-api";
+	import type { ChannelChatMessage } from "$lib/twitch-api";
 
-	export interface ChatMessage extends Message {
+	export interface Message extends ChannelChatMessage {
 		fragments: Fragment[];
 	}
 </script>
@@ -13,7 +13,7 @@
 
 	interface Props {
 		class?: string;
-		messages: ChatMessage[];
+		messages: Message[];
 	}
 
 	// Arbitrary; corresponds to how much of the bottom of the chat needs to be

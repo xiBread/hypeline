@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import Database from "@tauri-apps/plugin-sql";
-import { appState } from "./app-state.svelte";
-import type { Fragment as ApiFragment } from "./twitch-api";
+import type { z } from "zod";
+import type { ChannelChatMessage } from "./twitch-api";
 
 let emotes: Database | undefined;
 
@@ -10,32 +10,6 @@ export interface Emote {
 	url: string;
 	width: number;
 	height: number;
-}
-
-export async function joinChat(
-	channel: string,
-): Promise<{ id: string; emotes: Map<string, Emote> }> {
-	const id = await invoke<string>("join_chat", {
-		sessionId: appState.wsSessionId,
-		channel,
-	});
-
-	if (!emotes) {
-		emotes = await Database.load("sqlite:emotes.db");
-	}
-
-	const rows = await emotes.select<Emote[]>(
-		"SELECT name, url, width, height FROM emotes WHERE username = $1",
-		[channel],
-	);
-
-	const channelEmotes = new Map<string, Emote>();
-
-	for (const emote of rows) {
-		channelEmotes.set(emote.name, emote);
-	}
-
-	return { id, emotes: channelEmotes };
 }
 
 export type Fragment =
@@ -48,7 +22,7 @@ const URL_RE =
 	/https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/;
 
 export function reinterpretFragments(
-	original: ApiFragment[],
+	original: z.infer<typeof ChannelChatMessage>["message"]["fragments"],
 	emotes: Map<string, Emote>,
 ): Fragment[] {
 	const fragments: Fragment[] = [];

@@ -2,31 +2,36 @@
 <script lang="ts">
 	import WebSocket from "@tauri-apps/plugin-websocket";
 	import { getAuthUrl } from "$lib/auth";
-	import Chat, { type ChatMessage } from "$lib/components/Chat.svelte";
+	import Chat, { type Message } from "$lib/components/Chat.svelte";
 	import Input from "$lib/components/Input.svelte";
 	import { onDestroy, onMount } from "svelte";
-	import type { WebSocketMessage } from "$lib/twitch-api";
+	import {
+		Notification,
+		SessionWelcome,
+		WebSocketMessage,
+		type NotificationPayload,
+	} from "$lib/twitch-api";
 	import { settings } from "$lib/settings.svelte";
 	import { appState } from "$lib/app-state.svelte";
 	import { invoke } from "@tauri-apps/api/core";
-	import { joinChat, type Emote } from "$lib/chat";
+	import { type Emote } from "$lib/chat";
 	import { reinterpretFragments } from "$lib/chat";
+	import { SvelteMap } from "svelte/reactivity";
 
-	let messages = $state<ChatMessage[]>([]);
+	let messages = $state<Message[]>([]);
+
 	let channelId = $state("");
+	let channelEmotes = new SvelteMap<string, Emote>();
 
 	let disconnect = async () => {};
 
 	onMount(async () => {
-		const ws = await WebSocket.connect(
-			"wss://eventsub.wss.twitch.tv/ws?keepalive_timeout_seconds=30",
-		);
-
+		const ws = await WebSocket.connect("wss://eventsub.wss.twitch.tv/ws");
 		disconnect = () => ws.disconnect();
 
-		let emotes = new Map<string, Emote>();
-
 		ws.addListener(async (message) => {
+			if (!settings.user) return;
+
 			switch (message.type) {
 				case "Ping": {
 					ws.send({ type: "Pong", data: message.data });
@@ -39,45 +44,56 @@
 				}
 
 				case "Text": {
-					if (!settings.user) return;
-
-					const data: WebSocketMessage = JSON.parse(message.data);
+					const data = WebSocketMessage.parse(
+						JSON.parse(message.data),
+					);
 
 					// todo: extract this to a function
 					switch (data.metadata.message_type) {
 						case "session_welcome": {
-							console.log("Session welcome");
-							appState.wsSessionId = data.payload.session.id;
+							const { session } = SessionWelcome.parse(
+								data.payload,
+							);
+							appState.wsSessionId = session.id;
 
 							await invoke("create_eventsub_subscription", {
 								sessionId: appState.wsSessionId,
 								event: "user.update",
-								condition: {
-									user_id: settings.user.id,
-								},
+								condition: null,
 							});
 
 							// temporary
-							const channel = await joinChat("gladd");
-							emotes = channel.emotes;
-							channelId = channel.id;
+							const [id, emotes] = await invoke<
+								[string, Record<string, Emote>]
+							>("join_chat", {
+								sessionId: session.id,
+								channel: "x1bread_",
+							});
+							channelId = id;
+
+							for (const [name, emote] of Object.entries(
+								emotes,
+							)) {
+								channelEmotes.set(name, emote);
+							}
 
 							break;
 						}
 
 						case "notification": {
+							const payload = Notification.parse(
+								data.payload,
+							) as NotificationPayload;
+
 							// and this
-							if (
-								data.payload.subscription.type ===
-								"channel.chat.message"
-							) {
-								const raw = data.payload.event;
+							if (payload.type === "channel.chat.message") {
+								const raw = payload.event;
 
 								messages.push({
 									...raw,
 									fragments: reinterpretFragments(
 										raw.message.fragments,
-										emotes,
+										channelEmotes,
 									),
 								});
 							}
