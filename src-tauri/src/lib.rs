@@ -9,6 +9,7 @@ use twitch_api::twitch_oauth2::{AccessToken, UserToken};
 use twitch_api::HelixClient;
 
 mod api;
+mod bttv;
 mod chat;
 mod emotes;
 mod error;

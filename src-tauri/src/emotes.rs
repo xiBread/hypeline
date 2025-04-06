@@ -5,7 +5,7 @@ use serde::Serialize;
 use sqlx::{Pool, Sqlite};
 use twitch_api::helix::users::User;
 
-use crate::seventv;
+use crate::{bttv, seventv};
 
 #[derive(Serialize)]
 pub struct Emote {
@@ -66,18 +66,48 @@ pub async fn save_emotes(
     Ok(())
 }
 
-pub async fn fetch_bttv_emotes() {
-    todo!()
+pub async fn fetch_bttv_emotes(id: &str) -> Result<HashMap<String, Emote>> {
+    let mut emotes = HashMap::new();
+
+    let user = reqwest::get(format!(
+        "https://api.betterttv.net/3/cached/users/twitch/{id}"
+    ))
+    .await?
+    .json::<bttv::User>()
+    .await?;
+
+    let all_emotes = user
+        .channel_emotes
+        .into_iter()
+        .chain(user.shared_emotes.into_iter());
+
+    for emote in all_emotes {
+        let name = emote.code;
+        let url = format!("https://cdn.betterttv.net/emote/{}/3x", emote.id);
+
+        let emote = Emote {
+            id: emote.id,
+            name: name.clone(),
+            url,
+            width: emote.width.unwrap_or(112),
+            height: emote.height.unwrap_or(112),
+        };
+
+        emotes.insert(name, emote);
+    }
+
+    Ok(emotes)
 }
 
 pub async fn fetch_7tv_emotes(id: &str) -> Result<HashMap<String, Emote>> {
     let mut emotes = HashMap::new();
-    let response = reqwest::get(format!("https://7tv.io/v3/users/twitch/{id}"))
+
+    let user = reqwest::get(format!("https://7tv.io/v3/users/twitch/{id}"))
         .await?
         .json::<seventv::User>()
         .await?;
 
-    for mut emote in response.emote_set.emotes {
+    for mut emote in user.emote_set.emotes {
         emote
             .data
             .host

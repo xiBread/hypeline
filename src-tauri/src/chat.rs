@@ -3,7 +3,7 @@ use tauri::async_runtime::Mutex;
 use tauri::State;
 use twitch_api::eventsub;
 
-use crate::emotes::{fetch_7tv_emotes, save_emotes};
+use crate::emotes::{fetch_7tv_emotes, fetch_bttv_emotes, save_emotes};
 use crate::error::Error;
 use crate::AppState;
 
@@ -30,7 +30,11 @@ pub async fn join_chat(
     let broadcaster = response.expect("user not found");
     let broadcaster_id = broadcaster.id.as_str();
 
-    let seventv_emotes = fetch_7tv_emotes(broadcaster_id).await?;
+    let mut seventv_emotes = fetch_7tv_emotes(broadcaster_id).await?;
+    let bttv_emotes = fetch_bttv_emotes(broadcaster_id).await?;
+
+    seventv_emotes.extend(bttv_emotes);
+
     save_emotes(&state.emotes, &broadcaster, seventv_emotes).await?;
 
     state
