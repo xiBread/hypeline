@@ -24,7 +24,7 @@
 	"plugins": {
 		"sql": {
 			"preload": [
-				"sqlite:emotes.db"
+				"sqlite:hypeline.db"
 			]
 		}
 	},

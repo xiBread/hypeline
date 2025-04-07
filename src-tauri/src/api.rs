@@ -12,6 +12,7 @@ use twitch_api::helix::users::User;
 use twitch_api::twitch_oauth2::{AccessToken, UserToken};
 
 use crate::error::Error;
+use crate::users::insert_user;
 use crate::AppState;
 
 #[derive(Serialize)]
@@ -75,6 +76,8 @@ pub async fn get_followed_channels(
             .get_users_from_ids(&user_ids[..].into(), token)
             .try_collect()
             .await?
+
+        // todo: insert (?)
     };
 
     let user_map: HashMap<_, _> = users.iter().map(|user| (user.id.clone(), user)).collect();
@@ -105,7 +108,15 @@ pub async fn get_current_user(state: State<'_, Mutex<AppState>>) -> Result<Optio
     let state = state.lock().await;
     let token = get_access_token(&state).await?;
 
-    Ok(state.helix.get_user_from_id(&token.user_id, token).await?)
+    let response = state.helix.get_user_from_id(&token.user_id, token).await?;
+
+    if let Some(ref user) = response {
+        insert_user(&state.db, user).await?;
+
+        return Ok(response);
+    }
+
+    Ok(response)
 }
 
 #[tauri::command]

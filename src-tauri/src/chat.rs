@@ -38,7 +38,7 @@ pub async fn join_chat(
     seventv_emotes.extend(bttv_emotes);
     seventv_emotes.extend(ffz_emotes);
 
-    save_emotes(&state.emotes, &broadcaster, &seventv_emotes).await?;
+    save_emotes(&state.db, &broadcaster, &seventv_emotes).await?;
 
     state
         .helix

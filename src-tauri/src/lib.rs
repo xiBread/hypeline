@@ -1,6 +1,5 @@
 use std::error::Error;
 
-use anyhow::anyhow;
 use sqlx::SqlitePool;
 use tauri::async_runtime::{self, Mutex};
 use tauri::Manager;
@@ -14,11 +13,12 @@ mod emotes;
 mod error;
 mod migrations;
 mod providers;
+mod users;
 
 pub struct AppState {
     helix: HelixClient<'static, reqwest::Client>,
     access_token: Option<UserToken>,
-    emotes: SqlitePool,
+    db: SqlitePool,
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -39,7 +39,7 @@ pub fn run() {
         .plugin(tauri_plugin_window_state::Builder::new().build())
         .plugin(
             tauri_plugin_sql::Builder::new()
-                .add_migrations("sqlite:emotes.db", migrations::emotes())
+                .add_migrations("sqlite:hypeline.db", migrations::migrations())
                 .build(),
         )
         .plugin(
@@ -61,7 +61,7 @@ pub fn run() {
         .setup(|app| {
             let config_dir = app.path().app_config_dir()?;
 
-            let emote_db_path = config_dir.join("emotes.db");
+            let db_path = config_dir.join("hypeline.db");
 
             async_runtime::block_on(async {
                 let store = app.store("settings.json")?;
@@ -79,14 +79,12 @@ pub fn run() {
                     None
                 };
 
-                let emotes = SqlitePool::connect(emote_db_path.to_str().unwrap())
-                    .await
-                    .map_err(|e| anyhow!("error connecting to emote database: {}", e))?;
+                let db = SqlitePool::connect(db_path.to_str().unwrap()).await?;
 
                 let app_state = AppState {
                     helix: helix.clone(),
                     access_token,
-                    emotes,
+                    db,
                 };
 
                 Ok::<_, Box<dyn Error>>(app.manage(Mutex::new(app_state)))
