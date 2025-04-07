@@ -27,6 +27,8 @@
 
 	$effect(() => {
 		messages = [];
+		channelEmotes.clear();
+
 		connect(data.channel);
 
 		return () => disconnect();
@@ -71,7 +73,6 @@
 								condition: null,
 							});
 
-							// temporary
 							const [id, emotes] = await invoke<
 								[string, Record<string, Emote>]
 							>("join_chat", { sessionId: session.id, channel });
