@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { onMount } from "svelte";
-	import { page } from "$app/state";
-	import { goto } from "$app/navigation";
-	import { settings } from "$lib/state.svelte";
 	import { invoke } from "@tauri-apps/api/core";
+	import { onMount } from "svelte";
+	import { goto } from "$app/navigation";
+	import { page } from "$app/state";
+	import { settings } from "$lib/state.svelte";
 	import type { User } from "$lib/twitch-api";
 
 	onMount(async () => {

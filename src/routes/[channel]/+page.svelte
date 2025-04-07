@@ -1,18 +1,18 @@
 <!-- MOST CODE IN THIS FILE (and related) IS TEMPORARY DURING DEVELOPMENT; WILL CLEAN UP LATER -->
 <script lang="ts">
+	import { invoke } from "@tauri-apps/api/core";
 	import WebSocket from "@tauri-apps/plugin-websocket";
-	import Chat, { type Message } from "$lib/components/Chat.svelte";
+	import { join, reinterpretFragments } from "$lib/chat";
+	import Chat from "$lib/components/Chat.svelte";
+	import type { Message } from "$lib/components/Chat.svelte";
 	import Input from "$lib/components/Input.svelte";
+	import { app, chat, settings } from "$lib/state.svelte.js";
 	import {
 		Notification,
 		SessionWelcome,
 		WebSocketMessage,
-		type NotificationPayload,
 	} from "$lib/twitch-api";
-	import { invoke } from "@tauri-apps/api/core";
-	import { join } from "$lib/chat";
-	import { reinterpretFragments } from "$lib/chat";
-	import { app, chat, settings } from "$lib/state.svelte.js";
+	import type { NotificationPayload } from "$lib/twitch-api";
 
 	const { data } = $props();
 

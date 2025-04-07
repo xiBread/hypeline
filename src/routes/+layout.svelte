@@ -1,13 +1,13 @@
 <script lang="ts">
 	import "../app.css";
 	import LoaderCircle from "@lucide/svelte/icons/loader-circle";
+	import { invoke } from "@tauri-apps/api/core";
 	import { Tooltip } from "bits-ui";
 	import { onMount } from "svelte";
+	import { getAuthUrl } from "$lib/auth";
+	import ChannelList from "$lib/components/ChannelList.svelte";
 	import { app, settings } from "$lib/state.svelte";
 	import type { AuthUser, FollowedChannel } from "$lib/twitch-api";
-	import ChannelList from "$lib/components/ChannelList.svelte";
-	import { invoke } from "@tauri-apps/api/core";
-	import { getAuthUrl } from "$lib/auth";
 
 	const { children, data } = $props();
 

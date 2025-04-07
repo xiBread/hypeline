@@ -1,3 +1,5 @@
+/* eslint-disable ts/no-redeclare */
+
 import { z } from "zod";
 
 export const ChannelChatMessage = z.object({

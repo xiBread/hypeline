@@ -1,5 +1,5 @@
 import type { Emote } from "./chat";
-import { type AuthUser, type Badge } from "./twitch-api";
+import type {AuthUser, Badge} from "./twitch-api";
 
 interface AppState {
 	loading: boolean;

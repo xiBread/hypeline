@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
-import type { Badge, BadgeSet, ChannelChatMessage } from "./twitch-api";
 import { app, chat } from "./state.svelte";
+import type { Badge, BadgeSet, ChannelChatMessage } from "./twitch-api";
 
 export interface Chat {
 	channel_id: string;
@@ -22,7 +22,7 @@ export type Fragment =
 	| ({ type: "emote" } & Emote);
 
 const URL_RE =
-	/https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/;
+	/https?:\/\/(?:www\.)?[-\w@:%.+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-\w()@:%+.~#?&/=]*/;
 
 export async function join(channel: string) {
 	const data = await invoke<{

@@ -1,5 +1,6 @@
 <script module lang="ts">
 	import * as opener from "@tauri-apps/plugin-opener";
+	import type { Fragment } from "$lib/chat";
 	import type { ChannelChatMessage } from "$lib/twitch-api";
 
 	export interface Message extends ChannelChatMessage {
@@ -8,7 +9,6 @@
 </script>
 
 <script lang="ts">
-	import type { Fragment } from "$lib/chat";
 	import { onMount } from "svelte";
 	import { chat } from "$lib/state.svelte";
 
@@ -112,6 +112,7 @@
 					{/if}
 
 					{#if i < message.fragments.length - 1}
+						<!-- eslint-disable-next-line svelte/no-useless-mustaches -->
 						<span>{" "}</span>
 					{/if}
 				{/each}

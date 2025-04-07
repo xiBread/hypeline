@@ -1,5 +1,5 @@
 import type { z } from "zod";
-import * as Events from "./events";
+import type * as Events from "./events";
 
 export * from "./events";
 export * from "./websocket";
