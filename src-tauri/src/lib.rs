@@ -36,6 +36,7 @@ pub fn run() {
     }
 
     builder
+        .plugin(tauri_plugin_window_state::Builder::new().build())
         .plugin(
             tauri_plugin_sql::Builder::new()
                 .add_migrations("sqlite:emotes.db", migrations::emotes())
