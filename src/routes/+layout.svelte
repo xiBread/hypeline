@@ -1,17 +1,21 @@
 <script lang="ts">
 	import "../app.css";
+	import LoaderCircle from "@lucide/svelte/icons/loader-circle";
+	import { Tooltip } from "bits-ui";
 	import { onMount } from "svelte";
 	import { settings } from "$lib/settings.svelte";
 	import type { AuthUser, FollowedChannel } from "$lib/twitch-api";
 	import ChannelList from "$lib/components/ChannelList.svelte";
 	import { invoke } from "@tauri-apps/api/core";
 	import { getAuthUrl } from "$lib/auth";
+	import { appState } from "$lib/app-state.svelte";
 
 	const { children, data } = $props();
 
 	let channels = $state<FollowedChannel[]>([]);
 
 	onMount(async () => {
+		appState.loading = true;
 		channels = await invoke<FollowedChannel[]>("get_followed_channels");
 
 		// Sort online by viewer count, then offline by name
@@ -38,10 +42,17 @@
 				stream: null,
 			});
 		}
+
+		appState.loading = false;
 	});
 </script>
 
-{#if settings.user}
+{#if appState.loading}
+	<div class="flex h-screen w-screen items-center justify-center">
+		<LoaderCircle class="mr-2 size-6 animate-spin" />
+		<span class="text-lg">Loading...</span>
+	</div>
+{:else if settings.user}
 	<div class="flex">
 		<ChannelList {channels} />
 

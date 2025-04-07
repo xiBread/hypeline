@@ -1,5 +1,8 @@
 interface AppState {
+	loading: boolean;
 	wsSessionId?: string;
 }
 
-export const appState = $state<AppState>({});
+export const appState = $state<AppState>({
+	loading: true,
+});
