@@ -21,7 +21,10 @@
 	</ScrollArea.Viewport>
 
 	<ScrollArea.Scrollbar
-		class="data-[state=hidden]:fade-out-0 data-[state=visible]:fade-in-0 data-[state=visible]:animate-in data-[state=hidden]:animate-out w-2 p-0.5"
+		class={[
+			"w-2 p-0.5",
+			"data-[state=hidden]:fade-out-0 data-[state=visible]:fade-in-0 data-[state=visible]:animate-in data-[state=hidden]:animate-out",
+		]}
 		orientation="vertical"
 	>
 		<ScrollArea.Thumb class="bg-muted-foreground/80 rounded-full" />
@@ -29,7 +32,7 @@
 </ScrollArea.Root>
 
 {#snippet channelIcon(channel: FollowedChannel)}
-	<Tooltip.Root>
+	<Tooltip.Root delayDuration={100}>
 		<Tooltip.Trigger>
 			<a
 				class="bg-muted flex size-10 items-center justify-center overflow-hidden rounded-full border"
@@ -47,7 +50,10 @@
 
 		<Tooltip.Portal>
 			<Tooltip.Content
-				class="bg-background max-w-64 rounded-md border p-2 text-sm shadow"
+				class={[
+					"bg-background max-w-64 rounded-md border p-2 text-sm shadow",
+					"data-[state$=open]:animate-in data-[state$=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=closed]:animate-out duration-75",
+				]}
 				side="right"
 				sideOffset={12}
 			>
