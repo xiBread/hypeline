@@ -59,7 +59,7 @@
 		<Tooltip.Portal>
 			<Tooltip.Content
 				class={[
-					"bg-background max-w-64 rounded-md border p-2 text-sm shadow",
+					"bg-muted max-w-64 rounded-md border p-2 text-sm shadow",
 					"data-[state$=open]:animate-in data-[state$=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=closed]:animate-out duration-75",
 				]}
 				side="right"
@@ -68,7 +68,7 @@
 				{#if channel.stream}
 					<div class="space-y-0.5">
 						<!-- prettier-ignore -->
-						<div class="text-twitch overflow-ellipsis overflow-hidden whitespace-nowrap">
+						<div class="text-twitch-link overflow-ellipsis overflow-hidden whitespace-nowrap">
 							{channel.user_name} &bullet; {channel.stream.game_name}
 						</div>
 

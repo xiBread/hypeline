@@ -53,7 +53,7 @@
 	});
 </script>
 
-<div class="{className} flex flex-col overflow-y-auto" bind:this={view}>
+<div class="{className} flex flex-col overflow-y-auto text-sm" bind:this={view}>
 	{#each messages as message}
 		<div class="p-2">
 			{#if message.badges.length}
