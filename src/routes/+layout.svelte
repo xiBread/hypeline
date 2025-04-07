@@ -55,7 +55,7 @@
 		<span class="text-lg">Loading...</span>
 	</div>
 {:else if settings.user}
-	<Tooltip.Provider>
+	<Tooltip.Provider delayDuration={100}>
 		<div class="flex">
 			<Sidebar {channels} />
 

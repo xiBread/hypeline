@@ -13,6 +13,7 @@
 		<nav class="bg-sidebar flex h-full flex-col gap-4 border-r p-3">
 			<a
 				class="bg-twitch flex size-10 items-center justify-center rounded-md"
+				title="Settings"
 				href="/settings"
 			>
 				<Settings class="size-5 text-white" />
@@ -40,7 +41,7 @@
 </ScrollArea.Root>
 
 {#snippet channelIcon(channel: FollowedChannel)}
-	<Tooltip.Root delayDuration={100}>
+	<Tooltip.Root>
 		<Tooltip.Trigger>
 			<a
 				class="bg-muted flex size-10 items-center justify-center overflow-hidden rounded-full border"
