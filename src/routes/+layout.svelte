@@ -3,6 +3,7 @@
 	import LoaderCircle from "@lucide/svelte/icons/loader-circle";
 	import { invoke } from "@tauri-apps/api/core";
 	import { Tooltip } from "bits-ui";
+	import { ModeWatcher } from "mode-watcher";
 	import { onMount } from "svelte";
 	import { getAuthUrl } from "$lib/auth";
 	import ChannelList from "$lib/components/ChannelList.svelte";
@@ -45,6 +46,8 @@
 		app.loading = false;
 	});
 </script>
+
+<ModeWatcher />
 
 {#if app.loading}
 	<div class="flex h-screen w-screen items-center justify-center">

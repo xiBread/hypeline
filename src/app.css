@@ -105,6 +105,8 @@
 	--color-twitch: oklch(0.59 0.2535 296);
 }
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @layer base {
 	* {
 		border-color: var(--color-border);
