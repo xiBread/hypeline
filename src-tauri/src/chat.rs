@@ -1,19 +1,29 @@
 use anyhow::anyhow;
+use serde::Serialize;
 use tauri::async_runtime::Mutex;
 use tauri::State;
 use twitch_api::eventsub;
+use twitch_api::helix::chat::BadgeSet;
 
 use crate::emotes::{save_emotes, EmoteMap};
 use crate::error::Error;
+use crate::providers::twitch::{fetch_channel_badges, fetch_global_badges};
 use crate::providers::{bttv, ffz, seventv};
 use crate::AppState;
+
+#[derive(Serialize)]
+pub struct Chat {
+    channel_id: String,
+    emotes: EmoteMap,
+    badges: Vec<BadgeSet>,
+}
 
 #[tauri::command]
 pub async fn join_chat(
     state: State<'_, Mutex<AppState>>,
     session_id: String,
     channel: String,
-) -> Result<(String, EmoteMap), Error> {
+) -> Result<Chat, Error> {
     let state = state.lock().await;
 
     let token = state
@@ -40,6 +50,11 @@ pub async fn join_chat(
 
     save_emotes(&state.db, &broadcaster, &seventv_emotes).await?;
 
+    let mut global_badges = fetch_global_badges(&state.helix, &token).await?;
+    let channel_badges = fetch_channel_badges(&state.helix, &token, channel).await?;
+
+    global_badges.extend(channel_badges);
+
     state
         .helix
         .create_eventsub_subscription(
@@ -49,7 +64,11 @@ pub async fn join_chat(
         )
         .await?;
 
-    Ok((broadcaster_id.to_string(), seventv_emotes))
+    Ok(Chat {
+        channel_id: broadcaster_id.to_string(),
+        emotes: seventv_emotes,
+        badges: global_badges,
+    })
 }
 
 #[tauri::command]

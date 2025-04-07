@@ -2,7 +2,7 @@
 	import { onMount } from "svelte";
 	import { page } from "$app/state";
 	import { goto } from "$app/navigation";
-	import { settings } from "$lib/settings.svelte";
+	import { settings } from "$lib/state.svelte";
 	import { invoke } from "@tauri-apps/api/core";
 	import type { User } from "$lib/twitch-api";
 

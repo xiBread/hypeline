@@ -1,7 +1,12 @@
-import Database from "@tauri-apps/plugin-sql";
-import type { ChannelChatMessage } from "./twitch-api";
+import { invoke } from "@tauri-apps/api/core";
+import type { Badge, BadgeSet, ChannelChatMessage } from "./twitch-api";
+import { app, chat } from "./state.svelte";
 
-let emotes: Database | undefined;
+export interface Chat {
+	channel_id: string;
+	emotes: Record<string, Emote>;
+	badges: BadgeSet[];
+}
 
 export interface Emote {
 	name: string;
@@ -19,9 +24,31 @@ export type Fragment =
 const URL_RE =
 	/https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/;
 
+export async function join(channel: string) {
+	const data = await invoke<{
+		channel_id: string;
+		emotes: Record<string, Emote>;
+		badges: BadgeSet[];
+	}>("join_chat", { sessionId: app.wsSessionId, channel });
+
+	chat.channelId = data.channel_id;
+
+	for (const set of data.badges) {
+		const badges = set.versions.reduce<Record<string, Badge>>(
+			(acc, ver) => ({ ...acc, [ver.id]: ver }),
+			{},
+		);
+
+		chat.badges.set(set.set_id, badges);
+	}
+
+	for (const [name, emote] of Object.entries(data.emotes)) {
+		chat.emotes.set(name, emote);
+	}
+}
+
 export function reinterpretFragments(
 	original: ChannelChatMessage["message"]["fragments"],
-	emotes: Map<string, Emote>,
 ): Fragment[] {
 	const fragments: Fragment[] = [];
 
@@ -46,10 +73,10 @@ export function reinterpretFragments(
 				if (after) {
 					fragments.push({ type: "text", value: after });
 				}
-			} else if (emotes.has(f.text)) {
+			} else if (chat.emotes.has(f.text)) {
 				fragments.push({
 					type: "emote",
-					...emotes.get(f.text)!,
+					...chat.emotes.get(f.text)!,
 				});
 			} else {
 				fragments.push({

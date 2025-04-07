@@ -9,26 +9,19 @@
 		WebSocketMessage,
 		type NotificationPayload,
 	} from "$lib/twitch-api";
-	import { settings } from "$lib/settings.svelte";
-	import { appState } from "$lib/app-state.svelte";
 	import { invoke } from "@tauri-apps/api/core";
-	import { type Emote } from "$lib/chat";
+	import { join } from "$lib/chat";
 	import { reinterpretFragments } from "$lib/chat";
-	import { SvelteMap } from "svelte/reactivity";
+	import { app, chat, settings } from "$lib/state.svelte.js";
 
 	const { data } = $props();
 
 	let messages = $state<Message[]>([]);
 
-	let channelId = $state("");
-	let channelEmotes = new SvelteMap<string, Emote>();
-
 	let disconnect = async () => {};
 
 	$effect(() => {
 		messages = [];
-		channelEmotes.clear();
-
 		connect(data.channel);
 
 		return () => disconnect();
@@ -65,26 +58,15 @@
 							const { session } = SessionWelcome.parse(
 								msg.payload,
 							);
-							appState.wsSessionId = session.id;
+							app.wsSessionId = session.id;
 
 							await invoke("create_eventsub_subscription", {
-								sessionId: appState.wsSessionId,
+								sessionId: app.wsSessionId,
 								event: "user.update",
 								condition: null,
 							});
 
-							const [id, emotes] = await invoke<
-								[string, Record<string, Emote>]
-							>("join_chat", { sessionId: session.id, channel });
-
-							channelId = id;
-
-							for (const [name, emote] of Object.entries(
-								emotes,
-							)) {
-								channelEmotes.set(name, emote);
-							}
-
+							await join(channel);
 							break;
 						}
 
@@ -101,7 +83,6 @@
 									...raw,
 									fragments: reinterpretFragments(
 										raw.message.fragments,
-										channelEmotes,
 									),
 								});
 							}
@@ -132,7 +113,7 @@
 
 		await invoke("send_message", {
 			content: message,
-			broadcasterId: channelId,
+			broadcasterId: chat.channelId,
 		});
 	}
 </script>

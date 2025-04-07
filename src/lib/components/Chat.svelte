@@ -10,6 +10,7 @@
 <script lang="ts">
 	import type { Fragment } from "$lib/chat";
 	import { onMount } from "svelte";
+	import { chat } from "$lib/state.svelte";
 
 	interface Props {
 		class?: string;
@@ -22,15 +23,15 @@
 
 	const { class: className, messages }: Props = $props();
 
-	let chat = $state<HTMLElement>();
+	let view = $state<HTMLElement>();
 	let shouldAutoScroll = true;
 
 	onMount(() => {
-		if (chat) {
-			chat.addEventListener("scroll", handleScroll);
+		if (view) {
+			view.addEventListener("scroll", handleScroll);
 		}
 
-		return () => chat?.removeEventListener("scroll", handleScroll);
+		return () => view?.removeEventListener("scroll", handleScroll);
 	});
 
 	async function openUrl(url: URL) {
@@ -38,23 +39,44 @@
 	}
 
 	function handleScroll() {
-		if (chat) {
+		if (view) {
 			shouldAutoScroll =
-				chat.scrollTop >=
-				chat.scrollHeight - chat.clientHeight - SCROLL_PADDING;
+				view.scrollTop >=
+				view.scrollHeight - view.clientHeight - SCROLL_PADDING;
 		}
 	}
 
 	$effect(() => {
-		if (chat && messages.length > 0 && shouldAutoScroll) {
-			chat.scrollTop = chat.scrollHeight;
+		if (view && messages.length > 0 && shouldAutoScroll) {
+			view.scrollTop = view.scrollHeight;
 		}
 	});
 </script>
 
-<div class="{className} flex flex-col overflow-y-auto" bind:this={chat}>
+<div class="{className} flex flex-col overflow-y-auto" bind:this={view}>
 	{#each messages as message}
 		<div class="p-2">
+			{#if message.badges.length}
+				<div class="inline-block space-x-1">
+					{#each message.badges as { id, set_id } (set_id)}
+						{@const badges = chat.badges.get(set_id)}
+
+						{#if badges && badges[id]}
+							{@const badge = badges[id]}
+
+							<img
+								class="inline-block align-middle"
+								title={badge.title}
+								src={badge.image_url_2x}
+								alt={badge.description}
+								width="18"
+								height="18"
+							/>
+						{/if}
+					{/each}
+				</div>
+			{/if}
+
 			<!-- prettier-ignore -->
 			<span class="font-medium break-words" style:color={message.color}>
 				{message.chatter_user_name}<span class="text-foreground">:</span>
