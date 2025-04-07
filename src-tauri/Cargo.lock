@@ -2083,6 +2083,7 @@ name = "hypeline"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "futures",
  "log",
  "regex",
  "reqwest",

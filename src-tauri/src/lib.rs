@@ -95,6 +95,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             api::set_access_token,
+            api::get_followed_channels,
             api::get_current_user,
             api::create_eventsub_subscription,
             chat::join_chat,

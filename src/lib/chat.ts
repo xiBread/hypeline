@@ -1,6 +1,4 @@
-import { invoke } from "@tauri-apps/api/core";
 import Database from "@tauri-apps/plugin-sql";
-import type { z } from "zod";
 import type { ChannelChatMessage } from "./twitch-api";
 
 let emotes: Database | undefined;
@@ -22,7 +20,7 @@ const URL_RE =
 	/https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/;
 
 export function reinterpretFragments(
-	original: z.infer<typeof ChannelChatMessage>["message"]["fragments"],
+	original: ChannelChatMessage["message"]["fragments"],
 	emotes: Map<string, Emote>,
 ): Fragment[] {
 	const fragments: Fragment[] = [];
