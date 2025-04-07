@@ -6,7 +6,7 @@
 	import { ModeWatcher } from "mode-watcher";
 	import { onMount } from "svelte";
 	import { getAuthUrl } from "$lib/auth";
-	import ChannelList from "$lib/components/ChannelList.svelte";
+	import Sidebar from "$lib/components/Sidebar.svelte";
 	import { app, settings } from "$lib/state.svelte";
 	import type { AuthUser, FollowedChannel } from "$lib/twitch-api";
 
@@ -57,7 +57,7 @@
 {:else if settings.user}
 	<Tooltip.Provider>
 		<div class="flex">
-			<ChannelList {channels} />
+			<Sidebar {channels} />
 
 			<main class="grow">
 				{@render children()}

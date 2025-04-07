@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Settings from "@lucide/svelte/icons/settings";
 	import Users from "@lucide/svelte/icons/users";
 	import { ScrollArea, Tooltip } from "bits-ui";
 	import type { FollowedChannel } from "$lib/twitch-api";
@@ -9,7 +10,14 @@
 
 <ScrollArea.Root>
 	<ScrollArea.Viewport class="h-full max-h-screen">
-		<aside class="bg-sidebar flex h-full flex-col gap-4 border-r p-4">
+		<nav class="bg-sidebar flex h-full flex-col gap-4 border-r p-3">
+			<a
+				class="bg-twitch flex size-10 items-center justify-center rounded-md"
+				href="/settings"
+			>
+				<Settings class="size-5 text-white" />
+			</a>
+
 			{@render channelIcon(self)}
 
 			<div class="bg-border h-px" role="separator"></div>
@@ -17,7 +25,7 @@
 			{#each following as channel (channel.user_id)}
 				{@render channelIcon(channel)}
 			{/each}
-		</aside>
+		</nav>
 	</ScrollArea.Viewport>
 
 	<ScrollArea.Scrollbar
@@ -55,7 +63,7 @@
 					"data-[state$=open]:animate-in data-[state$=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=closed]:animate-out duration-75",
 				]}
 				side="right"
-				sideOffset={12}
+				sideOffset={18}
 			>
 				{#if channel.stream}
 					<div class="space-y-0.5">
