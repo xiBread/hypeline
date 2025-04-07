@@ -53,13 +53,15 @@
 		<span class="text-lg">Loading...</span>
 	</div>
 {:else if settings.user}
-	<div class="flex">
-		<ChannelList {channels} />
+	<Tooltip.Provider>
+		<div class="flex">
+			<ChannelList {channels} />
 
-		<main class="grow">
-			{@render children()}
-		</main>
-	</div>
+			<main class="grow">
+				{@render children()}
+			</main>
+		</div>
+	</Tooltip.Provider>
 {:else}
 	<a
 		class="bg-twitch m-auto flex items-center gap-2.5 rounded-md px-4 py-2 font-medium text-white"
