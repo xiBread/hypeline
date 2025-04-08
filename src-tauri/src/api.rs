@@ -47,7 +47,12 @@ pub async fn get_followed_channels(
     state: State<'_, Mutex<AppState>>,
 ) -> Result<Vec<FollowedChannel>, Error> {
     let state = state.lock().await;
-    let token = get_access_token(&state).await?;
+    let token = get_access_token(&state).await;
+
+    let token = match token {
+        Ok(token) => token,
+        Err(_) => return Ok(vec![]),
+    };
 
     let channels: Vec<FollowedBroadcaster> = state
         .helix

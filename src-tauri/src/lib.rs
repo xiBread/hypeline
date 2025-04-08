@@ -3,7 +3,7 @@ use std::error::Error;
 use sqlx::SqlitePool;
 use tauri::async_runtime::{self, Mutex};
 use tauri::Manager;
-use tauri_plugin_store::StoreExt;
+use tauri_plugin_svelte::ManagerExt;
 use twitch_api::twitch_oauth2::{AccessToken, UserToken};
 use twitch_api::HelixClient;
 
@@ -36,6 +36,7 @@ pub fn run() {
     }
 
     builder
+        .plugin(tauri_plugin_svelte::init())
         .plugin(tauri_plugin_window_state::Builder::new().build())
         .plugin(
             tauri_plugin_sql::Builder::new()
@@ -54,19 +55,19 @@ pub fn run() {
                 .build(),
         )
         .plugin(tauri_plugin_websocket::init())
-        .plugin(tauri_plugin_store::Builder::new().build())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
+            let app_handle = app.handle();
             let config_dir = app.path().app_config_dir()?;
 
             let db_path = config_dir.join("hypeline.db");
 
             async_runtime::block_on(async {
-                let store = app.store("settings.json")?;
-                let stored_token = store
-                    .get("user")
+                let stored_token = app_handle
+                    .svelte()
+                    .get("settings", "user")
                     .and_then(|user| user["accessToken"].as_str().map(|s| s.to_string()));
 
                 let helix = HelixClient::new();

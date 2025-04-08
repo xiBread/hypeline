@@ -32,7 +32,7 @@
 		disconnect = () => ws.disconnect();
 
 		ws.addListener(async (message) => {
-			if (!settings.user) return;
+			if (!settings.state.user) return;
 
 			switch (message.type) {
 				case "Ping": {

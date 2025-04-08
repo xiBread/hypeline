@@ -1,5 +1,6 @@
+import { RuneStore } from "@tauri-store/svelte";
 import type { Emote } from "./chat";
-import type {AuthUser, Badge} from "./twitch-api";
+import type { AuthUser, Badge } from "./twitch-api";
 
 interface AppState {
 	loading: boolean;
@@ -10,12 +11,13 @@ export const app = $state<AppState>({
 	loading: true,
 });
 
-export interface Settings {
-	user: AuthUser | undefined;
-}
+// eslint-disable-next-line ts/consistent-type-definitions
+export type Settings = {
+	user: AuthUser | null;
+};
 
-export const settings = $state<Settings>({
-	user: undefined,
+export const settings = new RuneStore<Settings>("settings", {
+	user: null,
 });
 
 export interface ChatState {

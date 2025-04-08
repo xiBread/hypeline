@@ -2,14 +2,31 @@
 	import Settings from "@lucide/svelte/icons/settings";
 	import Users from "@lucide/svelte/icons/users";
 	import { ScrollArea, Tooltip } from "bits-ui";
+	import { onMount } from "svelte";
+	import { settings } from "$lib/state.svelte";
 	import type { FollowedChannel } from "$lib/twitch-api";
 
 	const { channels }: { channels: FollowedChannel[] } = $props();
-	const [self, ...following] = channels;
+
+	let self = $state<FollowedChannel>();
+
+	onMount(() => {
+		const user = settings.state.user;
+
+		if (user) {
+			self = {
+				user_id: user.id,
+				user_name: user.display_name,
+				user_login: user.login,
+				profile_image_url: user.profile_image_url,
+				stream: null,
+			};
+		}
+	});
 </script>
 
 <ScrollArea.Root>
-	<ScrollArea.Viewport class="h-full max-h-screen">
+	<ScrollArea.Viewport class="h-screen">
 		<nav class="bg-sidebar flex h-full flex-col gap-4 border-r p-3">
 			<a
 				class="bg-twitch flex size-10 items-center justify-center rounded-md"
@@ -19,11 +36,13 @@
 				<Settings class="size-5 text-white" />
 			</a>
 
-			{@render channelIcon(self)}
+			{#if self}
+				{@render channelIcon(self)}
+			{/if}
 
 			<div class="bg-border h-px" role="separator"></div>
 
-			{#each following as channel (channel.user_id)}
+			{#each channels as channel (channel.user_id)}
 				{@render channelIcon(channel)}
 			{/each}
 		</nav>
