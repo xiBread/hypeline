@@ -2,7 +2,7 @@
 <script lang="ts">
 	import { invoke } from "@tauri-apps/api/core";
 	import WebSocket from "@tauri-apps/plugin-websocket";
-	import { join, reinterpretFragments } from "$lib/chat";
+	import { join, transformFragments } from "$lib/chat";
 	import Chat from "$lib/components/Chat.svelte";
 	import type { Message } from "$lib/components/Chat.svelte";
 	import Input from "$lib/components/Input.svelte";
@@ -81,7 +81,7 @@
 
 								messages.push({
 									...raw,
-									fragments: reinterpretFragments(
+									fragments: transformFragments(
 										raw.message.fragments,
 									),
 								});

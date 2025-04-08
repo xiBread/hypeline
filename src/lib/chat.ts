@@ -16,10 +16,12 @@ export interface Emote {
 }
 
 export type Fragment =
-	| { type: "mention"; value: string }
 	| { type: "text"; value: string }
+	| { type: "mention"; value: string }
 	| { type: "url"; text: string; url: URL }
-	| ({ type: "emote" } & Emote);
+	| ({ type: "emote" } & Emote)
+	// todo: cheermotes
+	| { type: "cheermote"; value: string };
 
 const URL_RE =
 	/https?:\/\/(?:www\.)?[-\w@:%.+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-\w()@:%+.~#?&/=]*/;
@@ -47,64 +49,81 @@ export async function join(channel: string) {
 	}
 }
 
-export function reinterpretFragments(
-	original: ChannelChatMessage["message"]["fragments"],
+export function transformFragments(
+	fragments: ChannelChatMessage["message"]["fragments"],
 ): Fragment[] {
-	const fragments: Fragment[] = [];
+	const transformed: Fragment[] = [];
+	let buffer: string[] = [];
 
-	for (const f of original) {
-		if (f.type === "text") {
-			const urlMatch = URL_RE.exec(f.text);
-
-			if (urlMatch) {
-				const [url] = urlMatch;
-				const [before, after] = f.text.split(url);
-
-				if (before) {
-					fragments.push({ type: "text", value: before });
-				}
-
-				fragments.push({
-					type: "url",
-					text: url,
-					url: new URL(url),
-				});
-
-				if (after) {
-					fragments.push({ type: "text", value: after });
-				}
-			} else if (chat.emotes.has(f.text)) {
-				fragments.push({
-					type: "emote",
-					...chat.emotes.get(f.text)!,
-				});
-			} else {
-				fragments.push({
-					type: "text",
-					value: f.text,
-				});
-			}
-		} else if (f.type === "emote") {
-			const format = f.emote.format.includes("animated")
-				? "animated"
-				: "static";
-
-			fragments.push({
-				type: "emote",
-				name: f.text,
-				url: `https://static-cdn.jtvnw.net/emoticons/v2/${f.emote.id}/${format}/dark/3.0`,
-				width: 28,
-				height: 28,
-			});
-		} else if (f.type === "mention") {
-			fragments.push({
-				type: "mention",
-				value: f.text,
-			});
-		} else {
-			// todo: cheermotes
+	function flush() {
+		if (buffer.length) {
+			transformed.push({ type: "text", value: buffer.join(" ") });
+			buffer = [];
 		}
 	}
 
-	return fragments;
+	for (const fragment of fragments) {
+		switch (fragment.type) {
+			case "text": {
+				const tokens = fragment.text.split(/\s+/);
+
+				for (const token of tokens) {
+					const emote = chat.emotes.get(token);
+
+					if (emote) {
+						flush();
+						transformed.push({ type: "emote", ...emote });
+					} else if (URL_RE.test(token)) {
+						// todo: better detection/parsing
+						flush();
+						transformed.push({
+							type: "url",
+							text: token,
+							url: new URL(token),
+						});
+					} else {
+						buffer.push(token);
+					}
+				}
+
+				break;
+			}
+
+			case "mention": {
+				flush();
+				transformed.push({ type: "mention", value: fragment.text });
+
+				break;
+			}
+
+			case "emote": {
+				flush();
+
+				const format = fragment.emote.format.includes("animated")
+					? "animated"
+					: "static";
+
+				transformed.push({
+					type: "emote",
+					name: fragment.text,
+					url: `https://static-cdn.jtvnw.net/emoticons/v2/${fragment.emote.id}/${format}/dark/3.0`,
+					width: 28,
+					height: 28,
+				});
+
+				break;
+			}
+
+			// temporary
+			case "cheermote": {
+				buffer.push(fragment.text);
+				flush();
+
+				break;
+			}
+		}
+	}
+
+	flush();
+	return transformed;
 }
