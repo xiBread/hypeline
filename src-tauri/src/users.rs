@@ -27,10 +27,11 @@ pub async fn insert_user(db: &Pool<Sqlite>, user: &User) -> Result<()> {
 
     sqlx::query(
         r"
-			INSERT INTO users (
+			INSERT OR IGNORE INTO users (
 				id, login, name, description, profile_image_url,
 				type, broadcaster_type, created_at
-			) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+			)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 		",
     )
     .bind(user.id.as_str())
