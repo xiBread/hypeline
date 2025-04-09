@@ -5,6 +5,7 @@
 	import { Tooltip } from "bits-ui";
 	import { ModeWatcher } from "mode-watcher";
 	import { onMount } from "svelte";
+	import { goto } from "$app/navigation";
 	import type { Emote } from "$lib/chat";
 	import Sidebar from "$lib/components/Sidebar.svelte";
 	import { app, chat, settings } from "$lib/state.svelte";
@@ -26,6 +27,10 @@
 		}
 
 		app.loading = false;
+
+		if (settings.state.user && settings.state.lastJoined) {
+			await goto(`/${settings.state.lastJoined}`);
+		}
 	});
 </script>
 

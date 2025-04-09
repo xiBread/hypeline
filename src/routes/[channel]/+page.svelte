@@ -66,6 +66,8 @@
 
 							await join(channel);
 
+							settings.state.lastJoined = channel;
+
 							chat.messages.push({
 								type: "system",
 								text: `Joined ${channel}`,
