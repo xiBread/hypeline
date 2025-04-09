@@ -8,11 +8,8 @@
 	import type { Emote } from "$lib/chat";
 	import Sidebar from "$lib/components/Sidebar.svelte";
 	import { app, chat, settings } from "$lib/state.svelte";
-	import type { FollowedChannel } from "$lib/twitch-api";
 
 	const { children } = $props();
-
-	let channels = $state<FollowedChannel[]>([]);
 
 	onMount(async () => {
 		await settings.start();
@@ -24,20 +21,9 @@
 			chat.emotes.set(emote.name, emote);
 		}
 
-		// fixme: race condition after initial auth
-		channels = await invoke<FollowedChannel[]>("get_followed_channels");
-
-		// Sort online by viewer count, then offline by name
-		channels.sort((a, b) => {
-			if (a.stream && b.stream) {
-				return b.stream.viewer_count - a.stream.viewer_count;
-			}
-
-			if (a.stream && !b.stream) return -1;
-			if (!a.stream && b.stream) return 1;
-
-			return a.user_name.localeCompare(b.user_name);
-		});
+		if (!app.channels.length) {
+			app.channels = await invoke("get_followed_channels");
+		}
 
 		app.loading = false;
 	});
@@ -54,7 +40,7 @@
 	<Tooltip.Provider delayDuration={100}>
 		<div class="flex">
 			{#if settings.state.user}
-				<Sidebar {channels} />
+				<Sidebar />
 			{/if}
 
 			<main class="grow">

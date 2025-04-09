@@ -3,12 +3,23 @@
 	import Users from "@lucide/svelte/icons/users";
 	import { ScrollArea, Tooltip } from "bits-ui";
 	import { onMount } from "svelte";
-	import { settings } from "$lib/state.svelte";
+	import { app, settings } from "$lib/state.svelte";
 	import type { FollowedChannel } from "$lib/twitch-api";
 
-	const { channels }: { channels: FollowedChannel[] } = $props();
-
 	let self = $state<FollowedChannel>();
+
+	const channels = $derived(
+		app.channels.toSorted((a, b) => {
+			if (a.stream && b.stream) {
+				return b.stream.viewer_count - a.stream.viewer_count;
+			}
+
+			if (a.stream && !b.stream) return -1;
+			if (!a.stream && b.stream) return 1;
+
+			return a.user_name.localeCompare(b.user_name);
+		}),
+	);
 
 	onMount(() => {
 		const user = settings.state.user;

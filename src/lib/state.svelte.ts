@@ -1,14 +1,16 @@
 import { RuneStore } from "@tauri-store/svelte";
 import type { Emote, Message } from "./chat";
-import type { AuthUser, Badge } from "./twitch-api";
+import type { AuthUser, Badge, FollowedChannel } from "./twitch-api";
 
 interface AppState {
 	loading: boolean;
 	wsSessionId?: string;
+	channels: FollowedChannel[];
 }
 
 export const app = $state<AppState>({
 	loading: true,
+	channels: [],
 });
 
 // eslint-disable-next-line ts/consistent-type-definitions

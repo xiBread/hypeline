@@ -2,7 +2,7 @@
 	import { invoke } from "@tauri-apps/api/core";
 	import { onMount, tick } from "svelte";
 	import { goto } from "$app/navigation";
-	import { settings } from "$lib/state.svelte";
+	import { app, settings } from "$lib/state.svelte";
 	import type { User } from "$lib/twitch-api";
 
 	onMount(async () => {
@@ -15,6 +15,7 @@
 		await tick();
 		await settings.save();
 
+		app.channels = await invoke("get_followed_channels");
 		await goto("/");
 	});
 </script>
