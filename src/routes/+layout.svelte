@@ -5,8 +5,9 @@
 	import { Tooltip } from "bits-ui";
 	import { ModeWatcher } from "mode-watcher";
 	import { onMount } from "svelte";
+	import type { Emote } from "$lib/chat";
 	import Sidebar from "$lib/components/Sidebar.svelte";
-	import { app, settings } from "$lib/state.svelte";
+	import { app, chat, settings } from "$lib/state.svelte";
 	import type { FollowedChannel } from "$lib/twitch-api";
 
 	const { children } = $props();
@@ -16,6 +17,12 @@
 	onMount(async () => {
 		await settings.start();
 		app.loading = true;
+
+		const emotes = await invoke<Emote[]>("fetch_global_emotes");
+
+		for (const emote of emotes) {
+			chat.emotes.set(emote.name, emote);
+		}
 
 		// fixme: race condition after initial auth
 		channels = await invoke<FollowedChannel[]>("get_followed_channels");

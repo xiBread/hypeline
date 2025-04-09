@@ -5,10 +5,9 @@ use tauri::State;
 use twitch_api::eventsub;
 use twitch_api::helix::chat::BadgeSet;
 
-use crate::emotes::EmoteMap;
+use crate::emotes::{fetch_user_emotes, EmoteMap};
 use crate::error::Error;
 use crate::providers::twitch::{fetch_channel_badges, fetch_global_badges};
-use crate::providers::{bttv, ffz, seventv};
 use crate::AppState;
 
 #[derive(Serialize)]
@@ -42,12 +41,7 @@ pub async fn join_chat(
     let broadcaster = broadcaster.expect("user not found");
     let broadcaster_id = broadcaster.id.as_str();
 
-    let mut seventv_emotes = seventv::fetch_emotes(broadcaster_id).await?;
-    let bttv_emotes = bttv::fetch_emotes(broadcaster_id).await?;
-    let ffz_emotes = ffz::fetch_emotes(broadcaster_id).await?;
-
-    seventv_emotes.extend(bttv_emotes);
-    seventv_emotes.extend(ffz_emotes);
+    let emotes = fetch_user_emotes(broadcaster_id).await?;
 
     let mut global_badges = fetch_global_badges(&state.helix, &token).await?;
     let channel_badges = fetch_channel_badges(&state.helix, &token, channel).await?;
@@ -65,7 +59,7 @@ pub async fn join_chat(
 
     Ok(Chat {
         channel_id: broadcaster_id.to_string(),
-        emotes: seventv_emotes,
+        emotes,
         badges: global_badges,
     })
 }

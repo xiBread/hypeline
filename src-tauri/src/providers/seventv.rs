@@ -1,9 +1,7 @@
-use std::collections::HashMap;
-
 use anyhow::Result;
 use serde::Deserialize;
 
-use crate::emotes::{self, EmoteMap};
+use crate::emotes;
 
 const BASE_URL: &str = "https://7tv.io/v3";
 
@@ -48,82 +46,82 @@ pub struct EmoteHostFile {
     pub format: String,
 }
 
-pub async fn fetch_emotes(id: &str) -> Result<EmoteMap> {
-    let mut all_emotes = fetch_global_emotes().await?;
-    let user_emotes = fetch_user_emotes(id).await?;
+fn parse_emote(emote: Emote) -> Option<emotes::Emote> {
+    let host = emote.data.host;
 
-    all_emotes.extend(user_emotes);
+    let files: Vec<&_> = host
+        .files
+        .iter()
+        .filter(|file| file.name.starts_with("4x"))
+        .collect();
 
-    let mut emotes = HashMap::new();
+    if files.is_empty() {
+        return None;
+    }
 
-    for mut emote in all_emotes {
-        emote
-            .data
-            .host
-            .files
-            .retain(|file| file.name.starts_with("4x"));
+    let priority = |format: &str| match format.to_lowercase().as_str() {
+        // Animated AVIFs are broken
+        // "avif" => Some(0),
+        "webp" => Some(1),
+        "png" => Some(2),
+        "gif" => Some(3),
+        _ => None,
+    };
 
-        if emote.data.host.files.is_empty() {
-            continue;
-        }
+    let mut best_priority: Option<usize> = None;
+    let mut best_file: Option<&_> = None;
 
-        let host = emote.data.host;
-        let name = emote.name;
-
-        let priority = |format: &str| match format.to_lowercase().as_str() {
-            // Animated AVIFs are broken
-            // "avif" => Some(0),
-            "webp" => Some(1),
-            "png" => Some(2),
-            "gif" => Some(3),
-            _ => None,
-        };
-
-        let mut best_priority: Option<usize> = None;
-        let mut best_file: Option<&_> = None;
-
-        for file in &host.files {
-            if let Some(p) = priority(&file.format) {
-                if best_priority.is_none() || p < best_priority.unwrap() {
-                    best_priority = Some(p);
-                    best_file = Some(file);
-                }
+    for file in files {
+        if let Some(p) = priority(&file.format) {
+            if best_priority.is_none() || p < best_priority.unwrap() {
+                best_priority = Some(p);
+                best_file = Some(file);
             }
         }
-
-        if let Some(file) = best_file {
-            let new_emote = emotes::Emote {
-                id: emote.id,
-                name: name.clone(),
-                url: format!("https:{}/{}", host.url, file.name),
-                width: file.width / 4,
-                height: file.height / 4,
-            };
-
-            emotes.insert(name, new_emote);
-        }
     }
+
+    if let Some(file) = best_file {
+        let new_emote = emotes::Emote {
+            id: emote.id,
+            name: emote.name,
+            url: format!("https:{}/{}", host.url, file.name),
+            width: file.width / 4,
+            height: file.height / 4,
+        };
+
+        return Some(new_emote);
+    }
+
+    None
+}
+
+pub async fn fetch_global_emotes() -> Result<Vec<emotes::Emote>> {
+    let global_set: EmoteSet = reqwest::get(format!("{BASE_URL}/emote-sets/global"))
+        .await?
+        .json()
+        .await?;
+
+    let emotes = global_set
+        .emotes
+        .into_iter()
+        .filter_map(parse_emote)
+        .collect();
 
     Ok(emotes)
 }
 
-async fn fetch_global_emotes() -> Result<Vec<Emote>> {
-    let global_set = reqwest::get(format!("{BASE_URL}/emote-sets/global"))
+pub async fn fetch_user_emotes(id: &str) -> Result<Vec<emotes::Emote>> {
+    let user: User = reqwest::get(format!("{BASE_URL}/users/twitch/{id}"))
         .await?
-        .json::<EmoteSet>()
-        .await?;
-
-    Ok(global_set.emotes)
-}
-
-async fn fetch_user_emotes(id: &str) -> Result<Vec<Emote>> {
-    let user = reqwest::get(format!("{BASE_URL}/users/twitch/{id}"))
-        .await?
-        .json::<User>()
+        .json()
         .await?;
 
     let emotes = match user.emote_set {
-        Some(emote_set) => emote_set.emotes,
+        Some(emote_set) => emote_set
+            .emotes
+            .into_iter()
+            .filter_map(parse_emote)
+            .collect(),
         None => vec![],
     };
 

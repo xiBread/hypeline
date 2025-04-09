@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use anyhow::Result;
 use serde::Deserialize;
 
-use crate::emotes::{self, EmoteMap};
+use crate::emotes;
 
 const BASE_URL: &str = "https://api.frankerfacez.com/v1";
 
@@ -38,56 +38,43 @@ pub struct Emote {
     pub urls: HashMap<String, String>,
 }
 
-pub async fn fetch_emotes(id: &str) -> Result<EmoteMap> {
-    let mut all_emotes = fetch_global_emotes().await?;
-    let user_emotes = fetch_user_emotes(id).await?;
+fn parse_emote(emote: &Emote) -> emotes::Emote {
+    let name = emote.name.to_string();
 
-    all_emotes.extend(user_emotes);
+    let url = emote
+        .urls
+        .get("4")
+        .or_else(|| emote.urls.get("2").or_else(|| emote.urls.get("1")))
+        .expect("missing url")
+        .to_string();
 
-    let mut emotes = HashMap::new();
-
-    for emote in all_emotes {
-        let name = emote.name.to_string();
-
-        let url = emote
-            .urls
-            .get("4")
-            .or_else(|| emote.urls.get("2").or_else(|| emote.urls.get("1")))
-            .expect("missing url")
-            .to_string();
-
-        let emote = emotes::Emote {
-            id: emote.id.to_string(),
-            name: name.clone(),
-            url,
-            width: emote.width,
-            height: emote.height,
-        };
-
-        emotes.insert(name, emote);
+    emotes::Emote {
+        id: emote.id.to_string(),
+        name: name.clone(),
+        url,
+        width: emote.width,
+        height: emote.height,
     }
-
-    Ok(emotes)
 }
 
-async fn fetch_global_emotes() -> Result<Vec<Emote>> {
-    let global_set = reqwest::get(format!("{BASE_URL}/set/global"))
+pub async fn fetch_global_emotes() -> Result<Vec<emotes::Emote>> {
+    let global_set: GlobalSet = reqwest::get(format!("{BASE_URL}/set/global"))
         .await?
-        .json::<GlobalSet>()
+        .json()
         .await?;
 
     let mut emotes = Vec::new();
 
     for (id, emote_set) in global_set.sets {
         if global_set.default_sets.contains(&id) {
-            emotes.extend(emote_set.emoticons);
+            emotes.extend(emote_set.emoticons.iter().map(parse_emote));
         }
     }
 
     Ok(emotes)
 }
 
-async fn fetch_user_emotes(id: &str) -> Result<Vec<Emote>> {
+pub async fn fetch_user_emotes(id: &str) -> Result<Vec<emotes::Emote>> {
     let response = reqwest::get(format!("{BASE_URL}/room/id/{id}")).await?;
     let mut emotes = Vec::new();
 
@@ -98,7 +85,7 @@ async fn fetch_user_emotes(id: &str) -> Result<Vec<Emote>> {
     let room = response.json::<Room>().await?;
 
     if let Some(emote_set) = room.sets.get(&room.room.set) {
-        emotes.extend(emote_set.emoticons.iter().cloned());
+        emotes.extend(emote_set.emoticons.iter().map(parse_emote));
     }
 
     Ok(emotes)

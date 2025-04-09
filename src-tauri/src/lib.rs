@@ -88,6 +88,7 @@ pub fn run() {
             api::create_eventsub_subscription,
             chat::join_chat,
             chat::send_message,
+            emotes::fetch_global_emotes,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
