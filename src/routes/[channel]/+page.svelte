@@ -65,6 +65,12 @@
 							});
 
 							await join(channel);
+
+							chat.messages.push({
+								type: "system",
+								text: `Joined ${channel}`,
+							});
+
 							break;
 						}
 

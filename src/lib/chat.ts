@@ -23,9 +23,17 @@ export type Fragment =
 	// todo: cheermotes
 	| { type: "cheermote"; value: string };
 
-export interface Message extends ChannelChatMessage {
+export interface SystemMessage {
+	type: "system";
+	text: string;
+}
+
+export interface UserMessage extends ChannelChatMessage {
+	type: "user";
 	fragments: Fragment[];
 }
+
+export type Message = SystemMessage | UserMessage;
 
 export async function join(channel: string) {
 	const data = await invoke<{

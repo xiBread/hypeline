@@ -9,6 +9,7 @@ export default defineHandler({
 	handle(data) {
 		chat.messages.push({
 			...data,
+			type: "user",
 			fragments: transformFragments(data.message.fragments),
 		});
 	},
