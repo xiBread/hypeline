@@ -61,7 +61,7 @@ export const ChannelChatMessage = z.object({
 			info: z.string(),
 		})
 		.array(),
-	cheer: z.object({ bits: z.number() }).optional(),
+	cheer: z.object({ bits: z.number() }).or(z.null()),
 	color: z.string(),
 	reply: z
 		.object({
@@ -75,12 +75,12 @@ export const ChannelChatMessage = z.object({
 			thread_user_name: z.string(),
 			thread_user_login: z.string(),
 		})
-		.optional(),
-	channel_points_custom_reward_id: z.string().optional(),
-	source_broadcaster_user_id: z.string().optional(),
-	source_broadcaster_user_name: z.string().optional(),
-	source_broadcaster_user_login: z.string().optional(),
-	source_message_id: z.string().optional(),
+		.or(z.null()),
+	channel_points_custom_reward_id: z.string().or(z.null()),
+	source_broadcaster_user_id: z.string().or(z.null()),
+	source_broadcaster_user_name: z.string().or(z.null()),
+	source_broadcaster_user_login: z.string().or(z.null()),
+	source_message_id: z.string().or(z.null()),
 	source_badges: z
 		.object({
 			set_id: z.string(),
@@ -88,7 +88,7 @@ export const ChannelChatMessage = z.object({
 			info: z.string(),
 		})
 		.array()
-		.optional(),
+		.or(z.null()),
 });
 
 export type ChannelChatMessage = z.infer<typeof ChannelChatMessage>;

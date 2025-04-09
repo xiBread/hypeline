@@ -1,27 +1,17 @@
-<script module lang="ts">
-	import * as opener from "@tauri-apps/plugin-opener";
-	import type { Fragment } from "$lib/chat";
-	import type { ChannelChatMessage } from "$lib/twitch-api";
-
-	export interface Message extends ChannelChatMessage {
-		fragments: Fragment[];
-	}
-</script>
-
 <script lang="ts">
+	import * as opener from "@tauri-apps/plugin-opener";
 	import { onMount } from "svelte";
 	import { chat } from "$lib/state.svelte";
 
 	interface Props {
 		class?: string;
-		messages: Message[];
 	}
 
 	// Arbitrary; corresponds to how much of the bottom of the chat needs to be
 	// visible (smaller = more, larger = less).
 	const SCROLL_PADDING = 10;
 
-	const { class: className, messages }: Props = $props();
+	const { class: className }: Props = $props();
 
 	let view = $state<HTMLElement>();
 	let shouldAutoScroll = true;
@@ -47,14 +37,17 @@
 	}
 
 	$effect(() => {
-		if (view && messages.length > 0 && shouldAutoScroll) {
+		if (view && chat.messages.length > 0 && shouldAutoScroll) {
 			view.scrollTop = view.scrollHeight;
 		}
 	});
 </script>
 
-<div class="{className} flex flex-col overflow-y-auto text-sm" bind:this={view}>
-	{#each messages as message}
+<div
+	class="{className} flex flex-col overflow-y-auto p-1.5 text-sm"
+	bind:this={view}
+>
+	{#each chat.messages as message}
 		<div class="p-2">
 			{#if message.badges.length}
 				<div class="inline-block space-x-1">

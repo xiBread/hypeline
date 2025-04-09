@@ -1,5 +1,5 @@
 import { RuneStore } from "@tauri-store/svelte";
-import type { Emote } from "./chat";
+import type { Emote, Message } from "./chat";
 import type { AuthUser, Badge } from "./twitch-api";
 
 interface AppState {
@@ -24,10 +24,12 @@ export interface ChatState {
 	channelId: string;
 	badges: Map<string, Record<string, Badge>>;
 	emotes: Map<string, Emote>;
+	messages: Message[];
 }
 
 export const chat = $state<ChatState>({
 	channelId: "",
 	badges: new Map(),
 	emotes: new Map(),
+	messages: [],
 });

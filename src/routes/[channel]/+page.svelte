@@ -2,11 +2,11 @@
 <script lang="ts">
 	import { invoke } from "@tauri-apps/api/core";
 	import WebSocket from "@tauri-apps/plugin-websocket";
-	import { join, transformFragments } from "$lib/chat";
+	import { join } from "$lib/chat";
 	import Chat from "$lib/components/Chat.svelte";
-	import type { Message } from "$lib/components/Chat.svelte";
 	import Input from "$lib/components/Input.svelte";
-	import { app, chat, settings } from "$lib/state.svelte.js";
+	import { handlers } from "$lib/handlers/manager";
+	import { app, chat, settings } from "$lib/state.svelte";
 	import {
 		Notification,
 		SessionWelcome,
@@ -16,12 +16,10 @@
 
 	const { data } = $props();
 
-	let messages = $state<Message[]>([]);
-
 	let disconnect = async () => {};
 
 	$effect(() => {
-		messages = [];
+		chat.messages = [];
 		connect(data.channel);
 
 		return () => disconnect();
@@ -75,17 +73,8 @@
 								msg.payload,
 							) as NotificationPayload;
 
-							// and this
-							if (payload.type === "channel.chat.message") {
-								const raw = payload.event;
-
-								messages.push({
-									...raw,
-									fragments: transformFragments(
-										raw.message.fragments,
-									),
-								});
-							}
+							const handler = handlers.get(payload.type);
+							await handler?.handle(payload.event);
 						}
 					}
 
@@ -119,7 +108,7 @@
 </script>
 
 <div class="flex h-screen flex-col">
-	<Chat class="h-full grow" {messages} />
+	<Chat class="h-full grow" />
 
 	<div class="border-t p-2">
 		<Input
