@@ -17,7 +17,7 @@ export interface Emote {
 
 export type Fragment =
 	| { type: "text"; value: string }
-	| { type: "mention"; value: string }
+	| { type: "mention"; id: string; username: string }
 	| { type: "url"; text: string; url: URL }
 	| ({ type: "emote" } & Emote)
 	// todo: cheermotes
@@ -55,5 +55,21 @@ export async function join(channel: string) {
 
 	for (const [name, emote] of Object.entries(data.emotes)) {
 		chat.emotes.set(name, emote);
+	}
+}
+
+export interface ChatUser {
+	id: string;
+	name: string;
+	color: string;
+}
+
+export async function fetchUsers() {
+	const users = await invoke<ChatUser[]>("get_chatters", {
+		channelId: chat.channelId,
+	});
+
+	for (const user of users) {
+		chat.users.set(user.id, user);
 	}
 }

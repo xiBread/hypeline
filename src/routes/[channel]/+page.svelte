@@ -2,7 +2,7 @@
 <script lang="ts">
 	import { invoke } from "@tauri-apps/api/core";
 	import WebSocket from "@tauri-apps/plugin-websocket";
-	import { join } from "$lib/chat";
+	import { fetchUsers, join } from "$lib/chat";
 	import Chat from "$lib/components/Chat.svelte";
 	import Input from "$lib/components/Input.svelte";
 	import { handlers } from "$lib/handlers/manager";
@@ -71,6 +71,7 @@
 								text: `Joined ${channel}`,
 							});
 
+							await fetchUsers();
 							break;
 						}
 

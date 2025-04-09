@@ -1,9 +1,20 @@
 <script lang="ts">
 	import * as opener from "@tauri-apps/plugin-opener";
+	import { onMount } from "svelte";
 	import type { UserMessage } from "$lib/chat";
 	import { chat } from "$lib/state.svelte";
 
 	const { message }: { message: UserMessage } = $props();
+
+	onMount(() => {
+		if (!chat.users.has(message.chatter_user_id)) {
+			chat.users.set(message.chatter_user_id, {
+				id: message.chatter_user_id,
+				name: message.chatter_user_name,
+				color: message.color,
+			});
+		}
+	});
 
 	async function openUrl(url: URL) {
 		await opener.openUrl(url.toString());
@@ -36,31 +47,35 @@
 </span>
 
 <p class="inline">
-	{#each message.fragments as frag, i}
-		{#if frag.type === "mention"}
-			<span class="font-bold break-words">{frag.value}</span>
-		{:else if frag.type === "url"}
+	{#each message.fragments as fragment, i}
+		{#if fragment.type === "mention"}
+			{@const user = chat.users.get(fragment.id)}
+
+			<span class="font-bold break-words" style:color={user?.color}>
+				@{user?.name ?? fragment.username}
+			</span>
+		{:else if fragment.type === "url"}
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
 			<span
 				class="wrap-anywhere text-blue-600 underline"
 				role="link"
 				tabindex="-1"
-				onclick={() => openUrl(frag.url)}
+				onclick={() => openUrl(fragment.url)}
 			>
-				{frag.text}
+				{fragment.text}
 			</span>
-		{:else if frag.type === "emote"}
+		{:else if fragment.type === "emote"}
 			<img
 				class="inline-block align-middle"
-				title={frag.name}
-				src={frag.url}
-				alt={frag.name}
-				width={frag.width}
-				height={frag.height}
+				title={fragment.name}
+				src={fragment.url}
+				alt={fragment.name}
+				width={fragment.width}
+				height={fragment.height}
 			/>
 		{:else}
 			<span class="wrap-anywhere">
-				{frag.value}
+				{fragment.value}
 			</span>
 		{/if}
 

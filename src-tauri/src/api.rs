@@ -7,6 +7,7 @@ use tauri::async_runtime::Mutex;
 use tauri::State;
 use twitch_api::eventsub;
 use twitch_api::helix::channels::FollowedBroadcaster;
+use twitch_api::helix::chat::Chatter;
 use twitch_api::helix::streams::Stream;
 use twitch_api::helix::users::User;
 use twitch_api::twitch_oauth2::{AccessToken, UserToken};
@@ -120,6 +121,26 @@ pub async fn get_current_user(state: State<'_, Mutex<AppState>>) -> Result<Optio
     }
 
     Ok(response)
+}
+
+#[tauri::command]
+pub async fn get_chatters(
+    state: State<'_, Mutex<AppState>>,
+    channel_id: String,
+) -> Result<Vec<Chatter>, Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state).await?;
+
+    let response = state
+        .helix
+        .get_chatters(&channel_id, &token.user_id, 1000, token)
+        .try_collect()
+        .await;
+
+    match response {
+        Ok(chatters) => Ok(chatters),
+        Err(_) => Ok(vec![]),
+    }
 }
 
 #[tauri::command]

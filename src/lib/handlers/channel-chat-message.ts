@@ -60,7 +60,11 @@ export function transformFragments(
 
 			case "mention": {
 				flush();
-				transformed.push({ type: "mention", value: fragment.text });
+				transformed.push({
+					type: "mention",
+					id: fragment.mention.user_id,
+					username: fragment.mention.user_name,
+				});
 
 				break;
 			}

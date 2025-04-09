@@ -85,6 +85,7 @@ pub fn run() {
             api::set_access_token,
             api::get_followed_channels,
             api::get_current_user,
+            api::get_chatters,
             api::create_eventsub_subscription,
             chat::join_chat,
             chat::send_message,
