@@ -12,8 +12,6 @@
 		"clipboard-manager:allow-read-text",
 		"clipboard-manager:allow-write-text",
 		"websocket:default",
-		"log:default",
-		"sql:default",
-		"sql:allow-select"
+		"log:default"
 	]
 }

@@ -5,7 +5,7 @@ use tauri::State;
 use twitch_api::eventsub;
 use twitch_api::helix::chat::BadgeSet;
 
-use crate::emotes::{save_emotes, EmoteMap};
+use crate::emotes::EmoteMap;
 use crate::error::Error;
 use crate::providers::twitch::{fetch_channel_badges, fetch_global_badges};
 use crate::providers::{bttv, ffz, seventv};
@@ -47,8 +47,6 @@ pub async fn join_chat(
 
     seventv_emotes.extend(bttv_emotes);
     seventv_emotes.extend(ffz_emotes);
-
-    save_emotes(&state.db, &broadcaster, &seventv_emotes).await?;
 
     let mut global_badges = fetch_global_badges(&state.helix, &token).await?;
     let channel_badges = fetch_channel_badges(&state.helix, &token, channel).await?;

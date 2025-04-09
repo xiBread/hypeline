@@ -11,9 +11,6 @@ pub enum Error {
 
     #[error(transparent)]
     Helix(#[from] ClientRequestError<reqwest::Error>),
-
-    #[error(transparent)]
-    Sqlx(#[from] sqlx::Error),
 }
 
 impl Serialize for Error {

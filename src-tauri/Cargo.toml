@@ -30,8 +30,6 @@ rustls = { version = "0.23.25", features = ["ring"] }
 tauri-plugin-log = "2"
 twitch_api = { version = "0.7.2", features = ["client", "helix", "eventsub", "reqwest"] }
 reqwest = { version = "0.12.15", features = ["json"] }
-tauri-plugin-sql = { version = "2", features = ["sqlite"] }
-sqlx = { version = "0.8.3", features = ["runtime-tokio", "tls-rustls-ring-native-roots", "sqlite"] }
 log = "0.4.27"
 anyhow = "1.0.97"
 thiserror = "2.0.12"

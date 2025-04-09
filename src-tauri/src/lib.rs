@@ -1,6 +1,5 @@
 use std::error::Error;
 
-use sqlx::SqlitePool;
 use tauri::async_runtime::{self, Mutex};
 use tauri::Manager;
 use tauri_plugin_svelte::ManagerExt;
@@ -11,14 +10,12 @@ mod api;
 mod chat;
 mod emotes;
 mod error;
-mod migrations;
 mod providers;
 mod users;
 
 pub struct AppState {
     helix: HelixClient<'static, reqwest::Client>,
     access_token: Option<UserToken>,
-    db: SqlitePool,
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -39,15 +36,9 @@ pub fn run() {
         .plugin(tauri_plugin_svelte::init())
         .plugin(tauri_plugin_window_state::Builder::new().build())
         .plugin(
-            tauri_plugin_sql::Builder::new()
-                .add_migrations("sqlite:hypeline.db", migrations::migrations())
-                .build(),
-        )
-        .plugin(
             tauri_plugin_log::Builder::new()
                 .level_for("hyper_util", log::LevelFilter::Off)
                 .level_for("rustls", log::LevelFilter::Off)
-                .level_for("sqlx", log::LevelFilter::Off)
                 .level_for("tao", log::LevelFilter::Off)
                 .level_for("tokio_tungstenite", log::LevelFilter::Off)
                 .level_for("tracing", log::LevelFilter::Off)
@@ -60,9 +51,6 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             let app_handle = app.handle();
-            let config_dir = app.path().app_config_dir()?;
-
-            let db_path = config_dir.join("hypeline.db");
 
             async_runtime::block_on(async {
                 let stored_token = app_handle
@@ -80,12 +68,9 @@ pub fn run() {
                     None
                 };
 
-                let db = SqlitePool::connect(db_path.to_str().unwrap()).await?;
-
                 let app_state = AppState {
-                    helix: helix.clone(),
+                    helix,
                     access_token,
-                    db,
                 };
 
                 Ok::<_, Box<dyn Error>>(app.manage(Mutex::new(app_state)))
