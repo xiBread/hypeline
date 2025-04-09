@@ -12,7 +12,6 @@
 		SessionWelcome,
 		WebSocketMessage,
 	} from "$lib/twitch-api";
-	import type { NotificationPayload } from "$lib/twitch-api";
 
 	const { data } = $props();
 
@@ -78,9 +77,7 @@
 						}
 
 						case "notification": {
-							const payload = Notification.parse(
-								msg.payload,
-							) as NotificationPayload;
+							const payload = Notification.parse(msg.payload);
 
 							const handler = handlers.get(payload.type);
 							await handler?.handle(payload.event);
