@@ -10,4 +10,4 @@ export interface User {
 	created_at: string;
 }
 
-export type AuthUser = User & { accessToken: string };
+export type AuthUser = User & { token: string };

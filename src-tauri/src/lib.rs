@@ -56,7 +56,7 @@ pub fn run() {
                 let stored_token = app_handle
                     .svelte()
                     .get("settings", "user")
-                    .and_then(|user| user["accessToken"].as_str().map(|s| s.to_string()));
+                    .and_then(|user| user["token"].as_str().map(|t| t.to_string()));
 
                 let helix = HelixClient::new();
 
