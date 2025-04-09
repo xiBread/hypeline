@@ -25,7 +25,8 @@ pub struct FollowedChannel {
 
 async fn get_access_token<'a>(state: &'a AppState) -> Result<&'a UserToken, Error> {
     state
-        .access_token
+        .user
+        .token
         .as_ref()
         .ok_or_else(|| Error::Generic(anyhow!("Access token not set")))
 }
@@ -34,7 +35,7 @@ async fn get_access_token<'a>(state: &'a AppState) -> Result<&'a UserToken, Erro
 pub async fn set_access_token(state: State<'_, Mutex<AppState>>, token: String) -> Result<(), ()> {
     let mut state = state.lock().await;
 
-    state.access_token = UserToken::from_token(&state.helix, AccessToken::from(token))
+    state.user.token = UserToken::from_token(&state.helix, AccessToken::from(token))
         .await
         .ok();
 
@@ -80,8 +81,6 @@ pub async fn get_followed_channels(
             .get_users_from_ids(&user_ids[..].into(), token)
             .try_collect()
             .await?
-
-        // todo: insert (?)
     };
 
     let user_map: HashMap<_, _> = users.iter().map(|user| (user.id.clone(), user)).collect();
@@ -109,10 +108,16 @@ pub async fn get_followed_channels(
 
 #[tauri::command]
 pub async fn get_current_user(state: State<'_, Mutex<AppState>>) -> Result<Option<User>, Error> {
-    let state = state.lock().await;
+    let mut state = state.lock().await;
     let token = get_access_token(&state).await?;
 
     let response = state.helix.get_user_from_id(&token.user_id, token).await?;
+
+    if state.user.data.is_none() {
+        if let Some(ref user) = response {
+            state.user.data = Some(user.clone());
+        }
+    }
 
     Ok(response)
 }

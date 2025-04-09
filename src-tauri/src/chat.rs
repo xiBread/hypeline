@@ -27,7 +27,8 @@ pub async fn join_chat(
     let state = state.lock().await;
 
     let token = state
-        .access_token
+        .user
+        .token
         .as_ref()
         .ok_or_else(|| Error::Generic(anyhow!("Access token not set")))?;
 
@@ -77,11 +78,11 @@ pub async fn send_message(
 ) -> Result<(), Error> {
     let state = state.lock().await;
 
-    if state.access_token.is_none() {
+    if state.user.token.is_none() {
         return Err(Error::Generic(anyhow!("Access token not set")));
     }
 
-    let token = state.access_token.as_ref().unwrap();
+    let token = state.user.token.as_ref().unwrap();
     let user_id = token.user_id.clone();
 
     state

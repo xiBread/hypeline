@@ -1,10 +1,9 @@
-use std::error::Error;
-
 use tauri::async_runtime::{self, Mutex};
 use tauri::Manager;
 use tauri_plugin_svelte::ManagerExt;
 use twitch_api::twitch_oauth2::{AccessToken, UserToken};
 use twitch_api::HelixClient;
+use users::User;
 
 mod api;
 mod chat;
@@ -15,12 +14,22 @@ mod users;
 
 pub struct AppState {
     helix: HelixClient<'static, reqwest::Client>,
-    access_token: Option<UserToken>,
+    user: User,
+}
+
+impl Default for AppState {
+    fn default() -> Self {
+        Self {
+            helix: HelixClient::new(),
+            user: User::default(),
+        }
+    }
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let mut builder = tauri::Builder::default();
+    let mut state = AppState::default();
 
     #[cfg(desktop)]
     {
@@ -58,24 +67,18 @@ pub fn run() {
                     .get("settings", "user")
                     .and_then(|user| user["token"].as_str().map(|t| t.to_string()));
 
-                let helix = HelixClient::new();
-
                 let access_token = if let Some(token) = stored_token {
-                    UserToken::from_token(&helix, AccessToken::from(token))
+                    UserToken::from_token(&state.helix, AccessToken::from(token))
                         .await
                         .ok()
                 } else {
                     None
                 };
 
-                let app_state = AppState {
-                    helix,
-                    access_token,
-                };
+                state.user.token = access_token;
+            });
 
-                Ok::<_, Box<dyn Error>>(app.manage(Mutex::new(app_state)))
-            })?;
-
+            app.manage(Mutex::new(state));
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
