@@ -19,7 +19,6 @@
 	let disconnect = async () => {};
 
 	$effect(() => {
-		chat.messages = [];
 		connect(data.channel);
 
 		return () => disconnect();
@@ -65,6 +64,7 @@
 							});
 
 							await join(channel);
+							chat.messages = [];
 
 							settings.state.lastJoined = channel;
 
