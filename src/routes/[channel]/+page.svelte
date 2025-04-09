@@ -107,7 +107,7 @@
 		const message = input.value.trim();
 
 		if (!message) return;
-		input.value = "";
+		if (!event.ctrlKey) input.value = "";
 
 		await invoke("send_message", {
 			content: message,
