@@ -70,7 +70,7 @@
 	<p class="inline">
 		{#each message.fragments as fragment, i}
 			{#if fragment.type === "mention"}
-				{#if !reply}
+				{#if !message.reply}
 					{@const user = chat.users.get(fragment.id)}
 
 					<span
