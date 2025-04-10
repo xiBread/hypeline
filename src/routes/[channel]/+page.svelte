@@ -56,7 +56,7 @@
 							);
 							app.wsSessionId = session.id;
 
-							await invoke("create_eventsub_subscription", {
+							await invoke("subscribe", {
 								sessionId: app.wsSessionId,
 								event: "user.update",
 								condition: null,

@@ -15,7 +15,7 @@
 		await tick();
 		await settings.save();
 
-		app.channels = await invoke("get_followed_channels");
+		app.channels = await invoke("get_followed");
 		await goto("/");
 	});
 </script>

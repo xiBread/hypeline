@@ -1,4 +1,5 @@
 use tauri::async_runtime::{self, Mutex};
+use tauri::ipc::Invoke;
 use tauri::Manager;
 use tauri_plugin_svelte::ManagerExt;
 use twitch_api::twitch_oauth2::{AccessToken, UserToken};
@@ -6,7 +7,6 @@ use twitch_api::HelixClient;
 use users::User;
 
 mod api;
-mod chat;
 mod emotes;
 mod error;
 mod providers;
@@ -81,16 +81,20 @@ pub fn run() {
             app.manage(Mutex::new(state));
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![
-            api::set_access_token,
-            api::get_followed_channels,
-            api::get_current_user,
-            api::get_chatters,
-            api::create_eventsub_subscription,
-            chat::join_chat,
-            chat::send_message,
-            emotes::fetch_global_emotes,
-        ])
+        .invoke_handler(get_handler())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+fn get_handler() -> impl Fn(Invoke) -> bool {
+    tauri::generate_handler![
+        api::set_access_token,
+        api::channels::get_followed,
+        api::channels::get_chatters,
+        api::chat::join,
+        api::chat::send_message,
+        api::eventsub::subscribe,
+        api::users::get_current_user,
+        emotes::fetch_global_emotes,
+    ]
 }

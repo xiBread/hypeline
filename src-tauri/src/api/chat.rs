@@ -18,7 +18,7 @@ pub struct Chat {
 }
 
 #[tauri::command]
-pub async fn join_chat(
+pub async fn join(
     state: State<'_, Mutex<AppState>>,
     session_id: String,
     channel: String,

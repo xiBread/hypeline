@@ -23,7 +23,7 @@
 		}
 
 		if (!app.channels.length) {
-			app.channels = await invoke("get_followed_channels");
+			app.channels = await invoke("get_followed");
 		}
 
 		app.loading = false;
