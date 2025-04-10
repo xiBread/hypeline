@@ -45,7 +45,7 @@
 	bind:this={view}
 >
 	{#each chat.messages as message}
-		<div class="p-2">
+		<div class="hover:bg-muted rounded-md p-2">
 			{#if message.type === "system"}
 				<SystemMessage {message} />
 			{:else}
