@@ -40,7 +40,7 @@ export async function join(channel: string) {
 		channel_id: string;
 		emotes: Record<string, Emote>;
 		badges: BadgeSet[];
-	}>("join_chat", { sessionId: app.wsSessionId, channel });
+	}>("join", { sessionId: app.wsSessionId, channel });
 
 	chat.channelId = data.channel_id;
 
