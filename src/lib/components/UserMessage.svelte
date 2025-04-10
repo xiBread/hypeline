@@ -29,14 +29,16 @@
 {#if reply}
 	{@const user = chat.users.get(reply.parent_user_id)}
 
-	<div class="flex items-center gap-2">
+	<div class="mb-1 flex items-center gap-2">
 		<div
 			class="border-muted-foreground mt-1 ml-2 h-2 w-6 rounded-tl-lg border-2 border-r-0 border-b-0"
 		></div>
 
 		<div class="line-clamp-1 inline text-xs">
 			<span style:color={user?.color}>@{reply.parent_user_name}</span>:
-			<p class="inline">{reply.parent_message_body}</p>
+			<p class="text-muted-foreground inline">
+				{reply.parent_message_body}
+			</p>
 		</div>
 	</div>
 
