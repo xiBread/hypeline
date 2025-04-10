@@ -11,7 +11,7 @@
 		Notification,
 		SessionWelcome,
 		WebSocketMessage,
-	} from "$lib/twitch-api";
+	} from "$lib/twitch";
 
 	const { data } = $props();
 

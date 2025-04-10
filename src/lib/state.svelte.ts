@@ -1,6 +1,6 @@
 import { RuneStore } from "@tauri-store/svelte";
 import type { ChatUser, Emote, Message } from "./chat";
-import type { AuthUser, Badge, FollowedChannel, User } from "./twitch-api";
+import type { AuthUser, Badge, FollowedChannel } from "./twitch";
 
 interface AppState {
 	loading: boolean;

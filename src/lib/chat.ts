@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { app, chat } from "./state.svelte";
-import type { Badge, BadgeSet, ChannelChatMessage } from "./twitch-api";
+import type { Badge, BadgeSet, ChannelChatMessage } from "./twitch";
 
 export interface Chat {
 	channel_id: string;

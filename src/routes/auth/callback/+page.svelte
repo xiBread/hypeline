@@ -3,7 +3,7 @@
 	import { onMount, tick } from "svelte";
 	import { goto } from "$app/navigation";
 	import { app, settings } from "$lib/state.svelte";
-	import type { User } from "$lib/twitch-api";
+	import type { User } from "$lib/twitch";
 
 	onMount(async () => {
 		const [token] = location.hash.slice(1).split("=")[1].split("&");
