@@ -49,7 +49,7 @@
 			{#if message.type === "system"}
 				<SystemMessage {message} />
 			{:else}
-				<UserMessage {message} />
+				<UserMessage {message} reply={message.reply} />
 			{/if}
 		</div>
 	{/each}
