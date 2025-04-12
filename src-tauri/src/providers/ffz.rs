@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use anyhow::Result;
 use serde::Deserialize;
 
-use crate::emotes;
+use crate::{emotes, HTTP};
 
 const BASE_URL: &str = "https://api.frankerfacez.com/v1";
 
@@ -58,7 +58,9 @@ fn parse_emote(emote: &Emote) -> emotes::Emote {
 }
 
 pub async fn fetch_global_emotes() -> Result<Vec<emotes::Emote>> {
-    let global_set: GlobalSet = reqwest::get(format!("{BASE_URL}/set/global"))
+    let global_set: GlobalSet = HTTP
+        .get(format!("{BASE_URL}/set/global"))
+        .send()
         .await?
         .json()
         .await?;
@@ -75,7 +77,7 @@ pub async fn fetch_global_emotes() -> Result<Vec<emotes::Emote>> {
 }
 
 pub async fn fetch_user_emotes(id: &str) -> Result<Vec<emotes::Emote>> {
-    let response = reqwest::get(format!("{BASE_URL}/room/id/{id}")).await?;
+    let response = HTTP.get(format!("{BASE_URL}/room/id/{id}")).send().await?;
     let mut emotes = Vec::new();
 
     if !response.status().is_success() {

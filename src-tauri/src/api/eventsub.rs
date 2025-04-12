@@ -5,7 +5,7 @@ use twitch_api::eventsub::EventSubSubscription;
 use twitch_api::twitch_oauth2::TwitchToken;
 
 use crate::error::Error;
-use crate::AppState;
+use crate::{AppState, HTTP};
 
 use super::{get_access_token, Response};
 
@@ -29,8 +29,7 @@ pub async fn subscribe(
         }
     });
 
-    let response: Response<(EventSubSubscription,)> = state
-        .http
+    let response: Response<(EventSubSubscription,)> = HTTP
         .post("https://api.twitch.tv/helix/eventsub/subscriptions")
         .bearer_auth(token.access_token.as_str())
         .header("Client-Id", token.client_id().as_str())
@@ -57,9 +56,7 @@ pub async fn unsubscribe(state: State<'_, Mutex<AppState>>, event: String) -> Re
 
     match id {
         Some(id) => {
-            state
-                .http
-                .delete("https://api.twitch.tv/helix/eventsub/subscriptions")
+            HTTP.delete("https://api.twitch.tv/helix/eventsub/subscriptions")
                 .query(&[("id", id)])
                 .bearer_auth(token.access_token.as_str())
                 .header("Client-Id", token.client_id().as_str())

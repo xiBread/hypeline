@@ -1,7 +1,7 @@
 use anyhow::Result;
 use serde::Deserialize;
 
-use crate::emotes;
+use crate::{emotes, HTTP};
 
 const BASE_URL: &str = "https://api.betterttv.net/3/cached";
 const CDN_URL: &str = "https://cdn.betterttv.net/emote";
@@ -36,7 +36,9 @@ pub fn parse_emote(emote: Emote) -> emotes::Emote {
 }
 
 pub async fn fetch_global_emotes() -> Result<Vec<emotes::Emote>> {
-    let emotes: Vec<Emote> = reqwest::get(format!("{BASE_URL}/emotes/global"))
+    let emotes: Vec<Emote> = HTTP
+        .get(format!("{BASE_URL}/emotes/global"))
+        .send()
         .await?
         .json()
         .await?;
@@ -46,7 +48,9 @@ pub async fn fetch_global_emotes() -> Result<Vec<emotes::Emote>> {
 }
 
 pub async fn fetch_user_emotes(id: &str) -> Result<Vec<emotes::Emote>> {
-    let user: User = reqwest::get(format!("{BASE_URL}/users/twitch/{id}"))
+    let user: User = HTTP
+        .get(format!("{BASE_URL}/users/twitch/{id}"))
+        .send()
         .await?
         .json()
         .await?;

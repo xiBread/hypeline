@@ -1,5 +1,7 @@
 use std::collections::HashMap;
+use std::sync::LazyLock;
 
+use reqwest::header::HeaderMap;
 use tauri::async_runtime::{self, Mutex};
 use tauri::ipc::Invoke;
 use tauri::Manager;
@@ -14,8 +16,20 @@ mod error;
 mod providers;
 mod users;
 
+const CLIENT_ID: &str = "kimne78kx3ncx6brgo4mv6wki5h1ko";
+
+pub static HTTP: LazyLock<reqwest::Client> = LazyLock::new(|| {
+    let mut headers = HeaderMap::new();
+    headers.insert("Client-Id", CLIENT_ID.parse().unwrap());
+    headers.insert("Content-Type", "application/json".parse().unwrap());
+
+    reqwest::Client::builder()
+        .default_headers(headers)
+        .build()
+        .unwrap()
+});
+
 pub struct AppState {
-    http: reqwest::Client,
     helix: HelixClient<'static, reqwest::Client>,
     subscriptions: HashMap<String, String>,
     user: User,
@@ -24,7 +38,6 @@ pub struct AppState {
 impl Default for AppState {
     fn default() -> Self {
         Self {
-            http: reqwest::Client::new(),
             helix: HelixClient::new(),
             subscriptions: HashMap::default(),
             user: User::default(),
