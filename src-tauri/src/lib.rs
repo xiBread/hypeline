@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use tauri::async_runtime::{self, Mutex};
 use tauri::ipc::Invoke;
 use tauri::Manager;
@@ -13,14 +15,18 @@ mod providers;
 mod users;
 
 pub struct AppState {
+    http: reqwest::Client,
     helix: HelixClient<'static, reqwest::Client>,
+    subscriptions: HashMap<String, String>,
     user: User,
 }
 
 impl Default for AppState {
     fn default() -> Self {
         Self {
+            http: reqwest::Client::new(),
             helix: HelixClient::new(),
+            subscriptions: HashMap::default(),
             user: User::default(),
         }
     }
@@ -92,8 +98,10 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         api::channels::get_followed,
         api::channels::get_chatters,
         api::chat::join,
+        api::chat::leave,
         api::chat::send_message,
         api::eventsub::subscribe,
+        api::eventsub::unsubscribe,
         api::users::get_current_user,
         emotes::fetch_global_emotes,
     ]

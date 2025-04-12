@@ -45,7 +45,9 @@ export async function connect() {
 						await invoke("subscribe", {
 							sessionId: app.wsSessionId,
 							event: "user.update",
-							condition: null,
+							condition: {
+								user_id: settings.state.user.id,
+							},
 						});
 
 						break;

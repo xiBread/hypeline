@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { invoke } from "@tauri-apps/api/core";
-	import { fetchUsers, join } from "$lib/chat";
+	import { fetchUsers, join, leave } from "$lib/chat";
 	import Chat from "$lib/components/Chat.svelte";
 	import Input from "$lib/components/Input.svelte";
 	import { app, chat, settings } from "$lib/state.svelte";
@@ -9,6 +9,8 @@
 
 	$effect(() => {
 		if (app.wsSessionId) update();
+
+		return () => leave();
 	});
 
 	async function update() {

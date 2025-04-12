@@ -58,6 +58,13 @@ export async function join(channel: string) {
 	}
 }
 
+export async function leave() {
+	await invoke("leave");
+
+	chat.badges.clear();
+	chat.emotes.clear();
+}
+
 export interface ChatUser {
 	id: string;
 	name: string;

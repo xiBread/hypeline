@@ -1,14 +1,16 @@
 use anyhow::anyhow;
 use serde::Serialize;
+use serde_json::json;
 use tauri::async_runtime::Mutex;
 use tauri::State;
-use twitch_api::eventsub;
 use twitch_api::helix::chat::BadgeSet;
 
 use crate::emotes::{fetch_user_emotes, EmoteMap};
 use crate::error::Error;
 use crate::providers::twitch::{fetch_channel_badges, fetch_global_badges};
 use crate::AppState;
+
+use super::eventsub::{subscribe, unsubscribe};
 
 #[derive(Serialize)]
 pub struct Chat {
@@ -23,9 +25,9 @@ pub async fn join(
     session_id: String,
     channel: String,
 ) -> Result<Chat, Error> {
-    let state = state.lock().await;
+    let guard = state.lock().await;
 
-    let token = state
+    let token = guard
         .user
         .token
         .as_ref()
@@ -33,7 +35,7 @@ pub async fn join(
 
     let user_id = token.user_id.clone();
 
-    let broadcaster = state
+    let broadcaster = guard
         .helix
         .get_user_from_login(channel.as_str(), token)
         .await?;
@@ -43,25 +45,36 @@ pub async fn join(
 
     let emotes = fetch_user_emotes(broadcaster_id).await?;
 
-    let mut global_badges = fetch_global_badges(&state.helix, &token).await?;
-    let channel_badges = fetch_channel_badges(&state.helix, &token, channel).await?;
+    let mut global_badges = fetch_global_badges(&guard.helix, &token).await?;
+    let channel_badges = fetch_channel_badges(&guard.helix, &token, channel).await?;
+
+    drop(guard);
 
     global_badges.extend(channel_badges);
 
-    state
-        .helix
-        .create_eventsub_subscription(
-            eventsub::channel::ChannelChatMessageV1::new(broadcaster_id, user_id),
-            eventsub::Transport::websocket(session_id),
-            token,
-        )
-        .await?;
+    subscribe(
+        state.clone(),
+        session_id,
+        "channel.chat.message".into(),
+        json!({
+            "broadcaster_user_id": broadcaster_id,
+            "user_id": user_id
+        }),
+    )
+    .await?;
 
     Ok(Chat {
         channel_id: broadcaster_id.to_string(),
         emotes,
         badges: global_badges,
     })
+}
+
+#[tauri::command]
+pub async fn leave(state: State<'_, Mutex<AppState>>) -> Result<(), Error> {
+    unsubscribe(state, "channel.chat.message".into()).await?;
+
+    Ok(())
 }
 
 #[tauri::command]
