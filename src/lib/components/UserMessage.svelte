@@ -34,7 +34,7 @@
 			class="border-muted-foreground mt-1 ml-2 h-2 w-6 rounded-tl-lg border-2 border-r-0 border-b-0"
 		></div>
 
-		<div class="line-clamp-1 inline text-xs">
+		<div class="line-clamp-1 text-xs">
 			<span style:color={user?.color}>@{reply.parent_user_name}</span>:
 			<p class="text-muted-foreground inline">
 				{reply.parent_message_body}
