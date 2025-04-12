@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from "svelte";
+	import { VList } from "virtua/svelte";
 	import { chat } from "$lib/state.svelte";
 	import SystemMessage from "./SystemMessage.svelte";
 	import UserMessage from "./UserMessage.svelte";
@@ -10,41 +10,36 @@
 
 	// Arbitrary; corresponds to how much of the bottom of the chat needs to be
 	// visible (smaller = more, larger = less).
-	const SCROLL_PADDING = 10;
+	const TOLERANCE = 10;
 
 	const { class: className }: Props = $props();
 
-	let view = $state<HTMLElement>();
+	let list = $state<VList<any>>();
 	let shouldAutoScroll = true;
 
-	onMount(() => {
-		if (view) {
-			view.addEventListener("scroll", handleScroll);
-		}
-
-		return () => view?.removeEventListener("scroll", handleScroll);
-	});
-
-	function handleScroll() {
-		if (view) {
+	function handleScroll(offset: number) {
+		if (list) {
 			shouldAutoScroll =
-				view.scrollTop >=
-				view.scrollHeight - view.clientHeight - SCROLL_PADDING;
+				offset >=
+				list.getScrollSize() - list.getViewportSize() - TOLERANCE;
 		}
 	}
 
 	$effect(() => {
-		if (view && chat.messages.length > 0 && shouldAutoScroll) {
-			view.scrollTop = view.scrollHeight;
+		if (list && chat.messages.length && shouldAutoScroll) {
+			list.scrollToIndex(chat.messages.length - 1, { align: "end" });
 		}
 	});
 </script>
 
-<div
+<VList
 	class="{className} flex flex-col overflow-y-auto p-1.5 text-sm"
-	bind:this={view}
+	data={chat.messages}
+	onscroll={(offset) => handleScroll(offset)}
+	getKey={(msg, i) => msg.message_id ?? i}
+	bind:this={list}
 >
-	{#each chat.messages as message}
+	{#snippet children(message)}
 		<div class="hover:bg-muted rounded-md p-2">
 			{#if message.type === "system"}
 				<SystemMessage {message} />
@@ -52,5 +47,5 @@
 				<UserMessage {message} reply={message.reply} />
 			{/if}
 		</div>
-	{/each}
-</div>
+	{/snippet}
+</VList>

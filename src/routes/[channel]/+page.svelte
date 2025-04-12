@@ -46,7 +46,7 @@
 </script>
 
 <div class="flex h-screen flex-col">
-	<Chat class="h-full grow" />
+	<Chat class="grow" />
 
 	<div class="border-t p-2">
 		<Input
