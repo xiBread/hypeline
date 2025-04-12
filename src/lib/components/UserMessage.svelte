@@ -3,6 +3,7 @@
 	import { onMount } from "svelte";
 	import type { UserMessage } from "$lib/chat";
 	import { chat } from "$lib/state.svelte";
+	import Tooltip from "./Tooltip.svelte";
 	// eslint-disable-next-line import/no-self-import
 	import Self from "./UserMessage.svelte";
 
@@ -52,14 +53,19 @@
 				{#if badges && badges[id]}
 					{@const badge = badges[id]}
 
-					<img
-						class="inline-block align-middle"
-						title={badge.title}
-						src={badge.image_url_2x}
-						alt={badge.description}
-						width="18"
-						height="18"
-					/>
+					<Tooltip class="p-1 text-xs" side="top" sideOffset={4}>
+						{#snippet trigger()}
+							<img
+								class="inline-block align-middle"
+								src={badge.image_url_2x}
+								alt={badge.description}
+								width="18"
+								height="18"
+							/>
+						{/snippet}
+
+						{badge.title}
+					</Tooltip>
 				{/if}
 			{/each}
 		</div>
@@ -93,14 +99,29 @@
 					{fragment.text}
 				</span>
 			{:else if fragment.type === "emote"}
-				<img
-					class="inline-block align-middle"
-					title={fragment.name}
-					src={fragment.url}
-					alt={fragment.name}
-					width={fragment.width}
-					height={fragment.height}
-				/>
+				<Tooltip side="top" sideOffset={4}>
+					{#snippet trigger()}
+						<img
+							class="inline-block align-middle"
+							src={fragment.url}
+							alt={fragment.name}
+							width={fragment.width}
+							height={fragment.height}
+						/>
+					{/snippet}
+
+					<div class="flex flex-col items-center">
+						<img
+							class="mb-1"
+							src={fragment.url}
+							alt={fragment.name}
+							width={fragment.width * 2}
+							height={fragment.height * 2}
+						/>
+
+						{fragment.name}
+					</div>
+				</Tooltip>
 			{:else}
 				<span class="wrap-anywhere">
 					{fragment.value}
