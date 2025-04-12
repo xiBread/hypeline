@@ -1,10 +1,11 @@
 <script lang="ts">
 	import Settings from "@lucide/svelte/icons/settings";
 	import Users from "@lucide/svelte/icons/users";
-	import { ScrollArea, Tooltip } from "bits-ui";
+	import { ScrollArea } from "bits-ui";
 	import { onMount } from "svelte";
 	import { app, settings } from "$lib/state.svelte";
 	import type { FollowedChannel } from "$lib/twitch";
+	import Tooltip from "./Tooltip.svelte";
 
 	let self = $state<FollowedChannel>();
 
@@ -71,8 +72,8 @@
 </ScrollArea.Root>
 
 {#snippet channelIcon(channel: FollowedChannel)}
-	<Tooltip.Root>
-		<Tooltip.Trigger>
+	<Tooltip class="max-w-64" side="right" sideOffset={18}>
+		{#snippet trigger()}
 			<a
 				class="bg-muted flex size-10 items-center justify-center overflow-hidden rounded-full border"
 				href="/{channel.user_name}"
@@ -85,38 +86,27 @@
 					height="300"
 				/>
 			</a>
-		</Tooltip.Trigger>
+		{/snippet}
 
-		<Tooltip.Portal>
-			<Tooltip.Content
-				class={[
-					"bg-muted max-w-64 rounded-md border p-2 text-sm shadow",
-					"data-[state$=open]:animate-in data-[state$=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=closed]:animate-out duration-75",
-				]}
-				side="right"
-				sideOffset={18}
-			>
-				{#if channel.stream}
-					<div class="space-y-0.5">
-						<!-- prettier-ignore -->
-						<div class="text-twitch-link overflow-ellipsis overflow-hidden whitespace-nowrap">
+		{#if channel.stream}
+			<div class="space-y-0.5">
+				<!-- prettier-ignore -->
+				<div class="text-twitch-link overflow-ellipsis overflow-hidden whitespace-nowrap">
 							{channel.user_name} &bullet; {channel.stream.game_name}
 						</div>
 
-						<p class="line-clamp-2">{channel.stream.title}</p>
+				<p class="line-clamp-2">{channel.stream.title}</p>
 
-						<div class="text-muted-foreground flex items-center">
-							<Users class="mr-1 size-3" />
+				<div class="text-muted-foreground flex items-center">
+					<Users class="mr-1 size-3" />
 
-							<p class="text-xs">
-								{channel.stream.viewer_count} viewers
-							</p>
-						</div>
-					</div>
-				{:else}
-					{channel.user_name}
-				{/if}
-			</Tooltip.Content>
-		</Tooltip.Portal>
-	</Tooltip.Root>
+					<p class="text-xs">
+						{channel.stream.viewer_count} viewers
+					</p>
+				</div>
+			</div>
+		{:else}
+			{channel.user_name}
+		{/if}
+	</Tooltip>
 {/snippet}
