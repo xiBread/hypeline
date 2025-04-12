@@ -75,7 +75,7 @@
 		<Tooltip.Trigger>
 			<a
 				class="bg-muted flex size-10 items-center justify-center overflow-hidden rounded-full border"
-				href="/{channel.user_login}"
+				href="/{channel.user_name}"
 			>
 				<img
 					class={["object-cover", !channel.stream && "grayscale"]}
