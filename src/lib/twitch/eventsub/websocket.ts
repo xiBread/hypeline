@@ -10,7 +10,7 @@ export const WebSocketMessage = z.object({
 			"revocation",
 		]),
 	}),
-	payload: z.record(z.any()),
+	payload: z.record(z.string(), z.any()),
 });
 
 export const SessionWelcome = z.object({
@@ -20,7 +20,7 @@ export const SessionWelcome = z.object({
 export const Notification = z
 	.object({
 		subscription: z.object({ type: z.string() }),
-		event: z.record(z.any()),
+		event: z.record(z.string(), z.any()),
 	})
 	.transform((data) => ({
 		type: data.subscription.type,

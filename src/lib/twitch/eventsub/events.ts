@@ -13,7 +13,7 @@ export const ChannelChatMessage = z.object({
 	message: z.object({
 		text: z.string(),
 		fragments: z
-			.discriminatedUnion("type", [
+			.discriminatedUnion([
 				z.object({ type: z.literal("text"), text: z.string() }),
 				z.object({
 					type: z.literal("cheermote"),
