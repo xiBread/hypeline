@@ -1,11 +1,10 @@
 import type { Fragment } from "$lib/chat";
 import { chat } from "$lib/state.svelte";
-import { ChannelChatMessage } from "$lib/twitch";
+import type { ChannelChatMessage } from "$lib/twitch";
 import { defineHandler } from ".";
 
 export default defineHandler({
 	name: "channel.chat.message",
-	schema: ChannelChatMessage,
 	handle(data) {
 		chat.messages.push({
 			...data,

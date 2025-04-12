@@ -4,18 +4,19 @@
 	import { invoke } from "@tauri-apps/api/core";
 	import { Tooltip } from "bits-ui";
 	import { ModeWatcher } from "mode-watcher";
-	import { onMount } from "svelte";
+	import { onDestroy, onMount } from "svelte";
 	import { goto } from "$app/navigation";
 	import type { Emote } from "$lib/chat";
 	import Sidebar from "$lib/components/Sidebar.svelte";
 	import { app, chat, settings } from "$lib/state.svelte";
+	import { connect } from "$lib/twitch";
 
 	const { children } = $props();
 
 	onMount(async () => {
-		await settings.start();
 		app.loading = true;
 
+		await connect();
 		const emotes = await invoke<Emote[]>("fetch_global_emotes");
 
 		for (const emote of emotes) {
@@ -31,6 +32,10 @@
 		if (settings.state.user && settings.state.lastJoined) {
 			await goto(`/${settings.state.lastJoined}`);
 		}
+	});
+
+	onDestroy(async () => {
+		await app.ws?.disconnect();
 	});
 </script>
 
