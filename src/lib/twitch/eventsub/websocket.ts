@@ -1,28 +1,24 @@
-import { z } from "zod";
+export type WebSocketMessageType =
+	| "session_welcome"
+	| "session_keepalive"
+	| "session_reconnect"
+	| "notification"
+	| "revocation";
 
-export const WebSocketMessage = z.object({
-	metadata: z.object({
-		message_type: z.enum([
-			"session_welcome",
-			"session_keepalive",
-			"session_reconnect",
-			"notification",
-			"revocation",
-		]),
-	}),
-	payload: z.record(z.string(), z.any()),
-});
+export interface MessageMetadata {
+	message_type: WebSocketMessageType;
+}
 
-export const SessionWelcome = z.object({
-	session: z.object({ id: z.string() }),
-});
+export interface WebSocketMessage {
+	metadata: MessageMetadata;
+	payload: Record<string, any>;
+}
 
-export const Notification = z
-	.object({
-		subscription: z.object({ type: z.string() }),
-		event: z.record(z.string(), z.any()),
-	})
-	.transform((data) => ({
-		type: data.subscription.type,
-		event: data.event,
-	}));
+export interface SessionWelcome {
+	session: { id: string };
+}
+
+export interface Notification {
+	subscription: { type: string };
+	event: Record<string, any>;
+}

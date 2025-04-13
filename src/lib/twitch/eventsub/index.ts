@@ -3,14 +3,18 @@ import WebSocket from "@tauri-apps/plugin-websocket";
 import { handlers } from "$lib/handlers/manager";
 import { app, settings } from "$lib/state.svelte";
 import type * as Events from "./events";
-import { Notification, SessionWelcome, WebSocketMessage } from "./websocket";
+import type {
+	Notification,
+	SessionWelcome,
+	WebSocketMessage,
+} from "./websocket";
 
 export * from "./events";
 export * from "./websocket";
 
 export interface EventSubSubscriptionMap {
-	"channel.chat.message": typeof Events.ChannelChatMessage;
-	"user.update": typeof Events.UserUpdate;
+	"channel.chat.message": Events.ChannelChatMessage;
+	"user.update": Events.UserUpdate;
 }
 
 export async function connect() {
@@ -32,14 +36,14 @@ export async function connect() {
 			}
 
 			case "Text": {
-				const msg = WebSocketMessage.parse(JSON.parse(message.data));
+				const msg: WebSocketMessage = JSON.parse(message.data);
 
 				// todo: extract this to a function
 				switch (msg.metadata.message_type) {
 					case "session_welcome": {
 						console.log("Session welcome");
 
-						const { session } = SessionWelcome.parse(msg.payload);
+						const { session } = msg.payload as SessionWelcome;
 						app.wsSessionId = session.id;
 
 						await invoke("subscribe", {
@@ -54,9 +58,9 @@ export async function connect() {
 					}
 
 					case "notification": {
-						const payload = Notification.parse(msg.payload);
+						const payload = msg.payload as Notification;
 
-						const handler = handlers.get(payload.type);
+						const handler = handlers.get(payload.subscription.type);
 						await handler?.handle(payload.event);
 					}
 				}
