@@ -2,9 +2,6 @@
 	import RefreshCw from "@lucide/svelte/icons/refresh-cw";
 	import { Label, RadioGroup } from "bits-ui";
 	import { setMode, userPrefersMode } from "mode-watcher";
-	import { page } from "$app/state";
-
-	// page.data.settingsStore.s
 
 	const themes = [
 		{ value: "light", class: "bg-white" },
