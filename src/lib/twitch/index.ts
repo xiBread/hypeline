@@ -1,8 +1,3 @@
-import {
-	PUBLIC_TWITCH_CLIENT_ID,
-	PUBLIC_TWITCH_REDIRECT_URL,
-} from "$env/static/public";
-
 export const SCOPES = [
 	// Channel
 	"channel:edit:commercial",
@@ -55,20 +50,3 @@ export const SCOPES = [
 	"clips:edit",
 	"whispers:read",
 ];
-
-export function getAuthUrl() {
-	const authSearchParams = {
-		client_id: PUBLIC_TWITCH_CLIENT_ID,
-		redirect_uri: PUBLIC_TWITCH_REDIRECT_URL,
-		response_type: "token",
-		scope: SCOPES.join(" "),
-	};
-
-	const authUrl = new URL("https://id.twitch.tv/oauth2/authorize");
-
-	for (const [key, value] of Object.entries(authSearchParams)) {
-		authUrl.searchParams.set(key, value);
-	}
-
-	return authUrl;
-}

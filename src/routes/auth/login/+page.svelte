@@ -1,11 +1,28 @@
 <script lang="ts">
-	import { getAuthUrl } from "$lib/auth";
+	import {
+		PUBLIC_TWITCH_CLIENT_ID,
+		PUBLIC_TWITCH_REDIRECT_URL,
+	} from "$env/static/public";
+	import { SCOPES } from "$lib/twitch";
+
+	const params = {
+		client_id: PUBLIC_TWITCH_CLIENT_ID,
+		redirect_uri: PUBLIC_TWITCH_REDIRECT_URL,
+		response_type: "token",
+		scope: SCOPES.join(" "),
+	};
+
+	const authUrl = new URL("https://id.twitch.tv/oauth2/authorize");
+
+	for (const [key, value] of Object.entries(params)) {
+		authUrl.searchParams.set(key, value);
+	}
 </script>
 
 <div class="flex h-screen items-center justify-center">
 	<a
 		class="bg-twitch m-auto flex items-center gap-2.5 rounded-md px-4 py-2 font-medium text-white"
-		href={getAuthUrl().toString()}
+		href={authUrl.toString()}
 	>
 		<svg
 			class="size-5 fill-white"
