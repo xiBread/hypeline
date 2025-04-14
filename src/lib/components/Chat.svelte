@@ -12,41 +12,64 @@
 
 	// Arbitrary; corresponds to how much of the bottom of the chat needs to be
 	// visible (smaller = more, larger = less).
-	const TOLERANCE = 10;
+	const TOLERANCE = 15;
 
 	const { class: className }: Props = $props();
 
 	let list = $state<VList<any>>();
-	let shouldAutoScroll = true;
+	let scrollingPaused = $state(false);
+
+	const newMessageCount = $derived.by(() => {
+		if (!list) return 0;
+
+		const total = chat.messages.length - list.findEndIndex();
+		return total > 99 ? "99+" : total;
+	});
+
+	$effect(() => {
+		if (chat.messages.length && !scrollingPaused) {
+			scrollToEnd();
+		}
+	});
+
+	function scrollToEnd() {
+		list?.scrollToIndex(chat.messages.length - 1, { align: "end" });
+	}
 
 	function handleScroll(offset: number) {
 		if (!list) return;
 
-		shouldAutoScroll =
-			offset >= list.getScrollSize() - list.getViewportSize() - TOLERANCE;
+		scrollingPaused =
+			offset < list.getScrollSize() - list.getViewportSize() - TOLERANCE;
 	}
-
-	$effect(() => {
-		if (list && chat.messages.length && shouldAutoScroll) {
-			list.scrollToIndex(chat.messages.length - 1, { align: "end" });
-		}
-	});
 </script>
 
-<VList
-	class="{className} overflow-y-auto text-sm"
-	data={chat.messages}
-	onscroll={(offset) => handleScroll(offset)}
-	getKey={(msg, i) => msg.message_id ?? i}
-	bind:this={list}
->
-	{#snippet children(message: Message)}
-		{#if message.isUser()}
-			<UserMessage {message} />
-		{:else if message.isNotification()}
-			<NotificationMessage {message} />
-		{:else}
-			<SystemMessage {message} />
-		{/if}
-	{/snippet}
-</VList>
+<div class="relative h-full">
+	{#if scrollingPaused}
+		<button
+			class="bg-muted/50 absolute bottom-0 z-10 flex h-10 w-full items-center justify-center text-sm font-medium backdrop-blur-xs hover:cursor-pointer"
+			type="button"
+			onclick={scrollToEnd}
+		>
+			Scrolling paused ({newMessageCount} new messages)
+		</button>
+	{/if}
+
+	<VList
+		class="{className} overflow-y-auto text-sm"
+		data={chat.messages}
+		getKey={(msg, i) => msg.message_id ?? i}
+		onscroll={handleScroll}
+		bind:this={list}
+	>
+		{#snippet children(message: Message)}
+			{#if message.isUser()}
+				<UserMessage {message} />
+			{:else if message.isNotification()}
+				<NotificationMessage {message} />
+			{:else}
+				<SystemMessage {message} />
+			{/if}
+		{/snippet}
+	</VList>
+</div>
