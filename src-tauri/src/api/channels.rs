@@ -17,14 +17,14 @@ use super::get_access_token;
 #[tauri::command]
 pub async fn get_chatters(
     state: State<'_, Mutex<AppState>>,
-    channel_id: String,
+    id: String,
 ) -> Result<Vec<Chatter>, Error> {
     let state = state.lock().await;
     let token = get_access_token(&state).await?;
 
     let response = state
         .helix
-        .get_chatters(&channel_id, &token.user_id, 1000, token)
+        .get_chatters(&id, &token.user_id, 1000, token)
         .try_collect()
         .await;
 

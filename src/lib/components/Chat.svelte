@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { VList } from "virtua/svelte";
 	import type { Message } from "$lib/message";
-	import { chat } from "$lib/state.svelte";
+	import { app } from "$lib/state.svelte";
 	import NotificationMessage from "./NotificationMessage.svelte";
 	import SystemMessage from "./SystemMessage.svelte";
 	import UserMessage from "./UserMessage.svelte";
@@ -13,6 +13,8 @@
 	// Arbitrary; corresponds to how much of the bottom of the chat needs to be
 	// visible (smaller = more, larger = less).
 	const TOLERANCE = 15;
+
+	const chat = $derived(app.active.chat);
 
 	const { class: className }: Props = $props();
 

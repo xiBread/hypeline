@@ -1,19 +1,23 @@
 import type WebSocket from "@tauri-apps/plugin-websocket";
 import { RuneStore } from "@tauri-store/svelte";
-import type { ChatUser, Emote } from "./chat";
-import type { Message } from "./message";
-import type { AuthUser, Badge, FollowedChannel } from "./twitch/api";
+import { Channel } from "./channel.svelte";
+import type { Emote } from "./channel.svelte";
+import type { AuthUser, FollowedChannel } from "./twitch/api";
 
 interface AppState {
 	loading: boolean;
 	ws?: WebSocket;
 	wsSessionId?: string;
+	active: Channel;
 	channels: FollowedChannel[];
+	globalEmotes: Map<string, Emote>;
 }
 
 export const app = $state<AppState>({
 	loading: true,
+	active: new Channel("0", "@me"),
 	channels: [],
+	globalEmotes: new Map(),
 });
 
 // eslint-disable-next-line ts/consistent-type-definitions
@@ -25,20 +29,4 @@ export type Settings = {
 export const settings = new RuneStore<Settings>("settings", {
 	user: null,
 	lastJoined: null,
-});
-
-export interface ChatState {
-	channelId: string;
-	badges: Map<string, Record<string, Badge>>;
-	emotes: Map<string, Emote>;
-	messages: Message[];
-	users: Map<string, ChatUser>;
-}
-
-export const chat = $state<ChatState>({
-	channelId: "",
-	badges: new Map(),
-	emotes: new Map(),
-	messages: [],
-	users: new Map(),
 });

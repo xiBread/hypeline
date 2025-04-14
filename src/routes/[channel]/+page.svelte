@@ -1,26 +1,27 @@
 <script lang="ts">
 	import { invoke } from "@tauri-apps/api/core";
-	import { fetchUsers, join, leave } from "$lib/chat";
+	import { Channel } from "$lib/channel.svelte";
 	import Chat from "$lib/components/Chat.svelte";
 	import Input from "$lib/components/Input.svelte";
 	import { SystemMessage } from "$lib/message";
-	import { app, chat, settings } from "$lib/state.svelte";
+	import { app, settings } from "$lib/state.svelte";
 
 	const { data } = $props();
+
+	const chat = $derived(app.active.chat);
 
 	$effect(() => {
 		if (app.wsSessionId) update();
 
-		return () => leave();
+		return () => app.active.leave();
 	});
 
 	async function update() {
-		await join(data.channel);
+		const channel = await Channel.join(data.channel);
+		app.active = channel;
 
 		settings.state.lastJoined = data.channel;
 		chat.messages = [new SystemMessage(`Joined ${data.channel}`)];
-
-		await fetchUsers();
 	}
 
 	async function send(event: KeyboardEvent) {
@@ -34,10 +35,7 @@
 		if (!message) return;
 		if (!event.ctrlKey) input.value = "";
 
-		await invoke("send_message", {
-			content: message,
-			broadcasterId: chat.channelId,
-		});
+		app.active.chat.send(message);
 	}
 </script>
 

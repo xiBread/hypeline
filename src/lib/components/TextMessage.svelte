@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { TextMessage } from "$lib/message";
-	import { chat } from "$lib/state.svelte";
+	import { app } from "$lib/state.svelte";
 	import Tooltip from "./Tooltip.svelte";
 
 	const { message }: { message: TextMessage } = $props();
@@ -34,7 +34,7 @@
 	{#each message.fragments as fragment, i}
 		{#if fragment.type === "mention"}
 			{#if !message.isUser()}
-				{@const user = chat.users.get(fragment.id)}
+				{@const user = app.active.chat.users.get(fragment.id)}
 
 				<span class="font-bold break-words" style:color={user?.color}>
 					@{user?.name ?? fragment.username}

@@ -1,10 +1,10 @@
 import { UserMessage } from "$lib/message";
-import { chat } from "$lib/state.svelte";
+import { app } from "$lib/state.svelte";
 import { defineHandler } from ".";
 
 export default defineHandler({
 	name: "channel.chat.message",
 	handle(data) {
-		chat.messages.push(new UserMessage(data));
+		app.active.chat.messages.push(new UserMessage(data));
 	},
 });

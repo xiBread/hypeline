@@ -1,10 +1,12 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import type { UserMessage } from "$lib/message";
-	import { chat } from "$lib/state.svelte";
+	import { app } from "$lib/state.svelte";
 	import TextMessage from "./TextMessage.svelte";
 
 	const { message }: { message: UserMessage } = $props();
+
+	const chat = $derived(app.active.chat);
 
 	onMount(() => {
 		if (!chat.users.has(message.user.id)) {

@@ -15,6 +15,7 @@
 	onMount(async () => {
 		app.loading = true;
 
+		// TODO: hmr during dev causes improper resource cleanup; find solution if possible
 		await connect();
 
 		if (!app.channels.length) {

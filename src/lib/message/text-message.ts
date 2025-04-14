@@ -1,8 +1,16 @@
-import type { Fragment } from "$lib/chat";
-import { chat } from "$lib/state.svelte";
+import type { Emote } from "$lib/channel.svelte";
+import { app } from "$lib/state.svelte";
 import type { Badge } from "$lib/twitch/api";
-import type { BaseMessage as BaseEventMessage } from "$lib/twitch/eventsub";
+import type { BaseMessage as BaseMessageData } from "$lib/twitch/eventsub";
 import { BaseMessage } from "./message";
+
+export type Fragment =
+	| { type: "text"; value: string }
+	| { type: "mention"; id: string; username: string }
+	| { type: "url"; text: string; url: URL }
+	| ({ type: "emote" } & Emote)
+	// todo: cheermotes
+	| { type: "cheermote"; value: string };
 
 export interface MessageUser {
 	id: string;
@@ -17,7 +25,7 @@ const URL_RE =
 export class TextMessage extends BaseMessage {
 	public readonly fragments: Fragment[];
 
-	public constructor(public readonly data: BaseEventMessage) {
+	public constructor(public readonly data: BaseMessageData) {
 		super(data);
 
 		this.fragments = this.#transformFragments();
@@ -31,7 +39,7 @@ export class TextMessage extends BaseMessage {
 		}
 
 		for (const badge of this.data.badges) {
-			const chatBadge = chat.badges.get(badge.set_id)?.[badge.id];
+			const chatBadge = app.active.badges.get(badge.set_id)?.[badge.id];
 
 			if (chatBadge) {
 				badges.push(chatBadge);
@@ -67,7 +75,7 @@ export class TextMessage extends BaseMessage {
 					const tokens = fragment.text.split(/\s+/);
 
 					for (const token of tokens) {
-						const emote = chat.emotes.get(token);
+						const emote = app.active.emotes.get(token);
 
 						if (emote) {
 							flush();
