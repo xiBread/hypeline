@@ -12,6 +12,14 @@ export class BaseMessage {
 
 	public constructor(readonly data: MessageData) {}
 
+	public get id(): string {
+		if (this.isSystem()) {
+			return (this.data as SystemMessageData).id;
+		}
+
+		return (this.data as BaseMessageData).message_id;
+	}
+
 	public isUser(): this is UserMessage {
 		return Object.hasOwn(this.data, "message_type");
 	}

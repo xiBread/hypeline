@@ -58,7 +58,7 @@
 	<VList
 		class="{className} overflow-y-auto text-sm"
 		data={chat.messages}
-		getKey={(msg, i) => msg.message_id ?? i}
+		getKey={(msg: Message) => msg.id}
 		onscroll={handleScroll}
 		bind:this={list}
 	>
