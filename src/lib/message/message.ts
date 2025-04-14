@@ -1,4 +1,4 @@
-import type { BaseMessage as BaseMessageData } from "$lib/twitch";
+import type { BaseMessage as BaseMessageData } from "$lib/twitch/eventsub";
 import type { NotificationMessage } from "./notification-message";
 import type { SystemMessage, SystemMessageData } from "./system-message";
 import type { UserMessage } from "./user-message";

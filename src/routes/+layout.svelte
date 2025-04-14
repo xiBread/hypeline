@@ -9,7 +9,7 @@
 	import type { Emote } from "$lib/chat";
 	import Sidebar from "$lib/components/Sidebar.svelte";
 	import { app, chat, settings } from "$lib/state.svelte";
-	import { connect } from "$lib/twitch";
+	import { connect } from "$lib/twitch/eventsub";
 
 	const { children } = $props();
 

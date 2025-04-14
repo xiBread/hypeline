@@ -1,4 +1,4 @@
-import type { EventSubSubscriptionMap } from "$lib/twitch";
+import type { EventSubSubscriptionMap } from "$lib/twitch/eventsub";
 
 export interface Handler<K extends keyof EventSubSubscriptionMap> {
 	name: K;

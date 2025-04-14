@@ -1,4 +1,4 @@
-import type { ChannelChatMessage, MessageReply } from "$lib/twitch";
+import type { ChannelChatMessage, MessageReply } from "$lib/twitch/eventsub";
 import { TextMessage } from "./text-message";
 
 export class UserMessage extends TextMessage {

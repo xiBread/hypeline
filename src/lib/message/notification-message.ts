@@ -1,4 +1,7 @@
-import type { Announcement, ChannelChatNotification } from "$lib/twitch";
+import type {
+	Announcement,
+	ChannelChatNotification,
+} from "$lib/twitch/eventsub";
 import { TextMessage } from "./text-message";
 
 export class NotificationMessage extends TextMessage {

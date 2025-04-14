@@ -1,6 +1,7 @@
 import type { Fragment } from "$lib/chat";
 import { chat } from "$lib/state.svelte";
-import type { Badge, BaseMessage as BaseEventMessage } from "$lib/twitch";
+import type { Badge } from "$lib/twitch/api";
+import type { BaseMessage as BaseEventMessage } from "$lib/twitch/eventsub";
 import { BaseMessage } from "./message";
 
 export interface MessageUser {

@@ -2,7 +2,7 @@ import type WebSocket from "@tauri-apps/plugin-websocket";
 import { RuneStore } from "@tauri-store/svelte";
 import type { ChatUser, Emote } from "./chat";
 import type { Message } from "./message";
-import type { AuthUser, Badge, FollowedChannel } from "./twitch";
+import type { AuthUser, Badge, FollowedChannel } from "./twitch/api";
 
 interface AppState {
 	loading: boolean;

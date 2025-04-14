@@ -4,7 +4,7 @@
 	import { ScrollArea } from "bits-ui";
 	import { onMount } from "svelte";
 	import { app, settings } from "$lib/state.svelte";
-	import type { FollowedChannel } from "$lib/twitch";
+	import type { FollowedChannel } from "$lib/twitch/api";
 	import Tooltip from "./Tooltip.svelte";
 
 	let self = $state<FollowedChannel>();
