@@ -10,25 +10,21 @@
 	}
 </script>
 
-{#if message.badges.length}
-	<div class="inline-block space-x-1">
-		{#each message.badges as badge (badge.title)}
-			<Tooltip class="p-1 text-xs" side="top" sideOffset={4}>
-				{#snippet trigger()}
-					<img
-						class="inline-block align-middle"
-						src={badge.image_url_2x}
-						alt={badge.description}
-						width="18"
-						height="18"
-					/>
-				{/snippet}
+{#each message.badges as badge (badge.title)}
+	<Tooltip class="p-1 text-xs" side="top" sideOffset={4}>
+		{#snippet trigger()}
+			<img
+				class="inline-block align-middle"
+				src={badge.image_url_2x}
+				alt={badge.description}
+				width="18"
+				height="18"
+			/>
+		{/snippet}
 
-				{badge.title}
-			</Tooltip>
-		{/each}
-	</div>
-{/if}
+		{badge.title}
+	</Tooltip>
+{/each}
 
 <span class="font-medium break-words" style:color={message.user.color}>
 	{message.user.name}<span class="text-foreground">:</span>
