@@ -15,7 +15,7 @@
 	});
 </script>
 
-<div class="hover:bg-muted px-3.5 py-2">
+<div class="hover:bg-muted px-3 py-2">
 	{#if message.isReply()}
 		{@const user = chat.users.get(message.reply.parent_user_id)}
 
