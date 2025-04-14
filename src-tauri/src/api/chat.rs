@@ -10,7 +10,7 @@ use crate::error::Error;
 use crate::providers::twitch::{fetch_channel_badges, fetch_global_badges};
 use crate::AppState;
 
-use super::eventsub::{subscribe_all, unsubscribe};
+use super::eventsub::{subscribe_all, unsubscribe_all};
 
 #[derive(Serialize)]
 pub struct Chat {
@@ -76,7 +76,11 @@ pub async fn join(
 
 #[tauri::command]
 pub async fn leave(state: State<'_, Mutex<AppState>>) -> Result<(), Error> {
-    unsubscribe(state, "channel.chat.message".into()).await?;
+    unsubscribe_all(
+        state,
+        &["channel.chat.message", "channel.chat.notification"],
+    )
+    .await?;
 
     Ok(())
 }

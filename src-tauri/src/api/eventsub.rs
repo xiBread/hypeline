@@ -86,3 +86,15 @@ pub async fn unsubscribe(state: State<'_, Mutex<AppState>>, event: String) -> Re
         None => Ok(()),
     }
 }
+
+#[tauri::command]
+pub async fn unsubscribe_all(
+    state: State<'_, Mutex<AppState>>,
+    events: &[&str],
+) -> Result<(), Error> {
+    for event in events.to_vec() {
+        unsubscribe(state.clone(), event.into()).await?;
+    }
+
+    Ok(())
+}
