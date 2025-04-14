@@ -8,10 +8,10 @@ const CDN_URL: &str = "https://cdn.betterttv.net/emote";
 
 #[derive(Deserialize)]
 pub struct User {
-    #[serde(rename = "channelEmotes")]
+    #[serde(default, rename = "channelEmotes")]
     pub channel_emotes: Vec<Emote>,
 
-    #[serde(rename = "sharedEmotes")]
+    #[serde(default, rename = "sharedEmotes")]
     pub shared_emotes: Vec<Emote>,
 }
 
@@ -48,11 +48,11 @@ pub async fn fetch_global_emotes() -> Result<Vec<emotes::Emote>> {
 }
 
 pub async fn fetch_user_emotes(id: &str) -> Result<Vec<emotes::Emote>> {
-    let user: User = HTTP
+    let user = HTTP
         .get(format!("{BASE_URL}/users/twitch/{id}"))
         .send()
         .await?
-        .json()
+        .json::<User>()
         .await?;
 
     let emotes: Vec<_> = user
