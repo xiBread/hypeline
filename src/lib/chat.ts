@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { app, chat } from "./state.svelte";
-import type { Badge, BadgeSet, ChannelChatMessage } from "./twitch";
+import type { Badge, BadgeSet } from "./twitch";
 
 export interface Chat {
 	channel_id: string;
@@ -22,18 +22,6 @@ export type Fragment =
 	| ({ type: "emote" } & Emote)
 	// todo: cheermotes
 	| { type: "cheermote"; value: string };
-
-export interface SystemMessage {
-	type: "system";
-	text: string;
-}
-
-export interface UserMessage extends ChannelChatMessage {
-	type: "user";
-	fragments: Fragment[];
-}
-
-export type Message = SystemMessage | UserMessage;
 
 export async function join(channel: string) {
 	const data = await invoke<{

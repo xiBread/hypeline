@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { SystemMessage } from "$lib/chat";
+	import { SystemMessage } from "$lib/message";
 
 	const { message }: { message: SystemMessage } = $props();
 </script>

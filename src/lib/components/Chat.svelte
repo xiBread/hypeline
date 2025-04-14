@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { VList } from "virtua/svelte";
+	import type { Message } from "$lib/message";
 	import { chat } from "$lib/state.svelte";
-	import SystemMessage from "./SystemMessage.svelte";
+	import NotificationMessage from "./NotificationMessage.svelte";
 	import UserMessage from "./UserMessage.svelte";
+	import SystemMessage from "./SystemMessage.svelte";
 
 	interface Props {
 		class?: string;
@@ -39,12 +41,14 @@
 	getKey={(msg, i) => msg.message_id ?? i}
 	bind:this={list}
 >
-	{#snippet children(message)}
+	{#snippet children(message: Message)}
 		<div class="hover:bg-muted rounded-md p-2">
-			{#if message.type === "system"}
-				<SystemMessage {message} />
+			{#if message.isUser()}
+				<UserMessage {message} />
+			{:else if message.isNotification()}
+				<NotificationMessage {message} />
 			{:else}
-				<UserMessage {message} reply={message.reply} />
+				<SystemMessage {message} />
 			{/if}
 		</div>
 	{/snippet}

@@ -4,6 +4,7 @@
 	import Chat from "$lib/components/Chat.svelte";
 	import Input from "$lib/components/Input.svelte";
 	import { app, chat, settings } from "$lib/state.svelte";
+	import { SystemMessage } from "$lib/message";
 
 	const { data } = $props();
 
@@ -15,14 +16,9 @@
 
 	async function update() {
 		await join(data.channel);
-		chat.messages = [];
 
 		settings.state.lastJoined = data.channel;
-
-		chat.messages.push({
-			type: "system",
-			text: `Joined ${data.channel}`,
-		});
+		chat.messages = [new SystemMessage(`Joined ${data.channel}`)];
 
 		await fetchUsers();
 	}

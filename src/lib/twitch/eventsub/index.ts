@@ -14,6 +14,7 @@ export * from "./websocket";
 
 export interface EventSubSubscriptionMap {
 	"channel.chat.message": Events.ChannelChatMessage;
+	"channel.chat.notification": Events.ChannelChatNotification;
 	"user.update": Events.UserUpdate;
 }
 
