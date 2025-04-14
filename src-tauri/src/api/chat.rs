@@ -10,7 +10,7 @@ use crate::error::Error;
 use crate::providers::twitch::{fetch_channel_badges, fetch_global_badges};
 use crate::AppState;
 
-use super::eventsub::{subscribe, unsubscribe};
+use super::eventsub::{subscribe_all, unsubscribe};
 
 #[derive(Serialize)]
 pub struct Chat {
@@ -52,14 +52,18 @@ pub async fn join(
 
     global_badges.extend(channel_badges);
 
-    subscribe(
+    let channel_condition = json!({
+        "broadcaster_user_id": broadcaster_id,
+        "user_id": user_id
+    });
+
+    subscribe_all(
         state.clone(),
         session_id,
-        "channel.chat.message".into(),
-        json!({
-            "broadcaster_user_id": broadcaster_id,
-            "user_id": user_id
-        }),
+        &[
+            ("channel.chat.message", &channel_condition),
+            ("channel.chat.notification", &channel_condition),
+        ],
     )
     .await?;
 

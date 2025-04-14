@@ -44,6 +44,24 @@ pub async fn subscribe(
     Ok(())
 }
 
+pub async fn subscribe_all(
+    state: State<'_, Mutex<AppState>>,
+    session_id: String,
+    subscriptions: &[(&str, &serde_json::Value)],
+) -> Result<(), Error> {
+    for (event, condition) in subscriptions.to_vec() {
+        subscribe(
+            state.clone(),
+            session_id.clone(),
+            event.into(),
+            condition.clone(),
+        )
+        .await?;
+    }
+
+    Ok(())
+}
+
 #[tauri::command]
 pub async fn unsubscribe(state: State<'_, Mutex<AppState>>, event: String) -> Result<(), Error> {
     let id = {

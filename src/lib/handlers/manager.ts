@@ -1,4 +1,5 @@
 import channelChatMessage from "./channel-chat-message";
+import channelChatNotification from "./channel-chat-notification";
 import type { Handler } from ".";
 
 export const handlers = new Map<string, Handler<any>>();
@@ -8,3 +9,4 @@ function register(handler: Handler<any>) {
 }
 
 register(channelChatMessage);
+register(channelChatNotification);
