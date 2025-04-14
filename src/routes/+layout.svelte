@@ -6,9 +6,8 @@
 	import { ModeWatcher } from "mode-watcher";
 	import { onDestroy, onMount } from "svelte";
 	import { goto } from "$app/navigation";
-	import type { Emote } from "$lib/chat";
 	import Sidebar from "$lib/components/Sidebar.svelte";
-	import { app, chat, settings } from "$lib/state.svelte";
+	import { app, settings } from "$lib/state.svelte";
 	import { connect } from "$lib/twitch/eventsub";
 
 	const { children } = $props();
@@ -17,11 +16,6 @@
 		app.loading = true;
 
 		await connect();
-		const emotes = await invoke<Emote[]>("fetch_global_emotes");
-
-		for (const emote of emotes) {
-			chat.emotes.set(emote.name, emote);
-		}
 
 		if (!app.channels.length) {
 			app.channels = await invoke("get_followed");
@@ -47,7 +41,7 @@
 		<span class="text-lg">Loading...</span>
 	</div>
 {:else}
-	<Tooltip.Provider delayDuration={100}>
+	<Tooltip.Provider delayDuration={99}>
 		<div class="flex">
 			{#if settings.state.user}
 				<Sidebar />
