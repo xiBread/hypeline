@@ -33,11 +33,13 @@
 <p class="inline">
 	{#each message.fragments as fragment, i}
 		{#if fragment.type === "mention"}
-			{@const user = chat.users.get(fragment.id)}
+			{#if !message.isUser()}
+				{@const user = chat.users.get(fragment.id)}
 
-			<span class="font-bold break-words" style:color={user?.color}>
-				@{user?.name ?? fragment.username}
-			</span>
+				<span class="font-bold break-words" style:color={user?.color}>
+					@{user?.name ?? fragment.username}
+				</span>
+			{/if}
 		{:else if fragment.type === "url"}
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
 			<span
