@@ -20,7 +20,7 @@ export class BaseMessage {
 		return Object.hasOwn(this.data, "system_message");
 	}
 
-	public isSystem(): this is NotificationMessage {
-		return !this.isUser() && !this.isSystem();
+	public isSystem(): this is SystemMessage {
+		return !this.isUser() && !this.isNotification();
 	}
 }
