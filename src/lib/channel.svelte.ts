@@ -1,5 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
+import { systemPrefersMode, userPrefersMode } from "mode-watcher";
 import { SvelteMap } from "svelte/reactivity";
+import { fromStore } from "svelte/store";
 import { Chat } from "./chat.svelte";
 import { app } from "./state.svelte";
 import type { Badge, BadgeSet } from "./twitch/api";
@@ -17,6 +19,8 @@ export class Channel {
 	public readonly badges = new SvelteMap<string, Record<string, Badge>>();
 	public readonly emotes = new SvelteMap<string, Emote>();
 
+	#color: string | null = null;
+
 	public constructor(
 		public readonly id: string,
 		public readonly name: string,
@@ -29,14 +33,33 @@ export class Channel {
 			badges: BadgeSet[];
 		}>("join", { sessionId: app.wsSessionId, channel });
 
+		const color = await invoke<string | null>("get_user_color", {
+			id: data.channel_id,
+		});
+
 		const instance = new Channel(data.channel_id, channel)
 			.addBadges(data.badges)
 			.addEmotes(data.emotes)
-			.addEmotes(app.globalEmotes);
+			.addEmotes(app.globalEmotes)
+			.setColor(color);
 
 		await instance.chat.fetchUsers();
 
 		return instance;
+	}
+
+	public get color() {
+		if (this.#color) return this.#color;
+
+		const prefers = fromStore(userPrefersMode);
+		const system = fromStore(systemPrefersMode);
+
+		const mode =
+			prefers.current === "system"
+				? (system.current ?? "dark")
+				: prefers.current;
+
+		return mode === "dark" ? "#FFFFFF" : "#000000";
 	}
 
 	public async leave() {
@@ -66,6 +89,12 @@ export class Channel {
 		for (const [name, emote] of entries) {
 			this.emotes.set(name, emote);
 		}
+
+		return this;
+	}
+
+	public setColor(color: string | null) {
+		this.#color = color;
 
 		return this;
 	}

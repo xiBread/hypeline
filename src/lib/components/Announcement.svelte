@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Megaphone from "@lucide/svelte/icons/megaphone";
 	import type { NotificationMessage } from "$lib/message";
+	import { app } from "$lib/state.svelte";
 	import TextMessage from "./TextMessage.svelte";
 
 	interface Props {
@@ -9,7 +10,7 @@
 	}
 
 	const colors: Record<string, string[]> = {
-		PRIMARY: ["#ffffff", "#ffffff"], // todo: user color
+		PRIMARY: [app.active.color, app.active.color],
 		BLUE: ["#00d6d6", "#9146ff"],
 		GREEN: ["#00db84", "#57bee6"],
 		ORANGE: ["#ffb31a", "#e0e000"],

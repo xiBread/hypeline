@@ -22,3 +22,31 @@ pub async fn get_current_user(state: State<'_, Mutex<AppState>>) -> Result<Optio
 
     Ok(response)
 }
+
+#[tauri::command]
+pub async fn get_user_from_id(
+    state: State<'_, Mutex<AppState>>,
+    id: String,
+) -> Result<Option<User>, Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state).await?;
+
+    let response = state.helix.get_user_from_id(&id, token).await?;
+    Ok(response)
+}
+
+#[tauri::command]
+pub async fn get_user_color(
+    state: State<'_, Mutex<AppState>>,
+    id: String,
+) -> Result<Option<String>, Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state).await?;
+
+    let response = state.helix.get_user_chat_color(&id, token).await?;
+
+    match response {
+        Some(user) => Ok(user.color.map(|c| c.into())),
+        None => Ok(None),
+    }
+}
