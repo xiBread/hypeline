@@ -41,14 +41,12 @@
 	bind:this={list}
 >
 	{#snippet children(message: Message)}
-		<div class="my-0.5">
-			{#if message.isUser()}
-				<UserMessage {message} />
-			{:else if message.isNotification()}
-				<NotificationMessage {message} />
-			{:else}
-				<SystemMessage {message} />
-			{/if}
-		</div>
+		{#if message.isUser()}
+			<UserMessage {message} />
+		{:else if message.isNotification()}
+			<NotificationMessage {message} />
+		{:else}
+			<SystemMessage {message} />
+		{/if}
 	{/snippet}
 </VList>
