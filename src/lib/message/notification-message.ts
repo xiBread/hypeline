@@ -1,12 +1,20 @@
-import type { ChannelChatNotification } from "$lib/twitch";
-import { BaseMessage } from "./message";
+import type { Announcement, ChannelChatNotification } from "$lib/twitch";
+import { TextMessage } from "./text-message";
 
-export class NotificationMessage extends BaseMessage {
+export class NotificationMessage extends TextMessage {
 	public constructor(public readonly data: ChannelChatNotification) {
 		super(data);
 	}
 
-	public isAnnouncment() {
-		// return this.data
+	public get announcement(): Announcement | null {
+		return this.data.notice_type === "announcement"
+			? this.data.announcement
+			: null;
+	}
+
+	public isAnnouncement(): this is NotificationMessage & {
+		announcement: Announcement;
+	} {
+		return this.data.notice_type === "announcement";
 	}
 }

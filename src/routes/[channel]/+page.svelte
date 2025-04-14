@@ -3,8 +3,8 @@
 	import { fetchUsers, join, leave } from "$lib/chat";
 	import Chat from "$lib/components/Chat.svelte";
 	import Input from "$lib/components/Input.svelte";
-	import { app, chat, settings } from "$lib/state.svelte";
 	import { SystemMessage } from "$lib/message";
+	import { app, chat, settings } from "$lib/state.svelte";
 
 	const { data } = $props();
 

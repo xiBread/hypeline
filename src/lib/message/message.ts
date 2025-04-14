@@ -1,14 +1,11 @@
-import type { ChannelChatMessage, ChannelChatNotification } from "$lib/twitch";
+import type { BaseMessage as BaseMessageData } from "$lib/twitch";
 import type { NotificationMessage } from "./notification-message";
 import type { SystemMessage, SystemMessageData } from "./system-message";
 import type { UserMessage } from "./user-message";
 
 export type Message = UserMessage | NotificationMessage | SystemMessage;
 
-export type MessageData =
-	| ChannelChatMessage
-	| ChannelChatNotification
-	| SystemMessageData;
+export type MessageData = BaseMessageData | SystemMessageData;
 
 export class BaseMessage {
 	public readonly timestamp = new Date();

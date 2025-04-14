@@ -4,4 +4,6 @@
 	const { message }: { message: SystemMessage } = $props();
 </script>
 
-<p>{message.text}</p>
+<div class="text-muted-foreground px-2 py-1">
+	<p>{message.text}</p>
+</div>

@@ -3,8 +3,8 @@
 	import type { Message } from "$lib/message";
 	import { chat } from "$lib/state.svelte";
 	import NotificationMessage from "./NotificationMessage.svelte";
-	import UserMessage from "./UserMessage.svelte";
 	import SystemMessage from "./SystemMessage.svelte";
+	import UserMessage from "./UserMessage.svelte";
 
 	interface Props {
 		class?: string;
@@ -20,11 +20,10 @@
 	let shouldAutoScroll = true;
 
 	function handleScroll(offset: number) {
-		if (list) {
-			shouldAutoScroll =
-				offset >=
-				list.getScrollSize() - list.getViewportSize() - TOLERANCE;
-		}
+		if (!list) return;
+
+		shouldAutoScroll =
+			offset >= list.getScrollSize() - list.getViewportSize() - TOLERANCE;
 	}
 
 	$effect(() => {
@@ -35,14 +34,14 @@
 </script>
 
 <VList
-	class="{className} flex flex-col overflow-y-auto p-1.5 text-sm"
+	class="{className} overflow-y-auto text-sm"
 	data={chat.messages}
 	onscroll={(offset) => handleScroll(offset)}
 	getKey={(msg, i) => msg.message_id ?? i}
 	bind:this={list}
 >
 	{#snippet children(message: Message)}
-		<div class="hover:bg-muted rounded-md p-2">
+		<div class="my-0.5">
 			{#if message.isUser()}
 				<UserMessage {message} />
 			{:else if message.isNotification()}

@@ -1,0 +1,34 @@
+<script lang="ts">
+	import Megaphone from "@lucide/svelte/icons/megaphone";
+	import type { NotificationMessage } from "$lib/message";
+	import TextMessage from "./TextMessage.svelte";
+
+	interface Props {
+		message: NotificationMessage;
+		color: string;
+	}
+
+	const colors: Record<string, string[]> = {
+		PRIMARY: ["#ffffff", "#ffffff"], // todo: user color
+		BLUE: ["#00d6d6", "#9146ff"],
+		GREEN: ["#00db84", "#57bee6"],
+		ORANGE: ["#ffb31a", "#e0e000"],
+		PURPLE: ["#9146ff", "#ff75e6"],
+	};
+
+	const { message, color }: Props = $props();
+	const stops = colors[color];
+</script>
+
+<div
+	class="border-x-6 [border-image-slice:1]"
+	style:border-image-source="linear-gradient({stops[0]}, {stops[1]})"
+>
+	<div class="bg-muted flex items-center px-2.5 py-1 text-xs font-medium">
+		<Megaphone class="mr-2 size-4" /> Announcement
+	</div>
+
+	<div class="bg-muted/50 p-2">
+		<TextMessage {message} />
+	</div>
+</div>
