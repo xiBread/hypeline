@@ -112,105 +112,115 @@ export interface BaseNotification extends BaseMessage {
 	system_message: string;
 }
 
+export type SubTier = "1000" | "2000" | "3000";
+
+export interface Sub {
+	sub_tier: "1000" | "2000" | "3000";
+	is_prime: boolean;
+	duration_months: number;
+}
+
 export interface SubNotification extends BaseNotification {
 	notice_type: "sub";
-	sub: {
-		sub_tier: "1000" | "2000" | "3000";
-		is_prime: boolean;
-		duration_months: number;
-	};
-	shared_chat_sub: SubNotification["sub"] | null;
+	sub: Sub;
+	shared_chat_sub: Sub | null;
+}
+
+export interface Resub {
+	cumulative_months: number;
+	duration_months: number;
+	streak_months: number;
+	sub_tier: SubTier;
+	is_prime: boolean | null;
+	is_gift: boolean;
+	gifter_is_anonymous: boolean | null;
+	gifter_user_id: string | null;
+	gifter_user_name: string | null;
+	gifter_user_login: string | null;
 }
 
 export interface ResubNotification extends BaseNotification {
 	notice_type: "resub";
-	resub: {
-		cumulative_months: number;
-		duration_months: number;
-		streak_months: number;
-		sub_tier: "1000" | "2000" | "3000";
-		is_prime: boolean | null;
-		is_gift: boolean;
-		gifter_is_anonymous: boolean | null;
-		gifter_user_id: string | null;
-		gifter_user_name: string | null;
-		gifter_user_login: string | null;
-	};
-	shared_chat_resub: ResubNotification["resub"] | null;
+	resub: Resub;
+	shared_chat_resub: Resub | null;
+}
+
+export interface SubGift {
+	duration_months: number;
+	cumulative_total: number | null;
+	recipient_user_id: string;
+	recipient_user_name: string;
+	recipient_user_login: string;
+	sub_tier: SubTier;
+	community_gift_id: string | null;
 }
 
 export interface SubGiftNotification extends BaseNotification {
 	notice_type: "sub_gift";
-	sub_gift: {
-		duration_months: number;
-		cumulative_total: number | null;
-		recipient_user_id: string;
-		recipient_user_name: string;
-		recipient_user_login: string;
-		sub_tier: "1000" | "2000" | "3000";
-		community_gift_id: string | null;
-	};
-	shared_chat_sub_gift: SubGiftNotification["sub_gift"] | null;
+	sub_gift: SubGift;
+	shared_chat_sub_gift: SubGift | null;
+}
+
+export interface CommunitySubGift {
+	id: string;
+	total: number;
+	sub_tier: SubTier;
+	cumulative_total: number | null;
 }
 
 export interface CommunitySubGiftNotification extends BaseNotification {
 	notice_type: "community_sub_gift";
-	community_sub_gift: {
-		id: string;
-		total: number;
-		sub_tier: "1000" | "2000" | "3000";
-		cumulative_total: number | null;
-	};
-	shared_chat_community_sub_gift:
-		| CommunitySubGiftNotification["community_sub_gift"]
-		| null;
+	community_sub_gift: CommunitySubGift;
+	shared_chat_community_sub_gift: CommunitySubGift | null;
+}
+
+export interface GiftPaidUpgrade {
+	gifter_is_anonymous: boolean;
+	gifter_user_id: string;
+	gifter_user_name: string;
 }
 
 export interface GiftPaidUpgradeNotification extends BaseNotification {
 	notice_type: "gift_paid_upgrade";
-	gift_paid_upgrade: {
-		gifter_is_anonymous: boolean;
-		gifter_user_id: string;
-		gifter_user_name: string;
-	};
-	shared_chat_gift_paid_upgrade:
-		| GiftPaidUpgradeNotification["gift_paid_upgrade"]
-		| null;
+	gift_paid_upgrade: GiftPaidUpgrade;
+	shared_chat_gift_paid_upgrade: GiftPaidUpgrade | null;
+}
+
+export interface PrimePaidUpgrade {
+	sub_tier: "1000" | "2000" | "3000";
 }
 
 export interface PrimePaidUpgradeNotification extends BaseNotification {
 	notice_type: "prime_paid_upgrade";
-	prime_paid_upgrade: {
-		sub_tier: "1000" | "2000" | "3000";
-	};
-	shared_chat_prime_paid_upgrade:
-		| PrimePaidUpgradeNotification["prime_paid_upgrade"]
-		| null;
+	prime_paid_upgrade: PrimePaidUpgrade;
+	shared_chat_prime_paid_upgrade: PrimePaidUpgrade | null;
+}
+
+export interface PayItForward {
+	gifter_is_anonymous: boolean;
+	gifter_user_id: string | null;
+	gifter_user_name: string | null;
+	gifter_user_login: string | null;
 }
 
 export interface PayItForwardNotification extends BaseNotification {
 	notice_type: "pay_it_forward";
-	pay_it_forward: {
-		gifter_is_anonymous: boolean;
-		gifter_user_id: string | null;
-		gifter_user_name: string | null;
-		gifter_user_login: string | null;
-	};
-	shared_chat_pay_it_forward:
-		| PayItForwardNotification["pay_it_forward"]
-		| null;
+	pay_it_forward: PayItForward;
+	shared_chat_pay_it_forward: PayItForward | null;
+}
+
+export interface Raid {
+	user_id: string;
+	user_name: string;
+	user_login: string;
+	viewer_count: number;
+	profile_image_url: string;
 }
 
 export interface RaidNotification extends BaseNotification {
 	notice_type: "raid";
-	raid: {
-		user_id: string;
-		user_name: string;
-		user_login: string;
-		viewer_count: number;
-		profile_image_url: string;
-	};
-	shared_chat_raid: RaidNotification["raid"] | null;
+	raid: Raid;
+	shared_chat_raid: Raid | null;
 }
 
 export interface UnraidNotification extends BaseNotification {
@@ -218,12 +228,14 @@ export interface UnraidNotification extends BaseNotification {
 	unraid: Record<string, never>;
 }
 
+export interface Announcement {
+	color: string;
+}
+
 export interface AnnouncementNotification extends BaseNotification {
 	notice_type: "announcement";
-	announcement: {
-		color: string;
-	};
-	shared_chat_announcement: AnnouncementNotification["announcement"] | null;
+	announcement: Announcement;
+	shared_chat_announcement: Announcement | null;
 }
 
 export interface BitsBadgeTierNotification extends BaseNotification {
@@ -233,16 +245,20 @@ export interface BitsBadgeTierNotification extends BaseNotification {
 	};
 }
 
+export interface CharityDonationAmount {
+	value: number;
+	decimal_place: number;
+	currency: string;
+}
+
+export interface CharityDonation {
+	charity_name: string;
+	amount: CharityDonationAmount;
+}
+
 export interface CharityDonationNotification extends BaseNotification {
 	notice_type: "charity_donation";
-	charity_donation: {
-		charity_name: string;
-		amount: {
-			value: number;
-			decimal_place: number;
-			currency: string;
-		};
-	};
+	charity_donation: CharityDonation;
 }
 
 export type ChannelChatNotification =
