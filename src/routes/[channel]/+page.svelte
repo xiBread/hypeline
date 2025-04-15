@@ -1,14 +1,10 @@
 <script lang="ts">
-	import { invoke } from "@tauri-apps/api/core";
 	import { Channel } from "$lib/channel.svelte";
 	import Chat from "$lib/components/Chat.svelte";
 	import Input from "$lib/components/Input.svelte";
-	import { SystemMessage } from "$lib/message";
 	import { app, settings } from "$lib/state.svelte";
 
 	const { data } = $props();
-
-	const chat = $derived(app.active.chat);
 
 	$effect(() => {
 		if (app.wsSessionId) update();
@@ -21,7 +17,6 @@
 		app.active = channel;
 
 		settings.state.lastJoined = data.channel;
-		chat.messages = [new SystemMessage(`Joined ${data.channel}`)];
 	}
 
 	async function send(event: KeyboardEvent) {

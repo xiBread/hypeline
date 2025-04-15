@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { SvelteMap } from "svelte/reactivity";
 import { Chat } from "./chat.svelte";
+import { SystemMessage } from "./message";
 import { app } from "./state.svelte";
 import type { Badge, BadgeSet } from "./twitch/api";
 import { User } from "./user";
@@ -50,8 +51,11 @@ export class Channel {
 			.addEmotes(data.emotes)
 			.addEmotes(app.globalEmotes);
 
-		await instance.chat.fetchUsers();
+		instance.chat.messages = [
+			new SystemMessage(`Joined ${user.displayName}`),
+		];
 
+		await instance.chat.fetchUsers();
 		return instance;
 	}
 
