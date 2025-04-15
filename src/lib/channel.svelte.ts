@@ -3,7 +3,7 @@ import { SvelteMap } from "svelte/reactivity";
 import { Chat } from "./chat.svelte";
 import { SystemMessage } from "./message";
 import { app } from "./state.svelte";
-import type { Badge, BadgeSet } from "./twitch/api";
+import type { Badge, BadgeSet, Stream } from "./twitch/api";
 import { User } from "./user";
 
 export interface Emote {
@@ -18,6 +18,8 @@ export class Channel {
 
 	public readonly badges = new SvelteMap<string, Record<string, Badge>>();
 	public readonly emotes = new SvelteMap<string, Emote>();
+
+	public stream: Stream | null = null;
 
 	public constructor(public readonly user: User) {}
 
@@ -55,7 +57,9 @@ export class Channel {
 			new SystemMessage(`Joined ${user.displayName}`),
 		];
 
+		await instance.loadStream();
 		await instance.chat.fetchUsers();
+
 		return instance;
 	}
 
@@ -91,6 +95,15 @@ export class Channel {
 			this.emotes.set(name, emote);
 		}
 
+		return this;
+	}
+
+	public async loadStream() {
+		const stream = await invoke<Stream | null>("get_stream", {
+			id: this.user.id,
+		});
+
+		this.stream = stream;
 		return this;
 	}
 }

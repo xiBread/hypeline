@@ -34,6 +34,29 @@ pub async fn get_chatters(
     }
 }
 
+#[tauri::command]
+pub async fn get_stream(
+    state: State<'_, Mutex<AppState>>,
+    id: String,
+) -> Result<Option<Stream>, Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state).await?;
+
+    let mut streams: Vec<Stream> = state
+        .helix
+        .get_streams_from_ids(&[&id][..].into(), token)
+        .try_collect()
+        .await?;
+
+    let stream = if streams.is_empty() {
+        None
+    } else {
+        streams.pop()
+    };
+
+    Ok(stream)
+}
+
 #[derive(Serialize)]
 pub struct FollowedChannel {
     user_id: String,
