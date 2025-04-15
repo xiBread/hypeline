@@ -58,7 +58,7 @@ export class Channel {
 		];
 
 		await instance.loadStream();
-		await instance.chat.fetchUsers();
+		await instance.chat.loadUsers();
 
 		return instance;
 	}

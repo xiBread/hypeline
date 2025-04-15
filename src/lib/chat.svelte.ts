@@ -15,7 +15,7 @@ export class Chat {
 
 	public constructor(public readonly channel: Channel) {}
 
-	public async fetchUsers() {
+	public async loadUsers() {
 		const users = await invoke<ChatUser[]>("get_chatters", {
 			id: this.channel.user.id,
 		});
