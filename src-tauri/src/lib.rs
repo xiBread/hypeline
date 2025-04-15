@@ -8,13 +8,11 @@ use tauri::Manager;
 use tauri_plugin_svelte::ManagerExt;
 use twitch_api::twitch_oauth2::{AccessToken, UserToken};
 use twitch_api::HelixClient;
-use users::User;
 
 mod api;
 mod emotes;
 mod error;
 mod providers;
-mod users;
 
 const CLIENT_ID: &str = "kimne78kx3ncx6brgo4mv6wki5h1ko";
 
@@ -32,7 +30,7 @@ pub static HTTP: LazyLock<reqwest::Client> = LazyLock::new(|| {
 pub struct AppState {
     helix: HelixClient<'static, reqwest::Client>,
     subscriptions: HashMap<String, String>,
-    user: User,
+    token: Option<UserToken>,
 }
 
 impl Default for AppState {
@@ -40,7 +38,7 @@ impl Default for AppState {
         Self {
             helix: HelixClient::new(),
             subscriptions: HashMap::default(),
-            user: User::default(),
+            token: None,
         }
     }
 }
@@ -94,7 +92,7 @@ pub fn run() {
                     None
                 };
 
-                state.user.token = access_token;
+                state.token = access_token;
             });
 
             app.manage(Mutex::new(state));
@@ -109,16 +107,14 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
     tauri::generate_handler![
         api::set_access_token,
         api::channels::get_stream,
-        api::channels::get_followed,
+        api::channels::get_followed_channels,
         api::channels::get_chatters,
         api::chat::join,
         api::chat::leave,
         api::chat::send_message,
         api::eventsub::subscribe,
         api::eventsub::unsubscribe,
-        api::users::get_current_user,
         api::users::get_user_from_id,
-        api::users::get_user_color,
         emotes::fetch_global_emotes,
     ]
 }

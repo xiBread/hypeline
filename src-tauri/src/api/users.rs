@@ -1,52 +1,44 @@
+use serde::Serialize;
 use tauri::async_runtime::Mutex;
 use tauri::State;
-use twitch_api::helix::users::User;
+use twitch_api::helix::users::User as HelixUser;
 
 use crate::error::Error;
 use crate::AppState;
 
-use super::get_access_token;
-
-#[tauri::command]
-pub async fn get_current_user(state: State<'_, Mutex<AppState>>) -> Result<Option<User>, Error> {
-    let mut state = state.lock().await;
-    let token = get_access_token(&state).await?;
-
-    let response = state.helix.get_user_from_id(&token.user_id, token).await?;
-
-    if state.user.data.is_none() {
-        if let Some(ref user) = response {
-            state.user.data = Some(user.clone());
-        }
-    }
-
-    Ok(response)
+#[derive(Serialize)]
+pub struct User {
+    pub data: HelixUser,
+    pub color: Option<String>,
 }
 
 #[tauri::command]
 pub async fn get_user_from_id(
     state: State<'_, Mutex<AppState>>,
-    id: String,
+    id: Option<String>,
 ) -> Result<Option<User>, Error> {
     let state = state.lock().await;
-    let token = get_access_token(&state).await?;
 
-    let response = state.helix.get_user_from_id(&id, token).await?;
-    Ok(response)
-}
+    let Some(token) = state.token.as_ref() else {
+        return Ok(None);
+    };
 
-#[tauri::command]
-pub async fn get_user_color(
-    state: State<'_, Mutex<AppState>>,
-    id: String,
-) -> Result<Option<String>, Error> {
-    let state = state.lock().await;
-    let token = get_access_token(&state).await?;
+    let user_id = match id {
+        Some(id) => id,
+        None => token.user_id.to_string(),
+    };
 
-    let response = state.helix.get_user_chat_color(&id, token).await?;
+    let response = state.helix.get_user_from_id(&user_id, token).await?;
 
     match response {
-        Some(user) => Ok(user.color.map(|c| c.into())),
+        Some(user) => {
+            let color_user = state.helix.get_user_chat_color(&user_id, token).await?;
+
+            Ok(Some(User {
+                data: user,
+                color: color_user.and_then(|u| u.color.map(|c| c.into())),
+            }))
+        }
         None => Ok(None),
     }
 }

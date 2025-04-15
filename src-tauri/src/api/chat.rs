@@ -4,17 +4,22 @@ use serde_json::json;
 use tauri::async_runtime::Mutex;
 use tauri::State;
 use twitch_api::helix::chat::BadgeSet;
+use twitch_api::helix::streams::Stream;
 
 use crate::emotes::{fetch_user_emotes, EmoteMap};
 use crate::error::Error;
 use crate::providers::twitch::{fetch_channel_badges, fetch_global_badges};
 use crate::AppState;
 
+use super::channels::get_stream;
 use super::eventsub::{subscribe_all, unsubscribe_all};
+use super::users::{get_user_from_id, User};
 
 #[derive(Serialize)]
-pub struct Chat {
-    channel_id: String,
+pub struct JoinedChannel {
+    id: String,
+    user: User,
+    stream: Option<Stream>,
     emotes: EmoteMap,
     badges: Vec<BadgeSet>,
 }
@@ -23,32 +28,34 @@ pub struct Chat {
 pub async fn join(
     state: State<'_, Mutex<AppState>>,
     session_id: String,
-    channel: String,
-) -> Result<Chat, Error> {
-    let guard = state.lock().await;
+    id: String,
+) -> Result<JoinedChannel, Error> {
+    let (helix, token) = {
+        let state = state.lock().await;
 
-    let token = guard
-        .user
-        .token
-        .as_ref()
-        .ok_or_else(|| Error::Generic(anyhow!("Access token not set")))?;
+        let token = state
+            .token
+            .as_ref()
+            .ok_or_else(|| Error::Generic(anyhow!("Access token not set")))?;
+
+        (state.helix.clone(), token.clone())
+    };
 
     let user_id = token.user_id.clone();
 
-    let broadcaster = guard
-        .helix
-        .get_user_from_login(channel.as_str(), token)
-        .await?;
+    let user = get_user_from_id(state.clone(), Some(id.to_string()))
+        .await?
+        .unwrap();
 
-    let broadcaster = broadcaster.expect("user not found");
-    let broadcaster_id = broadcaster.id.as_str();
+    let broadcaster_id = user.data.id.as_str();
+    let login = user.data.login.to_string();
 
-    let emotes = fetch_user_emotes(broadcaster_id).await?;
-
-    let mut global_badges = fetch_global_badges(&guard.helix, &token).await?;
-    let channel_badges = fetch_channel_badges(&guard.helix, &token, channel).await?;
-
-    drop(guard);
+    let (stream, emotes, mut global_badges, channel_badges) = tokio::try_join!(
+        get_stream(state.clone(), id.to_string()),
+        fetch_user_emotes(broadcaster_id),
+        fetch_global_badges(&helix, &token),
+        fetch_channel_badges(&helix, &token, login),
+    )?;
 
     global_badges.extend(channel_badges);
 
@@ -67,8 +74,10 @@ pub async fn join(
     )
     .await?;
 
-    Ok(Chat {
-        channel_id: broadcaster_id.to_string(),
+    Ok(JoinedChannel {
+        id: broadcaster_id.to_string(),
+        user,
+        stream,
         emotes,
         badges: global_badges,
     })
@@ -93,11 +102,11 @@ pub async fn send_message(
 ) -> Result<(), Error> {
     let state = state.lock().await;
 
-    if state.user.token.is_none() {
+    if state.token.is_none() {
         return Err(Error::Generic(anyhow!("Access token not set")));
     }
 
-    let token = state.user.token.as_ref().unwrap();
+    let token = state.token.as_ref().unwrap();
     let user_id = token.user_id.clone();
 
     state

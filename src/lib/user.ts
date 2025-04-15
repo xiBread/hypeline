@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { systemPrefersMode, userPrefersMode } from "mode-watcher";
 import { fromStore } from "svelte/store";
+import type { UserWithColor } from "./tauri";
 import type { User as HelixUser } from "./twitch/api";
 
 export class User {
@@ -11,9 +12,11 @@ export class User {
 		this.#data = data;
 	}
 
-	public static async load(id: string): Promise<User> {
-		const data = await invoke<HelixUser>("get_user_from_id", { id });
-		const color = await invoke<string | null>("get_user_color", { id });
+	public static async load(id: string | null): Promise<User> {
+		const { data, color } = await invoke<UserWithColor>(
+			"get_user_from_id",
+			{ id },
+		);
 
 		const user = new User(data);
 		user.setColor(color);

@@ -62,7 +62,7 @@
 		{#snippet trigger()}
 			<a
 				class="bg-muted flex size-10 items-center justify-center overflow-hidden rounded-full border"
-				href="/{user.displayName}"
+				href="/{user.id}"
 			>
 				<img
 					class={["object-cover", !stream && "grayscale"]}
@@ -76,10 +76,11 @@
 
 		{#if stream}
 			<div class="space-y-0.5">
-				<!-- prettier-ignore -->
-				<div class="text-twitch-link overflow-ellipsis overflow-hidden whitespace-nowrap">
-							{user.displayName} &bullet; {stream.game_name}
-						</div>
+				<div
+					class="text-twitch-link overflow-hidden overflow-ellipsis whitespace-nowrap"
+				>
+					{user.displayName} &bullet; {stream.game_name}
+				</div>
 
 				<p class="line-clamp-2">{stream.title}</p>
 

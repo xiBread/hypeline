@@ -1,11 +1,12 @@
 import { invoke } from "@tauri-apps/api/core";
 import { Channel } from "./channel.svelte";
-import type { FollowedChannel, User as HelixUser } from "./twitch/api";
+import type { FullChannel, UserWithColor } from "./tauri";
+import type { User as HelixUser } from "./twitch/api";
 import { User } from "./user";
 
 export class AuthUser extends User {
 	public readonly emotes = new Map();
-	public readonly following = $state<Channel[]>([]);
+	public following = $state<Channel[]>([]);
 
 	public constructor(
 		data: HelixUser,
@@ -15,24 +16,30 @@ export class AuthUser extends User {
 	}
 
 	public static override async load(token: string): Promise<AuthUser> {
-		const data = await invoke<HelixUser>("get_current_user");
+		const { data, color } = await invoke<UserWithColor>(
+			"get_user_from_id",
+			{ id: null },
+		);
 
 		const user = new AuthUser(data, token);
-		await user.loadFollowing();
+		user.setColor(color);
 
+		await user.loadFollowing();
 		return user;
 	}
 
 	public async loadFollowing() {
-		const channels = await invoke<FollowedChannel[]>("get_followed");
+		const channels = await invoke<FullChannel[]>("get_followed_channels");
+		const following = [];
 
 		for (const followed of channels) {
-			const user = await User.load(followed.broadcaster_id);
+			const user = new User(followed.user.data);
+			user.setColor(followed.user.color);
 
-			const channel = new Channel(user);
-			await channel.loadStream();
-
-			this.following.push(channel);
+			const channel = new Channel(user, followed.stream);
+			following.push(channel);
 		}
+
+		this.following = following;
 	}
 }

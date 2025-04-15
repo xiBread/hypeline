@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { SvelteMap } from "svelte/reactivity";
 import { Chat } from "./chat.svelte";
+import type { JoinedChannel } from "./tauri";
 import type { Badge, BadgeSet, Stream } from "./twitch/api";
 import { User } from "./user";
 
@@ -17,9 +18,10 @@ export class Channel {
 	public readonly badges = new SvelteMap<string, Record<string, Badge>>();
 	public readonly emotes = new SvelteMap<string, Emote>();
 
-	public stream: Stream | null = null;
-
-	public constructor(public readonly user: User) {}
+	public constructor(
+		public readonly user: User,
+		public stream: Stream | null = null,
+	) {}
 
 	public static empty() {
 		const emptyUser = new User({
@@ -37,23 +39,23 @@ export class Channel {
 		return new Channel(emptyUser);
 	}
 
-	public static async join(channel: string, sessionId: string) {
-		const data = await invoke<{
-			channel_id: string;
-			emotes: Record<string, Emote>;
-			badges: BadgeSet[];
-		}>("join", { sessionId, channel });
+	public static async join(id: string, sessionId: string) {
+		const joined = await invoke<JoinedChannel>("join", {
+			sessionId,
+			id,
+		});
 
-		const user = await User.load(data.channel_id);
+		const user = new User(joined.user.data);
 
-		const instance = new Channel(user)
-			.addBadges(data.badges)
-			.addEmotes(data.emotes);
+		const channel = new Channel(user)
+			.addBadges(joined.badges)
+			.addEmotes(joined.emotes)
+			.setStream(joined.stream);
 
-		await instance.loadStream();
-		await instance.chat.loadUsers();
+		// todo: probably another bottleneck
+		await channel.chat.loadUsers();
 
-		return instance;
+		return channel;
 	}
 
 	public get color() {
@@ -70,10 +72,11 @@ export class Channel {
 
 	public addBadges(badges: BadgeSet[]) {
 		for (const set of badges) {
-			const badges = set.versions.reduce<Record<string, Badge>>(
-				(acc, ver) => ({ ...acc, [ver.id]: ver }),
-				{},
-			);
+			const badges: Record<string, Badge> = {};
+
+			for (const version of set.versions) {
+				badges[version.id] = version;
+			}
 
 			this.badges.set(set.set_id, badges);
 		}
@@ -91,11 +94,7 @@ export class Channel {
 		return this;
 	}
 
-	public async loadStream() {
-		const stream = await invoke<Stream | null>("get_stream", {
-			id: this.user.id,
-		});
-
+	public setStream(stream: Stream | null) {
 		this.stream = stream;
 		return this;
 	}

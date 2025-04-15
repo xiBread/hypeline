@@ -19,7 +19,6 @@ pub struct Response<T> {
 
 pub async fn get_access_token<'a>(state: &'a AppState) -> Result<&'a UserToken, Error> {
     state
-        .user
         .token
         .as_ref()
         .ok_or_else(|| Error::Generic(anyhow!("Access token not set")))
@@ -29,7 +28,7 @@ pub async fn get_access_token<'a>(state: &'a AppState) -> Result<&'a UserToken, 
 pub async fn set_access_token(state: State<'_, Mutex<AppState>>, token: String) -> Result<(), ()> {
     let mut state = state.lock().await;
 
-    state.user.token = UserToken::from_token(&state.helix, AccessToken::from(token))
+    state.token = UserToken::from_token(&state.helix, AccessToken::from(token))
         .await
         .ok();
 
