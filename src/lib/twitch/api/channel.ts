@@ -1,12 +1,3 @@
-// not part of the API
-export interface FollowedChannel {
-	user_id: string;
-	user_login: string;
-	user_name: string;
-	profile_image_url: string;
-	stream: Stream | null;
-}
-
 export interface Stream {
 	id: string;
 	user_id: string;
@@ -22,4 +13,11 @@ export interface Stream {
 	language: string;
 	thumbnail_url: string;
 	is_mature: boolean;
+}
+
+export interface FollowedChannel {
+	broadcaster_id: string;
+	broadcaster_login: string;
+	broadcaster_name: string;
+	followed_at: string;
 }

@@ -2,6 +2,7 @@
 	import { Channel } from "$lib/channel.svelte";
 	import Chat from "$lib/components/Chat.svelte";
 	import Input from "$lib/components/Input.svelte";
+	import { SystemMessage } from "$lib/message";
 	import { app, settings } from "$lib/state.svelte";
 
 	const { data } = $props();
@@ -13,9 +14,12 @@
 	});
 
 	async function update() {
-		const channel = await Channel.join(data.channel);
-		app.active = channel;
+		const channel = await Channel.join(data.channel, app.wsSessionId!);
 
+		channel.addEmotes(app.globalEmotes);
+		channel.chat.messages = [new SystemMessage(`Joined ${data.channel}`)];
+
+		app.active = channel;
 		settings.state.lastJoined = data.channel;
 	}
 

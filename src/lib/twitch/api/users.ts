@@ -9,5 +9,3 @@ export interface User {
 	offline_image_url: string;
 	created_at: string;
 }
-
-export type AuthUser = User & { token: string };

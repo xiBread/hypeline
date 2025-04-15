@@ -1,8 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { SvelteMap } from "svelte/reactivity";
 import { Chat } from "./chat.svelte";
-import { SystemMessage } from "./message";
-import { app } from "./state.svelte";
 import type { Badge, BadgeSet, Stream } from "./twitch/api";
 import { User } from "./user";
 
@@ -39,23 +37,18 @@ export class Channel {
 		return new Channel(emptyUser);
 	}
 
-	public static async join(channel: string) {
+	public static async join(channel: string, sessionId: string) {
 		const data = await invoke<{
 			channel_id: string;
 			emotes: Record<string, Emote>;
 			badges: BadgeSet[];
-		}>("join", { sessionId: app.wsSessionId, channel });
+		}>("join", { sessionId, channel });
 
 		const user = await User.load(data.channel_id);
 
 		const instance = new Channel(user)
 			.addBadges(data.badges)
-			.addEmotes(data.emotes)
-			.addEmotes(app.globalEmotes);
-
-		instance.chat.messages = [
-			new SystemMessage(`Joined ${user.displayName}`),
-		];
+			.addEmotes(data.emotes);
 
 		await instance.loadStream();
 		await instance.chat.loadUsers();

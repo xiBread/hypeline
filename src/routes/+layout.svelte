@@ -1,7 +1,6 @@
 <script lang="ts">
 	import "../app.css";
 	import LoaderCircle from "@lucide/svelte/icons/loader-circle";
-	import { invoke } from "@tauri-apps/api/core";
 	import { Tooltip } from "bits-ui";
 	import { ModeWatcher } from "mode-watcher";
 	import { onDestroy, onMount } from "svelte";
@@ -17,10 +16,6 @@
 
 		// TODO: hmr during dev causes improper resource cleanup; find solution if possible
 		await connect();
-
-		if (!app.channels.length) {
-			app.channels = await invoke("get_followed");
-		}
 
 		app.loading = false;
 

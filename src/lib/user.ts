@@ -1,7 +1,7 @@
+import { invoke } from "@tauri-apps/api/core";
 import { systemPrefersMode, userPrefersMode } from "mode-watcher";
 import { fromStore } from "svelte/store";
-import type { User as HelixUser } from "$lib/twitch/api";
-import { invoke } from "@tauri-apps/api/core";
+import type { User as HelixUser } from "./twitch/api";
 
 export class User {
 	#color: string | null = null;

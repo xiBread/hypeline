@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import { AuthUser } from "$lib/auth-user.svelte";
 import type { Emote } from "$lib/channel.svelte";
 import { app, settings } from "$lib/state.svelte";
 
@@ -7,6 +8,10 @@ export const ssr = false;
 
 export async function load() {
 	await settings.start();
+
+	if (settings.state.user) {
+		app.user = await AuthUser.load(settings.state.user.id);
+	}
 
 	if (app.globalEmotes.size > 0) return;
 
