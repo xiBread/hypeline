@@ -1,10 +1,9 @@
 import { invoke } from "@tauri-apps/api/core";
-import { systemPrefersMode, userPrefersMode } from "mode-watcher";
 import { SvelteMap } from "svelte/reactivity";
-import { fromStore } from "svelte/store";
 import { Chat } from "./chat.svelte";
 import { app } from "./state.svelte";
 import type { Badge, BadgeSet } from "./twitch/api";
+import { User } from "./user";
 
 export interface Emote {
 	name: string;
@@ -19,12 +18,23 @@ export class Channel {
 	public readonly badges = new SvelteMap<string, Record<string, Badge>>();
 	public readonly emotes = new SvelteMap<string, Emote>();
 
-	#color: string | null = null;
+	public constructor(public readonly user: User) {}
 
-	public constructor(
-		public readonly id: string,
-		public readonly name: string,
-	) {}
+	public static empty() {
+		const emptyUser = new User({
+			id: "",
+			login: "",
+			display_name: "",
+			type: "",
+			broadcaster_type: "",
+			description: "",
+			profile_image_url: "",
+			offline_image_url: "",
+			created_at: "",
+		});
+
+		return new Channel(emptyUser);
+	}
 
 	public static async join(channel: string) {
 		const data = await invoke<{
@@ -33,15 +43,12 @@ export class Channel {
 			badges: BadgeSet[];
 		}>("join", { sessionId: app.wsSessionId, channel });
 
-		const color = await invoke<string | null>("get_user_color", {
-			id: data.channel_id,
-		});
+		const user = await User.load(data.channel_id);
 
-		const instance = new Channel(data.channel_id, channel)
+		const instance = new Channel(user)
 			.addBadges(data.badges)
 			.addEmotes(data.emotes)
-			.addEmotes(app.globalEmotes)
-			.setColor(color);
+			.addEmotes(app.globalEmotes);
 
 		await instance.chat.fetchUsers();
 
@@ -49,17 +56,7 @@ export class Channel {
 	}
 
 	public get color() {
-		if (this.#color) return this.#color;
-
-		const prefers = fromStore(userPrefersMode);
-		const system = fromStore(systemPrefersMode);
-
-		const mode =
-			prefers.current === "system"
-				? (system.current ?? "dark")
-				: prefers.current;
-
-		return mode === "dark" ? "#FFFFFF" : "#000000";
+		return this.user.color;
 	}
 
 	public async leave() {
@@ -89,12 +86,6 @@ export class Channel {
 		for (const [name, emote] of entries) {
 			this.emotes.set(name, emote);
 		}
-
-		return this;
-	}
-
-	public setColor(color: string | null) {
-		this.#color = color;
 
 		return this;
 	}

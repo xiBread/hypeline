@@ -17,7 +17,7 @@ export class Chat {
 
 	public async fetchUsers() {
 		const users = await invoke<ChatUser[]>("get_chatters", {
-			id: this.channel.id,
+			id: this.channel.user.id,
 		});
 
 		for (const user of users) {
@@ -28,7 +28,7 @@ export class Chat {
 	public async send(message: string) {
 		await invoke("send_message", {
 			content: message,
-			broadcasterId: this.channel.id,
+			broadcasterId: this.channel.user.id,
 		});
 	}
 }

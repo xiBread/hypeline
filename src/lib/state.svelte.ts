@@ -15,7 +15,7 @@ interface AppState {
 
 export const app = $state<AppState>({
 	loading: true,
-	active: new Channel("0", "@me"),
+	active: Channel.empty(),
 	channels: [],
 	globalEmotes: new Map(),
 });
