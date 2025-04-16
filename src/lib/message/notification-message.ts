@@ -1,6 +1,8 @@
 import type {
 	Announcement,
 	ChannelChatNotification,
+	Resub,
+	Sub,
 } from "$lib/twitch/eventsub";
 import { TextMessage } from "./text-message";
 
@@ -15,9 +17,19 @@ export class NotificationMessage extends TextMessage {
 			: null;
 	}
 
+	public get resub(): Resub | null {
+		return this.data.notice_type === "resub" ? this.data.resub : null;
+	}
+
 	public isAnnouncement(): this is NotificationMessage & {
 		announcement: Announcement;
 	} {
 		return this.data.notice_type === "announcement";
+	}
+
+	public isResub(): this is NotificationMessage & {
+		resub: Resub;
+	} {
+		return this.data.notice_type === "resub";
 	}
 }

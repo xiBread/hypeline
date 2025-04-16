@@ -15,7 +15,6 @@ export type Fragment =
 export interface MessageUser {
 	id: string;
 	name: string;
-	// login: string;
 	color: string;
 }
 
@@ -53,7 +52,6 @@ export class TextMessage extends BaseMessage {
 		return {
 			id: this.data.chatter_user_id,
 			name: this.data.chatter_user_name,
-			// login: this.data.chatter_user_login,
 			color: this.data.color,
 		};
 	}

@@ -129,7 +129,7 @@ export interface SubNotification extends BaseNotification {
 export interface Resub {
 	cumulative_months: number;
 	duration_months: number;
-	streak_months: number;
+	streak_months: number | null;
 	sub_tier: SubTier;
 	is_prime: boolean | null;
 	is_gift: boolean;
