@@ -1,4 +1,5 @@
 import type { BaseMessage as BaseMessageData } from "$lib/twitch/eventsub";
+import { formatTime } from "$lib/util";
 import type { NotificationMessage } from "./notification-message";
 import type { SystemMessage, SystemMessageData } from "./system-message";
 import type { UserMessage } from "./user-message";
@@ -18,6 +19,10 @@ export class BaseMessage {
 		}
 
 		return (this.data as BaseMessageData).message_id;
+	}
+
+	public get formattedTime() {
+		return formatTime(this.timestamp);
 	}
 
 	public isUser(): this is UserMessage {

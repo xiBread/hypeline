@@ -10,6 +10,13 @@
 	}
 </script>
 
+<time
+	class="text-muted-foreground text-xs"
+	datetime={message.timestamp.toISOString()}
+>
+	{message.formattedTime}
+</time>
+
 {#each message.badges as badge (badge.title)}
 	<Tooltip class="p-1 text-xs" side="top" sideOffset={4}>
 		{#snippet trigger()}
