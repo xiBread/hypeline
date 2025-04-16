@@ -1,7 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { Channel } from "./channel.svelte";
 import type { FullChannel, UserWithColor } from "./tauri";
-import type { User as HelixUser } from "./twitch/api";
 import { User } from "./user";
 
 export class AuthUser extends User {
