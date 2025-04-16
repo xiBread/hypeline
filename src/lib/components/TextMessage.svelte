@@ -1,4 +1,5 @@
 <script lang="ts">
+	import * as opener from "@tauri-apps/plugin-opener";
 	import type { TextMessage } from "$lib/message";
 	import { app } from "$lib/state.svelte";
 	import Tooltip from "./Tooltip.svelte";
@@ -53,7 +54,7 @@
 		{:else if fragment.type === "url"}
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
 			<span
-				class="wrap-anywhere text-blue-600 underline"
+				class="wrap-anywhere text-blue-600 underline hover:cursor-pointer"
 				role="link"
 				tabindex="-1"
 				onclick={() => openUrl(fragment.url)}
