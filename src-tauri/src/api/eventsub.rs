@@ -1,3 +1,4 @@
+use futures::future::try_join_all;
 use serde_json::json;
 use tauri::async_runtime::Mutex;
 use tauri::State;
@@ -49,15 +50,16 @@ pub async fn subscribe_all(
     session_id: String,
     subscriptions: &[(&str, &serde_json::Value)],
 ) -> Result<(), Error> {
-    for (event, condition) in subscriptions.to_vec() {
+    let futures = subscriptions.iter().map(|&(event, condition)| {
         subscribe(
             state.clone(),
             session_id.clone(),
             event.into(),
             condition.clone(),
         )
-        .await?;
-    }
+    });
+
+    try_join_all(futures).await?;
 
     Ok(())
 }
@@ -92,9 +94,11 @@ pub async fn unsubscribe_all(
     state: State<'_, Mutex<AppState>>,
     events: &[&str],
 ) -> Result<(), Error> {
-    for event in events.to_vec() {
-        unsubscribe(state.clone(), event.into()).await?;
-    }
+    let futures = events
+        .iter()
+        .map(|&event| unsubscribe(state.clone(), event.into()));
+
+    try_join_all(futures).await?;
 
     Ok(())
 }
