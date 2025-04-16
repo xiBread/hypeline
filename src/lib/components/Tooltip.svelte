@@ -5,12 +5,14 @@
 
 	interface Props extends Tooltip.ContentProps {
 		trigger: Snippet;
+		triggerClass?: string;
 		open?: boolean;
 	}
 
 	let {
 		children,
 		trigger,
+		triggerClass,
 		class: className = "",
 		open = $bindable(false),
 		...rest
@@ -18,7 +20,7 @@
 </script>
 
 <Tooltip.Root bind:open>
-	<Tooltip.Trigger>{@render trigger()}</Tooltip.Trigger>
+	<Tooltip.Trigger class={triggerClass}>{@render trigger()}</Tooltip.Trigger>
 
 	<Tooltip.Portal>
 		<Tooltip.Content

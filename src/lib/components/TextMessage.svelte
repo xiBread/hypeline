@@ -61,10 +61,14 @@
 				{fragment.text}
 			</span>
 		{:else if fragment.type === "emote"}
-			<Tooltip side="top" sideOffset={4}>
+			<Tooltip
+				triggerClass="-my-2 align-middle inline-block"
+				side="top"
+				sideOffset={4}
+			>
 				{#snippet trigger()}
 					<img
-						class="inline-block align-middle"
+						class="object-contain"
 						src={fragment.url}
 						alt={fragment.name}
 						width={fragment.width}
