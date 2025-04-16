@@ -55,6 +55,12 @@ export class Channel {
 			.addEmotes(joined.emotes)
 			.setStream(joined.stream);
 
+		channel.chat.users.set(user.id, {
+			id: user.id,
+			name: user.displayName,
+			color: user.color,
+		});
+
 		// todo: probably another bottleneck
 		await channel.chat.loadUsers();
 
