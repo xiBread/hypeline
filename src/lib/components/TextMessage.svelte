@@ -33,7 +33,7 @@
 <p class="inline">
 	{#each message.fragments as fragment, i}
 		{#if fragment.type === "mention"}
-			{#if !message.isUser()}
+			{#if message.isUser() && !message.isReply()}
 				{@const user = app.active.chat.users.get(fragment.id)}
 
 				<span class="font-bold break-words" style:color={user?.color}>
