@@ -37,7 +37,10 @@
 	{message.user.name}<span class="text-foreground">:</span>
 </span>
 
-<p class="inline">
+<p
+	class={["inline", message.isAction() && "italic"]}
+	style:color={message.isAction() ? message.user.color : null}
+>
 	{#each message.fragments as fragment, i}
 		{#if fragment.type === "mention"}
 			{#if message.isUser() && !message.isReply()}

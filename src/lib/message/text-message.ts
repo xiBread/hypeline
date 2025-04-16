@@ -56,6 +56,10 @@ export class TextMessage extends BaseMessage {
 		};
 	}
 
+	public isAction() {
+		return /^\u0001ACTION .+\u0001$/.test(this.data.message.text);
+	}
+
 	#transformFragments() {
 		const transformed: Fragment[] = [];
 		let buffer: string[] = [];
