@@ -8,20 +8,15 @@ export class User {
 	#color: string | null = null;
 	readonly #data: HelixUser;
 
-	public constructor(data: HelixUser) {
-		this.#data = data;
+	public constructor(data: UserWithColor) {
+		this.#data = data.data;
+		this.#color = data.color;
 	}
 
 	public static async load(id: string | null): Promise<User> {
-		const { data, color } = await invoke<UserWithColor>(
-			"get_user_from_id",
-			{ id },
-		);
+		const data = await invoke<UserWithColor>("get_user_from_id", { id });
 
-		const user = new User(data);
-		user.setColor(color);
-
-		return user;
+		return new User(data);
 	}
 
 	public get id() {

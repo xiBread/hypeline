@@ -25,15 +25,18 @@ export class Channel {
 
 	public static empty() {
 		const emptyUser = new User({
-			id: "",
-			login: "",
-			display_name: "",
-			type: "",
-			broadcaster_type: "",
-			description: "",
-			profile_image_url: "",
-			offline_image_url: "",
-			created_at: "",
+			data: {
+				id: "",
+				login: "",
+				display_name: "",
+				type: "",
+				broadcaster_type: "",
+				description: "",
+				profile_image_url: "",
+				offline_image_url: "",
+				created_at: "",
+			},
+			color: null,
 		});
 
 		return new Channel(emptyUser);
@@ -45,7 +48,7 @@ export class Channel {
 			id,
 		});
 
-		const user = new User(joined.user.data);
+		const user = new User(joined.user);
 
 		const channel = new Channel(user)
 			.addBadges(joined.badges)

@@ -14,9 +14,7 @@
 			id: null,
 		});
 
-		app.user = new AuthUser(user.data, token);
-		app.user.setColor(user.color);
-
+		app.user = new AuthUser(user, token);
 		await app.user.loadFollowing();
 
 		settings.state.user = { id: user.data.id, token };

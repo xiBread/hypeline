@@ -9,22 +9,20 @@ export class AuthUser extends User {
 	public following = $state<Channel[]>([]);
 
 	public constructor(
-		data: HelixUser,
+		data: UserWithColor,
 		public readonly token: string,
 	) {
 		super(data);
 	}
 
 	public static override async load(token: string): Promise<AuthUser> {
-		const { data, color } = await invoke<UserWithColor>(
-			"get_user_from_id",
-			{ id: null },
-		);
+		const data = await invoke<UserWithColor>("get_user_from_id", {
+			id: null,
+		});
 
 		const user = new AuthUser(data, token);
-		user.setColor(color);
-
 		await user.loadFollowing();
+
 		return user;
 	}
 
@@ -33,8 +31,7 @@ export class AuthUser extends User {
 		const following = [];
 
 		for (const followed of channels) {
-			const user = new User(followed.user.data);
-			user.setColor(followed.user.color);
+			const user = new User(followed.user);
 
 			const channel = new Channel(user, followed.stream);
 			following.push(channel);
