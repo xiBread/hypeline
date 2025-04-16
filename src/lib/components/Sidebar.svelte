@@ -1,12 +1,14 @@
 <script lang="ts">
-	import Settings from "@lucide/svelte/icons/settings";
+	import SettingsIcon from "@lucide/svelte/icons/settings";
 	import Users from "@lucide/svelte/icons/users";
 	import { ScrollArea } from "bits-ui";
 	import { app } from "$lib/state.svelte";
 	import type { Stream } from "$lib/twitch/api";
 	import { User } from "$lib/user";
 	import Tooltip from "./Tooltip.svelte";
+	import Settings from "./settings/Settings.svelte";
 
+	let settingsOpen = $state(false);
 	const self = $derived(app.user);
 
 	const channels = $derived(
@@ -26,13 +28,14 @@
 <ScrollArea.Root>
 	<ScrollArea.Viewport class="h-screen">
 		<nav class="bg-sidebar flex h-full flex-col gap-4 border-r p-3">
-			<a
-				class="bg-twitch flex size-10 items-center justify-center rounded-md"
+			<button
+				class="bg-twitch flex size-10 items-center justify-center rounded-md hover:cursor-pointer"
 				title="Settings"
-				href="/settings"
+				type="button"
+				onclick={() => (settingsOpen = true)}
 			>
-				<Settings class="size-5 text-white" />
-			</a>
+				<SettingsIcon class="size-5 text-white" />
+			</button>
 
 			{#if self}
 				{@render channelIcon(self, null)}
@@ -56,6 +59,8 @@
 		<ScrollArea.Thumb class="bg-muted-foreground/80 rounded-full" />
 	</ScrollArea.Scrollbar>
 </ScrollArea.Root>
+
+<Settings bind:open={settingsOpen} />
 
 {#snippet channelIcon(user: User, stream: Stream | null)}
 	<Tooltip class="max-w-64" side="right" sideOffset={18}>
