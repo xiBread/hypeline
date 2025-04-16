@@ -13,4 +13,8 @@ export class UserMessage extends TextMessage {
 	public isReply(): this is UserMessage & { reply: MessageReply } {
 		return this.data.reply != null;
 	}
+
+	public isChannelPointsHighlight() {
+		return this.data.message_type === "channel_points_highlighted";
+	}
 }
