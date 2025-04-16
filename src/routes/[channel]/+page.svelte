@@ -51,7 +51,7 @@
 			maxlength={500}
 			autocapitalize="off"
 			autocorrect="off"
-			onkeypress={send}
+			onkeydown={send}
 		/>
 	</div>
 </div>
