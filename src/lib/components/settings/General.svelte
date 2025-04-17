@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { settings } from "$lib/state.svelte";
 	import RefreshCw from "@lucide/svelte/icons/refresh-cw";
 	import { Label, RadioGroup } from "bits-ui";
 	import { setMode, userPrefersMode } from "mode-watcher";
+	import { settings } from "$lib/state.svelte";
 
 	const themes = [
 		{ value: "light", class: "bg-white" },
@@ -28,7 +28,7 @@
 		<RadioGroup.Root
 			class="flex items-center gap-6"
 			bind:value={
-				() => $userPrefersMode, (value) => setMode(value as never)
+				() => userPrefersMode.current, (value) => setMode(value)
 			}
 		>
 			{#each themes as theme (theme.value)}
@@ -37,7 +37,7 @@
 						class={[
 							"flex size-16 items-center justify-center rounded-full border border-neutral-500",
 							theme.class,
-							$userPrefersMode === theme.value &&
+							userPrefersMode.current === theme.value &&
 								"border-twitch border-2",
 						]}
 						value={theme.value}

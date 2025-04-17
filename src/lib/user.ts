@@ -1,6 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { systemPrefersMode, userPrefersMode } from "mode-watcher";
-import { fromStore } from "svelte/store";
+import { mode } from "mode-watcher";
 import type { UserWithColor } from "./tauri";
 import type { User as HelixUser } from "./twitch/api";
 
@@ -24,17 +23,7 @@ export class User {
 	}
 
 	public get color() {
-		if (this.#color) return this.#color;
-
-		const prefers = fromStore(userPrefersMode);
-		const system = fromStore(systemPrefersMode);
-
-		const mode =
-			prefers.current === "system"
-				? (system.current ?? "dark")
-				: prefers.current;
-
-		return mode === "dark" ? "#FFFFFF" : "#000000";
+		return this.#color ?? (mode.current === "dark" ? "#FFFFFF" : "#000000");
 	}
 
 	public get username() {
