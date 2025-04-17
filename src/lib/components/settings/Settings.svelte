@@ -38,7 +38,7 @@
 						{#each categories as category (category.name)}
 							<Tabs.Trigger
 								class={[
-									"text-muted-foreground flex w-full items-center gap-2 rounded px-2.5 py-1.5 transition-colors duration-100",
+									"text-muted-foreground flex w-full items-center gap-2 rounded-sm px-2.5 py-1.5 transition-colors duration-100",
 									"hover:bg-muted hover:text-foreground",
 									"data-[state=active]:bg-muted data-[state=active]:text-foreground",
 								]}
