@@ -6,6 +6,10 @@ export class UserMessage extends TextMessage {
 		super(data);
 	}
 
+	public get text() {
+		return this.data.message.text;
+	}
+
 	public get reply(): MessageReply | null {
 		return this.data.reply ?? null;
 	}
