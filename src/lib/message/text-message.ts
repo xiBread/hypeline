@@ -57,7 +57,7 @@ export class TextMessage extends BaseMessage {
 	}
 
 	public isAction() {
-		return /^\u0001ACTION .+\u0001$/.test(this.data.message.text);
+		return /^\x01ACTION .+\x01$/.test(this.data.message.text);
 	}
 
 	#transformFragments() {

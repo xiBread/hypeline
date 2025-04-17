@@ -5,6 +5,7 @@ export default antfu({
 	svelte: true,
 	rules: {
 		"no-console": "off",
+		"no-control-regex": "off",
 		"no-unused-vars": "off",
 		"import/order": "off",
 		"perfectionist/sort-imports": [
