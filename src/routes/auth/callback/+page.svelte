@@ -4,20 +4,13 @@
 	import { goto } from "$app/navigation";
 	import { AuthUser } from "$lib/auth-user.svelte";
 	import { app, settings } from "$lib/state.svelte";
-	import type { UserWithColor } from "$lib/tauri";
 
 	onMount(async () => {
 		const [token] = location.hash.slice(1).split("=")[1].split("&");
 		await invoke("set_access_token", { token });
 
-		const user = await invoke<UserWithColor>("get_user_from_id", {
-			id: null,
-		});
-
-		app.user = new AuthUser(user, token);
-		await app.user.loadFollowing();
-
-		settings.state.user = { id: user.data.id, token };
+		app.user = await AuthUser.load(token);
+		settings.state.user = { id: app.user.id, token };
 
 		await tick();
 		await settings.save();
