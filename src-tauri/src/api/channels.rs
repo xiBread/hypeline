@@ -88,7 +88,7 @@ pub async fn get_followed_channels(
         return Ok(vec![]);
     }
 
-    let user_ids: Vec<&str> = channels.iter().map(|c| c.broadcaster_id.as_str()).collect();
+    let user_ids: Vec<_> = channels.iter().map(|c| c.broadcaster_id.as_str()).collect();
     let id_coll = Collection::from(&user_ids);
 
     let (streams, users, colors) = try_join!(

@@ -43,7 +43,7 @@
 <div class="flex h-screen flex-col">
 	<Chat class="grow" />
 
-	<div class="border-t p-2">
+	<div class="p-2">
 		<Input
 			class="focus-visible:ring-twitch focus-visible:border-twitch focus-visible:ring-1"
 			type="text"

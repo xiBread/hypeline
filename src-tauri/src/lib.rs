@@ -114,6 +114,7 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         api::eventsub::subscribe,
         api::eventsub::unsubscribe,
         api::users::get_user_from_id,
+        api::users::get_user_emotes,
         emotes::fetch_global_emotes,
     ]
 }
