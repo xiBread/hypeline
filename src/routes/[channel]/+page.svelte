@@ -3,7 +3,8 @@
 	import Chat from "$lib/components/Chat.svelte";
 	import Input, { replyTarget } from "$lib/components/Input.svelte";
 	import { SystemMessage } from "$lib/message";
-	import { app, settings } from "$lib/state.svelte";
+	import { settings } from "$lib/settings.js";
+	import { app } from "$lib/state.svelte";
 
 	const { data } = $props();
 

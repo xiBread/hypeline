@@ -6,7 +6,8 @@
 	import { onDestroy, onMount } from "svelte";
 	import { goto } from "$app/navigation";
 	import Sidebar from "$lib/components/Sidebar.svelte";
-	import { app, settings } from "$lib/state.svelte";
+	import { settings } from "$lib/settings";
+	import { app } from "$lib/state.svelte";
 	import { connect } from "$lib/twitch/eventsub";
 
 	const { children } = $props();

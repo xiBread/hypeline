@@ -5,8 +5,8 @@
 	import { app } from "$lib/state.svelte";
 	import type { Stream } from "$lib/twitch/api";
 	import { User } from "$lib/user";
-	import Tooltip from "./Tooltip.svelte";
 	import Settings from "./settings/Settings.svelte";
+	import Tooltip from "./Tooltip.svelte";
 
 	let settingsOpen = $state(false);
 	const self = $derived(app.user);

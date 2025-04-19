@@ -1,5 +1,5 @@
 import { redirect } from "@sveltejs/kit";
-import { settings } from "$lib/state.svelte";
+import { settings } from "$lib/settings";
 
 export async function load({ parent }) {
 	// Force layout to load first

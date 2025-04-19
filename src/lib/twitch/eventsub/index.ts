@@ -1,7 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
 import WebSocket from "@tauri-apps/plugin-websocket";
 import { handlers } from "$lib/handlers/manager";
-import { app, settings } from "$lib/state.svelte";
+import { settings } from "$lib/settings";
+import { app } from "$lib/state.svelte";
 import type * as Events from "./events";
 import type {
 	Notification,

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { settings } from "$lib/state.svelte";
+	import { settings } from "$lib/settings";
 </script>
 
 {#if settings.state.user}

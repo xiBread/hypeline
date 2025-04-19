@@ -3,7 +3,8 @@
 	import { onMount, tick } from "svelte";
 	import { goto } from "$app/navigation";
 	import { AuthUser } from "$lib/auth-user.svelte";
-	import { app, settings } from "$lib/state.svelte";
+	import { settings } from "$lib/settings";
+	import { app } from "$lib/state.svelte";
 
 	onMount(async () => {
 		const [token] = location.hash.slice(1).split("=")[1].split("&");

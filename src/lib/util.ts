@@ -2,7 +2,7 @@ import { clsx } from "clsx";
 import type { ClassValue } from "clsx";
 import dayjs from "dayjs";
 import { twMerge } from "tailwind-merge";
-import { settings } from "./state.svelte";
+import { settings } from "./settings";
 
 export function cn(...values: ClassValue[]) {
 	return twMerge(clsx(values));
@@ -15,7 +15,7 @@ export function formatTime(timestamp: Date) {
 
 	if (format === "auto") {
 		const locale = new Intl.Locale(navigator.language);
-		// @ts-expect-error
+		// @ts-expect-error - limited support
 		const cycles: string[] = locale.getHourCycles?.() ?? [];
 		format = cycles.includes("h12") ? "12" : "24";
 	}

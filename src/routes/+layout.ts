@@ -1,7 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
 import { AuthUser } from "$lib/auth-user.svelte";
 import type { Emote } from "$lib/channel.svelte";
-import { app, settings } from "$lib/state.svelte";
+import { settings } from "$lib/settings";
+import { app } from "$lib/state.svelte";
 
 export const prerender = true;
 export const ssr = false;
