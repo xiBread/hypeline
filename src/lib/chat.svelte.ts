@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { SvelteMap } from "svelte/reactivity";
 import type { Message } from "$lib/message";
 import type { Channel } from "./channel.svelte";
+import { replyTarget } from "./components/Input.svelte";
 
 export interface ChatUser {
 	id: string;
@@ -29,6 +30,7 @@ export class Chat {
 		await invoke("send_message", {
 			content: message,
 			broadcasterId: this.channel.user.id,
+			replyId: replyTarget.value?.id ?? null,
 		});
 	}
 }

@@ -1,6 +1,8 @@
 <script lang="ts">
 	import ClipboardCopy from "@lucide/svelte/icons/clipboard-copy";
+	import Reply from "@lucide/svelte/icons/reply";
 	import { Toolbar } from "bits-ui";
+	import { replyTarget } from "$lib/components/Input.svelte";
 	import type { UserMessage } from "$lib/message";
 	import { cn } from "$lib/util";
 
@@ -28,5 +30,13 @@
 		onclick={copy}
 	>
 		<ClipboardCopy class="size-4" />
+	</Toolbar.Button>
+
+	<Toolbar.Button
+		class="hover:bg-muted-foreground/50 flex items-center justify-center rounded-[4px] p-1"
+		title="Reply to {message.user.name}"
+		onclick={() => (replyTarget.value = message)}
+	>
+		<Reply class="size-4" />
 	</Toolbar.Button>
 </Toolbar.Root>

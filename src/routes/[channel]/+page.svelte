@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Channel } from "$lib/channel.svelte";
 	import Chat from "$lib/components/Chat.svelte";
-	import Input from "$lib/components/Input.svelte";
+	import Input, { replyTarget } from "$lib/components/Input.svelte";
 	import { SystemMessage } from "$lib/message";
 	import { app, settings } from "$lib/state.svelte";
 
@@ -36,7 +36,8 @@
 		if (!message) return;
 		if (!event.ctrlKey) input.value = "";
 
-		app.active.chat.send(message);
+		await app.active.chat.send(message);
+		replyTarget.value = null;
 	}
 </script>
 

@@ -99,6 +99,7 @@ pub async fn send_message(
     state: State<'_, Mutex<AppState>>,
     content: String,
     broadcaster_id: String,
+    reply_id: Option<String>,
 ) -> Result<(), Error> {
     let state = state.lock().await;
 
@@ -109,10 +110,17 @@ pub async fn send_message(
     let token = state.token.as_ref().unwrap();
     let user_id = token.user_id.clone();
 
-    state
-        .helix
-        .send_chat_message(broadcaster_id.as_str(), user_id, content.as_str(), token)
-        .await?;
+    if let Some(reply_id) = reply_id {
+        state
+            .helix
+            .send_chat_message_reply(&broadcaster_id, user_id, &reply_id, content.as_str(), token)
+            .await?;
+    } else {
+        state
+            .helix
+            .send_chat_message(&broadcaster_id, user_id, content.as_str(), token)
+            .await?;
+    }
 
     Ok(())
 }

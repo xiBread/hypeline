@@ -2,6 +2,7 @@
 	import { onMount } from "svelte";
 	import type { UserMessage } from "$lib/message";
 	import { app } from "$lib/state.svelte";
+	import { replyTarget } from "./Input.svelte";
 	import QuickActions from "./QuickActions.svelte";
 	import TextMessage from "./TextMessage.svelte";
 
@@ -37,7 +38,14 @@
 			</div>
 		</div>
 	{:else}
-		<div class="group-hover:bg-muted px-3 py-2">
+		<div
+			class={[
+				"px-3 py-2",
+				replyTarget.value?.id === message.id
+					? "bg-twitch/50"
+					: "group-hover:bg-muted",
+			]}
+		>
 			{#if message.isReply()}
 				{@const user = chat.users.get(message.reply.parent_user_id)}
 
