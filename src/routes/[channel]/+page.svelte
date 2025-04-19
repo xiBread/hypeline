@@ -44,14 +44,6 @@
 	<Chat class="grow" />
 
 	<div class="p-2">
-		<Input
-			class="focus-visible:ring-twitch focus-visible:border-twitch focus-visible:ring-1"
-			type="text"
-			placeholder="Send a message"
-			maxlength={500}
-			autocapitalize="off"
-			autocorrect="off"
-			onkeydown={send}
-		/>
+		<Input onkeydown={send} />
 	</div>
 </div>

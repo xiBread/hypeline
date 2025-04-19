@@ -4,7 +4,7 @@
 	import { cn } from "$lib/util";
 	import EmotePicker from "./EmotePicker.svelte";
 
-	const { class: className, type, ...rest }: HTMLInputAttributes = $props();
+	const { class: className, ...rest }: HTMLInputAttributes = $props();
 
 	let input = $state<HTMLInputElement>();
 	let anchor = $state<HTMLElement>();
@@ -17,12 +17,17 @@
 <div class="relative">
 	<input
 		class={cn(
-			"placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-12 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-sm transition-[color] outline-none disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
-			"focus-visible:border-ring",
+			"placeholder:text-muted-foreground dark:bg-input/30 border-input flex h-12 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-sm transition-[color] outline-none",
+			"disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50",
+			"focus-visible:ring-twitch focus-visible:border-twitch focus-visible:ring-1",
 			"aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
 			className,
 		)}
-		{type}
+		type="text"
+		placeholder="Send a message"
+		maxlength={500}
+		autocapitalize="off"
+		autocorrect="off"
 		{...rest}
 		bind:this={input}
 	/>
