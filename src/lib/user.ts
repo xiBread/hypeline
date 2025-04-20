@@ -56,23 +56,23 @@ export class User implements PartialUser {
 		return new Date(this.#data.created_at);
 	}
 
-	public isAdmin() {
+	public get admin() {
 		return this.#data.type === "admin";
 	}
 
-	public isGlobalMod() {
+	public get globalMod() {
 		return this.#data.type === "global_mod";
 	}
 
-	public isStaff() {
+	public get staff() {
 		return this.#data.type === "staff";
 	}
 
-	public isAffiliate() {
+	public get affiliate() {
 		return this.#data.broadcaster_type === "affiliate";
 	}
 
-	public isPartner() {
+	public get partner() {
 		return this.#data.broadcaster_type === "partner";
 	}
 
