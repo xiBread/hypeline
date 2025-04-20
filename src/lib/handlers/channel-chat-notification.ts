@@ -1,6 +1,6 @@
 import { UserMessage } from "$lib/message";
 import { app } from "$lib/state.svelte";
-import { defineHandler } from ".";
+import { defineHandler } from "./helper";
 
 export default defineHandler({
 	name: "channel.chat.notification",

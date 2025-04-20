@@ -1,12 +1,12 @@
-import type { EventSubSubscriptionMap } from "$lib/twitch/eventsub";
+import channelChatMessage from "./channel-chat-message";
+import channelChatNotification from "./channel-chat-notification";
+import type { Handler } from "./helper";
 
-export interface Handler<K extends keyof EventSubSubscriptionMap> {
-	name: K;
-	handle: (data: EventSubSubscriptionMap[K]) => Promise<void> | void;
+export const handlers = new Map<string, Handler<any>>();
+
+function register(handler: Handler<any>) {
+	handlers.set(handler.name, handler);
 }
 
-export function defineHandler<K extends keyof EventSubSubscriptionMap>(
-	handler: Handler<K>,
-) {
-	return handler;
-}
+register(channelChatMessage);
+register(channelChatNotification);
