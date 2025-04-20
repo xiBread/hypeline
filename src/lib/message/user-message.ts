@@ -1,7 +1,7 @@
 import type { Emote } from "$lib/channel.svelte";
 import { app } from "$lib/state.svelte";
 import type * as Twitch from "$lib/twitch/eventsub";
-import { BaseMessage } from "./message";
+import { Message } from "./message";
 
 export type Fragment =
 	| { type: "text"; value: string }
@@ -14,7 +14,7 @@ export type Fragment =
 const URL_RE =
 	/https?:\/\/(?:www\.)?[-\w@:%.+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-\w()@:%+.~#?&/=]*/;
 
-export class UserMessage extends BaseMessage {
+export class UserMessage extends Message {
 	public readonly fragments: Fragment[];
 
 	public constructor(
