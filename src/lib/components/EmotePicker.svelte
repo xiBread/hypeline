@@ -1,5 +1,4 @@
 <script lang="ts">
-	import Globe from "@lucide/svelte/icons/globe";
 	import { Popover, Tabs } from "bits-ui";
 	import { app } from "$lib/state.svelte";
 

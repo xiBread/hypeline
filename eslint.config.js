@@ -32,7 +32,7 @@ export default antfu({
 				},
 			},
 		],
-		"unused-imports/no-unused-imports": "off",
+		"unused-imports/no-unused-imports": "warn",
 		"unused-imports/no-unused-vars": "off",
 		"svelte/no-at-html-tags": "off",
 	},

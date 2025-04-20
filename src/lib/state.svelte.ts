@@ -1,5 +1,4 @@
 import type WebSocket from "@tauri-apps/plugin-websocket";
-import { RuneStore } from "@tauri-store/svelte";
 import { SvelteMap } from "svelte/reactivity";
 import type { AuthUser } from "./auth-user.svelte";
 import { Channel } from "./channel.svelte";
