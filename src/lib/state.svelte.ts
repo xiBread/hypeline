@@ -1,8 +1,8 @@
 import type WebSocket from "@tauri-apps/plugin-websocket";
 import { SvelteMap } from "svelte/reactivity";
-import type { AuthUser } from "./auth-user.svelte";
 import { Channel } from "./channel.svelte";
 import type { Emote } from "./channel.svelte";
+import type { User } from "./user";
 
 class AppState {
 	#active = $state<Channel>();
@@ -10,7 +10,7 @@ class AppState {
 	public loading = $state(true);
 	public ws?: WebSocket;
 	public wsSessionId?: string;
-	public user?: AuthUser;
+	public user?: User;
 
 	public readonly globalEmotes = new SvelteMap<string, Emote>();
 
