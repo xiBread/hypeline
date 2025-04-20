@@ -59,6 +59,10 @@ export class UserMessage extends BaseMessage {
 		return "reply" in this.data && this.data.reply ? this.data.reply : null;
 	}
 
+	public get text() {
+		return this.data.message.text;
+	}
+
 	public get type() {
 		return "message_type" in this.data
 			? this.data.message_type
