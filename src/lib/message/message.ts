@@ -17,15 +17,23 @@ export abstract class Message {
 	}
 
 	public get id(): string {
-		if (this.#system) {
-			return (this.data as SystemMessageData).id;
+		if (this.isUser()) {
+			return this.data.message_id;
 		}
 
-		return (this.data as BaseMessageData).message_id;
+		return (this.data as SystemMessageData).id;
 	}
 
-	public get formattedTime() {
+	public get formattedTime(): string {
 		return formatTime(this.timestamp);
+	}
+
+	public get text(): string {
+		if (this.isUser()) {
+			return this.data.message.text;
+		}
+
+		return (this.data as SystemMessageData).text;
 	}
 
 	public isUser(): this is UserMessage {

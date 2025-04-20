@@ -6,7 +6,7 @@ export interface SystemMessageData {
 }
 
 export class SystemMessage extends Message {
-	public constructor(public readonly text: string) {
+	public constructor(text: string) {
 		super({ id: crypto.randomUUID(), text }, true);
 	}
 }
