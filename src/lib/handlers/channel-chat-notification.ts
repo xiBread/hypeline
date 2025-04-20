@@ -5,6 +5,6 @@ import { defineHandler } from ".";
 export default defineHandler({
 	name: "channel.chat.notification",
 	handle(data) {
-		app.active.chat.messages.push(new UserMessage(data));
+		app.active.messages.push(new UserMessage(data));
 	},
 });

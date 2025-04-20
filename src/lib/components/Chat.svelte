@@ -14,8 +14,6 @@
 	// visible (smaller = more, larger = less).
 	const TOLERANCE = 15;
 
-	const chat = $derived(app.active.chat);
-
 	const { class: className }: Props = $props();
 
 	let list = $state<VList<any>>();
@@ -24,18 +22,18 @@
 	const newMessageCount = $derived.by(() => {
 		if (!list) return 0;
 
-		const total = chat.messages.length - list.findEndIndex();
+		const total = app.active.messages.length - list.findEndIndex();
 		return total > 99 ? "99+" : total;
 	});
 
 	$effect(() => {
-		if (chat.messages.length && !scrollingPaused) {
+		if (app.active.messages.length && !scrollingPaused) {
 			scrollToEnd();
 		}
 	});
 
 	function scrollToEnd() {
-		list?.scrollToIndex(chat.messages.length - 1, { align: "end" });
+		list?.scrollToIndex(app.active.messages.length - 1, { align: "end" });
 	}
 
 	function handleScroll(offset: number) {
@@ -59,7 +57,7 @@
 
 	<VList
 		class="{className} overflow-y-auto text-sm"
-		data={chat.messages}
+		data={app.active.messages}
 		getKey={(msg: Message) => msg.id}
 		onscroll={handleScroll}
 		bind:this={list}

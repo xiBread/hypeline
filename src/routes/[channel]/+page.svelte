@@ -18,7 +18,7 @@
 		const channel = await Channel.join(data.channel, app.wsSessionId!);
 
 		channel.addEmotes(app.globalEmotes);
-		channel.chat.messages = [
+		channel.messages = [
 			new SystemMessage(`Joined ${channel.user.displayName}`),
 		];
 
@@ -37,7 +37,7 @@
 		if (!message) return;
 		if (!event.ctrlKey) input.value = "";
 
-		await app.active.chat.send(message);
+		await app.active.send(message);
 		replyTarget.value = null;
 	}
 </script>

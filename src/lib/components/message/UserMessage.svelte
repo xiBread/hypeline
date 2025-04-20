@@ -9,11 +9,10 @@
 	const { message }: { message: UserMessage } = $props();
 
 	let quickActionsOpen = $state(false);
-	const chat = $derived(app.active.chat);
 
 	onMount(() => {
-		if (!chat.users.has(message.user.id)) {
-			chat.users.set(message.user.id, message.user);
+		if (!app.active.users.has(message.user.id)) {
+			app.active.users.set(message.user.id, message.user);
 		}
 	});
 </script>
@@ -47,7 +46,9 @@
 			]}
 		>
 			{#if message.reply}
-				{@const user = chat.users.get(message.reply.parent_user_id)}
+				{@const user = app.active.users.get(
+					message.reply.parent_user_id,
+				)}
 
 				<div class="mb-1 flex items-center gap-2">
 					<div

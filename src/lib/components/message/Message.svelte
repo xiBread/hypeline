@@ -56,7 +56,7 @@
 	{#each message.fragments as fragment, i}
 		{#if fragment.type === "mention"}
 			{#if !message.reply}
-				{@const user = app.active.chat.users.get(fragment.id)}
+				{@const user = app.active.users.get(fragment.id)}
 
 				<span class="font-bold break-words" style:color={user?.color}>
 					@{(user ?? fragment).displayName}

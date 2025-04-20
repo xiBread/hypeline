@@ -3,7 +3,13 @@ import { mode } from "mode-watcher";
 import type { UserWithColor } from "./tauri";
 import type { User as HelixUser } from "./twitch/api";
 
-export class User {
+export interface PartialUser {
+	id: string;
+	displayName: string;
+	color: string;
+}
+
+export class User implements PartialUser {
 	#color: string | null = null;
 	readonly #data: HelixUser;
 
