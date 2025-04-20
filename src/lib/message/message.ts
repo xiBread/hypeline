@@ -30,7 +30,7 @@ export abstract class BaseMessage {
 		return formatTime(this.timestamp);
 	}
 
-	public isSystem(): this is SystemMessage {
-		return this.#system;
+	public isUser(): this is UserMessage {
+		return !this.#system;
 	}
 }

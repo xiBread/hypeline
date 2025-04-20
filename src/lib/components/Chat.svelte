@@ -63,7 +63,7 @@
 		bind:this={list}
 	>
 		{#snippet children(message: Message)}
-			{#if message.isSystem()}
+			{#if !message.isUser()}
 				<SystemMessage {message} />
 			{:else if message.type === "notification"}
 				<Notification {message} />
