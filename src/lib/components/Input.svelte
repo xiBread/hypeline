@@ -12,7 +12,7 @@
 	import type { HTMLInputAttributes } from "svelte/elements";
 	import { cn } from "$lib/util";
 	import EmotePicker from "./EmotePicker.svelte";
-	import TextMessage from "./TextMessage.svelte";
+	import Message from "./message/Message.svelte";
 
 	const { class: className, ...rest }: HTMLInputAttributes = $props();
 
@@ -43,7 +43,7 @@
 		</div>
 
 		<div class="mt-2">
-			<TextMessage message={replyTarget.value} />
+			<Message message={replyTarget.value} />
 		</div>
 	</div>
 {/if}

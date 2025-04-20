@@ -1,10 +1,21 @@
 <script lang="ts">
 	import * as opener from "@tauri-apps/plugin-opener";
-	import type { TextMessage } from "$lib/message";
+	import type { UserMessage } from "$lib/message";
 	import { app } from "$lib/state.svelte";
-	import Tooltip from "./Tooltip.svelte";
+	import type { Badge } from "$lib/twitch/api";
+	import Tooltip from "../Tooltip.svelte";
 
-	const { message }: { message: TextMessage } = $props();
+	const { message }: { message: UserMessage } = $props();
+
+	const badges: Badge[] = [];
+
+	for (const badge of message.badges) {
+		const chatBadge = app.active.badges.get(badge.set_id)?.[badge.id];
+
+		if (chatBadge) {
+			badges.push(chatBadge);
+		}
+	}
 
 	async function openUrl(url: URL) {
 		await opener.openUrl(url.toString());
@@ -18,7 +29,7 @@
 	{message.formattedTime}
 </time>
 
-{#each message.badges as badge (badge.title)}
+{#each badges as badge (badge.title)}
 	<Tooltip class="p-1 text-xs" side="top" sideOffset={4}>
 		{#snippet trigger()}
 			<img
@@ -35,20 +46,20 @@
 {/each}
 
 <span class="font-medium break-words" style:color={message.user.color}>
-	{message.user.name}<span class="text-foreground">:</span>
+	{message.user.displayName}<span class="text-foreground">:</span>
 </span>
 
 <p
-	class={["inline", message.isAction() && "italic"]}
-	style:color={message.isAction() ? message.user.color : null}
+	class={["inline", message.isAction && "italic"]}
+	style:color={message.isAction ? message.user.color : null}
 >
 	{#each message.fragments as fragment, i}
 		{#if fragment.type === "mention"}
-			{#if message.isUser() && !message.isReply()}
+			{#if !message.reply}
 				{@const user = app.active.chat.users.get(fragment.id)}
 
 				<span class="font-bold break-words" style:color={user?.color}>
-					@{user?.name ?? fragment.username}
+					@{(user ?? fragment).displayName}
 				</span>
 			{/if}
 		{:else if fragment.type === "url"}

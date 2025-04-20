@@ -2,9 +2,9 @@
 	import { onMount } from "svelte";
 	import type { UserMessage } from "$lib/message";
 	import { app } from "$lib/state.svelte";
-	import { replyTarget } from "./Input.svelte";
-	import QuickActions from "./QuickActions.svelte";
-	import TextMessage from "./TextMessage.svelte";
+	import { replyTarget } from "../Input.svelte";
+	import QuickActions from "../QuickActions.svelte";
+	import Message from "./Message.svelte";
 
 	const { message }: { message: UserMessage } = $props();
 
@@ -31,10 +31,10 @@
 		/>
 	{/if}
 
-	{#if message.isChannelPointsHighlight()}
+	{#if message.highlighted}
 		<div class="my-0.5 border-x-6" style:border-color={app.active.color}>
 			<div class="bg-muted/50 p-1.5">
-				<TextMessage {message} />
+				<Message {message} />
 			</div>
 		</div>
 	{:else}
@@ -46,7 +46,7 @@
 					: "group-hover:bg-muted",
 			]}
 		>
-			{#if message.isReply()}
+			{#if message.reply}
 				{@const user = chat.users.get(message.reply.parent_user_id)}
 
 				<div class="mb-1 flex items-center gap-2">
@@ -65,7 +65,7 @@
 				</div>
 			{/if}
 
-			<TextMessage {message} />
+			<Message {message} />
 		</div>
 	{/if}
 </div>

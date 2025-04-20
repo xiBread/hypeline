@@ -1,20 +1,25 @@
 import type { BaseMessage as BaseMessageData } from "$lib/twitch/eventsub";
 import { formatTime } from "$lib/util";
-import type { NotificationMessage } from "./notification-message";
 import type { SystemMessage, SystemMessageData } from "./system-message";
 import type { UserMessage } from "./user-message";
 
-export type Message = UserMessage | NotificationMessage | SystemMessage;
+export type Message = UserMessage | SystemMessage;
 
 export type MessageData = BaseMessageData | SystemMessageData;
 
-export class BaseMessage {
+export abstract class BaseMessage {
+	#system: boolean;
 	public readonly timestamp = new Date();
 
-	public constructor(readonly data: MessageData) {}
+	public constructor(
+		readonly data: MessageData,
+		system = false,
+	) {
+		this.#system = system;
+	}
 
 	public get id(): string {
-		if (this.isSystem()) {
+		if (this.#system) {
 			return (this.data as SystemMessageData).id;
 		}
 
@@ -25,15 +30,7 @@ export class BaseMessage {
 		return formatTime(this.timestamp);
 	}
 
-	public isUser(): this is UserMessage {
-		return Object.hasOwn(this.data, "message_type");
-	}
-
-	public isNotification(): this is NotificationMessage {
-		return Object.hasOwn(this.data, "system_message");
-	}
-
 	public isSystem(): this is SystemMessage {
-		return !this.isUser() && !this.isNotification();
+		return this.#system;
 	}
 }

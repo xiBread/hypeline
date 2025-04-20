@@ -1,13 +1,13 @@
 <script lang="ts">
-	import type { NotificationMessage } from "$lib/message";
+	import { UserMessage } from "../../message";
 	import Announcement from "./Announcement.svelte";
 	import Resub from "./Resub.svelte";
 
-	const { message }: { message: NotificationMessage } = $props();
+	const { message }: { message: UserMessage } = $props();
 </script>
 
-{#if message.isAnnouncement()}
+{#if message.announcement}
 	<Announcement {message} color={message.announcement.color} />
-{:else if message.isResub()}
+{:else if message.resub}
 	<Resub {message} resub={message.resub} />
 {/if}

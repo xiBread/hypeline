@@ -57,7 +57,7 @@ export class Channel {
 
 		channel.chat.users.set(user.id, {
 			id: user.id,
-			name: user.displayName,
+			displayName: user.displayName,
 			color: user.color,
 		});
 

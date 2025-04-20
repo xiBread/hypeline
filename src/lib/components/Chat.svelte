@@ -2,9 +2,9 @@
 	import { VList } from "virtua/svelte";
 	import type { Message } from "$lib/message";
 	import { app } from "$lib/state.svelte";
-	import NotificationMessage from "./NotificationMessage.svelte";
-	import SystemMessage from "./SystemMessage.svelte";
-	import UserMessage from "./UserMessage.svelte";
+	import Notification from "./message/Notification.svelte";
+	import SystemMessage from "./message/SystemMessage.svelte";
+	import UserMessage from "./message/UserMessage.svelte";
 
 	interface Props {
 		class?: string;
@@ -65,12 +65,12 @@
 		bind:this={list}
 	>
 		{#snippet children(message: Message)}
-			{#if message.isUser()}
-				<UserMessage {message} />
-			{:else if message.isNotification()}
-				<NotificationMessage {message} />
-			{:else}
+			{#if message.isSystem()}
 				<SystemMessage {message} />
+			{:else if message.type === "notification"}
+				<Notification {message} />
+			{:else}
+				<UserMessage {message} />
 			{/if}
 		{/snippet}
 	</VList>

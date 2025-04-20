@@ -1,11 +1,11 @@
 <script lang="ts">
 	import Megaphone from "@lucide/svelte/icons/megaphone";
-	import type { NotificationMessage } from "$lib/message";
+	import type { UserMessage } from "$lib/message";
 	import { app } from "$lib/state.svelte";
-	import TextMessage from "./TextMessage.svelte";
+	import Message from "./Message.svelte";
 
 	interface Props {
-		message: NotificationMessage;
+		message: UserMessage;
 		color: string;
 	}
 
@@ -30,6 +30,6 @@
 	</div>
 
 	<div class="bg-muted/50 p-1.5">
-		<TextMessage {message} />
+		<Message {message} />
 	</div>
 </div>

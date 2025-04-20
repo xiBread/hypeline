@@ -6,7 +6,7 @@ import { replyTarget } from "./components/Input.svelte";
 
 export interface ChatUser {
 	id: string;
-	name: string;
+	displayName: string;
 	color: string;
 }
 
