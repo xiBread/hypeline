@@ -1,6 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { Channel } from "./channel.svelte";
-import type { FullChannel, UserEmote, UserWithColor } from "./tauri";
+import type { UserEmote, UserWithColor } from "./tauri";
 import { User } from "./user";
 
 interface ChannelEmote {
@@ -11,7 +10,6 @@ interface ChannelEmote {
 
 export class AuthUser extends User {
 	public emotes: ChannelEmote[] = [];
-	public following = $state<Channel[]>([]);
 
 	public constructor(
 		data: UserWithColor,
@@ -28,23 +26,7 @@ export class AuthUser extends User {
 		});
 
 		const user = new AuthUser(data, token);
-		await user.loadFollowing();
-
 		return user;
-	}
-
-	public async loadFollowing() {
-		const channels = await invoke<FullChannel[]>("get_followed_channels");
-		const following = [];
-
-		for (const followed of channels) {
-			const user = new User(followed.user);
-
-			const channel = new Channel(user, followed.stream);
-			following.push(channel);
-		}
-
-		this.following = following;
 	}
 
 	public async loadEmotes() {
