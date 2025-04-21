@@ -1,4 +1,5 @@
 import channelChatMessage from "./channel-chat-message";
+import channelChatMessageDelete from "./channel-chat-message-delete";
 import channelChatNotification from "./channel-chat-notification";
 import type { Handler } from "./helper";
 
@@ -9,4 +10,5 @@ function register(handler: Handler<any>) {
 }
 
 register(channelChatMessage);
+register(channelChatMessageDelete);
 register(channelChatNotification);

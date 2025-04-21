@@ -1,7 +1,6 @@
 import type { BaseMessage as BaseMessageData } from "$lib/twitch/eventsub";
 import { formatTime } from "$lib/util";
-import type { SystemMessageData } from "./system-message";
-import type { UserMessage } from "./user-message";
+import type { SystemMessageData, UserMessage } from "./";
 
 export type MessageData = BaseMessageData | SystemMessageData;
 

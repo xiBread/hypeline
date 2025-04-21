@@ -19,11 +19,11 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-	class="group relative"
+	class={["group relative", message.deleted && "opacity-50"]}
 	onmouseenter={() => (quickActionsOpen = true)}
 	onmouseleave={() => (quickActionsOpen = false)}
 >
-	{#if quickActionsOpen}
+	{#if quickActionsOpen && !message.deleted}
 		<QuickActions
 			class="absolute top-0 right-2 -translate-y-1/2"
 			{message}

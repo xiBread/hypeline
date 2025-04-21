@@ -107,6 +107,16 @@ export interface ChannelChatMessage extends BaseMessage {
 	channel_points_custom_reward_id?: string | null;
 }
 
+export interface ChannelChatMessageDelete {
+	broadcaster_user_id: string;
+	broadcaster_user_name: string;
+	broadcaster_user_login: string;
+	target_user_id: string;
+	target_user_name: string;
+	target_user_login: string;
+	message_id: string;
+}
+
 export interface BaseNotification extends BaseMessage {
 	chatter_is_anonymous: boolean;
 	system_message: string;

@@ -69,6 +69,7 @@ pub async fn join(
         session_id,
         &[
             ("channel.chat.message", &channel_condition),
+            ("channel.chat.message_delete", &channel_condition),
             ("channel.chat.notification", &channel_condition),
         ],
     )

@@ -1,7 +1,7 @@
 import type { Emote } from "$lib/channel.svelte";
 import { app } from "$lib/state.svelte";
 import type * as Twitch from "$lib/twitch/eventsub";
-import { Message } from "./message";
+import { Message } from "./";
 
 export type Fragment =
 	| { type: "text"; value: string }
@@ -15,6 +15,8 @@ const URL_RE =
 	/https?:\/\/(?:www\.)?[-\w@:%.+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-\w()@:%+.~#?&/=]*/;
 
 export class UserMessage extends Message {
+	#deleted = $state(false);
+
 	public readonly fragments: Fragment[];
 
 	public constructor(
@@ -31,6 +33,10 @@ export class UserMessage extends Message {
 		return this.noticeType === "announcement"
 			? (this.data as Twitch.AnnouncementNotification).announcement
 			: null;
+	}
+
+	public get deleted() {
+		return this.#deleted;
 	}
 
 	public get badges(): Twitch.Badge[] {
@@ -71,6 +77,10 @@ export class UserMessage extends Message {
 			displayName: this.data.chatter_user_name,
 			color: this.data.color,
 		};
+	}
+
+	public setDeleted() {
+		this.#deleted = true;
 	}
 
 	#transformFragments() {
