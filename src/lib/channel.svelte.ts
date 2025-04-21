@@ -5,7 +5,7 @@ import type { Message } from "./message";
 import type { JoinedChannel } from "./tauri";
 import type { Badge, BadgeSet, Stream } from "./twitch/api";
 import { User } from "./user";
-import type { PartialUser } from "./user";
+import type { ChatUser, PartialUser } from "./user";
 
 export interface Emote {
 	name: string;
@@ -17,7 +17,7 @@ export interface Emote {
 export class Channel {
 	public readonly badges = new SvelteMap<string, Record<string, Badge>>();
 	public readonly emotes = new SvelteMap<string, Emote>();
-	public readonly users = new SvelteMap<string, PartialUser>();
+	public readonly users = new SvelteMap<string, ChatUser>();
 
 	public messages = $state<Message[]>([]);
 
@@ -62,6 +62,8 @@ export class Channel {
 			id: user.id,
 			displayName: user.displayName,
 			color: user.color,
+			broadcaster: true,
+			mod: false,
 		});
 
 		// todo: probably another bottleneck
@@ -112,7 +114,11 @@ export class Channel {
 		});
 
 		for (const user of users) {
-			this.users.set(user.id, user);
+			this.users.set(user.id, {
+				...user,
+				broadcaster: false,
+				mod: false,
+			});
 		}
 	}
 

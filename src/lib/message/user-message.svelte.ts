@@ -29,6 +29,23 @@ export class UserMessage extends Message {
 		this.fragments = this.#transformFragments();
 	}
 
+	public get actionable() {
+		if (!app.user) return false;
+
+		const now = Date.now();
+		const diff = Math.abs(now - this.timestamp.getTime());
+
+		// prettier-ignore
+		return (
+			app.user.moderating.has(app.active.user.id) &&
+			diff <= 6 * 60 * 60 * 1000 &&
+			(
+				app.user.id === this.user.id ||
+				!(this.user.broadcaster || this.user.mod)
+			)
+		);
+	}
+
 	public get announcement() {
 		return this.noticeType === "announcement"
 			? (this.data as Twitch.AnnouncementNotification).announcement
@@ -72,11 +89,15 @@ export class UserMessage extends Message {
 	}
 
 	public get user() {
-		return {
+		const user = $state({
 			id: this.data.chatter_user_id,
 			displayName: this.data.chatter_user_name,
 			color: this.data.color,
-		};
+			mod: false,
+			broadcaster: false,
+		});
+
+		return user;
 	}
 
 	public setDeleted() {

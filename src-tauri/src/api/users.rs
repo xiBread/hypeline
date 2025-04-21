@@ -124,3 +124,27 @@ pub async fn get_user_emotes(state: State<'_, Mutex<AppState>>) -> Result<Vec<Us
 
     Ok(user_emotes)
 }
+
+#[tauri::command]
+pub async fn get_moderated_channels(
+    state: State<'_, Mutex<AppState>>,
+) -> Result<Vec<String>, Error> {
+    let state = state.lock().await;
+
+    let Some(token) = state.token.as_ref() else {
+        return Ok(vec![]);
+    };
+
+    let channels: Vec<_> = state
+        .helix
+        .get_moderated_channels(token.user_id.clone(), token)
+        .try_collect()
+        .await?;
+
+    let ids = channels
+        .into_iter()
+        .map(|ch| ch.broadcaster_id.to_string())
+        .collect();
+
+    Ok(ids)
+}

@@ -1,9 +1,12 @@
 <script lang="ts">
 	import ClipboardCopy from "@lucide/svelte/icons/clipboard-copy";
 	import Reply from "@lucide/svelte/icons/reply";
-	import { Toolbar } from "bits-ui";
+	import Trash from "@lucide/svelte/icons/trash";
+	import { invoke } from "@tauri-apps/api/core";
+	import { Separator, Toolbar } from "bits-ui";
 	import { replyTarget } from "$lib/components/Input.svelte";
 	import type { UserMessage } from "$lib/message";
+	import { app } from "$lib/state.svelte";
 	import { cn } from "$lib/util";
 
 	interface Props {
@@ -15,6 +18,16 @@
 
 	async function copy() {
 		await navigator.clipboard.writeText(message.text);
+	}
+
+	async function deleteMessage() {
+		if (!app.user) return;
+
+		await invoke("delete_message", {
+			broadcasterId: app.active.user.id,
+			userId: app.user.id,
+			messageId: message.id,
+		});
 	}
 </script>
 
@@ -39,4 +52,16 @@
 	>
 		<Reply class="size-4" />
 	</Toolbar.Button>
+
+	{#if message.actionable}
+		<Separator.Root class="bg-border h-4 w-px" orientation="vertical" />
+
+		<Toolbar.Button
+			class="hover:bg-muted-foreground/50 flex items-center justify-center rounded-[4px] p-1"
+			title="Delete message"
+			onclick={deleteMessage}
+		>
+			<Trash class="size-4" />
+		</Toolbar.Button>
+	{/if}
 </Toolbar.Root>

@@ -10,6 +10,7 @@ use crate::AppState;
 pub mod channels;
 pub mod chat;
 pub mod eventsub;
+pub mod moderation;
 pub mod users;
 
 #[derive(Deserialize)]

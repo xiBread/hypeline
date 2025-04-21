@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from "svelte";
 	import type { UserMessage } from "$lib/message";
 	import { app } from "$lib/state.svelte";
 	import { replyTarget } from "../Input.svelte";
@@ -9,12 +8,6 @@
 	const { message }: { message: UserMessage } = $props();
 
 	let quickActionsOpen = $state(false);
-
-	onMount(() => {
-		if (!app.active.users.has(message.user.id)) {
-			app.active.users.set(message.user.id, message.user);
-		}
-	});
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->

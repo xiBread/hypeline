@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { mode } from "mode-watcher";
+import { SvelteSet } from "svelte/reactivity";
 import type { UserWithColor } from "./tauri";
 import type { User as HelixUser } from "./twitch/api";
 
@@ -8,20 +9,32 @@ export interface PartialUser {
 	displayName: string;
 	color: string;
 }
+export interface ChatUser extends PartialUser {
+	broadcaster: boolean;
+	mod: boolean;
+}
 
 export class User implements PartialUser {
-	#color: string | null = null;
 	readonly #data: HelixUser;
+	#color: string | null = null;
+
+	public readonly moderating = new SvelteSet<string>();
 
 	public constructor(data: UserWithColor) {
 		this.#data = data.data;
 		this.#color = data.color;
+
+		this.moderating.add(this.id);
 	}
 
 	public static async from(id: string | null = null): Promise<User> {
 		const data = await invoke<UserWithColor>("get_user_from_id", { id });
+		const user = new User(data);
 
-		return new User(data);
+		const channels = await invoke<string[]>("get_moderated_channels");
+		channels.forEach((id) => user.moderating.add(id));
+
+		return user;
 	}
 
 	public get id() {

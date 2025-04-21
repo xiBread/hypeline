@@ -113,8 +113,10 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         api::chat::send_message,
         api::eventsub::subscribe,
         api::eventsub::unsubscribe,
+        api::moderation::delete_message,
         api::users::get_user_from_id,
         api::users::get_user_emotes,
+        api::users::get_moderated_channels,
         emotes::fetch_global_emotes,
     ]
 }
