@@ -18,7 +18,7 @@ export class User implements PartialUser {
 		this.#color = data.color;
 	}
 
-	public static async load(id: string | null = null): Promise<User> {
+	public static async from(id: string | null = null): Promise<User> {
 		const data = await invoke<UserWithColor>("get_user_from_id", { id });
 
 		return new User(data);

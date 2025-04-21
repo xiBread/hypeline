@@ -11,7 +11,7 @@ export async function load() {
 	await settings.start();
 
 	if (settings.state.user) {
-		app.user = await User.load(settings.state.user.id);
+		app.user = await User.from(settings.state.user.id);
 	}
 
 	if (app.globalEmotes.size > 0) return;

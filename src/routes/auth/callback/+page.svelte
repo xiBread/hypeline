@@ -10,7 +10,7 @@
 		const [token] = location.hash.slice(1).split("=")[1].split("&");
 		await invoke("set_access_token", { token });
 
-		app.user = await User.load(null);
+		app.user = await User.from(null);
 		settings.state.user = { id: app.user.id, token };
 
 		await tick();
