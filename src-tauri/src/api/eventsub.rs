@@ -71,19 +71,11 @@ pub async fn unsubscribe(state: State<'_, Mutex<AppState>>, event: String) -> Re
     let id = state.subscriptions.remove(&event);
     let token = get_access_token(&state).await?;
 
-    match id {
-        Some(id) => {
-            HTTP.delete("https://api.twitch.tv/helix/eventsub/subscriptions")
-                .query(&[("id", id)])
-                .bearer_auth(token.access_token.as_str())
-                .header("Client-Id", token.client_id().as_str())
-                .send()
-                .await?;
-
-            Ok(())
-        }
-        None => Ok(()),
+    if let Some(id) = id {
+        state.helix.delete_eventsub_subscription(id, token).await?;
     }
+
+    Ok(())
 }
 
 #[tauri::command]
