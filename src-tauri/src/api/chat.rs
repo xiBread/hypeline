@@ -88,7 +88,11 @@ pub async fn join(
 pub async fn leave(state: State<'_, Mutex<AppState>>) -> Result<(), Error> {
     unsubscribe_all(
         state,
-        &["channel.chat.message", "channel.chat.notification"],
+        &[
+            "channel.chat.message",
+            "channel.chat.message_delete",
+            "channel.chat.notification",
+        ],
     )
     .await?;
 
