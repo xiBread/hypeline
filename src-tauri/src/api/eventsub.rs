@@ -66,12 +66,9 @@ pub async fn subscribe_all(
 
 #[tauri::command]
 pub async fn unsubscribe(state: State<'_, Mutex<AppState>>, event: String) -> Result<(), Error> {
-    let id = {
-        let mut state = state.lock().await;
-        state.subscriptions.remove(&event)
-    };
+    let mut state = state.lock().await;
 
-    let state = state.lock().await;
+    let id = state.subscriptions.remove(&event);
     let token = get_access_token(&state).await?;
 
     match id {
