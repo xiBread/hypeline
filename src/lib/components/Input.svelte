@@ -4,11 +4,16 @@
 	export const replyTarget = $state<{ value: UserMessage | null }>({
 		value: null,
 	});
+
+	export const input = $state<{ value: HTMLInputElement | null }>({
+		value: null,
+	});
 </script>
 
 <script lang="ts">
 	import CircleX from "@lucide/svelte/icons/circle-x";
 	import Smile from "@lucide/svelte/icons/smile";
+	import { onMount } from "svelte";
 	import type { HTMLInputAttributes } from "svelte/elements";
 	import { cn } from "$lib/util";
 	import EmotePicker from "./EmotePicker.svelte";
@@ -16,13 +21,17 @@
 
 	const { class: className, ...rest }: HTMLInputAttributes = $props();
 
-	let input = $state<HTMLInputElement>();
+	let chatInput = $state<HTMLInputElement>();
 	let anchor = $state<HTMLElement>();
 
 	let emotePickerOpen = $state(false);
+
+	onMount(() => {
+		input.value = chatInput ?? null;
+	});
 </script>
 
-<EmotePicker {input} {anchor} bind:open={emotePickerOpen} />
+<EmotePicker input={chatInput} {anchor} bind:open={emotePickerOpen} />
 
 {#if replyTarget.value}
 	<div
@@ -64,7 +73,7 @@
 		autocapitalize="off"
 		autocorrect="off"
 		{...rest}
-		bind:this={input}
+		bind:this={chatInput}
 	/>
 
 	<div class="absolute inset-y-0 end-0 flex p-1">

@@ -4,7 +4,7 @@
 	import Trash from "@lucide/svelte/icons/trash";
 	import { invoke } from "@tauri-apps/api/core";
 	import { Separator, Toolbar } from "bits-ui";
-	import { replyTarget } from "$lib/components/Input.svelte";
+	import { input, replyTarget } from "$lib/components/Input.svelte";
 	import type { UserMessage } from "$lib/message";
 	import { app } from "$lib/state.svelte";
 	import { cn } from "$lib/util";
@@ -48,7 +48,10 @@
 	<Toolbar.Button
 		class="hover:bg-muted-foreground/50 flex items-center justify-center rounded-[4px] p-1"
 		title="Reply to {message.user.displayName}"
-		onclick={() => (replyTarget.value = message)}
+		onclick={() => {
+			replyTarget.value = message;
+			input.value?.focus();
+		}}
 	>
 		<Reply class="size-4" />
 	</Toolbar.Button>
