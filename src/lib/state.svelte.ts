@@ -14,6 +14,9 @@ class AppState {
 
 	public readonly globalEmotes = new SvelteMap<string, Emote>();
 
+	/**
+	 * The currently joined channel.
+	 */
 	public get active() {
 		return this.#active ?? Channel.empty();
 	}

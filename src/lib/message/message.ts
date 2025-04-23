@@ -6,6 +6,11 @@ export type MessageData = BaseMessageData | SystemMessageData;
 
 export abstract class Message {
 	#system: boolean;
+
+	/**
+	 * The timestamp at which the message was sent at. For a human-readable
+	 * format, use {@linkcode formattedTime}.
+	 */
 	public readonly timestamp = new Date();
 
 	public constructor(

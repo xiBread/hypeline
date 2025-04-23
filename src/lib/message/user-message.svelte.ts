@@ -14,6 +14,14 @@ export type Fragment =
 const URL_RE =
 	/https?:\/\/(?:www\.)?[-\w@:%.+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-\w()@:%+.~#?&/=]*/;
 
+/**
+ * User messages are either messages received by `channel.chat.message` events
+ * or notifications received by `channel.chat.notification` events.
+ *
+ * In either case, both share enough common data that they can be categorized
+ * as "user" messages. Properties such as {@linkcode announcement} can be
+ * checked to differentiate the two.
+ */
 export class UserMessage extends Message {
 	#deleted = $state(false);
 
@@ -29,6 +37,16 @@ export class UserMessage extends Message {
 		this.fragments = this.#transformFragments();
 	}
 
+	/**
+	 * Whether the current user can perform mod actions on the message.
+	 *
+	 * A message is considered actionable if they are a mod in the channel, the
+	 * message is less than six hours old, and one of the following is true:
+	 *
+	 * 1. It is their own message
+	 * 2. It is a message that is not sent by the broadcaster or another
+	 * moderator
+	 */
 	public get actionable() {
 		if (!app.user) return false;
 
@@ -46,38 +64,65 @@ export class UserMessage extends Message {
 		);
 	}
 
+	/**
+	 * The {@link Twitch.AnnouncementNotification announcement} associated with
+	 * the message if it's an `announcement` notification.
+	 */
 	public get announcement() {
 		return this.noticeType === "announcement"
 			? (this.data as Twitch.AnnouncementNotification).announcement
 			: null;
 	}
 
+	/**
+	 * Whether the message has been deleted.
+	 */
 	public get deleted() {
 		return this.#deleted;
 	}
 
+	/**
+	 * The badges sent with the message.
+	 */
 	public get badges(): Twitch.Badge[] {
 		return this.data.badges;
 	}
 
+	/**
+	 * Whether channel points were used to highlight the message.
+	 */
 	public get highlighted() {
 		return this.type === "channel_points_highlighted";
 	}
 
+	/**
+	 * Whether the message is an action i.e. sent with `/me`.
+	 */
 	public get isAction() {
 		return /^\x01ACTION .+\x01$/.test(this.data.message.text);
 	}
 
+	/**
+	 * The type of notification if the message is a notification.
+	 */
 	public get noticeType() {
 		return "notice_type" in this.data ? this.data.notice_type : null;
 	}
 
+	/**
+	 * The {@link Twitch.ResubNotification resub} associated with the message
+	 * if it's a `resub` notification.
+	 */
 	public get resub() {
 		return this.noticeType === "resub"
 			? (this.data as Twitch.ResubNotification).resub
 			: null;
 	}
 
+	/**
+	 * The metadata for the parent and thread starter messages if the message
+	 * is a reply.
+	 */
 	public get reply() {
 		return "reply" in this.data && this.data.reply ? this.data.reply : null;
 	}

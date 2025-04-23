@@ -2,6 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { SvelteMap } from "svelte/reactivity";
 import { replyTarget } from "./components/Input.svelte";
 import type { Message } from "./message";
+import type { app } from "./state.svelte";
 import type { JoinedChannel } from "./tauri";
 import type { Badge, BadgeSet, Stream } from "./twitch/api";
 import { User } from "./user";
@@ -22,10 +23,23 @@ export class Channel {
 	public messages = $state<Message[]>([]);
 
 	public constructor(
+		/**
+		 * The user for the channel.
+		 */
 		public readonly user: User,
+
+		/**
+		 * The stream associated with the channel if it's currently streaming.
+		 */
 		public stream: Stream | null = null,
 	) {}
 
+	/**
+	 * An "empty" channel to use during app initialization.
+	 *
+	 * This is to prevent {@linkcode app.active} being possibly `null` and
+	 * using optional chaining everywhere.
+	 */
 	public static empty() {
 		const emptyUser = new User({
 			data: {

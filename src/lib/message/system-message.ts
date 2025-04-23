@@ -9,11 +9,18 @@ export interface SystemMessageData {
 // Only for syntax highlighting
 const html = String.raw;
 
+/**
+ * System messages are messages constructed internally and sent to relay
+ * information to the user.
+ */
 export class SystemMessage extends Message {
 	public constructor(text: string) {
 		super({ id: crypto.randomUUID(), text }, true);
 	}
 
+	/**
+	 * Creates a `Joined {channel}` system message when joining a channel.
+	 */
 	public static joined(user: User) {
 		return new SystemMessage(html`
 			Joined
