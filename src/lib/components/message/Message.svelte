@@ -45,9 +45,9 @@
 	</Tooltip>
 {/each}
 
-<span class="font-medium break-words" style:color={message.user.color}>
-	{message.user.displayName}<span class="text-foreground">:</span>
-</span>
+<span class="font-semibold break-words" style:color={message.user.color}>
+	{message.user.displayName}
+</span>:
 
 <p
 	class={["inline", message.isAction && "italic"]}
@@ -58,7 +58,10 @@
 			{#if !message.reply}
 				{@const user = app.active.users.get(fragment.id)}
 
-				<span class="font-bold break-words" style:color={user?.color}>
+				<span
+					class="font-semibold break-words"
+					style:color={user?.color}
+				>
 					@{(user ?? fragment).displayName}
 				</span>
 			{/if}

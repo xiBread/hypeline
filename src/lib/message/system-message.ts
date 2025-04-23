@@ -17,7 +17,7 @@ export class SystemMessage extends Message {
 	public static joined(user: User) {
 		return new SystemMessage(html`
 			Joined
-			<span class="font-medium" style="color: ${user.color};">
+			<span class="font-semibold" style="color: ${user.color};">
 				${user.displayName}
 			</span>
 		`);
