@@ -24,10 +24,11 @@
 	{/if}
 
 	{#if message.highlighted}
-		<div class="my-0.5 border-x-6" style:border-color={app.active.color}>
-			<div class="bg-muted/50 p-1.5">
-				<Message {message} />
-			</div>
+		<div
+			class="bg-muted/50 my-0.5 border-l-4 p-2.5"
+			style:border-color={app.active.color}
+		>
+			<Message {message} />
 		</div>
 	{:else}
 		<div

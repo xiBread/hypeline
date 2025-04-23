@@ -33,7 +33,7 @@
 </script>
 
 <div
-	class="bg-muted/50 my-0.5 border-x-6 p-1.5"
+	class="bg-muted/50 my-0.5 border-l-4 p-2.5"
 	style:border-color={app.active.color}
 >
 	<div class="flex gap-1">
@@ -46,6 +46,8 @@
 	</div>
 
 	{#if message.fragments.length}
-		<Message {message} />
+		<div class="mt-1">
+			<Message {message} />
+		</div>
 	{/if}
 </div>
