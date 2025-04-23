@@ -33,11 +33,6 @@ export async function connect() {
 				break;
 			}
 
-			case "Pong": {
-				console.log("Pong");
-				break;
-			}
-
 			case "Text": {
 				const msg: WebSocketMessage = JSON.parse(message.data);
 
