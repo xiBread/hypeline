@@ -18,9 +18,7 @@
 		const channel = await Channel.join(data.channel, app.wsSessionId!);
 
 		channel.addEmotes(app.globalEmotes);
-		channel.messages = [
-			new SystemMessage(`Joined ${channel.user.displayName}`),
-		];
+		channel.messages = [SystemMessage.joined(channel.user)];
 
 		app.active = channel;
 		settings.state.lastJoined = data.channel;

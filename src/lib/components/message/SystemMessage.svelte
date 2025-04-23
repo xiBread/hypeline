@@ -9,5 +9,5 @@
 		{message.formattedTime}
 	</time>
 
-	<p class="inline">{message.text}</p>
+	<p class="inline">{@html message.text}</p>
 </div>
