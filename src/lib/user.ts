@@ -68,14 +68,6 @@ export class User implements PartialUser {
 		return new Date(this.#data.created_at);
 	}
 
-	public get admin() {
-		return this.#data.type === "admin";
-	}
-
-	public get globalMod() {
-		return this.#data.type === "global_mod";
-	}
-
 	public get staff() {
 		return this.#data.type === "staff";
 	}

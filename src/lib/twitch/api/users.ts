@@ -2,7 +2,7 @@ export interface User {
 	id: string;
 	login: string;
 	display_name: string;
-	type: "admin" | "global_mod" | "staff" | "";
+	type: "staff" | "";
 	broadcaster_type: "affiliate" | "partner" | "";
 	description: string;
 	profile_image_url: string;
