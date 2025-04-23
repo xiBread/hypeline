@@ -1,5 +1,4 @@
 import { invoke } from "@tauri-apps/api/core";
-import { mode } from "mode-watcher";
 import { SvelteSet } from "svelte/reactivity";
 import type { UserWithColor } from "./tauri";
 import type { User as HelixUser } from "./twitch/api";
@@ -42,7 +41,7 @@ export class User implements PartialUser {
 	}
 
 	public get color() {
-		return this.#color ?? (mode.current === "dark" ? "#FFFFFF" : "#000000");
+		return this.#color ?? "inherit";
 	}
 
 	public get username() {
