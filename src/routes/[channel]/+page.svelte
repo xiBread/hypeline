@@ -25,6 +25,11 @@
 	}
 
 	async function send(event: KeyboardEvent) {
+		if (event.key === "Escape" && replyTarget.value) {
+			replyTarget.value = null;
+			return;
+		}
+
 		if (event.key !== "Enter") return;
 
 		event.preventDefault();
