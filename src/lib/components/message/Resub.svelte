@@ -34,7 +34,7 @@
 
 <div
 	class="bg-muted/50 my-0.5 border-l-4 p-2.5"
-	style:border-color={app.active.color}
+	style:border-color={app.active.user.color}
 >
 	<div class="flex gap-1">
 		<Star class="fill-foreground mt-px size-4" />

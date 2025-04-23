@@ -26,7 +26,7 @@
 	{#if message.highlighted}
 		<div
 			class="bg-muted/50 my-0.5 border-l-4 p-2.5"
-			style:border-color={app.active.color}
+			style:border-color={app.active.user.color}
 		>
 			<Message {message} />
 		</div>

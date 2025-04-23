@@ -72,10 +72,6 @@ export class Channel {
 		return channel;
 	}
 
-	public get color() {
-		return this.user.color;
-	}
-
 	public async leave() {
 		await invoke("leave");
 

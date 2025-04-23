@@ -10,7 +10,7 @@
 	}
 
 	const colors: Record<string, string[]> = {
-		PRIMARY: [app.active.color, app.active.color],
+		PRIMARY: [app.active.user.color, app.active.user.color],
 		BLUE: ["#00d6d6", "#9146ff"],
 		GREEN: ["#00db84", "#57bee6"],
 		ORANGE: ["#ffb31a", "#e0e000"],
