@@ -40,7 +40,7 @@
 			]}
 		>
 			{#if message.reply}
-				{@const user = app.active.users.get(
+				{@const viewer = app.active.viewers.get(
 					message.reply.parent_user_id,
 				)}
 
@@ -50,7 +50,7 @@
 					></div>
 
 					<div class="line-clamp-1 text-xs">
-						<span style:color={user?.color}
+						<span style:color={viewer?.color}
 							>@{message.reply.parent_user_name}</span
 						>:
 						<p class="text-muted-foreground inline">

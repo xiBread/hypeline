@@ -45,24 +45,24 @@
 	</Tooltip>
 {/each}
 
-<span class="font-semibold break-words" style:color={message.user.color}>
-	{message.user.displayName}
+<span class="font-semibold break-words" style:color={message.viewer.color}>
+	{message.viewer.displayName}
 </span>:
 
 <p
 	class={["inline", message.isAction && "italic"]}
-	style:color={message.isAction ? message.user.color : null}
+	style:color={message.isAction ? message.viewer.color : null}
 >
 	{#each message.fragments as fragment, i}
 		{#if fragment.type === "mention"}
 			{#if !message.reply}
-				{@const user = app.active.users.get(fragment.id)}
+				{@const viewer = app.active.viewers.get(fragment.id)}
 
 				<span
 					class="font-semibold break-words"
-					style:color={user?.color}
+					style:color={viewer?.color}
 				>
-					@{(user ?? fragment).displayName}
+					@{(viewer ?? fragment).displayName}
 				</span>
 			{/if}
 		{:else if fragment.type === "url"}

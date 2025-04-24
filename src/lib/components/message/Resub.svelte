@@ -40,7 +40,7 @@
 		<Star class="fill-foreground mt-px size-4" />
 
 		<div class="flex flex-col gap-1">
-			<span class="font-semibold">{message.user.displayName}</span>
+			<span class="font-semibold">{message.viewer.displayName}</span>
 			{subMessage()}
 		</div>
 	</div>

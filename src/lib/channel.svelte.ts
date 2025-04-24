@@ -2,11 +2,11 @@ import { invoke } from "@tauri-apps/api/core";
 import { SvelteMap } from "svelte/reactivity";
 import { replyTarget } from "./components/Input.svelte";
 import type { Message } from "./message";
-import type { app } from "./state.svelte";
 import type { JoinedChannel } from "./tauri";
 import type { Badge, BadgeSet, Stream } from "./twitch/api";
 import { User } from "./user";
-import type { ChatUser, PartialUser } from "./user";
+import type { PartialUser } from "./user";
+import { Viewer } from "./viewer.svelte";
 
 export interface Emote {
 	name: string;
@@ -18,7 +18,7 @@ export interface Emote {
 export class Channel {
 	public readonly badges = new SvelteMap<string, Record<string, Badge>>();
 	public readonly emotes = new SvelteMap<string, Emote>();
-	public readonly users = new SvelteMap<string, ChatUser>();
+	public readonly viewers = new SvelteMap<string, Viewer>();
 
 	public messages = $state<Message[]>([]);
 
@@ -72,13 +72,10 @@ export class Channel {
 			.addEmotes(joined.emotes)
 			.setStream(joined.stream);
 
-		channel.users.set(user.id, {
-			id: user.id,
-			displayName: user.displayName,
-			color: user.color,
-			broadcaster: true,
-			mod: false,
-		});
+		const viewer = new Viewer(user);
+		viewer.broadcaster = true;
+
+		channel.viewers.set(user.id, viewer);
 
 		// todo: probably another bottleneck
 		await channel.loadUsers();
@@ -91,7 +88,7 @@ export class Channel {
 
 		this.badges.clear();
 		this.emotes.clear();
-		this.users.clear();
+		this.viewers.clear();
 	}
 
 	public addBadges(badges: BadgeSet[]) {
@@ -124,11 +121,7 @@ export class Channel {
 		});
 
 		for (const user of users) {
-			this.users.set(user.id, {
-				...user,
-				broadcaster: false,
-				mod: false,
-			});
+			this.viewers.set(user.id, new Viewer(user));
 		}
 	}
 

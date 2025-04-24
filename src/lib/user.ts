@@ -8,10 +8,6 @@ export interface PartialUser {
 	displayName: string;
 	color: string;
 }
-export interface ChatUser extends PartialUser {
-	broadcaster: boolean;
-	mod: boolean;
-}
 
 export class User implements PartialUser {
 	readonly #data: HelixUser;

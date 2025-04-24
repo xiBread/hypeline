@@ -47,7 +47,7 @@
 
 	<Toolbar.Button
 		class="hover:bg-muted-foreground/50 flex items-center justify-center rounded-[4px] p-1"
-		title="Reply to {message.user.displayName}"
+		title="Reply to {message.viewer.displayName}"
 		onclick={() => {
 			replyTarget.value = message;
 			input.value?.focus();

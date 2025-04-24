@@ -1,6 +1,7 @@
 import type { Emote } from "$lib/channel.svelte";
 import { app } from "$lib/state.svelte";
 import type * as Twitch from "$lib/twitch/eventsub";
+import { Viewer } from "$lib/viewer.svelte";
 import { Message } from "./";
 
 export type Fragment =
@@ -58,8 +59,8 @@ export class UserMessage extends Message {
 			app.user.moderating.has(app.active.user.id) &&
 			diff <= 6 * 60 * 60 * 1000 &&
 			(
-				app.user.id === this.user.id ||
-				!(this.user.broadcaster || this.user.mod)
+				app.user.id === this.viewer.id ||
+				!(this.viewer.broadcaster || this.viewer.moderator)
 			)
 		);
 	}
@@ -133,16 +134,18 @@ export class UserMessage extends Message {
 			: "notification";
 	}
 
-	public get user() {
-		const user = $state({
-			id: this.data.chatter_user_id,
-			displayName: this.data.chatter_user_name,
-			color: this.data.color,
-			mod: false,
-			broadcaster: false,
-		});
+	public get viewer() {
+		let viewer = app.active.viewers.get(this.data.chatter_user_id);
 
-		return user;
+		if (!viewer) {
+			viewer = new Viewer({
+				id: this.data.chatter_user_id,
+				displayName: this.data.chatter_user_name,
+				color: this.data.color,
+			});
+		}
+
+		return viewer;
 	}
 
 	public setDeleted() {

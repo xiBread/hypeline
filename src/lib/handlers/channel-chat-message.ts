@@ -6,8 +6,8 @@ export default defineHandler({
 	name: "channel.chat.message",
 	handle(data) {
 		const message = new UserMessage(data);
-		const chatter = app.active.users.get(message.user.id);
-		const user = chatter ?? message.user;
+		const viewer =
+			app.active.viewers.get(message.viewer.id) ?? message.viewer;
 
 		const badges = message.badges
 			.filter(
@@ -16,15 +16,15 @@ export default defineHandler({
 			.map((b) => b.set_id);
 
 		if (badges.includes("broadcaster")) {
-			user.broadcaster = true;
+			viewer.broadcaster = true;
 		}
 
 		if (badges.includes("moderator")) {
-			user.mod = true;
+			viewer.moderator = true;
 		}
 
-		if (!chatter) {
-			app.active.users.set(message.user.id, user);
+		if (!viewer) {
+			app.active.viewers.set(message.viewer.id, viewer);
 		}
 
 		app.active.messages.push(message);
