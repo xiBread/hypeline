@@ -9,11 +9,7 @@ export default defineHandler({
 		const viewer =
 			app.active.viewers.get(message.viewer.id) ?? message.viewer;
 
-		const badges = message.badges
-			.filter(
-				(b) => b.set_id === "broadcaster" || b.set_id === "moderator",
-			)
-			.map((b) => b.set_id);
+		const badges = message.badges.map((b) => b.set_id);
 
 		if (badges.includes("broadcaster")) {
 			viewer.broadcaster = true;
