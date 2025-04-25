@@ -3,7 +3,7 @@ import { app } from "$lib/state.svelte";
 import { defineHandler } from "./helper";
 
 export default defineHandler({
-	name: "channel.chat.message_delete",
+	name: "clearmsg",
 	handle(data) {
 		const message = app.active.messages.find(
 			(m): m is UserMessage => m.isUser() && m.id === data.message_id,

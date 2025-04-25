@@ -10,7 +10,7 @@
 	const badges: Badge[] = [];
 
 	for (const badge of message.badges) {
-		const chatBadge = app.active.badges.get(badge.set_id)?.[badge.id];
+		const chatBadge = app.active.badges.get(badge.name)?.[badge.version];
 
 		if (chatBadge) {
 			badges.push(chatBadge);

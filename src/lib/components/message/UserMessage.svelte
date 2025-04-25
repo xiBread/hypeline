@@ -41,7 +41,7 @@
 		>
 			{#if message.reply}
 				{@const viewer = app.active.viewers.get(
-					message.reply.parent_user_id,
+					message.reply.parent.user.id,
 				)}
 
 				<div class="mb-1 flex items-center gap-2">
@@ -51,10 +51,10 @@
 
 					<div class="line-clamp-1 text-xs">
 						<span style:color={viewer?.color}
-							>@{message.reply.parent_user_name}</span
+							>@{message.reply.parent.user.name}</span
 						>:
 						<p class="text-muted-foreground inline">
-							{message.reply.parent_message_body}
+							{message.reply.parent.message_text}
 						</p>
 					</div>
 				</div>

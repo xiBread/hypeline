@@ -59,10 +59,9 @@ export class Channel {
 		return new Channel(emptyUser);
 	}
 
-	public static async join(id: string, sessionId: string) {
+	public static async join(login: string) {
 		const joined = await invoke<JoinedChannel>("join", {
-			sessionId,
-			id,
+			login,
 		});
 
 		const user = new User(joined.user);
@@ -84,7 +83,7 @@ export class Channel {
 	}
 
 	public async leave() {
-		await invoke("leave");
+		await invoke("leave", { channel: this.user.username });
 
 		this.badges.clear();
 		this.emotes.clear();

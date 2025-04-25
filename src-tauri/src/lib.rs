@@ -1,6 +1,6 @@
-use std::collections::HashMap;
 use std::sync::LazyLock;
 
+use irc::IrcClient;
 use reqwest::header::HeaderMap;
 use tauri::async_runtime::{self, Mutex};
 use tauri::ipc::Invoke;
@@ -12,6 +12,7 @@ use twitch_api::HelixClient;
 mod api;
 mod emotes;
 mod error;
+mod irc;
 mod providers;
 
 const CLIENT_ID: &str = "kimne78kx3ncx6brgo4mv6wki5h1ko";
@@ -29,7 +30,7 @@ pub static HTTP: LazyLock<reqwest::Client> = LazyLock::new(|| {
 
 pub struct AppState {
     helix: HelixClient<'static, reqwest::Client>,
-    subscriptions: HashMap<String, String>,
+    irc: Option<IrcClient>,
     token: Option<UserToken>,
 }
 
@@ -37,7 +38,7 @@ impl Default for AppState {
     fn default() -> Self {
         Self {
             helix: HelixClient::new(),
-            subscriptions: HashMap::default(),
+            irc: None,
             token: None,
         }
     }
@@ -71,7 +72,6 @@ pub fn run() {
                 .level_for("tungstenite", log::LevelFilter::Off)
                 .build(),
         )
-        .plugin(tauri_plugin_websocket::init())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
@@ -105,16 +105,16 @@ pub fn run() {
 fn get_handler() -> impl Fn(Invoke) -> bool {
     tauri::generate_handler![
         api::set_access_token,
+        api::connect,
         api::channels::get_stream,
         api::channels::get_followed_channels,
         api::channels::get_chatters,
         api::chat::join,
         api::chat::leave,
         api::chat::send_message,
-        api::eventsub::subscribe,
-        api::eventsub::unsubscribe,
         api::moderation::delete_message,
         api::users::get_user_from_id,
+        api::users::get_user_from_login,
         api::users::get_user_emotes,
         api::users::get_moderated_channels,
         emotes::fetch_global_emotes,

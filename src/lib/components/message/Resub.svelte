@@ -2,12 +2,12 @@
 	import Star from "@lucide/svelte/icons/star";
 	import type { UserMessage } from "$lib/message";
 	import { app } from "$lib/state.svelte";
-	import type { Resub } from "$lib/twitch/eventsub";
+	import type { SubOrResubEvent } from "$lib/twitch/irc";
 	import Message from "./Message.svelte";
 
 	interface Props {
 		message: UserMessage;
-		resub: Resub;
+		resub: SubOrResubEvent;
 	}
 
 	const { message, resub }: Props = $props();
@@ -15,10 +15,10 @@
 	function subMessage() {
 		let message = "Subscribed with ";
 
-		if (resub.is_prime) {
+		if (resub.sub_plan === "Prime") {
 			message += "Prime.";
 		} else {
-			message += `Tier ${resub.sub_tier[0]}.`;
+			message += `Tier ${resub.sub_plan[0]}.`;
 		}
 
 		message += ` They've subscribed for ${resub.cumulative_months} months!`;

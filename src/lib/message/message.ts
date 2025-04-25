@@ -1,8 +1,8 @@
-import type { BaseMessage as BaseMessageData } from "$lib/twitch/eventsub";
+import type { BaseUserMessage } from "$lib/twitch/irc";
 import { formatTime } from "$lib/util";
 import type { SystemMessageData, UserMessage } from "./";
 
-export type MessageData = BaseMessageData | SystemMessageData;
+export type MessageData = BaseUserMessage | SystemMessageData;
 
 export abstract class Message {
 	#system: boolean;
@@ -18,6 +18,12 @@ export abstract class Message {
 		system = false,
 	) {
 		this.#system = system;
+
+		if (this.isUser()) {
+			this.timestamp = new Date(
+				(this.data as BaseUserMessage).server_timestamp,
+			);
+		}
 	}
 
 	public get id(): string {
@@ -34,7 +40,7 @@ export abstract class Message {
 
 	public get text(): string {
 		if (this.isUser()) {
-			return this.data.message.text;
+			return this.data.message_text;
 		}
 
 		return (this.data as SystemMessageData).text;

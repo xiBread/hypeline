@@ -3,13 +3,13 @@ import { app } from "$lib/state.svelte";
 import { defineHandler } from "./helper";
 
 export default defineHandler({
-	name: "channel.chat.message",
+	name: "privmsg",
 	handle(data) {
 		const message = new UserMessage(data);
 		const viewer =
 			app.active.viewers.get(message.viewer.id) ?? message.viewer;
 
-		const badges = message.badges.map((b) => b.set_id);
+		const badges = message.badges.map((b) => b.name);
 
 		if (badges.includes("broadcaster")) {
 			viewer.broadcaster = true;

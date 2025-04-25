@@ -1,11 +1,11 @@
-import type { EventSubSubscriptionMap } from "$lib/twitch/eventsub";
+import type { IrcMessageMap } from "$lib/twitch/irc";
 
-export interface Handler<K extends keyof EventSubSubscriptionMap> {
+export interface Handler<K extends keyof IrcMessageMap> {
 	name: K;
-	handle: (data: EventSubSubscriptionMap[K]) => Promise<void> | void;
+	handle: (data: IrcMessageMap[K]) => Promise<void> | void;
 }
 
-export function defineHandler<K extends keyof EventSubSubscriptionMap>(
+export function defineHandler<K extends keyof IrcMessageMap>(
 	handler: Handler<K>,
 ) {
 	return handler;

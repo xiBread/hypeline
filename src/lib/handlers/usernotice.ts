@@ -3,7 +3,7 @@ import { app } from "$lib/state.svelte";
 import { defineHandler } from "./helper";
 
 export default defineHandler({
-	name: "channel.chat.notification",
+	name: "usernotice",
 	handle(data) {
 		app.active.messages.push(new UserMessage(data));
 	},
