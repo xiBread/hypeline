@@ -7,7 +7,7 @@ use tokio::sync::{mpsc, oneshot};
 
 use crate::irc;
 
-use super::message::{IrcMessage, IrcTags, ReplyToMessage, ServerMessage};
+use super::message::{IrcMessage, IrcTags, ServerMessage};
 use super::{ClientConfig, Error};
 
 #[derive(Debug, Clone)]
@@ -79,23 +79,21 @@ impl IrcClient {
 
     pub async fn reply(
         &self,
-        reply_to: &impl ReplyToMessage,
+        channel_login: String,
+        message_id: String,
         message: String,
         me: bool,
     ) -> Result<(), Error> {
         let mut tags = IrcTags::new();
 
-        tags.0.insert(
-            "reply-parent-msg-id".to_owned(),
-            reply_to.message_id().to_owned(),
-        );
+        tags.0.insert("reply-parent-msg-id".to_owned(), message_id);
 
         let irc_message = IrcMessage::new(
             tags,
             None,
             "PRIVMSG".to_owned(),
             vec![
-                format!("#{}", reply_to.channel_login()),
+                format!("#{}", channel_login),
                 format!("{} {}", if me { "/me" } else { "." }, message),
             ],
         );

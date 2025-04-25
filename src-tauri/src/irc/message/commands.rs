@@ -8,9 +8,7 @@ use thiserror::Error;
 use ServerMessageParseError::*;
 
 use super::prefix::IrcPrefix;
-use super::{
-    AsRawIrc, Badge, BasicUser, Emote, IrcMessage, Reply, ReplyParent, ReplyThread, ReplyToMessage,
-};
+use super::{AsRawIrc, Badge, BasicUser, Emote, IrcMessage, Reply, ReplyParent, ReplyThread};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ClearChatMessage {
@@ -378,16 +376,6 @@ impl TryFrom<IrcMessage> for PrivmsgMessage {
 impl From<PrivmsgMessage> for IrcMessage {
     fn from(msg: PrivmsgMessage) -> IrcMessage {
         msg.source
-    }
-}
-
-impl ReplyToMessage for PrivmsgMessage {
-    fn channel_login(&self) -> &str {
-        &self.channel_login
-    }
-
-    fn message_id(&self) -> &str {
-        &self.message_id
     }
 }
 
