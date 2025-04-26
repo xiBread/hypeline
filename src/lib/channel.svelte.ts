@@ -1,7 +1,9 @@
 import { invoke } from "@tauri-apps/api/core";
 import { SvelteMap } from "svelte/reactivity";
 import { replyTarget } from "./components/Input.svelte";
+import { UserMessage } from "./message";
 import type { Message } from "./message";
+import { settings } from "./settings";
 import type { JoinedChannel } from "./tauri";
 import type { Badge, BadgeSet, Stream } from "./twitch/api";
 import { User } from "./user";
@@ -61,6 +63,7 @@ export class Channel {
 	public static async join(login: string) {
 		const joined = await invoke<JoinedChannel>("join", {
 			login,
+			historyLimit: settings.state.historyLimit,
 		});
 
 		const user = new User(joined.user);
@@ -69,6 +72,12 @@ export class Channel {
 			.addBadges(joined.badges)
 			.addEmotes(joined.emotes)
 			.setStream(joined.stream);
+
+		for (const message of joined.recent_messages) {
+			if (message.type === "privmsg" || message.type === "usernotice") {
+				channel.messages.push(new UserMessage(message));
+			}
+		}
 
 		const viewer = new Viewer(user);
 		viewer.broadcaster = true;
@@ -81,6 +90,7 @@ export class Channel {
 	public async leave() {
 		await invoke("leave", { channel: this.user.username });
 
+		this.messages = [];
 		this.badges.clear();
 		this.emotes.clear();
 		this.viewers.clear();

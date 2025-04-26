@@ -18,7 +18,7 @@
 		const channel = await Channel.join(data.channel);
 
 		channel.addEmotes(app.globalEmotes);
-		channel.messages = [SystemMessage.joined(channel.user)];
+		// channel.messages = [SystemMessage.joined(channel.user)];
 
 		app.active = channel;
 		settings.state.lastJoined = data.channel;

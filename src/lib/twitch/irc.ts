@@ -42,7 +42,6 @@ export interface Emote {
 export interface BaseUserMessage {
 	channel_login: string;
 	channel_id: string;
-	message_text: string;
 	sender: BasicUser;
 	badges: Badge[];
 	badge_info: Badge[];
@@ -70,6 +69,7 @@ export interface Reply {
 
 export interface PrivmsgMessage extends BaseUserMessage {
 	type: "privmsg";
+	message_text: string;
 	reply: Reply | null;
 	is_action: boolean;
 	is_first_msg: boolean;
@@ -161,6 +161,7 @@ export type UserNoticeEvent =
 
 export interface UserNoticeMessage extends BaseUserMessage {
 	type: "usernotice";
+	message_text: string | null;
 	system_message: string;
 	event: UserNoticeEvent;
 	event_id: string;

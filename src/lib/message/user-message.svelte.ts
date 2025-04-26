@@ -138,7 +138,7 @@ export class UserMessage extends Message {
 
 	#fragment() {
 		const fragments: Fragment[] = [];
-		const message = this.data.message_text;
+		const message = this.text;
 
 		const chars = Array.from(message);
 
