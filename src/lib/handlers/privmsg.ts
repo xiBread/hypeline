@@ -5,9 +5,11 @@ import { defineHandler } from "./helper";
 export default defineHandler({
 	name: "privmsg",
 	handle(data) {
+		console.log(data.sender.name, data.name_color);
 		const message = new UserMessage(data);
-		const viewer =
-			app.active.viewers.get(message.viewer.id) ?? message.viewer;
+
+		const storedViewer = app.active.viewers.get(message.viewer.username);
+		const viewer = storedViewer ?? message.viewer;
 
 		const badges = message.badges.map((b) => b.name);
 
@@ -19,8 +21,8 @@ export default defineHandler({
 			viewer.moderator = true;
 		}
 
-		if (!viewer) {
-			app.active.viewers.set(message.viewer.id, viewer);
+		if (!storedViewer) {
+			app.active.viewers.set(message.viewer.username, viewer);
 		}
 
 		app.active.messages.push(message);

@@ -41,7 +41,7 @@
 		>
 			{#if message.reply}
 				{@const viewer = app.active.viewers.get(
-					message.reply.parent.user.id,
+					message.reply.parent.user.name,
 				)}
 
 				<div class="mb-1 flex items-center gap-2">

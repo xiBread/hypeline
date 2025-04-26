@@ -25,6 +25,10 @@ export class Viewer implements PartialUser {
 		return this.#data.color || "inherit";
 	}
 
+	public get username() {
+		return this.#data.username;
+	}
+
 	public get displayName() {
 		return this.#data.displayName;
 	}

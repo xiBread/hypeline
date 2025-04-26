@@ -6,7 +6,6 @@ use tauri::async_runtime::Mutex;
 use tauri::State;
 use tokio::try_join;
 use twitch_api::helix::channels::FollowedBroadcaster;
-use twitch_api::helix::chat::Chatter;
 use twitch_api::helix::streams::Stream;
 use twitch_api::types::Collection;
 
@@ -15,26 +14,6 @@ use crate::AppState;
 
 use super::get_access_token;
 use super::users::User;
-
-#[tauri::command]
-pub async fn get_chatters(
-    state: State<'_, Mutex<AppState>>,
-    id: String,
-) -> Result<Vec<Chatter>, Error> {
-    let state = state.lock().await;
-    let token = get_access_token(&state).await?;
-
-    let response = state
-        .helix
-        .get_chatters(&id, &token.user_id, 1000, token)
-        .try_collect()
-        .await;
-
-    match response {
-        Ok(chatters) => Ok(chatters),
-        Err(_) => Ok(vec![]),
-    }
-}
 
 #[tauri::command]
 pub async fn get_stream(

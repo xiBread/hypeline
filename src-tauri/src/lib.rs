@@ -108,7 +108,6 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         api::set_access_token,
         api::channels::get_stream,
         api::channels::get_followed_channels,
-        api::channels::get_chatters,
         api::chat::join,
         api::chat::leave,
         api::chat::send_message,

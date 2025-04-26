@@ -1,12 +1,13 @@
 import type { Emote } from "$lib/channel.svelte";
 import { app } from "$lib/state.svelte";
 import type { Badge, PrivmsgMessage, UserNoticeMessage } from "$lib/twitch/irc";
+import type { PartialUser } from "$lib/user";
 import { Viewer } from "$lib/viewer.svelte";
 import { Message } from "./";
 
 export type Fragment =
 	| { type: "text"; value: string }
-	| { type: "mention"; id: string; displayName: string }
+	| ({ type: "mention" } & PartialUser)
 	| { type: "url"; text: string; url: URL }
 	| ({ type: "emote" } & Emote)
 	// todo: cheermotes
@@ -107,11 +108,12 @@ export class UserMessage extends Message {
 	}
 
 	public get viewer() {
-		let viewer = app.active.viewers.get(this.data.sender.id);
+		let viewer = app.active.viewers.get(this.data.sender.name);
 
 		if (!viewer) {
 			viewer = new Viewer({
 				id: this.data.sender.id,
+				username: this.data.sender.login,
 				displayName: this.data.sender.name,
 				color: this.data.name_color || "inherit",
 			});
@@ -138,18 +140,23 @@ export class UserMessage extends Message {
 		for (const token of this.data.message_text.split(/\s+/)) {
 			const emote = app.active.emotes.get(token);
 
-			const mention = token.startsWith("@") ? token.slice(1) : token;
-			const viewer = app.active.viewers.get(mention);
-
 			if (emote) {
 				flush();
 				fragments.push({ type: "emote", ...emote });
-			} else if (viewer) {
+			} else if (token.startsWith("@")) {
+				const mention = token.slice(1);
+				const viewer = app.active.viewers.get(mention.toLowerCase());
+
 				flush();
+
+				// Even if the viewer isn't found, still create a mention
+				// fragment so it gets styled properly
 				fragments.push({
 					type: "mention",
-					id: viewer.id,
-					displayName: viewer.displayName,
+					id: viewer?.id ?? "0",
+					color: viewer?.color ?? "inherit",
+					username: viewer?.username ?? mention.toLowerCase(),
+					displayName: viewer?.displayName ?? mention,
 				});
 			} else if (URL_RE.test(token)) {
 				// todo: better detection/parsing
