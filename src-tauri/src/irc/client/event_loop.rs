@@ -5,8 +5,8 @@ use tokio::sync::{mpsc, oneshot};
 use crate::irc;
 use crate::irc::connection::event_loop::ConnectionLoopCommand;
 use crate::irc::connection::{Connection, ConnectionIncomingMessage};
-use crate::irc::message::{IrcMessage, JoinMessage, PartMessage, ServerMessage};
-use crate::irc::{ClientConfig, Error};
+use crate::irc::message::{JoinMessage, PartMessage, ServerMessage};
+use crate::irc::ClientConfig;
 
 use super::pool_connection::PoolConnection;
 
@@ -134,32 +134,6 @@ impl ClientLoopWorker {
                 }
             }
         }
-    }
-
-    fn send_message(
-        &mut self,
-        message: IrcMessage,
-        return_sender: oneshot::Sender<Result<(), Error>>,
-    ) {
-        let mut pool_connection = self
-            .connections
-            .iter()
-            .position(|conn| conn.not_busy())
-            .map(|pos| self.connections.remove(pos).unwrap())
-            .unwrap_or_else(|| self.make_new_connection());
-
-        pool_connection.register_sent_message();
-
-        pool_connection
-            .connection
-            .connection_loop_tx
-            .send(ConnectionLoopCommand::SendMessage(
-                message,
-                Some(return_sender),
-            ))
-            .unwrap();
-
-        self.connections.push_back(pool_connection);
     }
 
     fn join(&mut self, channel_login: String) {
