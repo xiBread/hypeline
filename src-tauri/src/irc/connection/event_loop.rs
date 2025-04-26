@@ -84,9 +84,7 @@ impl ConnectionLoopWorker {
         config: Arc<ClientConfig>,
         connection_loop_tx: Weak<mpsc::UnboundedSender<ConnectionLoopCommand>>,
     ) {
-        // async{}.await is used in place of a try block since they are not stabilized yet
-        // TODO revise this once try blocks are stabilized
-        let res = async {
+        let res = try {
             let login = config.login.clone();
             let token = config.token.clone();
 
@@ -112,9 +110,8 @@ impl ConnectionLoopWorker {
                 drop(rate_limit_permit);
             });
 
-            Ok::<(WsTransport, String, String), Error>((transport, login, token))
-        }
-        .await;
+            (transport, login, token)
+        };
 
         if let Some(connection_loop_tx) = connection_loop_tx.upgrade() {
             connection_loop_tx

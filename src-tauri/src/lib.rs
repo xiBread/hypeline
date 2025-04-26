@@ -1,3 +1,5 @@
+#![feature(try_blocks)]
+
 use std::sync::LazyLock;
 
 use irc::IrcClient;
