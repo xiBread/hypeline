@@ -4,8 +4,7 @@ use either::Either;
 use futures::stream::{self, FusedStream};
 use futures::{Sink, SinkExt, StreamExt, TryStreamExt};
 use tokio_tungstenite::connect_async;
-use tokio_tungstenite::tungstenite::Error;
-use tokio_tungstenite::tungstenite::Message;
+use tokio_tungstenite::tungstenite::{Error, Message};
 
 use crate::irc::message::{AsRawIrc, IrcMessage, IrcParseError};
 

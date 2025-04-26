@@ -1,7 +1,8 @@
-use super::AsRawIrc;
 use std::fmt;
 
 use serde::{Deserialize, Serialize};
+
+use super::AsRawIrc;
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, Serialize, Deserialize)]
 pub enum IrcPrefix {

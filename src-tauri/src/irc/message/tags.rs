@@ -1,8 +1,9 @@
-use serde::{Deserialize, Serialize};
 use std::collections::hash_map::RandomState;
 use std::collections::HashMap;
 use std::fmt;
 use std::fmt::Write;
+
+use serde::{Deserialize, Serialize};
 
 use super::AsRawIrc;
 

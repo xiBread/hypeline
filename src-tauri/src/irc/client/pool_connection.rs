@@ -1,6 +1,7 @@
 use std::collections::{HashSet, VecDeque};
 use std::sync::Arc;
 use std::time::Instant;
+
 use tokio::sync::oneshot;
 
 use crate::irc::connection::Connection;

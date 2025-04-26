@@ -1,6 +1,7 @@
 pub mod event_loop;
 
 use std::sync::Arc;
+
 use tokio::sync::mpsc;
 
 use super::config::ClientConfig;

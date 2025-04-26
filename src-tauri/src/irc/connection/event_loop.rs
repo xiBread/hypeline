@@ -1,18 +1,18 @@
+use std::collections::VecDeque;
+use std::sync::{Arc, Weak};
+
 use either::Either;
 use enum_dispatch::enum_dispatch;
 use futures::{SinkExt, StreamExt};
-use std::collections::VecDeque;
-use std::sync::{Arc, Weak};
 use tokio::sync::{mpsc, oneshot};
 use tokio::time::{interval_at, Duration, Instant};
 use tokio_tungstenite::tungstenite::Error as WsError;
 
+use super::ConnectionIncomingMessage;
 use crate::irc;
 use crate::irc::message::{IrcMessage, ServerMessage};
 use crate::irc::websocket::{Incoming, Outgoing, WsTransport};
 use crate::irc::{ClientConfig, Error};
-
-use super::ConnectionIncomingMessage;
 
 #[derive(Debug)]
 pub(crate) enum ConnectionLoopCommand {

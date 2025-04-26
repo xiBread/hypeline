@@ -1,8 +1,9 @@
 pub(crate) mod event_loop;
 mod pool_connection;
 
-use event_loop::{ClientLoopCommand, ClientLoopWorker};
 use std::sync::Arc;
+
+use event_loop::{ClientLoopCommand, ClientLoopWorker};
 use tokio::sync::{mpsc, oneshot};
 
 use super::message::ServerMessage;

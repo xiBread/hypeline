@@ -9,11 +9,10 @@ use twitch_api::helix::channels::FollowedBroadcaster;
 use twitch_api::helix::streams::Stream;
 use twitch_api::types::Collection;
 
-use crate::error::Error;
-use crate::AppState;
-
 use super::get_access_token;
 use super::users::User;
+use crate::error::Error;
+use crate::AppState;
 
 #[tauri::command]
 pub async fn get_stream(

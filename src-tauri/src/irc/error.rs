@@ -1,4 +1,5 @@
 use std::sync::Arc;
+
 use thiserror::Error;
 use tokio_tungstenite::tungstenite::Error as WsError;
 

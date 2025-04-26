@@ -1,10 +1,9 @@
 use tauri::State;
 use tokio::sync::Mutex;
 
+use super::get_access_token;
 use crate::error::Error;
 use crate::AppState;
-
-use super::get_access_token;
 
 #[tauri::command]
 pub async fn delete_message(

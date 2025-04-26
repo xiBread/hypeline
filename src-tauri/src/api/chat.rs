@@ -5,13 +5,12 @@ use tauri::State;
 use twitch_api::helix::chat::BadgeSet;
 use twitch_api::helix::streams::Stream;
 
+use super::channels::get_stream;
+use super::users::{get_user_from_login, User};
 use crate::emotes::{fetch_user_emotes, EmoteMap};
 use crate::error::Error;
 use crate::providers::twitch::{fetch_channel_badges, fetch_global_badges};
 use crate::AppState;
-
-use super::channels::get_stream;
-use super::users::{get_user_from_login, User};
 
 #[derive(Serialize)]
 pub struct JoinedChannel {

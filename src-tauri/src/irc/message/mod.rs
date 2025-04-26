@@ -3,15 +3,15 @@ pub(crate) mod prefix;
 pub(crate) mod tags;
 pub(crate) mod twitch;
 
-pub use commands::*;
-use prefix::IrcPrefix;
 use std::fmt;
 use std::fmt::Write;
+
+pub use commands::*;
+use prefix::IrcPrefix;
+use serde::{Deserialize, Serialize};
 pub use tags::IrcTags;
 use thiserror::Error;
 pub use twitch::*;
-
-use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Error)]
 pub enum IrcParseError {
