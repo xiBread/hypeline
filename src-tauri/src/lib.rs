@@ -104,8 +104,8 @@ pub fn run() {
 
 fn get_handler() -> impl Fn(Invoke) -> bool {
     tauri::generate_handler![
+        irc::connect,
         api::set_access_token,
-        api::connect,
         api::channels::get_stream,
         api::channels::get_followed_channels,
         api::channels::get_chatters,
