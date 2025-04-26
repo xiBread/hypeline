@@ -1,9 +1,0 @@
-[01:57:51 2025-04-24] FETCHING Version 2.40.4
-[01:57:51 2025-04-24] CREATING /Users/oscar/.spicetify
-[01:57:51 2025-04-24] DOWNLOADING https://github.com/spicetify/cli/releases/download/v2.40.4/spicetify-2.40.4-darwin-arm64.tar.gz
-[01:57:51 2025-04-24] EXTRACTING /Users/oscar/.spicetify/spicetify.tar.gz
-[01:57:51 2025-04-24] SETTING EXECUTABLE PERMISSIONS TO /Users/oscar/.spicetify/spicetify
-[01:57:51 2025-04-24] REMOVING /Users/oscar/.spicetify/spicetify.tar.gz
-[01:57:51 2025-04-24] APPENDING /Users/oscar/.spicetify to PATH in /Users/oscar/.zshrc
-[01:57:51 2025-04-24] spicetify v2.40.4 was installed successfully to /Users/oscar/.spicetify
-[01:57:51 2025-04-24] Run 'spicetify --help' to get started
