@@ -1137,9 +1137,17 @@ impl IrcMessageParseExt for IrcMessage {
             message_id: self
                 .try_get_tag_value("reply-thread-parent-msg-id")?
                 .to_owned(),
-            user_login: self
-                .try_get_tag_value("reply-thread-parent-user-login")?
-                .to_owned(),
+            user: BasicUser {
+                id: self
+                    .try_get_nonempty_tag_value("reply-thread-parent-user-id")?
+                    .to_owned(),
+                login: self
+                    .try_get_nonempty_tag_value("reply-thread-parent-user-login")?
+                    .to_owned(),
+                name: self
+                    .try_get_nonempty_tag_value("reply-thread-parent-display-name")?
+                    .to_owned(),
+            },
         };
 
         Ok(Some(Reply { parent, thread }))

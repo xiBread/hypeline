@@ -32,7 +32,7 @@ pub struct ReplyParent {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ReplyThread {
     pub message_id: String,
-    pub user_login: String,
+    pub user: BasicUser,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
