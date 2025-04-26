@@ -15,16 +15,8 @@ pub(crate) enum ClientLoopCommand {
     Connect {
         return_sender: oneshot::Sender<()>,
     },
-    SendMessage {
-        message: IrcMessage,
-        return_sender: oneshot::Sender<Result<(), Error>>,
-    },
     Join {
         channel_login: String,
-    },
-    GetChannelStatus {
-        channel_login: String,
-        return_sender: oneshot::Sender<(bool, bool)>,
     },
     Part {
         channel_login: String,
@@ -80,19 +72,7 @@ impl ClientLoopWorker {
                 }
                 return_sender.send(()).ok();
             }
-            ClientLoopCommand::SendMessage {
-                message,
-                return_sender,
-            } => self.send_message(message, return_sender),
             ClientLoopCommand::Join { channel_login } => self.join(channel_login),
-            ClientLoopCommand::GetChannelStatus {
-                channel_login,
-                return_sender,
-            } => {
-                return_sender
-                    .send(self.get_channel_status(channel_login))
-                    .ok();
-            }
             ClientLoopCommand::Part { channel_login } => self.part(channel_login),
             ClientLoopCommand::IncomingMessage {
                 source_connection_id,
@@ -216,20 +196,6 @@ impl ClientLoopWorker {
         pool_connection.wanted_channels.insert(channel_login);
 
         self.connections.push_back(pool_connection);
-    }
-
-    fn get_channel_status(&mut self, channel_login: String) -> (bool, bool) {
-        let wanted = self
-            .connections
-            .iter()
-            .any(|c| c.wanted_channels.contains(&channel_login));
-
-        let joined = self
-            .connections
-            .iter()
-            .any(|c| c.server_channels.contains(&channel_login));
-
-        (wanted, joined)
     }
 
     fn part(&mut self, channel_login: String) {
