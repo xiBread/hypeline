@@ -5,7 +5,6 @@ import type { Message } from "./message";
 import type { JoinedChannel } from "./tauri";
 import type { Badge, BadgeSet, Stream } from "./twitch/api";
 import { User } from "./user";
-import type { PartialUser } from "./user";
 import { Viewer } from "./viewer.svelte";
 
 export interface Emote {
@@ -59,10 +58,9 @@ export class Channel {
 		return new Channel(emptyUser);
 	}
 
-	public static async join(id: string, sessionId: string) {
+	public static async join(login: string) {
 		const joined = await invoke<JoinedChannel>("join", {
-			sessionId,
-			id,
+			login,
 		});
 
 		const user = new User(joined.user);
@@ -75,16 +73,13 @@ export class Channel {
 		const viewer = new Viewer(user);
 		viewer.broadcaster = true;
 
-		channel.viewers.set(user.id, viewer);
-
-		// todo: probably another bottleneck
-		await channel.loadUsers();
+		channel.viewers.set(user.username, viewer);
 
 		return channel;
 	}
 
 	public async leave() {
-		await invoke("leave");
+		await invoke("leave", { channel: this.user.username });
 
 		this.badges.clear();
 		this.emotes.clear();
@@ -113,16 +108,6 @@ export class Channel {
 		}
 
 		return this;
-	}
-
-	public async loadUsers() {
-		const users = await invoke<PartialUser[]>("get_chatters", {
-			id: this.user.id,
-		});
-
-		for (const user of users) {
-			this.viewers.set(user.id, new Viewer(user));
-		}
 	}
 
 	public async send(message: string) {

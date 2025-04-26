@@ -65,7 +65,7 @@
 		{#snippet children(message: Message)}
 			{#if !message.isUser()}
 				<SystemMessage {message} />
-			{:else if message.type === "notification"}
+			{:else if message.event}
 				<Notification {message} />
 			{:else}
 				<UserMessage {message} />

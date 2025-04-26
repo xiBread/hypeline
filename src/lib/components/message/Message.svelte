@@ -10,7 +10,7 @@
 	const badges: Badge[] = [];
 
 	for (const badge of message.badges) {
-		const chatBadge = app.active.badges.get(badge.set_id)?.[badge.id];
+		const chatBadge = app.active.badges.get(badge.name)?.[badge.version];
 
 		if (chatBadge) {
 			badges.push(chatBadge);
@@ -56,13 +56,11 @@
 	{#each message.fragments as fragment, i}
 		{#if fragment.type === "mention"}
 			{#if !message.reply}
-				{@const viewer = app.active.viewers.get(fragment.id)}
-
 				<span
 					class="font-semibold break-words"
-					style:color={viewer?.color}
+					style:color={fragment.color}
 				>
-					@{(viewer ?? fragment).displayName}
+					@{fragment.displayName}
 				</span>
 			{/if}
 		{:else if fragment.type === "url"}

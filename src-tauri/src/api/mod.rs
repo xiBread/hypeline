@@ -1,5 +1,4 @@
 use anyhow::anyhow;
-use serde::Deserialize;
 use tauri::async_runtime::Mutex;
 use tauri::State;
 use twitch_api::twitch_oauth2::{AccessToken, UserToken};
@@ -9,14 +8,8 @@ use crate::AppState;
 
 pub mod channels;
 pub mod chat;
-pub mod eventsub;
 pub mod moderation;
 pub mod users;
-
-#[derive(Deserialize)]
-pub struct Response<T> {
-    pub data: T,
-}
 
 pub async fn get_access_token<'a>(state: &'a AppState) -> Result<&'a UserToken, Error> {
     state

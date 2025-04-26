@@ -9,13 +9,13 @@
 	const { data } = $props();
 
 	$effect(() => {
-		if (app.wsSessionId) update();
+		join();
 
 		return () => app.active.leave();
 	});
 
-	async function update() {
-		const channel = await Channel.join(data.channel, app.wsSessionId!);
+	async function join() {
+		const channel = await Channel.join(data.channel);
 
 		channel.addEmotes(app.globalEmotes);
 		channel.messages = [SystemMessage.joined(channel.user)];

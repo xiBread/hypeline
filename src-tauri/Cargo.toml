@@ -27,7 +27,6 @@ tauri-plugin-notification = "2"
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
 regex = "1.11.1"
-tauri-plugin-websocket = "2"
 rustls = { version = "0.23.25", features = ["ring"] }
 tauri-plugin-log = "2"
 twitch_api = { version = "0.7.2", features = ["client", "helix", "eventsub", "reqwest"] }
@@ -38,6 +37,9 @@ thiserror = "2.0.12"
 futures = "0.3.31"
 tauri-plugin-svelte = "2.1.1"
 tokio = { version = "1.44.2", features = ["macros"] }
+either = "1.15.0"
+enum_dispatch = "0.3.13"
+tokio-tungstenite = { version = "0.26.2", features = ["rustls-tls-native-roots"] }
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-single-instance = "2"

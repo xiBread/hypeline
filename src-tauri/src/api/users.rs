@@ -56,6 +56,29 @@ pub async fn get_user_from_id(
 }
 
 #[tauri::command]
+pub async fn get_user_from_login(
+    state: State<'_, Mutex<AppState>>,
+    login: String,
+) -> Result<Option<User>, Error> {
+    let state = state.lock().await;
+
+    let Some(token) = state.token.as_ref() else {
+        return Ok(None);
+    };
+
+    let helix_user = state.helix.get_user_from_login(&login, token).await?;
+
+    let Some(user) = helix_user else {
+        return Ok(None);
+    };
+
+    let color_user = state.helix.get_user_chat_color(&user.id, token).await?;
+    let color = color_user.and_then(|u| u.color.map(|c| c.into()));
+
+    Ok(Some(User { data: user, color }))
+}
+
+#[tauri::command]
 pub async fn get_user_emotes(state: State<'_, Mutex<AppState>>) -> Result<Vec<UserEmote>, Error> {
     let state = state.lock().await;
 

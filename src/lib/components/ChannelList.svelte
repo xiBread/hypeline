@@ -57,7 +57,7 @@
 		{#snippet trigger()}
 			<a
 				class="bg-muted flex size-10 items-center justify-center overflow-hidden rounded-full border"
-				href="/{user.id}"
+				href="/{user.displayName}"
 			>
 				<img
 					class={["object-cover", !stream && "grayscale"]}

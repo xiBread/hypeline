@@ -1,6 +1,5 @@
 use anyhow::anyhow;
 use serde::Serialize;
-use serde_json::json;
 use tauri::async_runtime::Mutex;
 use tauri::State;
 use twitch_api::helix::chat::BadgeSet;
@@ -12,8 +11,7 @@ use crate::providers::twitch::{fetch_channel_badges, fetch_global_badges};
 use crate::AppState;
 
 use super::channels::get_stream;
-use super::eventsub::{subscribe_all, unsubscribe_all};
-use super::users::{get_user_from_id, User};
+use super::users::{get_user_from_login, User};
 
 #[derive(Serialize)]
 pub struct JoinedChannel {
@@ -27,10 +25,9 @@ pub struct JoinedChannel {
 #[tauri::command]
 pub async fn join(
     state: State<'_, Mutex<AppState>>,
-    session_id: String,
-    id: String,
+    login: String,
 ) -> Result<JoinedChannel, Error> {
-    let (helix, token) = {
+    let (helix, token, irc) = {
         let state = state.lock().await;
 
         let token = state
@@ -38,20 +35,22 @@ pub async fn join(
             .as_ref()
             .ok_or_else(|| Error::Generic(anyhow!("Access token not set")))?;
 
-        (state.helix.clone(), token.clone())
+        let Some(irc) = state.irc.clone() else {
+            return Err(Error::Generic(anyhow!("No IRC connection")));
+        };
+
+        (state.helix.clone(), token.clone(), irc)
     };
 
-    let user_id = token.user_id.clone();
-
-    let user = get_user_from_id(state.clone(), Some(id.to_string()))
+    let user = get_user_from_login(state.clone(), login)
         .await?
-        .unwrap();
+        .expect("user not found");
 
     let broadcaster_id = user.data.id.as_str();
     let login = user.data.login.to_string();
 
     let (stream, emotes, mut global_badges, channel_badges) = tokio::try_join!(
-        get_stream(state.clone(), id.to_string()),
+        get_stream(state.clone(), user.data.id.to_string()),
         fetch_user_emotes(broadcaster_id),
         fetch_global_badges(&helix, &token),
         fetch_channel_badges(&helix, &token, login),
@@ -59,21 +58,7 @@ pub async fn join(
 
     global_badges.extend(channel_badges);
 
-    let channel_condition = json!({
-        "broadcaster_user_id": broadcaster_id,
-        "user_id": user_id
-    });
-
-    subscribe_all(
-        state.clone(),
-        session_id,
-        &[
-            ("channel.chat.message", &channel_condition),
-            ("channel.chat.message_delete", &channel_condition),
-            ("channel.chat.notification", &channel_condition),
-        ],
-    )
-    .await?;
+    irc.join(user.data.login.to_string());
 
     Ok(JoinedChannel {
         id: broadcaster_id.to_string(),
@@ -85,16 +70,12 @@ pub async fn join(
 }
 
 #[tauri::command]
-pub async fn leave(state: State<'_, Mutex<AppState>>) -> Result<(), Error> {
-    unsubscribe_all(
-        state,
-        &[
-            "channel.chat.message",
-            "channel.chat.message_delete",
-            "channel.chat.notification",
-        ],
-    )
-    .await?;
+pub async fn leave(state: State<'_, Mutex<AppState>>, channel: String) -> Result<(), Error> {
+    let state = state.lock().await;
+
+    if let Some(ref irc) = state.irc {
+        irc.part(channel);
+    }
 
     Ok(())
 }
