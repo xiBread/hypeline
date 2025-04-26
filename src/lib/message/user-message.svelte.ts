@@ -1,6 +1,11 @@
 import type { Emote } from "$lib/channel.svelte";
 import { app } from "$lib/state.svelte";
-import type { Badge, PrivmsgMessage, UserNoticeMessage } from "$lib/twitch/irc";
+import type {
+	Badge,
+	PrivmsgMessage,
+	Range,
+	UserNoticeMessage,
+} from "$lib/twitch/irc";
 import type { PartialUser } from "$lib/user";
 import { Viewer } from "$lib/viewer.svelte";
 import { Message } from "./";
@@ -14,7 +19,12 @@ export type Fragment =
 	| { type: "cheermote"; value: string };
 
 const URL_RE =
-	/https?:\/\/(?:www\.)?[-\w@:%.+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-\w()@:%+.~#?&/=]*/;
+	/https?:\/\/(?:www\.)?[-\w@:%.+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-\w()@:%+.~#?&/=]*/g;
+
+interface TextSegment extends Range {
+	type: "emote" | "mention" | "url";
+	data: Record<string, string>;
+}
 
 /**
  * User messages are either messages received by `PRIVMSG` commands or
@@ -128,29 +138,107 @@ export class UserMessage extends Message {
 
 	#fragment() {
 		const fragments: Fragment[] = [];
-		let buffer: string[] = [];
+		const message = this.data.message_text;
 
-		function flush() {
-			if (buffer.length) {
-				fragments.push({ type: "text", value: buffer.join(" ") });
-				buffer = [];
+		const chars = Array.from(message);
+
+		const segments: TextSegment[] = [];
+
+		for (const emote of this.data.emotes) {
+			segments.push({
+				start: emote.range.start,
+				end: emote.range.end,
+				type: "emote",
+				data: { id: emote.id, code: emote.code },
+			});
+		}
+
+		const mentionRe = /@(\w+)/g;
+		let match: RegExpExecArray | null;
+
+		// eslint-disable-next-line no-cond-assign
+		while ((match = mentionRe.exec(message))) {
+			segments.push({
+				start: match.index,
+				end: match.index + match[0].length,
+				type: "mention",
+				data: { token: match[0], username: match[1] },
+			});
+		}
+
+		URL_RE.lastIndex = 0;
+
+		// eslint-disable-next-line no-cond-assign
+		while ((match = URL_RE.exec(message))) {
+			if (!URL.canParse(match[0])) continue;
+
+			segments.push({
+				start: match.index,
+				end: match.index + match[0].length,
+				type: "url",
+				data: { text: match[0] },
+			});
+		}
+
+		segments.sort((a, b) => a.start - b.start);
+
+		const processed = [];
+		let lastEnd = -1;
+
+		for (const segment of segments) {
+			if (segment.start >= lastEnd) {
+				processed.push(segment);
+				lastEnd = segment.end;
 			}
 		}
 
-		for (const token of this.data.message_text.split(/\s+/)) {
-			const emote = app.active.emotes.get(token);
+		let currentIndex = 0;
 
-			if (emote) {
-				flush();
-				fragments.push({ type: "emote", ...emote });
-			} else if (token.startsWith("@")) {
-				const mention = token.slice(1);
+		function processChunk(chunk: string) {
+			if (!chunk) return;
+
+			let buffer: string[] = [];
+
+			function flush() {
+				if (buffer.length) {
+					fragments.push({ type: "text", value: buffer.join(" ") });
+					buffer = [];
+				}
+			}
+
+			for (const token of chunk.split(/\s+/)) {
+				const emote = app.active.emotes.get(token);
+
+				if (emote) {
+					flush();
+					fragments.push({ type: "emote", ...emote });
+				} else {
+					buffer.push(token);
+				}
+			}
+
+			flush();
+		}
+
+		for (const segment of processed) {
+			if (segment.start > currentIndex) {
+				const text = chars.slice(currentIndex, segment.start).join("");
+
+				processChunk(text);
+			}
+
+			if (segment.type === "emote") {
+				fragments.push({
+					type: "emote",
+					name: segment.data.code,
+					height: 28,
+					width: 28,
+					url: `https://static-cdn.jtvnw.net/emoticons/v2/${segment.data.id}/default/dark/3.0`,
+				});
+			} else if (segment.type === "mention") {
+				const mention = segment.data.username;
 				const viewer = app.active.viewers.get(mention.toLowerCase());
 
-				flush();
-
-				// Even if the viewer isn't found, still create a mention
-				// fragment so it gets styled properly
 				fragments.push({
 					type: "mention",
 					id: viewer?.id ?? "0",
@@ -158,20 +246,33 @@ export class UserMessage extends Message {
 					username: viewer?.username ?? mention.toLowerCase(),
 					displayName: viewer?.displayName ?? mention,
 				});
-			} else if (URL_RE.test(token)) {
-				// todo: better detection/parsing
-				flush();
+			} else if (segment.type === "url") {
 				fragments.push({
 					type: "url",
-					text: token,
-					url: new URL(token),
+					text: segment.data.text,
+					url: new URL(segment.data.text),
 				});
+			}
+
+			currentIndex = segment.end;
+		}
+
+		if (currentIndex < chars.length) {
+			processChunk(chars.slice(currentIndex).join(""));
+		}
+
+		const final: Fragment[] = [];
+		let previous: Fragment | null = null;
+
+		for (const frag of fragments) {
+			if (frag.type === "text" && previous?.type === "text") {
+				previous.value += frag.value;
 			} else {
-				buffer.push(token);
+				final.push(frag);
+				previous = frag;
 			}
 		}
 
-		flush();
-		return fragments;
+		return final;
 	}
 }

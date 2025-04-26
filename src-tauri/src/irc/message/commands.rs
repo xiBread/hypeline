@@ -1,5 +1,4 @@
 use std::collections::HashSet;
-use std::ops::Range;
 use std::str::FromStr;
 use std::time::Duration;
 
@@ -985,8 +984,6 @@ impl IrcMessageParseExt for IrcMessage {
 
         let make_error = || MalformedTagValue(self.to_owned(), tag_key, tag_value.to_owned());
 
-        // emotes tag format:
-        // emote_id:from-to,from-to,from-to/emote_id:from-to,from-to/emote_id:from-to
         for src in tag_value.split('/') {
             let (emote_id, indices_src) = src.split_once(':').ok_or_else(make_error)?;
 
@@ -994,9 +991,6 @@ impl IrcMessageParseExt for IrcMessage {
                 let (start, end) = range_src.split_once('-').ok_or_else(make_error)?;
 
                 let start = usize::from_str(start).map_err(|_| make_error())?;
-                // twitch specifies the end index as inclusive, but in Rust (and most programming
-                // languages for that matter) it's very common to specify end indices as exclusive,
-                // so we add 1 here to make it exclusive.
                 let end = usize::from_str(end).map_err(|_| make_error())? + 1;
 
                 let code_length = end - start;
@@ -1007,19 +1001,15 @@ impl IrcMessageParseExt for IrcMessage {
                     .take(code_length)
                     .collect::<String>();
 
-                // we intentionally gracefully handle indices that are out of bounds for the
-                // given string by taking as much as possible until the end of the string.
-                // This is to work around a Twitch bug: https://github.com/twitchdev/issues/issues/104
-
                 emotes.push(Emote {
                     id: emote_id.to_owned(),
-                    char_range: Range { start, end },
+                    range: start..end,
                     code,
                 });
             }
         }
 
-        emotes.sort_unstable_by_key(|e| e.char_range.start);
+        emotes.sort_unstable_by_key(|e| e.range.start);
 
         Ok(emotes)
     }

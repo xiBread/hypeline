@@ -12,7 +12,7 @@ pub struct BasicUser {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Emote {
     pub id: String,
-    pub char_range: Range<usize>,
+    pub range: Range<usize>,
     pub code: String,
 }
 

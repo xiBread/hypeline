@@ -28,9 +28,14 @@ export interface Badge {
 	version: string;
 }
 
+export interface Range {
+	start: number;
+	end: number;
+}
+
 export interface Emote {
 	id: string;
-	char_range: number[];
+	range: Range;
 	code: string;
 }
 
