@@ -15,25 +15,18 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Error)]
 pub enum IrcParseError {
-    /// No space found after tags (no command/prefix)
     #[error("No space found after tags (no command/prefix)")]
     NoSpaceAfterTags,
-    /// No tags after @ sign
     #[error("No tags after @ sign")]
     EmptyTagsDeclaration,
-    /// No space found after prefix (no command)
     #[error("No space found after prefix (no command)")]
     NoSpaceAfterPrefix,
-    /// No tags after : sign
     #[error("No tags after : sign")]
     EmptyPrefixDeclaration,
-    /// Expected command to only consist of alphabetic or numeric characters
     #[error("Expected command to only consist of alphabetic or numeric characters")]
     MalformedCommand,
-    /// Expected only single spaces between middle parameters
     #[error("Expected only single spaces between middle parameters")]
     TooManySpacesInMiddleParams,
-    /// Newlines are not permitted in raw IRC messages
     #[error("Newlines are not permitted in raw IRC messages")]
     NewlinesInMessage,
 }

@@ -9,7 +9,6 @@ pub struct BasicUser {
     pub name: String,
 }
 
-/// A single emote, appearing as part of a message.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Emote {
     pub id: String,
