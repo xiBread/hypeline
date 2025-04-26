@@ -22,24 +22,25 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 tauri = { version = "2", features = [] }
-tauri-plugin-opener = "2"
-tauri-plugin-notification = "2"
-serde = { version = "1.0.219", features = ["derive"] }
-serde_json = "1.0.140"
-regex = "1.11.1"
-rustls = { version = "0.23.25", features = ["ring"] }
 tauri-plugin-log = "2"
-twitch_api = { version = "0.7.2", features = ["client", "helix", "eventsub", "reqwest"] }
-reqwest = { version = "0.12.15", features = ["json"] }
-log = "0.4.27"
-anyhow = "1.0.97"
-thiserror = "2.0.12"
-futures = "0.3.31"
+tauri-plugin-notification = "2"
+tauri-plugin-opener = "2"
 tauri-plugin-svelte = "2.1.1"
-tokio = { version = "1.44.2", features = ["macros"] }
+
+anyhow = "1.0.97"
 either = "1.15.0"
 enum_dispatch = "0.3.13"
+futures = "0.3.31"
+log = "0.4.27"
+regex = "1.11.1"
+reqwest = { version = "0.12.15", features = ["json"] }
+rustls = { version = "0.23.25", features = ["ring"] }
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+thiserror = "2.0.12"
+tokio = { version = "1.44.2", features = ["macros"] }
 tokio-tungstenite = { version = "0.26.2", features = ["rustls-tls-native-roots"] }
+twitch_api = { version = "0.7.2", features = ["client", "helix", "eventsub", "reqwest"] }
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-single-instance = "2"
