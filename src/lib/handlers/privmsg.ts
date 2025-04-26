@@ -5,7 +5,6 @@ import { defineHandler } from "./helper";
 export default defineHandler({
 	name: "privmsg",
 	handle(data) {
-		console.log(data.sender.name, data.name_color);
 		const message = new UserMessage(data);
 
 		const storedViewer = app.active.viewers.get(message.viewer.username);

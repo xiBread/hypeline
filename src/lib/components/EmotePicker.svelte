@@ -35,8 +35,6 @@
 	}
 
 	async function fetchEmotes() {
-		console.log("fetching emotes");
-
 		const grouped: Record<string, EmoteGroup> = {};
 
 		const emotes = await invoke<UserEmote[]>("get_user_emotes");
