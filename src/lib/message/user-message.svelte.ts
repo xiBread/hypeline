@@ -31,7 +31,7 @@ interface TextSegment extends Range {
  * notifications received by `USERNOTICE` commands.
  *
  * In either case, both share enough common data that they can be categorized
- * as "user" messages. Properties such as {@linkcode announcement} can be
+ * as "user" messages. The {@linkcode UserMessage.event event} property can be
  * checked to differentiate the two.
  */
 export class UserMessage extends Message {
@@ -44,6 +44,7 @@ export class UserMessage extends Message {
 	) {
 		super(data);
 
+		this.#deleted = data.deleted;
 		this.fragments = this.#fragment();
 	}
 
@@ -103,6 +104,13 @@ export class UserMessage extends Message {
 	}
 
 	/**
+	 * Whether the message was retreived by the `recent-messages` API.
+	 */
+	public get isRecent() {
+		return this.data.is_recent;
+	}
+
+	/**
 	 * The event associated with the message if it's a `USERNOTICE` message.
 	 */
 	public get event() {
@@ -138,7 +146,7 @@ export class UserMessage extends Message {
 
 	#fragment() {
 		const fragments: Fragment[] = [];
-		const message = this.data.message_text;
+		const message = this.text;
 
 		const chars = Array.from(message);
 

@@ -2,8 +2,10 @@ import { invoke } from "@tauri-apps/api/core";
 import { SvelteMap } from "svelte/reactivity";
 import { replyTarget } from "./components/Input.svelte";
 import type { Message } from "./message";
+import { settings } from "./settings";
 import type { JoinedChannel } from "./tauri";
 import type { Badge, BadgeSet, Stream } from "./twitch/api";
+import type { IrcMessage } from "./twitch/irc";
 import { User } from "./user";
 import { Viewer } from "./viewer.svelte";
 
@@ -19,6 +21,7 @@ export class Channel {
 	public readonly emotes = new SvelteMap<string, Emote>();
 	public readonly viewers = new SvelteMap<string, Viewer>();
 
+	public recentMessages = $state<IrcMessage[]>([]);
 	public messages = $state<Message[]>([]);
 
 	public constructor(
@@ -61,6 +64,9 @@ export class Channel {
 	public static async join(login: string) {
 		const joined = await invoke<JoinedChannel>("join", {
 			login,
+			historyLimit: settings.state.historyEnabled
+				? settings.state.historyLimit
+				: 0,
 		});
 
 		const user = new User(joined.user);
@@ -74,6 +80,7 @@ export class Channel {
 		viewer.broadcaster = true;
 
 		channel.viewers.set(user.username, viewer);
+		channel.recentMessages = joined.recent_messages;
 
 		return channel;
 	}
@@ -81,6 +88,7 @@ export class Channel {
 	public async leave() {
 		await invoke("leave", { channel: this.user.username });
 
+		this.messages = [];
 		this.badges.clear();
 		this.emotes.clear();
 		this.viewers.clear();

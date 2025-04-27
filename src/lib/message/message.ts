@@ -1,4 +1,4 @@
-import type { BaseUserMessage } from "$lib/twitch/irc";
+import type { BaseUserMessage, UserNoticeMessage } from "$lib/twitch/irc";
 import { formatTime } from "$lib/util";
 import type { SystemMessageData, UserMessage } from "./";
 
@@ -40,7 +40,12 @@ export abstract class Message {
 
 	public get text(): string {
 		if (this.isUser()) {
-			return this.data.message_text;
+			// message_text should only be possibly null if it's a USERNOTICE,
+			// in which case we can assume system_message is present
+			return (
+				this.data.message_text ??
+				(this.data as UserNoticeMessage).system_message
+			);
 		}
 
 		return (this.data as SystemMessageData).text;

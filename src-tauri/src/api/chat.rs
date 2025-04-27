@@ -9,6 +9,8 @@ use super::channels::get_stream;
 use super::users::{get_user_from_login, User};
 use crate::emotes::{fetch_user_emotes, EmoteMap};
 use crate::error::Error;
+use crate::irc::message::ServerMessage;
+use crate::providers::recent_messages::get_recent_messages;
 use crate::providers::twitch::{fetch_channel_badges, fetch_global_badges};
 use crate::AppState;
 
@@ -16,6 +18,7 @@ use crate::AppState;
 pub struct JoinedChannel {
     id: String,
     user: User,
+    recent_messages: Vec<ServerMessage>,
     stream: Option<Stream>,
     emotes: EmoteMap,
     badges: Vec<BadgeSet>,
@@ -25,6 +28,7 @@ pub struct JoinedChannel {
 pub async fn join(
     state: State<'_, Mutex<AppState>>,
     login: String,
+    history_limit: u32,
 ) -> Result<JoinedChannel, Error> {
     let (helix, token, irc) = {
         let state = state.lock().await;
@@ -48,8 +52,9 @@ pub async fn join(
     let broadcaster_id = user.data.id.as_str();
     let login = user.data.login.to_string();
 
-    let (stream, emotes, mut global_badges, channel_badges) = tokio::try_join!(
+    let (stream, recent_messages, emotes, mut global_badges, channel_badges) = tokio::try_join!(
         get_stream(state.clone(), user.data.id.to_string()),
+        get_recent_messages(user.data.login.to_string(), history_limit),
         fetch_user_emotes(broadcaster_id),
         fetch_global_badges(&helix, &token),
         fetch_channel_badges(&helix, &token, login),
@@ -63,6 +68,7 @@ pub async fn join(
         id: broadcaster_id.to_string(),
         user,
         stream,
+        recent_messages,
         emotes,
         badges: global_badges,
     })

@@ -326,6 +326,8 @@ pub struct PrivmsgMessage {
     pub name_color: String,
     pub emotes: Vec<Emote>,
     pub message_id: String,
+    pub deleted: bool,
+    pub is_recent: bool,
     pub server_timestamp: u64,
     pub source: IrcMessage,
 }
@@ -367,6 +369,10 @@ impl TryFrom<IrcMessage> for PrivmsgMessage {
             is_highlighted: msg_id
                 .map(|id| id == "highlighted-message")
                 .unwrap_or_default(),
+            deleted: source
+                .try_get_optional_bool("rm-deleted")?
+                .unwrap_or_default(),
+            is_recent: source.tags.0.contains_key("rm-received-ts"),
             source,
         })
     }
@@ -467,6 +473,8 @@ pub struct UserNoticeMessage {
     pub emotes: Vec<Emote>,
     pub name_color: String,
     pub message_id: String,
+    pub deleted: bool,
+    pub is_recent: bool,
     pub server_timestamp: u64,
     pub source: IrcMessage,
 }
@@ -697,6 +705,10 @@ impl TryFrom<IrcMessage> for UserNoticeMessage {
             emotes,
             name_color: source.try_get_color("color")?.to_owned(),
             message_id: source.try_get_nonempty_tag_value("id")?.to_owned(),
+            deleted: source
+                .try_get_optional_bool("rm-deleted")?
+                .unwrap_or_default(),
+            is_recent: source.tags.0.contains_key("rm-received-ts"),
             server_timestamp: source.try_get_timestamp("tmi-sent-ts")?.to_owned(),
             source,
         })

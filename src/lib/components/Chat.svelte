@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Separator } from "bits-ui";
 	import { VList } from "virtua/svelte";
 	import type { Message } from "$lib/message";
 	import { app } from "$lib/state.svelte";
@@ -62,13 +63,31 @@
 		onscroll={handleScroll}
 		bind:this={list}
 	>
-		{#snippet children(message: Message)}
+		{#snippet children(message: Message, i)}
 			{#if !message.isUser()}
 				<SystemMessage {message} />
-			{:else if message.event}
-				<Notification {message} />
 			{:else}
-				<UserMessage {message} />
+				{@const next = app.active.messages.at(i + 1)}
+
+				{#if message.event}
+					<Notification {message} />
+				{:else}
+					<UserMessage {message} />
+				{/if}
+
+				{#if message.isRecent && (!next || (next?.isUser() && !next.isRecent))}
+					<div class="text-twitch relative px-3.5">
+						<Separator.Root
+							class="my-4 h-px w-full rounded-full bg-current"
+						/>
+
+						<div
+							class="bg-background absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 text-xs font-semibold uppercase"
+						>
+							Live messages
+						</div>
+					</div>
+				{/if}
 			{/if}
 		{/snippet}
 	</VList>
