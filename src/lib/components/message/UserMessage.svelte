@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Sparkles from "@lucide/svelte/icons/sparkles";
 	import type { UserMessage } from "$lib/message";
 	import { app } from "$lib/state.svelte";
 	import { replyTarget } from "../Input.svelte";
@@ -29,6 +30,20 @@
 			style:border-color={app.active.user.color}
 		>
 			<Message {message} />
+		</div>
+	{:else if message.isFirst}
+		<div
+			class="mx-1 my-0.5 box-border overflow-hidden rounded-md border border-[#ff75e6]"
+		>
+			<div
+				class="bg-muted flex items-center px-2.5 py-1.5 text-xs font-medium"
+			>
+				<Sparkles class="mr-2 size-4" /> First Time Chat
+			</div>
+
+			<div class="hover:bg-muted/50 px-1.5 py-2.5">
+				<Message {message} />
+			</div>
 		</div>
 	{:else}
 		<div

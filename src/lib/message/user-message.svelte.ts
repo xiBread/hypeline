@@ -100,7 +100,14 @@ export class UserMessage extends Message {
 	 * Whether the message is an action i.e. sent with `/me`.
 	 */
 	public get isAction() {
-		return "is_action" in this.data ? this.data.is_action : false;
+		return "is_action" in this.data && this.data.is_action;
+	}
+
+	/**
+	 * Whether the message is the user's first message sent in the channel.
+	 */
+	public get isFirst() {
+		return "is_first_msg" in this.data && this.data.is_first_msg;
 	}
 
 	/**
