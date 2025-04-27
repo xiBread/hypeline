@@ -31,7 +31,7 @@ interface TextSegment extends Range {
  * notifications received by `USERNOTICE` commands.
  *
  * In either case, both share enough common data that they can be categorized
- * as "user" messages. Properties such as {@linkcode announcement} can be
+ * as "user" messages. The {@linkcode UserMessage.event event} property can be
  * checked to differentiate the two.
  */
 export class UserMessage extends Message {
