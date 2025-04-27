@@ -2,8 +2,9 @@
 	import { Channel } from "$lib/channel.svelte";
 	import Chat from "$lib/components/Chat.svelte";
 	import Input, { replyTarget } from "$lib/components/Input.svelte";
+	import { handlers } from "$lib/handlers";
 	import { SystemMessage } from "$lib/message";
-	import { settings } from "$lib/settings.js";
+	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
 
 	const { data } = $props();
@@ -16,11 +17,16 @@
 
 	async function join() {
 		const channel = await Channel.join(data.channel);
+		app.active = channel;
 
 		channel.addEmotes(app.globalEmotes);
-		// channel.messages = [SystemMessage.joined(channel.user)];
+		channel.messages = [SystemMessage.joined(channel.user)];
 
-		app.active = channel;
+		for (const message of channel.recentMessages) {
+			const handler = handlers.get(message.type);
+			await handler?.handle(message);
+		}
+
 		settings.state.lastJoined = data.channel;
 	}
 
