@@ -48,6 +48,8 @@ export interface BaseUserMessage {
 	name_color: string;
 	emotes: Emote[];
 	message_id: string;
+	deleted: boolean;
+	is_recent: boolean;
 	server_timestamp: string;
 }
 

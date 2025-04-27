@@ -44,6 +44,7 @@ export class UserMessage extends Message {
 	) {
 		super(data);
 
+		this.#deleted = data.deleted;
 		this.fragments = this.#fragment();
 	}
 
@@ -100,6 +101,13 @@ export class UserMessage extends Message {
 	 */
 	public get isAction() {
 		return "is_action" in this.data ? this.data.is_action : false;
+	}
+
+	/**
+	 * Whether the message was retreived by the `recent-messages` API.
+	 */
+	public get isRecent() {
+		return this.data.is_recent;
 	}
 
 	/**
