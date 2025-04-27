@@ -73,30 +73,16 @@ macro_rules! irc {
             $(
                 temp_vec.push(::std::string::String::from($argument));
             )*
-            $crate::irc::message::IrcMessage::new_simple(::std::string::String::from($command), temp_vec)
+            $crate::irc::message::IrcMessage::new(::std::string::String::from($command), temp_vec)
         }
     };
 }
 
 impl IrcMessage {
-    pub fn new_simple(command: String, params: Vec<String>) -> IrcMessage {
+    pub fn new(command: String, params: Vec<String>) -> IrcMessage {
         IrcMessage {
             tags: IrcTags::new(),
             prefix: None,
-            command,
-            params,
-        }
-    }
-
-    pub fn new(
-        tags: IrcTags,
-        prefix: Option<IrcPrefix>,
-        command: String,
-        params: Vec<String>,
-    ) -> IrcMessage {
-        IrcMessage {
-            tags,
-            prefix,
             command,
             params,
         }
