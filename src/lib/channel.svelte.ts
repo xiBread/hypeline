@@ -64,7 +64,9 @@ export class Channel {
 	public static async join(login: string) {
 		const joined = await invoke<JoinedChannel>("join", {
 			login,
-			historyLimit: settings.state.historyLimit,
+			historyLimit: settings.state.historyEnabled
+				? settings.state.historyLimit
+				: 0,
 		});
 
 		const user = new User(joined.user);

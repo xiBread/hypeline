@@ -1,14 +1,24 @@
 <script lang="ts">
+	import MessageSquare from "@lucide/svelte/icons/message-square";
 	import MonitorCog from "@lucide/svelte/icons/monitor-cog";
 	import X from "@lucide/svelte/icons/x";
 	import { Dialog, Tabs } from "bits-ui";
+	import Chat from "./Chat.svelte";
 	import General from "./General.svelte";
+	import { settings } from "$lib/settings";
 
 	let { open = $bindable(false) } = $props();
 
 	const categories = [
 		{ name: "General", icon: MonitorCog, component: General },
+		{ name: "Chat", icon: MessageSquare, component: Chat },
 	];
+
+	$effect(() => {
+		void open;
+
+		settings.saveNow();
+	});
 </script>
 
 <svelte:document
@@ -27,7 +37,7 @@
 				orientation="vertical"
 				value="General"
 			>
-				<nav class="bg-sidebar h-full w-48 border-r p-2">
+				<nav class="bg-sidebar h-full min-w-44 border-r p-2">
 					<Dialog.Title
 						class="text-muted-foreground mb-2 text-xs font-semibold uppercase"
 					>

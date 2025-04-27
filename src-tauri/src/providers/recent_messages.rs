@@ -11,6 +11,11 @@ struct RecentMessages {
 }
 
 pub async fn get_recent_messages(channel: String, limit: u32) -> Result<Vec<ServerMessage>, Error> {
+    // Return early as to not trigger wakeups
+    if limit == 0 {
+        return Ok(vec![]);
+    }
+
     let response: RecentMessages = HTTP
         .get(format!(
             "https://recent-messages.robotty.de/api/v2/recent-messages/{channel}?limit={limit}"
