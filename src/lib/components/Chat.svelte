@@ -76,15 +76,15 @@
 				{/if}
 
 				{#if message.isRecent && (!next || (next?.isUser() && !next.isRecent))}
-					<div class="relative px-3.5">
+					<div class="text-twitch relative px-3.5">
 						<Separator.Root
-							class="my-4 h-px w-full rounded-full bg-red-500"
+							class="my-4 h-px w-full rounded-full bg-current"
 						/>
 
 						<div
-							class="bg-background absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 text-xs font-semibold text-red-500 uppercase"
+							class="bg-background absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 text-xs font-semibold uppercase"
 						>
-							New messages
+							Live messages
 						</div>
 					</div>
 				{/if}
