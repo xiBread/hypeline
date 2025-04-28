@@ -3,6 +3,7 @@
 import type { IrcMessageMap } from "$lib/twitch/irc";
 import type { Handler } from "./helper";
 //
+import join from "./join";
 import clearmsg from "./clearmsg";
 import privmsg from "./privmsg";
 import usernotice from "./usernotice";
@@ -14,6 +15,7 @@ function register(handler: Handler<any>) {
 	handlers.set(handler.name, handler);
 }
 
+register(join);
 register(clearmsg);
 register(privmsg);
 register(usernotice);

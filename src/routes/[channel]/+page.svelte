@@ -3,7 +3,6 @@
 	import Chat from "$lib/components/Chat.svelte";
 	import Input, { replyTarget } from "$lib/components/Input.svelte";
 	import { handlers } from "$lib/handlers";
-	import { SystemMessage } from "$lib/message";
 	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
 
@@ -25,8 +24,6 @@
 			const handler = handlers.get(message.type);
 			await handler?.handle(message);
 		}
-
-		channel.messages.push(SystemMessage.joined(channel.user));
 
 		settings.state.lastJoined = data.channel;
 	}

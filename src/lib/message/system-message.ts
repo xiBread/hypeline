@@ -1,4 +1,4 @@
-import type { User } from "$lib/user";
+import type { Viewer } from "$lib/viewer.svelte";
 import { Message } from "./message";
 
 export interface SystemMessageData {
@@ -21,11 +21,11 @@ export class SystemMessage extends Message {
 	/**
 	 * Creates a `Joined {channel}` system message when joining a channel.
 	 */
-	public static joined(user: User) {
+	public static joined(channel: Viewer) {
 		return new SystemMessage(html`
 			Joined
-			<span class="font-semibold" style="color: ${user.color};">
-				${user.displayName}
+			<span class="font-semibold" style="color: ${channel.color};">
+				${channel.displayName}
 			</span>
 		`);
 	}
