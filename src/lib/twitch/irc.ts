@@ -173,12 +173,19 @@ export interface NoticeMessage {
 	type: "notice";
 }
 
+export interface PartMessage {
+	type: "part";
+	channel_login: string;
+	user_login: string;
+}
+
 export type IrcMessage =
 	| JoinMessage
 	| ClearMsgMessage
 	| PrivmsgMessage
 	| UserNoticeMessage
-	| NoticeMessage;
+	| NoticeMessage
+	| PartMessage;
 
 export type IrcMessageMap = {
 	[K in IrcMessage["type"]]: Extract<IrcMessage, { type: K }>;

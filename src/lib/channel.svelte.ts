@@ -87,11 +87,6 @@ export class Channel {
 
 	public async leave() {
 		await invoke("leave", { channel: this.user.username });
-
-		this.messages = [];
-		this.badges.clear();
-		this.emotes.clear();
-		this.viewers.clear();
 	}
 
 	public addBadges(badges: BadgeSet[]) {
