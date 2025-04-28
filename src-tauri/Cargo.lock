@@ -3,34 +3,6 @@
 version = 4
 
 [[package]]
-name = "Hypeline"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "either",
- "enum_dispatch",
- "futures",
- "log",
- "regex",
- "reqwest",
- "rustls",
- "serde",
- "serde_json",
- "tauri",
- "tauri-build",
- "tauri-plugin-log",
- "tauri-plugin-notification",
- "tauri-plugin-opener",
- "tauri-plugin-single-instance",
- "tauri-plugin-svelte",
- "tauri-plugin-window-state",
- "thiserror 2.0.12",
- "tokio",
- "tokio-tungstenite",
- "twitch_api",
-]
-
-[[package]]
 name = "addr2line"
 version = "0.24.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1888,6 +1860,34 @@ name = "httparse"
 version = "1.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6dbf3de79e51f3d586ab4cb9d5c3e2c14aa28ed23d180cf89b4df0454a69cc87"
+
+[[package]]
+name = "hypeline"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "either",
+ "enum_dispatch",
+ "futures",
+ "log",
+ "regex",
+ "reqwest",
+ "rustls",
+ "serde",
+ "serde_json",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-log",
+ "tauri-plugin-notification",
+ "tauri-plugin-opener",
+ "tauri-plugin-single-instance",
+ "tauri-plugin-svelte",
+ "tauri-plugin-window-state",
+ "thiserror 2.0.12",
+ "tokio",
+ "tokio-tungstenite",
+ "twitch_api",
+]
 
 [[package]]
 name = "hyper"

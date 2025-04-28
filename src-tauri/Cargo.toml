@@ -1,5 +1,5 @@
 [package]
-name = "Hypeline"
+name = "hypeline"
 version = "0.1.0"
 authors = ["xiBread <hello@oscarlv.com>"]
 edition = "2021"
