@@ -77,6 +77,8 @@ export interface PrivmsgMessage extends BaseUserMessage {
 	is_first_msg: boolean;
 	is_returning_chatter: boolean;
 	is_highlighted: boolean;
+	is_mod: boolean;
+	is_subscriber: boolean;
 	bits: number | null;
 }
 

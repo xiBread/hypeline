@@ -319,6 +319,8 @@ pub struct PrivmsgMessage {
     pub is_first_msg: bool,
     pub is_returning_chatter: bool,
     pub is_highlighted: bool,
+    pub is_mod: bool,
+    pub is_subscriber: bool,
     pub sender: BasicUser,
     pub badge_info: Vec<Badge>,
     pub badges: Vec<Badge>,
@@ -369,6 +371,8 @@ impl TryFrom<IrcMessage> for PrivmsgMessage {
             is_highlighted: msg_id
                 .map(|id| id == "highlighted-message")
                 .unwrap_or_default(),
+            is_mod: source.try_get_bool("mod")?,
+            is_subscriber: source.try_get_bool("subscriber")?,
             deleted: source
                 .try_get_optional_bool("rm-deleted")?
                 .unwrap_or_default(),

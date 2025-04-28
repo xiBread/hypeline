@@ -10,15 +10,10 @@ export default defineHandler({
 		const storedViewer = app.active.viewers.get(message.viewer.username);
 		const viewer = storedViewer ?? message.viewer;
 
-		const badges = message.badges.map((b) => b.name);
-
-		if (badges.includes("broadcaster")) {
-			viewer.broadcaster = true;
-		}
-
-		if (badges.includes("moderator")) {
-			viewer.moderator = true;
-		}
+		viewer.broadcaster = !!message.badges.find(
+			(b) => b.name === "broadcaster",
+		);
+		viewer.moderator = data.is_mod;
 
 		if (!storedViewer) {
 			app.active.viewers.set(message.viewer.username, viewer);
