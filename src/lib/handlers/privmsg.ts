@@ -14,6 +14,7 @@ export default defineHandler({
 			(b) => b.name === "broadcaster",
 		);
 		viewer.moderator = data.is_mod;
+		viewer.subscriber = data.is_subscriber;
 
 		if (!storedViewer) {
 			app.active.viewers.set(message.viewer.username, viewer);

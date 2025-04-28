@@ -13,6 +13,11 @@ export class Viewer implements PartialUser {
 	 */
 	public moderator = $state(false);
 
+	/**
+	 * Whether the viewer is a subscriber to the channel.
+	 */
+	public subscriber = $state(false);
+
 	public constructor(data: PartialUser) {
 		this.#data = data;
 	}
