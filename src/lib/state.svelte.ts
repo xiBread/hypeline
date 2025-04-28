@@ -18,8 +18,9 @@ class AppState {
 		return this.#active ?? Channel.empty();
 	}
 
-	public set active(channel: Channel) {
+	public setActive(channel: Channel) {
 		this.#active = channel;
+		return this;
 	}
 }
 

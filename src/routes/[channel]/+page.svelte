@@ -16,7 +16,7 @@
 
 	async function join() {
 		const channel = await Channel.join(data.channel);
-		app.active = channel;
+		app.setActive(channel);
 
 		channel.addEmotes(app.globalEmotes);
 
