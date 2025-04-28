@@ -6,17 +6,17 @@ export class Viewer implements PartialUser {
 	/**
 	 * Whether the viewer is the broadcaster.
 	 */
-	public broadcaster = $state(false);
+	public isBroadcaster = $state(false);
 
 	/**
 	 * Whether the viewer is a moderator in the channel.
 	 */
-	public moderator = $state(false);
+	public isMod = $state(false);
 
 	/**
 	 * Whether the viewer is a subscriber to the channel.
 	 */
-	public subscriber = $state(false);
+	public isSub = $state(false);
 
 	public constructor(data: PartialUser) {
 		this.#data = data;

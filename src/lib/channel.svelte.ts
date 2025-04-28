@@ -77,7 +77,7 @@ export class Channel {
 			.setStream(joined.stream);
 
 		const viewer = new Viewer(user);
-		viewer.broadcaster = true;
+		viewer.isBroadcaster = true;
 
 		channel.viewers.set(user.username, viewer);
 		channel.recentMessages = joined.recent_messages;

@@ -82,21 +82,21 @@ export class User implements PartialUser {
 	/**
 	 * Whether the user is Twitch staff.
 	 */
-	public get staff() {
+	public get isStaff() {
 		return this.#data.type === "staff";
 	}
 
 	/**
 	 * Whether the user is a Twitch affiliate.
 	 */
-	public get affiliate() {
+	public get isAffiliate() {
 		return this.#data.broadcaster_type === "affiliate";
 	}
 
 	/**
 	 * Whether the user is a Twitch partner.
 	 */
-	public get partner() {
+	public get isPartner() {
 		return this.#data.broadcaster_type === "partner";
 	}
 

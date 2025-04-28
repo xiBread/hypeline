@@ -70,7 +70,7 @@ export class UserMessage extends Message {
 			diff <= 6 * 60 * 60 * 1000 &&
 			(
 				app.user.id === this.viewer.id ||
-				!(this.viewer.broadcaster || this.viewer.moderator)
+				!(this.viewer.isBroadcaster || this.viewer.isMod)
 			)
 		);
 	}
