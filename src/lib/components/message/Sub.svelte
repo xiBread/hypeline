@@ -7,25 +7,25 @@
 
 	interface Props {
 		message: UserMessage;
-		resub: SubOrResubEvent;
+		sub: SubOrResubEvent;
 	}
 
-	const { message, resub }: Props = $props();
+	const { message, sub }: Props = $props();
 
 	function subMessage() {
 		let message = "Subscribed with ";
 
-		if (resub.sub_plan === "Prime") {
+		if (sub.sub_plan === "Prime") {
 			message += "Prime.";
 		} else {
-			message += `Tier ${resub.sub_plan[0]}.`;
+			message += `Tier ${sub.sub_plan[0]}.`;
 		}
 
-		message += ` They've subscribed for ${resub.cumulative_months} months!`;
+		message += ` They've subscribed for ${sub.cumulative_months} months!`;
 
-		if (resub.streak_months) {
+		if (sub.streak_months) {
 			message = message.slice(0, -1);
-			message += `, currently on a ${resub.streak_months} month streak!`;
+			message += `, currently on a ${sub.streak_months} month streak!`;
 		}
 
 		return message;
@@ -39,14 +39,14 @@
 	<div class="flex gap-1">
 		<Star class="fill-foreground mt-px size-4" />
 
-		<div class="flex flex-col gap-1">
+		<div class="flex flex-col gap-0.5">
 			<span class="font-semibold">{message.viewer.displayName}</span>
 			{subMessage()}
 		</div>
 	</div>
 
-	{#if message.fragments.length}
-		<div class="mt-1">
+	{#if message.data.message_text}
+		<div class="mt-2">
 			<Message {message} />
 		</div>
 	{/if}

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { UserMessage } from "../../message";
 	import Announcement from "./Announcement.svelte";
-	import Resub from "./Resub.svelte";
+	import Sub from "./Sub.svelte";
 
 	const { message }: { message: UserMessage } = $props();
 </script>
@@ -12,10 +12,6 @@
 	{#if type === "announcement"}
 		<Announcement {message} color={message.event.color} />
 	{:else if type === "sub_or_resub"}
-		{#if message.event.is_resub}
-			<Resub {message} resub={message.event} />
-		{:else}
-			<!-- <Sub {message} sub= /> -->
-		{/if}
+		<Sub {message} sub={message.event} />
 	{/if}
 {/if}
