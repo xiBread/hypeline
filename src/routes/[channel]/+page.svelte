@@ -20,12 +20,13 @@
 		app.active = channel;
 
 		channel.addEmotes(app.globalEmotes);
-		channel.messages = [SystemMessage.joined(channel.user)];
 
 		for (const message of channel.recentMessages) {
 			const handler = handlers.get(message.type);
 			await handler?.handle(message);
 		}
+
+		channel.messages.push(SystemMessage.joined(channel.user));
 
 		settings.state.lastJoined = data.channel;
 	}

@@ -75,7 +75,7 @@
 					<UserMessage {message} />
 				{/if}
 
-				{#if message.isRecent && (!next || (next?.isUser() && !next.isRecent))}
+				{#if message.isRecent && (!next || !next.isUser() || !next.isRecent)}
 					<div class="text-twitch relative px-3.5">
 						<Separator.Root
 							class="my-4 h-px w-full rounded-full bg-current"
