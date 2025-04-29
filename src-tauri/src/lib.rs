@@ -2,6 +2,7 @@
 
 use std::sync::LazyLock;
 
+use eventsub::EventSubClient;
 use irc::IrcClient;
 use reqwest::header::HeaderMap;
 use tauri::async_runtime::{self, Mutex};
@@ -14,6 +15,7 @@ use twitch_api::HelixClient;
 mod api;
 mod emotes;
 mod error;
+mod eventsub;
 mod irc;
 mod providers;
 
@@ -32,16 +34,18 @@ pub static HTTP: LazyLock<reqwest::Client> = LazyLock::new(|| {
 
 pub struct AppState {
     helix: HelixClient<'static, reqwest::Client>,
-    irc: Option<IrcClient>,
     token: Option<UserToken>,
+    irc: Option<IrcClient>,
+    eventsub: Option<EventSubClient<'static>>,
 }
 
 impl Default for AppState {
     fn default() -> Self {
         Self {
             helix: HelixClient::new(),
-            irc: None,
             token: None,
+            irc: None,
+            eventsub: None,
         }
     }
 }
@@ -106,7 +110,6 @@ pub fn run() {
 
 fn get_handler() -> impl Fn(Invoke) -> bool {
     tauri::generate_handler![
-        irc::connect,
         api::set_access_token,
         api::channels::get_stream,
         api::channels::get_followed_channels,
@@ -119,6 +122,7 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         api::users::get_user_from_login,
         api::users::get_user_emotes,
         api::users::get_moderated_channels,
+        irc::connect,
         emotes::fetch_global_emotes,
     ]
 }

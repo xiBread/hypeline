@@ -1,5 +1,6 @@
 use anyhow::anyhow;
 use serde::Serialize;
+use serde_json::json;
 use tauri::async_runtime::{self, Mutex};
 use tauri::{AppHandle, Emitter, State};
 use twitch_api::helix::chat::BadgeSet;
@@ -29,7 +30,7 @@ pub async fn join(
     login: String,
     history_limit: u32,
 ) -> Result<JoinedChannel, Error> {
-    let (helix, token, irc) = {
+    let (helix, token, irc, eventsub) = {
         let state = state.lock().await;
 
         let token = state
@@ -41,7 +42,12 @@ pub async fn join(
             return Err(Error::Generic(anyhow!("No IRC connection")));
         };
 
-        (state.helix.clone(), token.clone(), irc)
+        (
+            state.helix.clone(),
+            token.clone(),
+            irc,
+            state.eventsub.clone(),
+        )
     };
 
     let user = get_user_from_login(state.clone(), login)
@@ -71,6 +77,12 @@ pub async fn join(
 
     global_badges.extend(channel_badges);
 
+    if let Some(eventsub) = eventsub {
+        eventsub
+            .subscribe_all(&[("channel.moderate", &json!({}))])
+            .await?;
+    }
+
     irc.join(login.to_string());
 
     Ok(JoinedChannel {
@@ -85,6 +97,10 @@ pub async fn join(
 #[tauri::command]
 pub async fn leave(state: State<'_, Mutex<AppState>>, channel: String) -> Result<(), Error> {
     let state = state.lock().await;
+
+    if let Some(eventsub) = state.eventsub.clone() {
+        eventsub.unsubscribe_all().await?;
+    }
 
     if let Some(ref irc) = state.irc {
         irc.part(channel);
