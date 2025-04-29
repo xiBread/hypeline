@@ -13,7 +13,7 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-	class={["group relative", message.deleted && "opacity-50"]}
+	class={["group relative", message.deleted && "opacity-30"]}
 	onmouseenter={() => (quickActionsOpen = true)}
 	onmouseleave={() => (quickActionsOpen = false)}
 >
