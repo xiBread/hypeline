@@ -1,11 +1,10 @@
 import { invoke } from "@tauri-apps/api/core";
 import { SvelteMap } from "svelte/reactivity";
 import { replyTarget } from "./components/Input.svelte";
-import type { Message } from "./message";
+import type { Message, UserMessage } from "./message";
 import { settings } from "./settings";
 import type { JoinedChannel } from "./tauri";
 import type { Badge, BadgeSet, Stream } from "./twitch/api";
-import type { IrcMessage } from "./twitch/irc";
 import { User } from "./user";
 import { Viewer } from "./viewer.svelte";
 
@@ -17,11 +16,12 @@ export interface Emote {
 }
 
 export class Channel {
+	#lastRecentAt: number | null = null;
+
 	public readonly badges = new SvelteMap<string, Record<string, Badge>>();
 	public readonly emotes = new SvelteMap<string, Emote>();
 	public readonly viewers = new SvelteMap<string, Viewer>();
 
-	public recentMessages = $state<IrcMessage[]>([]);
 	public messages = $state<Message[]>([]);
 
 	public constructor(
@@ -80,7 +80,6 @@ export class Channel {
 		viewer.isBroadcaster = true;
 
 		channel.viewers.set(user.username, viewer);
-		channel.recentMessages = joined.recent_messages;
 
 		return channel;
 	}
@@ -111,6 +110,24 @@ export class Channel {
 		}
 
 		return this;
+	}
+
+	public addMessage(message: UserMessage) {
+		if (this.messages.some((m) => m.id === message.id)) {
+			return;
+		}
+
+		if (message.isRecent) {
+			if (this.#lastRecentAt === null) {
+				this.messages.unshift(message);
+				this.#lastRecentAt = 0;
+			} else {
+				this.messages.splice(this.#lastRecentAt + 1, 0, message);
+				this.#lastRecentAt++;
+			}
+		} else {
+			this.messages.push(message);
+		}
 	}
 
 	public async send(message: string) {

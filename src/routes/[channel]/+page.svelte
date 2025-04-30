@@ -1,12 +1,32 @@
 <script lang="ts">
+	import { listen } from "@tauri-apps/api/event";
+	import type { UnlistenFn } from "@tauri-apps/api/event";
+	import { onDestroy, onMount } from "svelte";
 	import { Channel } from "$lib/channel.svelte";
 	import Chat from "$lib/components/Chat.svelte";
 	import Input, { replyTarget } from "$lib/components/Input.svelte";
 	import { handlers } from "$lib/handlers";
 	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
+	import type { IrcMessage } from "$lib/twitch/irc";
 
 	const { data } = $props();
+
+	let unlisten: UnlistenFn;
+
+	onMount(async () => {
+		unlisten = await listen<IrcMessage[]>(
+			"recentmessages",
+			async (event) => {
+				for (const message of event.payload) {
+					const handler = handlers.get(message.type);
+					await handler?.handle(message);
+				}
+			},
+		);
+	});
+
+	onDestroy(() => unlisten());
 
 	$effect(() => {
 		join();
@@ -19,11 +39,6 @@
 		app.setActive(channel);
 
 		channel.addEmotes(app.globalEmotes);
-
-		for (const message of channel.recentMessages) {
-			const handler = handlers.get(message.type);
-			await handler?.handle(message);
-		}
 
 		settings.state.lastJoined = data.channel;
 	}

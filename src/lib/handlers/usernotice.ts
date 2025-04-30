@@ -5,6 +5,6 @@ import { defineHandler } from "./helper";
 export default defineHandler({
 	name: "usernotice",
 	handle(data) {
-		app.active.messages.push(new UserMessage(data));
+		app.active.addMessage(new UserMessage(data));
 	},
 });

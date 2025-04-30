@@ -18,7 +18,7 @@ pub async fn get_recent_messages(channel: String, limit: u32) -> Result<Vec<Serv
 
     let response: RecentMessages = HTTP
         .get(format!(
-            "https://recent-messages.robotty.de/api/v2/recent-messages/{channel}?limit={limit}"
+            "https://recent-messages.robotty.de/api/v2/recent-messages/{channel}?limit={limit}",
         ))
         .send()
         .await?

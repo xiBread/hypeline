@@ -1,6 +1,5 @@
 import type { Emote } from "./channel.svelte";
 import type { BadgeSet, User as HelixUser, Stream } from "./twitch/api";
-import type { IrcMessage } from "./twitch/irc";
 
 export interface UserEmote {
 	set_id: string;
@@ -24,7 +23,6 @@ export interface FullChannel {
 
 export interface JoinedChannel extends FullChannel {
 	id: string;
-	recent_messages: IrcMessage[];
 	emotes: Record<string, Emote>;
 	badges: BadgeSet[];
 }

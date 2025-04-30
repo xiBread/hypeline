@@ -1,7 +1,7 @@
 use anyhow::anyhow;
 use serde::Serialize;
-use tauri::async_runtime::Mutex;
-use tauri::State;
+use tauri::async_runtime::{self, Mutex};
+use tauri::{AppHandle, Emitter, State};
 use twitch_api::helix::chat::BadgeSet;
 use twitch_api::helix::streams::Stream;
 
@@ -9,7 +9,6 @@ use super::channels::get_stream;
 use super::users::{get_user_from_login, User};
 use crate::emotes::{fetch_user_emotes, EmoteMap};
 use crate::error::Error;
-use crate::irc::message::ServerMessage;
 use crate::providers::recent_messages::get_recent_messages;
 use crate::providers::twitch::{fetch_channel_badges, fetch_global_badges};
 use crate::AppState;
@@ -18,7 +17,6 @@ use crate::AppState;
 pub struct JoinedChannel {
     id: String,
     user: User,
-    recent_messages: Vec<ServerMessage>,
     stream: Option<Stream>,
     emotes: EmoteMap,
     badges: Vec<BadgeSet>,
@@ -26,6 +24,7 @@ pub struct JoinedChannel {
 
 #[tauri::command]
 pub async fn join(
+    app: AppHandle,
     state: State<'_, Mutex<AppState>>,
     login: String,
     history_limit: u32,
@@ -52,23 +51,32 @@ pub async fn join(
     let broadcaster_id = user.data.id.as_str();
     let login = user.data.login.to_string();
 
-    let (stream, recent_messages, emotes, mut global_badges, channel_badges) = tokio::try_join!(
+    let (stream, emotes, mut global_badges, channel_badges) = tokio::try_join!(
         get_stream(state.clone(), user.data.id.to_string()),
-        get_recent_messages(user.data.login.to_string(), history_limit),
         fetch_user_emotes(broadcaster_id),
         fetch_global_badges(&helix, &token),
         fetch_channel_badges(&helix, &token, login),
     )?;
 
+    let login = user.data.login.clone();
+    let login_query = login.clone();
+
+    async_runtime::spawn(async move {
+        let recent_messages = get_recent_messages(login_query.to_string(), history_limit)
+            .await
+            .unwrap_or_default();
+
+        app.emit("recentmessages", recent_messages)
+    });
+
     global_badges.extend(channel_badges);
 
-    irc.join(user.data.login.to_string());
+    irc.join(login.to_string());
 
     Ok(JoinedChannel {
         id: broadcaster_id.to_string(),
         user,
         stream,
-        recent_messages,
         emotes,
         badges: global_badges,
     })

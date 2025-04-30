@@ -20,6 +20,6 @@ export default defineHandler({
 			app.active.viewers.set(message.viewer.username, viewer);
 		}
 
-		app.active.messages.push(message);
+		app.active.addMessage(message);
 	},
 });
