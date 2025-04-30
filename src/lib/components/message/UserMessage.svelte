@@ -13,9 +13,10 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-	class={["group relative", message.deleted && "opacity-30"]}
+	class={["group group relative", message.deleted && "opacity-30"]}
 	onmouseenter={() => (quickActionsOpen = true)}
 	onmouseleave={() => (quickActionsOpen = false)}
+	aria-disabled={message.deleted}
 >
 	{#if quickActionsOpen && !message.deleted}
 		<QuickActions
@@ -41,7 +42,9 @@
 				<Sparkles class="mr-2 size-4" /> First Time Chat
 			</div>
 
-			<div class="hover:bg-muted/50 px-1.5 py-2.5">
+			<div
+				class="not-group-aria-disabled:hover:bg-muted/50 px-1.5 py-2.5"
+			>
 				<Message {message} />
 			</div>
 		</div>
@@ -51,7 +54,7 @@
 				"px-3 py-2",
 				replyTarget.value?.id === message.id
 					? "bg-twitch/50"
-					: "group-hover:bg-muted",
+					: "not-group-aria-disabled:hover:bg-muted",
 			]}
 		>
 			{#if message.reply}
