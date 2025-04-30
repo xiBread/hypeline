@@ -1,9 +1,11 @@
 use std::collections::HashMap;
+use std::time::Duration;
 
 use futures::TryStreamExt;
 use serde::Serialize;
-use tauri::async_runtime::Mutex;
-use tauri::State;
+use tauri::async_runtime::{self, Mutex};
+use tauri::{AppHandle, Emitter, Manager, State};
+use tokio::time::sleep;
 use tokio::try_join;
 use twitch_api::helix::channels::FollowedBroadcaster;
 use twitch_api::helix::streams::Stream;
@@ -123,4 +125,20 @@ pub async fn get_followed_channels(
         .collect();
 
     Ok(followed)
+}
+
+#[tauri::command]
+pub async fn run_following_update_loop(app: AppHandle) -> Result<(), Error> {
+    async_runtime::spawn(async move {
+        loop {
+            let state = app.state::<Mutex<AppState>>();
+            let channels = get_followed_channels(state).await.unwrap_or_default();
+
+            app.emit("followedchannels", &channels).unwrap();
+
+            sleep(Duration::from_mins(5)).await;
+        }
+    });
+
+    Ok(())
 }

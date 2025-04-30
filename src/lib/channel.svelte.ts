@@ -17,6 +17,7 @@ export interface Emote {
 
 export class Channel {
 	#lastRecentAt: number | null = null;
+	#stream = $state<Stream | null>(null);
 
 	public readonly badges = new SvelteMap<string, Record<string, Badge>>();
 	public readonly emotes = new SvelteMap<string, Emote>();
@@ -29,12 +30,10 @@ export class Channel {
 		 * The user for the channel.
 		 */
 		public readonly user: User,
-
-		/**
-		 * The stream associated with the channel if it's currently streaming.
-		 */
-		public stream: Stream | null = null,
-	) {}
+		stream: Stream | null = null,
+	) {
+		this.#stream = stream;
+	}
 
 	/**
 	 * An "empty" channel to use during app initialization.
@@ -82,6 +81,13 @@ export class Channel {
 		channel.viewers.set(user.username, viewer);
 
 		return channel;
+	}
+
+	/**
+	 * The stream associated with the channel if it's currently streaming.
+	 */
+	public get stream() {
+		return this.#stream;
 	}
 
 	public async leave() {
@@ -139,7 +145,7 @@ export class Channel {
 	}
 
 	public setStream(stream: Stream | null) {
-		this.stream = stream;
+		this.#stream = stream;
 		return this;
 	}
 }

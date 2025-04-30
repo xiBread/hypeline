@@ -1,7 +1,9 @@
 <script lang="ts">
 	import Users from "@lucide/svelte/icons/users";
 	import { invoke } from "@tauri-apps/api/core";
-	import { onMount } from "svelte";
+	import { listen } from "@tauri-apps/api/event";
+	import type { UnlistenFn } from "@tauri-apps/api/event";
+	import { onDestroy, onMount } from "svelte";
 	import { Channel } from "$lib/channel.svelte";
 	import { app } from "$lib/state.svelte";
 	import type { FullChannel } from "$lib/tauri";
@@ -9,11 +11,38 @@
 	import { User } from "$lib/user";
 	import Tooltip from "./Tooltip.svelte";
 
+	let unlisten: UnlistenFn;
+
 	let followed = $state<Channel[]>([]);
+	const sorted = $derived(
+		followed.toSorted((a, b) => {
+			if (a.stream && b.stream) {
+				return b.stream.viewer_count - a.stream.viewer_count;
+			}
+
+			if (a.stream && !b.stream) return -1;
+			if (!a.stream && b.stream) return 1;
+
+			return a.user.username.localeCompare(b.user.username);
+		}),
+	);
 
 	onMount(async () => {
 		followed = await fetchFollowed();
+		await invoke("run_following_update_loop");
+
+		unlisten = await listen<FullChannel[]>("followedchannels", (event) => {
+			for (const channel of event.payload) {
+				const chan = followed.find(
+					(f) => f.user.id === channel.user.data.id,
+				);
+
+				chan?.setStream(channel.stream);
+			}
+		});
 	});
+
+	onDestroy(() => unlisten());
 
 	async function fetchFollowed() {
 		const channels = await invoke<FullChannel[]>("get_followed_channels");
@@ -26,17 +55,6 @@
 			followed.push(chan);
 		}
 
-		followed.sort((a, b) => {
-			if (a.stream && b.stream) {
-				return b.stream.viewer_count - a.stream.viewer_count;
-			}
-
-			if (a.stream && !b.stream) return -1;
-			if (!a.stream && b.stream) return 1;
-
-			return a.user.username.localeCompare(b.user.username);
-		});
-
 		return followed;
 	}
 </script>
@@ -48,7 +66,7 @@
 
 <div class="bg-border h-px" role="separator"></div>
 
-{#each followed as channel (channel.user.id)}
+{#each sorted as channel (channel.user.id)}
 	{@render channelIcon(channel.user, channel.stream)}
 {/each}
 

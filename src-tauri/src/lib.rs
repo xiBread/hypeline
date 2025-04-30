@@ -1,4 +1,4 @@
-#![feature(try_blocks)]
+#![feature(duration_constructors, try_blocks)]
 
 use std::sync::LazyLock;
 
@@ -110,6 +110,7 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         api::set_access_token,
         api::channels::get_stream,
         api::channels::get_followed_channels,
+        api::channels::run_following_update_loop,
         api::chat::join,
         api::chat::leave,
         api::chat::send_message,
