@@ -3,8 +3,10 @@ use serde::Serialize;
 use serde_json::json;
 use tauri::async_runtime::{self, Mutex};
 use tauri::{AppHandle, Emitter, State};
+use twitch_api::eventsub::EventType;
 use twitch_api::helix::chat::BadgeSet;
 use twitch_api::helix::streams::Stream;
+use twitch_api::twitch_oauth2::TwitchToken;
 
 use super::channels::get_stream;
 use super::users::{get_user_from_login, User};
@@ -79,8 +81,14 @@ pub async fn join(
 
     if let Some(eventsub) = eventsub {
         eventsub
-            .subscribe_all(&[("channel.moderate", &json!({}))])
-            .await?;
+            .subscribe(
+                EventType::ChannelModerate,
+                json!({
+                    "broadcaster_user_id": broadcaster_id,
+                    "moderator_user_id": token.user_id()
+                }),
+            )
+            .await?
     }
 
     irc.join(login.to_string());

@@ -22,7 +22,7 @@ use crate::error::Error as AppError;
 use crate::AppState;
 
 #[tauri::command]
-pub async fn connect(
+pub async fn connect_irc(
     state: State<'_, Mutex<AppState>>,
     channel: Channel<ServerMessage>,
 ) -> Result<(), AppError> {

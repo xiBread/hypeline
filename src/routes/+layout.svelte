@@ -8,7 +8,7 @@
 	import Sidebar from "$lib/components/Sidebar.svelte";
 	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
-	import { connect } from "$lib/twitch/irc";
+	import { connect } from "$lib/twitch";
 
 	const { children } = $props();
 

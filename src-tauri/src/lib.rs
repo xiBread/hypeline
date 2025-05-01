@@ -1,6 +1,6 @@
 #![feature(duration_constructors, try_blocks)]
 
-use std::sync::LazyLock;
+use std::sync::{Arc, LazyLock};
 
 use eventsub::EventSubClient;
 use irc::IrcClient;
@@ -36,7 +36,7 @@ pub struct AppState {
     helix: HelixClient<'static, reqwest::Client>,
     token: Option<UserToken>,
     irc: Option<IrcClient>,
-    eventsub: Option<EventSubClient<'static>>,
+    eventsub: Option<Arc<EventSubClient>>,
 }
 
 impl Default for AppState {
@@ -122,7 +122,8 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         api::users::get_user_from_login,
         api::users::get_user_emotes,
         api::users::get_moderated_channels,
-        irc::connect,
+        irc::connect_irc,
         emotes::fetch_global_emotes,
+        eventsub::connect_eventsub,
     ]
 }

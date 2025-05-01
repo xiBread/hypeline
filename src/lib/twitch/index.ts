@@ -1,3 +1,7 @@
+import { Channel, invoke } from "@tauri-apps/api/core";
+import { handlers } from "$lib/handlers";
+import type { IrcMessage } from "./irc";
+
 export const SCOPES = [
 	// Channel
 	"channel:edit:commercial",
@@ -50,3 +54,15 @@ export const SCOPES = [
 	"clips:edit",
 	"whispers:read",
 ];
+
+export async function connect() {
+	const channel = new Channel<IrcMessage>(async (message) => {
+		console.log(message);
+
+		const handler = handlers.get(message.type);
+		await handler?.handle(message);
+	});
+
+	await invoke("connect_irc", { channel });
+	await invoke("connect_eventsub", { channel });
+}

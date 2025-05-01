@@ -1,21 +1,65 @@
 pub mod client;
 
+use std::sync::Arc;
+
 pub use client::EventSubClient;
-use tauri::async_runtime::Mutex;
-use tauri::State;
+use client::NotificationPayload;
+use serde_json::json;
+use tauri::async_runtime::{self, Mutex};
+use tauri::ipc::Channel;
+use tauri::{AppHandle, Manager, State};
+use twitch_api::eventsub::EventType;
+use twitch_api::twitch_oauth2::TwitchToken;
 
 use crate::api::get_access_token;
 use crate::error::Error;
 use crate::AppState;
 
 #[tauri::command]
-pub async fn connect_eventsub(state: State<'_, Mutex<AppState>>) -> Result<(), Error> {
-    let state = state.lock().await;
-    let token = get_access_token(&state).await?;
+pub async fn connect_eventsub(
+    app_handle: AppHandle,
+    state: State<'_, Mutex<AppState>>,
+    channel: Channel<NotificationPayload>,
+) -> Result<(), Error> {
+    let mut guard = state.lock().await;
+    let token = get_access_token(&guard).await?.clone();
+    let helix = Arc::new(guard.helix.clone());
 
-    let (mut incoming, client) = EventSubClient::new(&state.helix, token);
+    if let Some(client) = &guard.eventsub {
+        if client.connected() {
+            return Ok(());
+        }
+    }
 
-    client.connect().await;
+    let (mut incoming, client) = EventSubClient::new(helix, Arc::new(token));
+    let client = Arc::new(client);
+
+    guard.eventsub = Some(client.clone());
+    drop(guard);
+
+    async_runtime::spawn(async move {
+        if let Err(_) = client.clone().connect().await {
+            let state = app_handle.state::<Mutex<AppState>>();
+            let mut state = state.lock().await;
+
+            state.eventsub = None;
+        } else {
+            client
+                .subscribe(
+                    EventType::UserUpdate,
+                    json!({ "user_id": client.token.user_id() }),
+                )
+                .await?;
+        }
+
+        Ok::<_, Error>(())
+    });
+
+    async_runtime::spawn(async move {
+        while let Some(message) = incoming.recv().await {
+            channel.send(message).unwrap();
+        }
+    });
 
     Ok(())
 }
