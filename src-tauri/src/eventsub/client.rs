@@ -50,7 +50,7 @@ pub struct MessageMetadata {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Subscription {
     pub id: String,
-    #[serde(rename(serialize = "type"))]
+    #[serde(rename = "type")]
     kind: EventType,
 }
 

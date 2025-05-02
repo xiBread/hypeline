@@ -1,5 +1,5 @@
 import { app } from "$lib/state.svelte";
-import { defineHandler } from "./helper";
+import { defineHandler } from "../helper";
 
 export default defineHandler({
 	name: "part",
