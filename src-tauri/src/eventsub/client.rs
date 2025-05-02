@@ -232,7 +232,7 @@ impl EventSubClient {
             return Err(Error::Generic(anyhow!("No EventSub connection")));
         };
 
-        let version = if V2_EVENTS.contains(&event) { "1" } else { "2" };
+        let version = if V2_EVENTS.contains(&event) { "2" } else { "1" };
 
         let body = json!({
             "type": event,
