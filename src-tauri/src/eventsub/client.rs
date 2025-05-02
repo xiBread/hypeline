@@ -57,6 +57,7 @@ pub struct Subscription {
 #[derive(Debug, Deserialize)]
 pub struct WebSocketSession {
     id: String,
+    reconnect_url: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -121,8 +122,9 @@ pub struct EventSubClient {
     pub token: Arc<UserToken>,
     session_id: Arc<Mutex<Option<String>>>,
     subscriptions: Arc<Mutex<HashMap<String, String>>>,
-    connected: Arc<AtomicBool>,
     sender: mpsc::UnboundedSender<NotificationPayload>,
+    connected: AtomicBool,
+    reconnecting: AtomicBool,
 }
 
 impl EventSubClient {
@@ -136,70 +138,101 @@ impl EventSubClient {
             helix,
             token,
             session_id: Arc::new(Mutex::new(None)),
-            connected: Arc::new(AtomicBool::default()),
             subscriptions: Arc::new(Mutex::new(HashMap::new())),
             sender,
+            connected: AtomicBool::default(),
+            reconnecting: AtomicBool::default(),
         };
 
         (receiver, client)
     }
 
     pub async fn connect(self: Arc<Self>) -> Result<(), Error> {
-        let (mut stream, _) = connect_async(TWITCH_EVENTSUB_WS_URI).await?;
-
-        self.set_connected(false);
-
         let this = Arc::clone(&self);
 
         tokio::spawn(async move {
-            while let Some(Ok(message)) = stream.next().await {
-                let this = Arc::clone(&this);
+            let mut ws_uri = TWITCH_EVENTSUB_WS_URI.to_string();
 
-                match message {
-                    Message::Ping(data) => {
-                        stream.send(Message::Pong(data)).await?;
-                    }
-                    Message::Text(data) => {
-                        if let Ok(msg) = serde_json::from_str(data.as_str()) {
-                            this.handle_message(msg).await?;
+            loop {
+                let mut stream = match connect_async(&ws_uri).await {
+                    Ok((stream, _)) => stream,
+                    Err(e) => return Err::<(), _>(Error::WebSocket(e)),
+                };
+
+                self.set_connected(false);
+                *self.session_id.lock().await = None;
+
+                let mut reconnect_url: Option<String> = None;
+
+                while let Some(Ok(message)) = stream.next().await {
+                    let this = Arc::clone(&this);
+
+                    match message {
+                        Message::Ping(data) => {
+                            stream.send(Message::Pong(data)).await?;
                         }
+                        Message::Text(data) => {
+                            if let Ok(msg) = serde_json::from_str(data.as_str()) {
+                                match this.handle_message(msg).await? {
+                                    Some(url) => {
+                                        reconnect_url = Some(url);
+                                        break;
+                                    }
+                                    None => continue,
+                                }
+                            }
+                        }
+                        Message::Close(_) => {
+                            break;
+                        }
+                        _ => (),
                     }
-                    Message::Close(_) => {
-                        self.set_connected(false);
-                    }
-                    _ => (),
+                }
+
+                self.set_connected(false);
+                *self.session_id.lock().await = None;
+
+                if let Some(url) = reconnect_url {
+                    ws_uri = url;
                 }
             }
-
-            self.set_connected(false);
-            Ok::<_, Error>(())
         });
 
         Ok(())
     }
 
-    // pub async fn disconnect(mut self) -> Result<(), Error> {
-    //     let frame = CloseFrame {
-    //         code: CloseCode::Normal,
-    //         reason: "Disconnected by client".into(),
-    //     };
-
-    //     // self.stream.close(Some(frame)).await?;
-    //     Ok(())
-    // }
-
-    async fn handle_message(self: Arc<Self>, msg: WebSocketMessage) -> Result<(), Error> {
+    async fn handle_message(
+        self: Arc<Self>,
+        msg: WebSocketMessage,
+    ) -> Result<Option<String>, Error> {
         use WebSocketMessage as Ws;
 
         match msg {
             Ws::Welcome(payload) => {
                 *self.session_id.lock().await = Some(payload.session.id);
+
+                if self.reconnecting.load(Ordering::Relaxed) {
+                    self.reconnecting.store(false, Ordering::Relaxed);
+                } else {
+                    self.subscribe(
+                        EventType::UserUpdate,
+                        json!({ "user_id": self.token.user_id }),
+                    )
+                    .await?;
+                }
             }
             Ws::Notification(payload) => {
                 self.sender.send(payload).unwrap();
             }
-            Ws::Reconnect(_) => {
-                todo!()
+            Ws::Reconnect(payload) => {
+                let url = payload
+                    .session
+                    .reconnect_url
+                    .expect("missing reconnect_url in reconnect payload");
+
+                self.reconnecting.store(true, Ordering::Relaxed);
+
+                return Ok(Some(url));
             }
             Ws::Revocation(payload) => {
                 self.subscriptions
@@ -210,7 +243,7 @@ impl EventSubClient {
             _ => (),
         }
 
-        Ok(())
+        Ok(None)
     }
 
     pub fn connected(&self) -> bool {

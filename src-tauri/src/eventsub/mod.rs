@@ -4,12 +4,9 @@ use std::sync::Arc;
 
 pub use client::EventSubClient;
 use client::NotificationPayload;
-use serde_json::json;
 use tauri::async_runtime::{self, Mutex};
 use tauri::ipc::Channel;
 use tauri::{AppHandle, Manager, State};
-use twitch_api::eventsub::EventType;
-use twitch_api::twitch_oauth2::TwitchToken;
 
 use crate::api::get_access_token;
 use crate::error::Error;
@@ -43,13 +40,6 @@ pub async fn connect_eventsub(
             let mut state = state.lock().await;
 
             state.eventsub = None;
-        } else {
-            client
-                .subscribe(
-                    EventType::UserUpdate,
-                    json!({ "user_id": client.token.user_id() }),
-                )
-                .await?;
         }
 
         Ok::<_, Error>(())

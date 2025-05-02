@@ -57,8 +57,6 @@ export const SCOPES = [
 
 export async function connect() {
 	const channel = new Channel<IrcMessage>(async (message) => {
-		console.log(message);
-
 		const handler = handlers.get(message.type);
 		await handler?.handle(message);
 	});
