@@ -15,7 +15,7 @@ pub struct IrcClient {
 }
 
 impl IrcClient {
-    pub fn new(config: ClientConfig) -> (mpsc::UnboundedReceiver<ServerMessage>, IrcClient) {
+    pub fn new(config: ClientConfig) -> (mpsc::UnboundedReceiver<ServerMessage>, Self) {
         let config = Arc::new(config);
         let (client_loop_tx, client_loop_rx) = mpsc::unbounded_channel();
 
@@ -29,13 +29,14 @@ impl IrcClient {
             client_incoming_messages_tx,
         );
 
-        (client_incoming_messages_rx, IrcClient { client_loop_tx })
+        (client_incoming_messages_rx, Self { client_loop_tx })
     }
 }
 
 impl IrcClient {
     pub async fn connect(&self) {
         let (return_tx, return_rx) = oneshot::channel();
+
         self.client_loop_tx
             .send(ClientLoopCommand::Connect {
                 return_sender: return_tx,

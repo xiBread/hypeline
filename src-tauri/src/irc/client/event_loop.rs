@@ -70,6 +70,7 @@ impl ClientLoopWorker {
                     let new_connection = self.make_new_connection();
                     self.connections.push_back(new_connection);
                 }
+
                 return_sender.send(()).ok();
             }
             ClientLoopCommand::Join { channel_login } => self.join(channel_login),
@@ -211,6 +212,7 @@ impl ClientLoopWorker {
         match message {
             ConnectionIncomingMessage::IncomingMessage(message) => {
                 let is_whisper = matches!(*message, ServerMessage::Whisper(_));
+
                 if is_whisper {
                     match self.current_whisper_connection_id {
                         Some(current_whisper_connection_id) => {

@@ -1,6 +1,3 @@
-import { Channel, invoke } from "@tauri-apps/api/core";
-import { handlers } from "$lib/handlers";
-
 export interface JoinMessage {
 	type: "join";
 	channel_login: string;
@@ -192,12 +189,3 @@ export type IrcMessage =
 export type IrcMessageMap = {
 	[K in IrcMessage["type"]]: Extract<IrcMessage, { type: K }>;
 };
-
-export async function connect() {
-	const channel = new Channel<IrcMessage>(async (message) => {
-		const handler = handlers.get(message.type);
-		await handler?.handle(message);
-	});
-
-	await invoke("connect", { channel });
-}

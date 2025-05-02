@@ -12,7 +12,7 @@
 
 	const { data } = $props();
 
-	let unlisten: UnlistenFn;
+	let unlisten: UnlistenFn | undefined;
 
 	onMount(async () => {
 		unlisten = await listen<IrcMessage[]>(
@@ -26,7 +26,7 @@
 		);
 	});
 
-	onDestroy(() => unlisten());
+	onDestroy(() => unlisten?.());
 
 	$effect(() => {
 		join();
