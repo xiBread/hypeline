@@ -107,7 +107,7 @@ pub async fn leave(state: State<'_, Mutex<AppState>>, channel: String) -> Result
     let state = state.lock().await;
 
     if let Some(eventsub) = state.eventsub.clone() {
-        eventsub.unsubscribe_all().await?;
+        eventsub.unsubscribe_all(&channel).await?;
     }
 
     if let Some(ref irc) = state.irc {

@@ -215,6 +215,7 @@ impl EventSubClient {
                     self.reconnecting.store(false, Ordering::Relaxed);
                 } else {
                     self.subscribe(
+                        self.token.login.as_str(),
                         EventType::UserUpdate,
                         json!({ "user_id": self.token.user_id }),
                     )
@@ -256,6 +257,7 @@ impl EventSubClient {
 
     pub async fn subscribe(
         &self,
+        channel: &str,
         event: EventType,
         condition: serde_json::Value,
     ) -> Result<(), Error> {
@@ -290,26 +292,31 @@ impl EventSubClient {
         self.subscriptions
             .lock()
             .await
-            .insert(event.to_string(), response.data.0.id.take());
+            .insert(format!("{channel}:{event}"), response.data.0.id.take());
 
         Ok(())
     }
 
     pub async fn subscribe_all(
         &self,
+        channel: &str,
         subscriptions: &[(EventType, &serde_json::Value)],
     ) -> Result<(), Error> {
         let futures = subscriptions
             .iter()
-            .map(|&(event, condition)| self.subscribe(event, condition.clone()));
+            .map(|&(event, condition)| self.subscribe(channel, event, condition.clone()));
 
         join_all(futures).await;
 
         Ok(())
     }
 
-    pub async fn unsubscribe(&self, event: String) -> Result<(), Error> {
-        let id = self.subscriptions.lock().await.remove(&event);
+    pub async fn unsubscribe(&self, channel: &str, event: String) -> Result<(), Error> {
+        let id = self
+            .subscriptions
+            .lock()
+            .await
+            .remove(&format!("{channel}:{event}"));
 
         if let Some(id) = id {
             self.helix
@@ -320,14 +327,16 @@ impl EventSubClient {
         Ok(())
     }
 
-    pub async fn unsubscribe_all(&self) -> Result<(), Error> {
+    pub async fn unsubscribe_all(&self, channel: &str) -> Result<(), Error> {
         let keys = {
             let subscriptions = self.subscriptions.lock().await;
 
             subscriptions.keys().cloned().collect::<Vec<_>>()
         };
 
-        let futures = keys.iter().map(|event| self.unsubscribe(event.into()));
+        let futures = keys
+            .iter()
+            .map(|event| self.unsubscribe(channel, event.into()));
 
         join_all(futures).await;
 
