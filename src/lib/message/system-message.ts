@@ -60,6 +60,32 @@ export class SystemMessage extends Message {
 		return this;
 	}
 
+	/**
+	 * Sets the text of the system message when the chat is cleared.
+	 *
+	 * - `The chat has been cleared for non-moderator viewers` for `CLEARCHAT`
+	 *   messages
+	 * - `{moderator} cleared the chat for non-moderator viewers` for
+	 *   `channel.moderate` events
+	 */
+	public clear(moderator?: Viewer) {
+		this.#text = moderator
+			? `${this.#name(moderator)} cleared the chat`
+			: `The chat has been cleared`;
+
+		this.#text += " for non-moderator viewers";
+
+		return this;
+	}
+
+	/**
+	 * Sets the text of the system message when a user is timed out in a
+	 * channel.
+	 *
+	 * - `{user} has been timed out for {duration}` for `CLEARCHAT` messages
+	 * - `{moderator} timed out {user} for {duration}` for `channel.moderate`
+	 *   events
+	 */
 	public timeout(seconds: number, user: Viewer, moderator?: Viewer) {
 		const target = this.#name(user);
 		const duration = formatDuration(seconds);

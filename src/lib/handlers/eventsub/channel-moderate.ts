@@ -17,16 +17,19 @@ export default defineHandler({
 
 		switch (data.action) {
 			case "ban": {
-				let target = app.active.viewers.get(data.ban.user_login);
-				target ??= Viewer.from(data.ban);
+				const target = Viewer.from(data.ban);
 
 				app.active.addMessage(message.ban(target, moderator));
 				break;
 			}
 
+			case "clear": {
+				app.active.addMessage(message.clear(moderator));
+				break;
+			}
+
 			case "timeout": {
-				let target = app.active.viewers.get(data.timeout.user_login);
-				target ??= Viewer.from(data.timeout);
+				const target = Viewer.from(data.timeout);
 
 				const expiration = new Date(data.timeout.expires_at);
 				const duration =
@@ -39,6 +42,8 @@ export default defineHandler({
 						moderator,
 					),
 				);
+
+				break;
 			}
 		}
 	},

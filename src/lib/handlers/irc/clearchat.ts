@@ -15,7 +15,7 @@ export default defineHandler({
 		const message = new SystemMessage(data);
 
 		if (data.action.type === "clear") {
-			// todo
+			app.active.addMessage(message.clear());
 			return;
 		}
 
