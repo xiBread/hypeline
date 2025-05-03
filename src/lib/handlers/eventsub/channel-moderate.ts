@@ -70,6 +70,11 @@ export default defineHandler({
 				break;
 			}
 
+			case "clear": {
+				app.active.addMessage(message.clear(moderator));
+				break;
+			}
+
 			case "ban":
 			case "unban": {
 				const isBan = data.action === "ban";
@@ -79,11 +84,6 @@ export default defineHandler({
 					message.banStatus(!isBan, target, moderator),
 				);
 
-				break;
-			}
-
-			case "clear": {
-				app.active.addMessage(message.clear(moderator));
 				break;
 			}
 
@@ -109,6 +109,30 @@ export default defineHandler({
 				const target = Viewer.from(data.untimeout);
 
 				app.active.addMessage(message.untimeout(target, moderator));
+				break;
+			}
+
+			case "mod":
+			case "unmod": {
+				const added = data.action === "mod";
+				const target = Viewer.from(added ? data.mod : data.unmod);
+
+				app.active.addMessage(
+					message.roleStatus("moderator", !added, target, moderator),
+				);
+
+				break;
+			}
+
+			case "vip":
+			case "unvip": {
+				const added = data.action === "vip";
+				const target = Viewer.from(added ? data.vip : data.unvip);
+
+				app.active.addMessage(
+					message.roleStatus("VIP", !added, target, moderator),
+				);
+
 				break;
 			}
 		}

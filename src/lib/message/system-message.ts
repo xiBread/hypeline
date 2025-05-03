@@ -45,8 +45,7 @@ export class SystemMessage extends Message {
 	}
 
 	/**
-	 * Sets the text of the system message when a user is banned or unbanned in
-	 * a channel.
+	 * Sets the text of the system message when a user is banned or unbanned.
 	 *
 	 * - `{user} has been banned/unbanned` for `CLEARCHAT` messages
 	 * - `{moderator} banned/unbanned {user}` for `channel.moderate` events
@@ -81,8 +80,7 @@ export class SystemMessage extends Message {
 	}
 
 	/**
-	 * Sets the text of the system message when the chat mode is changed for
-	 * `channel.moderate` events.
+	 * Sets the text of the system message when the chat mode is changed.
 	 *
 	 * `{moderator} enabled/disabled {duration?} {mode} [chat]`
 	 */
@@ -104,8 +102,25 @@ export class SystemMessage extends Message {
 	}
 
 	/**
-	 * Sets the text of the system message when a user is timed out in a
-	 * channel.
+	 * Sets the text of the system message when a user is added or removed as a
+	 * moderator or VIP.
+	 *
+	 * `{broadcaster} added/removed {user} as a moderator/VIP`
+	 */
+	public roleStatus(
+		role: string,
+		removed: boolean,
+		user: Viewer,
+		broadcaster: Viewer,
+	) {
+		const action = removed ? "removed" : "added";
+		this.#text = `${this.#name(broadcaster)} ${action} ${this.#name(user)} as a ${role}`;
+
+		return this;
+	}
+
+	/**
+	 * Sets the text of the system message when a user is timed out.
 	 *
 	 * - `{user} has been timed out for {duration}` for `CLEARCHAT` messages
 	 * - `{moderator} timed out {user} for {duration}` for `channel.moderate`
@@ -122,6 +137,11 @@ export class SystemMessage extends Message {
 		return this;
 	}
 
+	/**
+	 * Sets the text of the system message when a user's timeout is removed.
+	 *
+	 * `{moderator} removed timeout on {user}`
+	 */
 	public untimeout(user: Viewer, moderator: Viewer) {
 		this.#text = `${this.#name(moderator)} removed timeout on ${this.#name(user)}`;
 		return this;
