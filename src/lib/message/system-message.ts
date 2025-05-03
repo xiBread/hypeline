@@ -45,17 +45,19 @@ export class SystemMessage extends Message {
 	}
 
 	/**
-	 * Sets the text of the system message when a user is banned in a channel.
+	 * Sets the text of the system message when a user is banned or unbanned in
+	 * a channel.
 	 *
-	 * - `{user} has been banned` for `CLEARCHAT` messages
-	 * - `{moderator} banned {user}` for `channel.moderate` events
+	 * - `{user} has been banned/unbanned` for `CLEARCHAT` messages
+	 * - `{moderator} banned/unbanned {user}` for `channel.moderate` events
 	 */
-	public ban(user: Viewer, moderator?: Viewer) {
+	public banStatus(unbanned: boolean, user: Viewer, moderator?: Viewer) {
 		const target = this.#name(user);
+		const action = unbanned ? "unbanned" : "banned";
 
 		this.#text = moderator
-			? `${this.#name(moderator)} banned ${target}`
-			: `${target} has been banned`;
+			? `${this.#name(moderator)} ${action} ${target}`
+			: `${target} has been ${action}`;
 
 		return this;
 	}
@@ -117,6 +119,11 @@ export class SystemMessage extends Message {
 			? `${this.#name(moderator)} timed out ${target} for ${duration}`
 			: `${target} has been timed out for ${duration}`;
 
+		return this;
+	}
+
+	public untimeout(user: Viewer, moderator: Viewer) {
+		this.#text = `${this.#name(moderator)} removed timeout on ${this.#name(user)}`;
 		return this;
 	}
 

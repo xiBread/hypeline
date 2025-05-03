@@ -70,10 +70,15 @@ export default defineHandler({
 				break;
 			}
 
-			case "ban": {
-				const target = Viewer.from(data.ban);
+			case "ban":
+			case "unban": {
+				const isBan = data.action === "ban";
+				const target = Viewer.from(isBan ? data.ban : data.unban);
 
-				app.active.addMessage(message.ban(target, moderator));
+				app.active.addMessage(
+					message.banStatus(!isBan, target, moderator),
+				);
+
 				break;
 			}
 
@@ -97,6 +102,13 @@ export default defineHandler({
 					),
 				);
 
+				break;
+			}
+
+			case "untimeout": {
+				const target = Viewer.from(data.untimeout);
+
+				app.active.addMessage(message.untimeout(target, moderator));
 				break;
 			}
 		}
