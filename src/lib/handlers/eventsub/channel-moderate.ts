@@ -75,14 +75,9 @@ export default defineHandler({
 				break;
 			}
 
-			case "ban":
-			case "unban": {
-				const isBan = data.action === "ban";
-				const target = Viewer.from(isBan ? data.ban : data.unban);
-
-				app.active.addMessage(
-					message.banStatus(!isBan, target, moderator),
-				);
+			case "warn": {
+				const target = Viewer.from(data.warn);
+				app.active.addMessage(message.warn(target, moderator));
 
 				break;
 			}
@@ -109,6 +104,18 @@ export default defineHandler({
 				const target = Viewer.from(data.untimeout);
 
 				app.active.addMessage(message.untimeout(target, moderator));
+				break;
+			}
+
+			case "ban":
+			case "unban": {
+				const isBan = data.action === "ban";
+				const target = Viewer.from(isBan ? data.ban : data.unban);
+
+				app.active.addMessage(
+					message.banStatus(!isBan, target, moderator),
+				);
+
 				break;
 			}
 

@@ -147,6 +147,16 @@ export class SystemMessage extends Message {
 		return this;
 	}
 
+	/**
+	 * Sets the text of the system message when a user is warned.
+	 *
+	 * `{moderator} warned {user}`
+	 */
+	public warn(user: Viewer, moderator: Viewer) {
+		this.#text = `${this.#name(moderator)} warned ${this.#name(user)}`;
+		return this;
+	}
+
 	#name(user: PartialUser) {
 		return html`
 			<span class="font-semibold" style="color: ${user.color};">

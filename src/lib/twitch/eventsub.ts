@@ -54,6 +54,11 @@ export interface UnbanRequestMetadata extends ActionMetadata {
 	moderator_message: string;
 }
 
+export interface WarnMetadata extends ActionMetadata {
+	reason: string | null;
+	chat_rules_cited: string[] | null;
+}
+
 export interface AutomodTermsAction
 	extends BaseAction<
 		| "add_blocked_term"
@@ -130,6 +135,10 @@ export interface VipAction extends BaseAction<"vip"> {
 	vip: ActionMetadata;
 }
 
+export interface WarnAction extends BaseAction<"warn"> {
+	warn: WarnMetadata;
+}
+
 export type ChannelModerate =
 	| AutomodTermsAction
 	| BanAction
@@ -149,7 +158,8 @@ export type ChannelModerate =
 	| UnraidAction
 	| UntimeoutAction
 	| UnvipAction
-	| VipAction;
+	| VipAction
+	| WarnAction;
 
 export type SubscriptionEvent = ChannelModerate;
 
