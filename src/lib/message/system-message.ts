@@ -1,3 +1,4 @@
+import type { AutomodTermsMetadata } from "$lib/twitch/eventsub";
 import type { PartialUser } from "$lib/user";
 import { formatDuration } from "$lib/util";
 import type { Viewer } from "$lib/viewer.svelte";
@@ -42,6 +43,27 @@ export class SystemMessage extends Message {
 
 	public override get text() {
 		return this.#text;
+	}
+
+	/**
+	 * Sets the text of the system message when a term is added or removed to
+	 * the blocked or permitted list.
+	 *
+	 * `{moderator} added/removed [a] blocked/permitted term[s][ (via AutoMod)]: {term[, ]}`
+	 */
+	public term(data: AutomodTermsMetadata, moderator: Viewer) {
+		const action = data.action === "add" ? "added" : "removed";
+		const viaAutoMod = data.from_automod ? " (via AutoMod)" : "";
+
+		this.#text = `${this.#name(moderator)} ${action} `;
+
+		if (data.terms.length === 1) {
+			this.#text += `a ${data.list} term${viaAutoMod}: ${data.terms[0]}`;
+		} else {
+			this.#text += `${data.terms.length} ${data.list} terms${viaAutoMod}: ${data.terms.join(", ")}`;
+		}
+
+		return this;
 	}
 
 	/**

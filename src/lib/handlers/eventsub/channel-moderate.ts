@@ -75,6 +75,17 @@ export default defineHandler({
 				break;
 			}
 
+			case "add_blocked_term":
+			case "add_permitted_term":
+			case "remove_blocked_term":
+			case "remove_permitted_term": {
+				app.active.addMessage(
+					message.term(data.automod_terms, moderator),
+				);
+
+				break;
+			}
+
 			case "warn": {
 				const target = Viewer.from(data.warn);
 				app.active.addMessage(message.warn(target, moderator));
@@ -102,8 +113,8 @@ export default defineHandler({
 
 			case "untimeout": {
 				const target = Viewer.from(data.untimeout);
-
 				app.active.addMessage(message.untimeout(target, moderator));
+
 				break;
 			}
 
