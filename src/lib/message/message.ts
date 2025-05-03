@@ -11,44 +11,28 @@ export abstract class Message {
 	 * The timestamp at which the message was sent at. For a human-readable
 	 * format, use {@linkcode formattedTime}.
 	 */
-	public readonly timestamp = new Date();
+	public readonly timestamp: Date;
 
 	public constructor(
 		readonly data: MessageData,
 		system = false,
 	) {
 		this.#system = system;
-
-		if (this.isUser()) {
-			this.timestamp = new Date(
-				(this.data as BaseUserMessage).server_timestamp,
-			);
-		}
+		this.timestamp = new Date(this.data.server_timestamp);
 	}
 
-	public get id(): string {
-		if (this.isUser()) {
-			return this.data.message_id;
-		}
+	public abstract get id(): string;
+	public abstract get text(): string;
 
-		return (this.data as SystemMessageData).id;
+	/**
+	 * Whether the message was retreived by the `recent-messages` API.
+	 */
+	public get isRecent() {
+		return this.data.is_recent;
 	}
 
-	public get formattedTime(): string {
+	public get formattedTime() {
 		return formatTime(this.timestamp);
-	}
-
-	public get text(): string {
-		if (this.isUser()) {
-			// message_text should only be possibly null if it's a USERNOTICE,
-			// in which case we can assume system_message is present
-			return (
-				this.data.message_text ??
-				(this.data as UserNoticeMessage).system_message
-			);
-		}
-
-		return (this.data as SystemMessageData).text;
 	}
 
 	public isUser(): this is UserMessage {

@@ -5,7 +5,7 @@ import type { User as HelixUser } from "./twitch/api";
 
 export interface PartialUser {
 	id: string;
-	color: string;
+	color?: string;
 	username: string;
 	displayName: string;
 }

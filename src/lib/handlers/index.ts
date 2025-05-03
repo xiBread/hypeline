@@ -3,6 +3,7 @@
 import type { Handler } from "./helper";
 //
 import join from "./irc/join";
+import clearchat from "./irc/clearchat";
 import clearmsg from "./irc/clearmsg";
 import privmsg from "./irc/privmsg";
 import usernotice from "./irc/usernotice";
@@ -17,6 +18,7 @@ function register(handler: Handler<any>) {
 }
 
 register(join);
+register(clearchat);
 register(clearmsg);
 register(privmsg);
 register(usernotice);

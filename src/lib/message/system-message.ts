@@ -1,9 +1,10 @@
+import type { PartialUser } from "$lib/user";
 import type { Viewer } from "$lib/viewer.svelte";
 import { Message } from "./message";
 
 export interface SystemMessageData {
-	id: string;
-	text: string;
+	is_recent: boolean;
+	server_timestamp: number;
 }
 
 // Only for syntax highlighting
@@ -14,19 +15,60 @@ const html = String.raw;
  * information to the user.
  */
 export class SystemMessage extends Message {
-	public constructor(text: string) {
-		super({ id: crypto.randomUUID(), text }, true);
+	#text = "";
+
+	public constructor(data: Partial<SystemMessageData> = {}) {
+		const prepared: SystemMessageData = {
+			is_recent: data.is_recent ?? false,
+			server_timestamp: data.server_timestamp ?? Date.now(),
+		};
+
+		super(prepared, true);
 	}
 
 	/**
-	 * Creates a `Joined {channel}` system message when joining a channel.
+	 * Creates a new system message with its text set to `Joined {channel}`.
 	 */
 	public static joined(channel: Viewer) {
-		return new SystemMessage(html`
-			Joined
-			<span class="font-semibold" style="color: ${channel.color};">
-				${channel.displayName}
+		const message = new SystemMessage();
+
+		return message.setText(`Joined ${message.#name(channel)}`);
+	}
+
+	public override get id() {
+		return crypto.randomUUID();
+	}
+
+	public override get text() {
+		return this.#text;
+	}
+
+	/**
+	 * Sets the text of the system message when a user is banned in a channel.
+	 *
+	 * - `{user} has been banned` for `CLEARCHAT` messages
+	 * - `{moderator} banned {user}` for `channel.moderate` events
+	 */
+	public ban(user: Viewer, moderator?: Viewer) {
+		const target = this.#name(user);
+
+		this.#text = moderator
+			? `${this.#name(moderator)} banned ${target}`
+			: `${target} has been banned`;
+
+		return this;
+	}
+
+	#name(user: PartialUser) {
+		return html`
+			<span class="font-semibold" style="color: ${user.color};">
+				${user.displayName}
 			</span>
-		`);
+		`;
+	}
+
+	public setText(text: string) {
+		this.#text = text;
+		return this;
 	}
 }

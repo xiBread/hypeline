@@ -65,29 +65,28 @@
 	>
 		{#snippet children(message: Message, i)}
 			{#if !message.isUser()}
+				{/* @ts-expect-error */ null}
 				<SystemMessage {message} />
+			{:else if message.event}
+				<Notification {message} />
 			{:else}
-				{@const next = app.active.messages.at(i + 1)}
+				<UserMessage {message} />
+			{/if}
 
-				{#if message.event}
-					<Notification {message} />
-				{:else}
-					<UserMessage {message} />
-				{/if}
+			{@const next = app.active.messages.at(i + 1)}
 
-				{#if message.isRecent && (!next || !next.isUser() || !next.isRecent)}
-					<div class="text-twitch relative px-3.5">
-						<Separator.Root
-							class="my-4 h-px w-full rounded-full bg-current"
-						/>
+			{#if message.isRecent && !next?.isRecent}
+				<div class="text-twitch relative px-3.5">
+					<Separator.Root
+						class="my-4 h-px w-full rounded-full bg-current"
+					/>
 
-						<div
-							class="bg-background absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 text-xs font-semibold uppercase"
-						>
-							Live messages
-						</div>
+					<div
+						class="bg-background absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 text-xs font-semibold uppercase"
+					>
+						Live messages
 					</div>
-				{/if}
+				</div>
 			{/if}
 		{/snippet}
 	</VList>

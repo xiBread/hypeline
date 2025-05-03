@@ -118,7 +118,7 @@ export class Channel {
 		return this;
 	}
 
-	public addMessage(message: UserMessage) {
+	public addMessage(message: Message) {
 		if (this.messages.some((m) => m.id === message.id)) {
 			return;
 		}

@@ -4,6 +4,32 @@ export interface JoinMessage {
 	user_login: string;
 }
 
+export interface ClearChatClear {
+	type: "clear";
+}
+
+export interface ClearChatBan {
+	type: "ban";
+	user_login: string;
+	user_id: string;
+}
+
+export interface ClearChatTimeout extends Omit<ClearChatBan, "type"> {
+	type: "timeout";
+	duration: { secs: number };
+}
+
+export type ClearChatAction = ClearChatClear | ClearChatBan | ClearChatTimeout;
+
+export interface ClearChatMessage {
+	type: "clearchat";
+	channel_login: string;
+	channel_id: string;
+	action: ClearChatAction;
+	is_recent: boolean;
+	server_timestamp: number;
+}
+
 export interface ClearMsgMessage {
 	type: "clearmsg";
 	channel_login: string;
@@ -11,7 +37,7 @@ export interface ClearMsgMessage {
 	message_id: string;
 	message_text: string;
 	is_action: boolean;
-	server_timestamp: boolean;
+	server_timestamp: number;
 }
 
 export interface BasicUser {
@@ -47,7 +73,7 @@ export interface BaseUserMessage {
 	message_id: string;
 	deleted: boolean;
 	is_recent: boolean;
-	server_timestamp: string;
+	server_timestamp: number;
 }
 
 export interface ReplyParent {
@@ -180,6 +206,7 @@ export interface PartMessage {
 
 export type IrcMessage =
 	| JoinMessage
+	| ClearChatMessage
 	| ClearMsgMessage
 	| PrivmsgMessage
 	| UserNoticeMessage

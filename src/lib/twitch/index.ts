@@ -1,7 +1,7 @@
 import { Channel, invoke } from "@tauri-apps/api/core";
 import { handlers } from "$lib/handlers";
-import type { IrcMessage } from "./irc";
 import type { NotificationPayload } from "./eventsub";
+import type { IrcMessage } from "./irc";
 
 export const SCOPES = [
 	// Channel
