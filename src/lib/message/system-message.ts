@@ -1,4 +1,5 @@
 import type { PartialUser } from "$lib/user";
+import { formatDuration } from "$lib/util";
 import type { Viewer } from "$lib/viewer.svelte";
 import { Message } from "./message";
 
@@ -55,6 +56,17 @@ export class SystemMessage extends Message {
 		this.#text = moderator
 			? `${this.#name(moderator)} banned ${target}`
 			: `${target} has been banned`;
+
+		return this;
+	}
+
+	public timeout(seconds: number, user: Viewer, moderator?: Viewer) {
+		const target = this.#name(user);
+		const duration = formatDuration(seconds);
+
+		this.#text = moderator
+			? `${this.#name(moderator)} timed out ${target} for ${duration}`
+			: `${target} has been timed out for ${duration}`;
 
 		return this;
 	}

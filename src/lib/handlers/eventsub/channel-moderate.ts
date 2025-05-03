@@ -21,6 +21,24 @@ export default defineHandler({
 				target ??= Viewer.from(data.ban);
 
 				app.active.addMessage(message.ban(target, moderator));
+				break;
+			}
+
+			case "timeout": {
+				let target = app.active.viewers.get(data.timeout.user_login);
+				target ??= Viewer.from(data.timeout);
+
+				const expiration = new Date(data.timeout.expires_at);
+				const duration =
+					expiration.getTime() - message.timestamp.getTime();
+
+				app.active.addMessage(
+					message.timeout(
+						Math.ceil(duration / 1000),
+						target,
+						moderator,
+					),
+				);
 			}
 		}
 	},
