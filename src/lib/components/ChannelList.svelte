@@ -11,7 +11,7 @@
 	import { User } from "$lib/user";
 	import Tooltip from "./Tooltip.svelte";
 
-	let unlisten: UnlistenFn;
+	let unlisten: UnlistenFn | undefined;
 
 	let followed = $state<Channel[]>([]);
 	const sorted = $derived(
@@ -42,7 +42,7 @@
 		});
 	});
 
-	onDestroy(() => unlisten());
+	onDestroy(() => unlisten?.());
 
 	async function fetchFollowed() {
 		const channels = await invoke<FullChannel[]>("get_followed_channels");
