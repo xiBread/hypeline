@@ -15,7 +15,7 @@ export class User implements PartialUser {
 	#color: string | null = null;
 
 	/**
-	 * A set of channel ids that the user is a moderator in.
+	 * A set of channel usernames that the user is a moderator in.
 	 */
 	public readonly moderating = new SvelteSet<string>();
 
@@ -23,7 +23,7 @@ export class User implements PartialUser {
 		this.#data = data.data;
 		this.#color = data.color;
 
-		this.moderating.add(this.id);
+		this.moderating.add(this.username);
 	}
 
 	public static async from(id: string | null = null): Promise<User> {
@@ -31,7 +31,7 @@ export class User implements PartialUser {
 		const user = new User(data);
 
 		const channels = await invoke<string[]>("get_moderated_channels");
-		channels.forEach((id) => user.moderating.add(id));
+		channels.forEach((name) => user.moderating.add(name));
 
 		return user;
 	}

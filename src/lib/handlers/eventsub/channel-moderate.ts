@@ -16,6 +16,60 @@ export default defineHandler({
 		});
 
 		switch (data.action) {
+			case "emoteonly":
+			case "emoteonlyoff":
+			case "subscribers":
+			case "subscribersoff":
+			case "uniquechat":
+			case "uniquechatoff": {
+				const mode = data.action.startsWith("emote")
+					? "emote-only"
+					: data.action.startsWith("unique")
+						? "unique-mode"
+						: "subscriber-only";
+
+				app.active.addMessage(
+					message.mode(
+						mode,
+						data.action.includes("off"),
+						Number.NaN,
+						moderator,
+					),
+				);
+
+				break;
+			}
+
+			case "followers":
+			case "followersoff": {
+				app.active.addMessage(
+					message.mode(
+						"follower-only",
+						data.action.includes("off"),
+						data.followers
+							? data.followers.follow_duration_minutes * 60
+							: Number.NaN,
+						moderator,
+					),
+				);
+
+				break;
+			}
+
+			case "slow":
+			case "slowoff": {
+				app.active.addMessage(
+					message.mode(
+						"slow",
+						!data.slow,
+						data.slow?.wait_time_seconds ?? Number.NaN,
+						moderator,
+					),
+				);
+
+				break;
+			}
+
 			case "ban": {
 				const target = Viewer.from(data.ban);
 

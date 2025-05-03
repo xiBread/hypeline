@@ -166,7 +166,7 @@ pub async fn get_moderated_channels(
 
     let ids = channels
         .into_iter()
-        .map(|ch| ch.broadcaster_id.to_string())
+        .map(|ch| ch.broadcaster_login.to_string())
         .collect();
 
     Ok(ids)

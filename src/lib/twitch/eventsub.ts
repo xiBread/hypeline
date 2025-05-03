@@ -17,7 +17,7 @@ export interface ActionMetadata {
 	user_login: string;
 }
 
-export interface AutomodTermsMetadata extends ActionMetadata {
+export interface AutomodTermsMetadata {
 	action: "add" | "remove";
 	list: "blocked" | "permitted";
 	terms: string[];
@@ -33,7 +33,7 @@ export interface DeleteMetadata extends ActionMetadata {
 	message_body: string;
 }
 
-export interface FollowersMetadata extends ActionMetadata {
+export interface FollowersMetadata {
 	follow_duration_minutes: number;
 }
 
@@ -41,7 +41,7 @@ export interface RaidMetadata extends ActionMetadata {
 	viewer_count: number;
 }
 
-export interface SlowMetadata extends ActionMetadata {
+export interface SlowMetadata {
 	wait_time_seconds: number;
 }
 
@@ -77,8 +77,8 @@ export interface DeleteAction extends BaseAction<"delete"> {
 export type EmoteOnlyAction = BaseAction<"emoteonly" | "emoteonlyoff">;
 
 export interface FollowersAction
-	extends BaseAction<"followers" | "followers_off"> {
-	followers: FollowersMetadata;
+	extends BaseAction<"followers" | "followersoff"> {
+	followers: FollowersMetadata | null;
 }
 
 export interface ModAction extends BaseAction<"mod"> {
@@ -90,7 +90,7 @@ export interface RaidAction extends BaseAction<"raid"> {
 }
 
 export interface SlowAction extends BaseAction<"slow" | "slowoff"> {
-	slow: SlowMetadata;
+	slow: SlowMetadata | null;
 }
 
 export type SubscribersAction = BaseAction<"subscribers" | "subscribersoff">;
@@ -108,7 +108,7 @@ export interface UnbanRequestAction
 	unban_request: UnbanRequestMetadata;
 }
 
-export type UniqueAction = BaseAction<"unique" | "uniqueoff">;
+export type UniqueAction = BaseAction<"uniquechat" | "uniquechatoff">;
 
 export interface UnmodAction extends BaseAction<"unmod"> {
 	unmod: ActionMetadata;

@@ -79,6 +79,29 @@ export class SystemMessage extends Message {
 	}
 
 	/**
+	 * Sets the text of the system message when the chat mode is changed for
+	 * `channel.moderate` events.
+	 *
+	 * `{moderator} enabled/disabled {duration?} {mode} [chat]`
+	 */
+	public mode(
+		mode: string,
+		disabled: boolean,
+		seconds: number,
+		moderator: Viewer,
+	) {
+		const duration = Number.isNaN(seconds) ? "" : formatDuration(seconds);
+
+		this.#text = "";
+		this.#text += `${this.#name(moderator)} `;
+		this.#text += disabled ? "disabled " : "enabled ";
+		this.#text += duration;
+		this.#text += mode === "slow" ? "slow mode" : `${mode} chat`;
+
+		return this;
+	}
+
+	/**
 	 * Sets the text of the system message when a user is timed out in a
 	 * channel.
 	 *

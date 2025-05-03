@@ -208,6 +208,9 @@ pub struct NoticeMessage {
     pub channel_login: Option<String>,
     pub message_text: String,
     pub message_id: Option<String>,
+    pub deleted: bool,
+    pub is_recent: bool,
+    pub recent_timestamp: Option<u64>,
     pub source: IrcMessage,
 }
 
@@ -227,6 +230,13 @@ impl TryFrom<IrcMessage> for NoticeMessage {
             message_id: source
                 .try_get_optional_nonempty_tag_value("msg-id")?
                 .map(|s| s.to_owned()),
+            deleted: source
+                .try_get_optional_bool("rm-deleted")?
+                .unwrap_or_default(),
+            is_recent: source
+                .try_get_optional_bool("historical")?
+                .unwrap_or_default(),
+            recent_timestamp: source.try_get_timestamp("rm-received-ts").ok(),
             source,
         })
     }

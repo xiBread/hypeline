@@ -79,7 +79,7 @@ export class UserMessage extends Message {
 
 		// prettier-ignore
 		return (
-			app.user.moderating.has(app.active.user.id) &&
+			app.user.moderating.has(app.active.user.username) &&
 			diff <= 6 * 60 * 60 * 1000 &&
 			(
 				app.user.id === this.viewer.id ||

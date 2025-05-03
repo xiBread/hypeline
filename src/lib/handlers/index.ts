@@ -7,6 +7,7 @@ import clearchat from "./irc/clearchat";
 import clearmsg from "./irc/clearmsg";
 import privmsg from "./irc/privmsg";
 import usernotice from "./irc/usernotice";
+import notice from "./irc/notice";
 import part from "./irc/part";
 //
 import channelModerate from "./eventsub/channel-moderate";
@@ -22,6 +23,7 @@ register(clearchat);
 register(clearmsg);
 register(privmsg);
 register(usernotice);
+register(notice);
 register(part);
 
 register(channelModerate);
