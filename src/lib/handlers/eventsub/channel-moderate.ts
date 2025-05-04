@@ -45,7 +45,7 @@ export default defineHandler({
 				app.active.addMessage(
 					message.mode(
 						mode,
-						data.action.includes("off"),
+						!data.action.includes("off"),
 						Number.NaN,
 						moderator,
 					),
@@ -59,7 +59,7 @@ export default defineHandler({
 				app.active.addMessage(
 					message.mode(
 						"follower-only",
-						data.action.includes("off"),
+						!data.action.includes("off"),
 						data.followers
 							? data.followers.follow_duration_minutes * 60
 							: Number.NaN,
@@ -75,7 +75,7 @@ export default defineHandler({
 				app.active.addMessage(
 					message.mode(
 						"slow",
-						!data.slow,
+						data.slow !== null,
 						data.slow?.wait_time_seconds ?? Number.NaN,
 						moderator,
 					),
@@ -138,7 +138,7 @@ export default defineHandler({
 				const target = Viewer.from(isBan ? data.ban : data.unban);
 
 				app.active.addMessage(
-					message.banStatus(!isBan, target, moderator),
+					message.banStatus(isBan, target, moderator),
 				);
 
 				break;
@@ -150,7 +150,7 @@ export default defineHandler({
 				const target = Viewer.from(added ? data.mod : data.unmod);
 
 				app.active.addMessage(
-					message.roleStatus("moderator", !added, target, moderator),
+					message.roleStatus("moderator", added, target, moderator),
 				);
 
 				break;
@@ -162,7 +162,7 @@ export default defineHandler({
 				const target = Viewer.from(added ? data.vip : data.unvip);
 
 				app.active.addMessage(
-					message.roleStatus("VIP", !added, target, moderator),
+					message.roleStatus("VIP", added, target, moderator),
 				);
 
 				break;

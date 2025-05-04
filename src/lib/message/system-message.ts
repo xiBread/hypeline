@@ -46,35 +46,14 @@ export class SystemMessage extends Message {
 	}
 
 	/**
-	 * Sets the text of the system message when a term is added or removed to
-	 * the blocked or permitted list.
-	 *
-	 * `{moderator} added/removed [a] blocked/permitted term[s][ (via AutoMod)]: {term[, ]}`
-	 */
-	public term(data: AutomodTermsMetadata, moderator: Viewer) {
-		const action = data.action === "add" ? "added" : "removed";
-		const viaAutoMod = data.from_automod ? " (via AutoMod)" : "";
-
-		this.#text = `${this.#name(moderator)} ${action} `;
-
-		if (data.terms.length === 1) {
-			this.#text += `a ${data.list} term${viaAutoMod}: ${data.terms[0]}`;
-		} else {
-			this.#text += `${data.terms.length} ${data.list} terms${viaAutoMod}: ${data.terms.join(", ")}`;
-		}
-
-		return this;
-	}
-
-	/**
 	 * Sets the text of the system message when a user is banned or unbanned.
 	 *
 	 * - `{user} has been banned/unbanned` for `CLEARCHAT` messages
 	 * - `{moderator} banned/unbanned {user}` for `channel.moderate` events
 	 */
-	public banStatus(unbanned: boolean, user: Viewer, moderator?: Viewer) {
+	public banStatus(banned: boolean, user: Viewer, moderator?: Viewer) {
 		const target = this.#name(user);
-		const action = unbanned ? "unbanned" : "banned";
+		const action = banned ? "banned" : "unbanned";
 
 		this.#text = moderator
 			? `${this.#name(moderator)} ${action} ${target}`
@@ -108,16 +87,15 @@ export class SystemMessage extends Message {
 	 */
 	public mode(
 		mode: string,
-		disabled: boolean,
+		enabled: boolean,
 		seconds: number,
 		moderator: Viewer,
 	) {
+		const action = enabled ? "enabled" : "disabled";
 		const duration = Number.isNaN(seconds) ? "" : formatDuration(seconds);
 
 		this.#text = "";
-		this.#text += `${this.#name(moderator)} `;
-		this.#text += disabled ? "disabled " : "enabled ";
-		this.#text += duration;
+		this.#text += `${this.#name(moderator)} ${action} ${duration}`;
 		this.#text += mode === "slow" ? "slow mode" : `${mode} chat`;
 
 		return this;
@@ -131,12 +109,33 @@ export class SystemMessage extends Message {
 	 */
 	public roleStatus(
 		role: string,
-		removed: boolean,
+		added: boolean,
 		user: Viewer,
 		broadcaster: Viewer,
 	) {
-		const action = removed ? "removed" : "added";
+		const action = added ? "added" : "removed";
 		this.#text = `${this.#name(broadcaster)} ${action} ${this.#name(user)} as a ${role}`;
+
+		return this;
+	}
+
+	/**
+	 * Sets the text of the system message when a term is added or removed to
+	 * the blocked or permitted list.
+	 *
+	 * `{moderator} added/removed [a] blocked/permitted term[s][ (via AutoMod)]: {term[, ]}`
+	 */
+	public term(data: AutomodTermsMetadata, moderator: Viewer) {
+		const action = data.action === "add" ? "added" : "removed";
+		const viaAutoMod = data.from_automod ? " (via AutoMod)" : "";
+
+		this.#text = `${this.#name(moderator)} ${action} `;
+
+		if (data.terms.length === 1) {
+			this.#text += `a ${data.list} term${viaAutoMod}: ${data.terms[0]}`;
+		} else {
+			this.#text += `${data.terms.length} ${data.list} terms${viaAutoMod}: ${data.terms.join(", ")}`;
+		}
 
 		return this;
 	}
