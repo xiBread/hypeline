@@ -1,7 +1,11 @@
-import type { AutomodTermsMetadata, WarnMetadata } from "$lib/twitch/eventsub";
+import type {
+	AutomodTermsMetadata,
+	UnbanRequestMetadata,
+	WarnMetadata,
+} from "$lib/twitch/eventsub";
 import type { PartialUser } from "$lib/user";
 import { formatDuration } from "$lib/util";
-import type { Viewer } from "$lib/viewer.svelte";
+import { Viewer } from "$lib/viewer.svelte";
 import { Message } from "./message";
 
 export interface SystemMessageData {
@@ -49,7 +53,7 @@ export class SystemMessage extends Message {
 	 * Sets the text of the system message when a user is banned or unbanned.
 	 *
 	 * - `{user} has been banned/unbanned` for `CLEARCHAT` messages
-	 * - `{moderator} banned/unbanned {user}` for `channel.moderate` events
+	 * - `{moderator} banned/unbanned {user}[: {reason}]` for `channel.moderate` events
 	 */
 	public banStatus(
 		banned: boolean,
@@ -182,10 +186,11 @@ export class SystemMessage extends Message {
 	 *
 	 * `{moderator} approved/denied {user}'s unban request`
 	 */
-	public unbanRequest(approved: boolean, user: Viewer, moderator: Viewer) {
-		const action = approved ? "approved" : "denied";
-		this.#text = `${this.#name(moderator)} ${action} ${this.#name(user)}'s unban request`;
+	public unbanRequest(request: UnbanRequestMetadata, moderator: Viewer) {
+		const user = Viewer.from(request);
+		const action = request.is_approved ? "approved" : "denied";
 
+		this.#text = `${this.#name(moderator)} ${action} ${this.#name(user)}'s unban request`;
 		return this;
 	}
 
@@ -202,9 +207,10 @@ export class SystemMessage extends Message {
 	/**
 	 * Sets the text of the system message when a user is warned.
 	 *
-	 * `{moderator} warned {user}`
+	 * `{moderator} warned {user}[: {reason[, ]}]`
 	 */
-	public warn(warning: WarnMetadata, user: Viewer, moderator: Viewer) {
+	public warn(warning: WarnMetadata, moderator: Viewer) {
+		const user = Viewer.from(warning);
 		this.#text = `${this.#name(moderator)} warned ${this.#name(user)}`;
 
 		if (warning.reason || warning.chat_rules_cited) {

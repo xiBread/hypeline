@@ -18,13 +18,8 @@ export default defineHandler({
 		switch (data.action) {
 			case "approve_unban_request":
 			case "deny_unban_request": {
-				const target = Viewer.from(data.unban_request);
 				app.active.addMessage(
-					message.unbanRequest(
-						data.unban_request.is_approved,
-						target,
-						moderator,
-					),
+					message.unbanRequest(data.unban_request, moderator),
 				);
 
 				break;
@@ -101,11 +96,7 @@ export default defineHandler({
 			}
 
 			case "warn": {
-				const target = Viewer.from(data.warn);
-				app.active.addMessage(
-					message.warn(data.warn, target, moderator),
-				);
-
+				app.active.addMessage(message.warn(data.warn, moderator));
 				break;
 			}
 
