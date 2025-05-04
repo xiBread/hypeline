@@ -10,6 +10,7 @@ export default defineHandler({
 		}
 
 		const message = new SystemMessage({
+			deleted: data.deleted,
 			is_recent: data.is_recent,
 			server_timestamp: data.recent_timestamp ?? Date.now(),
 		});

@@ -6,9 +6,10 @@ import type {
 import type { PartialUser } from "$lib/user";
 import { formatDuration } from "$lib/util";
 import { Viewer } from "$lib/viewer.svelte";
-import { Message } from "./message";
+import { Message } from "./message.svelte";
 
 export interface SystemMessageData {
+	deleted: boolean;
 	is_recent: boolean;
 	server_timestamp: number;
 }
@@ -26,6 +27,7 @@ export class SystemMessage extends Message {
 
 	public constructor(data: Partial<SystemMessageData> = {}) {
 		const prepared: SystemMessageData = {
+			deleted: data.deleted ?? false,
 			is_recent: data.is_recent ?? false,
 			server_timestamp: data.server_timestamp ?? Date.now(),
 		};

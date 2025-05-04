@@ -1,3 +1,3 @@
-export * from "./message";
+export * from "./message.svelte";
 export * from "./system-message";
-export * from "./user-message.svelte";
+export * from "./user-message";

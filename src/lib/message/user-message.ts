@@ -8,7 +8,7 @@ import type {
 } from "$lib/twitch/irc";
 import type { PartialUser } from "$lib/user";
 import { Viewer } from "$lib/viewer.svelte";
-import { Message } from "./";
+import { Message } from ".";
 
 export type Fragment =
 	| { type: "text"; value: string }
@@ -35,8 +35,6 @@ interface TextSegment extends Range {
  * checked to differentiate the two.
  */
 export class UserMessage extends Message {
-	#deleted = $state(false);
-
 	public readonly fragments: Fragment[];
 
 	public constructor(
@@ -44,7 +42,6 @@ export class UserMessage extends Message {
 	) {
 		super(data);
 
-		this.#deleted = data.deleted;
 		this.fragments = this.#fragment();
 	}
 
@@ -86,13 +83,6 @@ export class UserMessage extends Message {
 				!(this.viewer.isBroadcaster || this.viewer.isMod)
 			)
 		);
-	}
-
-	/**
-	 * Whether the message has been deleted.
-	 */
-	public get deleted() {
-		return this.#deleted;
 	}
 
 	/**
@@ -151,10 +141,6 @@ export class UserMessage extends Message {
 		}
 
 		return viewer;
-	}
-
-	public setDeleted() {
-		this.#deleted = true;
 	}
 
 	#fragment() {
