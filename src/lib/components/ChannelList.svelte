@@ -4,6 +4,7 @@
 	import { listen } from "@tauri-apps/api/event";
 	import type { UnlistenFn } from "@tauri-apps/api/event";
 	import { onDestroy, onMount } from "svelte";
+	import { flip } from "svelte/animate";
 	import { Channel } from "$lib/channel.svelte";
 	import { app } from "$lib/state.svelte";
 	import type { FullChannel } from "$lib/tauri";
@@ -67,7 +68,9 @@
 <div class="bg-border h-px" role="separator"></div>
 
 {#each sorted as channel (channel.user.id)}
-	{@render channelIcon(channel.user, channel.stream)}
+	<div animate:flip>
+		{@render channelIcon(channel.user, channel.stream)}
+	</div>
 {/each}
 
 {#snippet channelIcon(user: User, stream: Stream | null)}
