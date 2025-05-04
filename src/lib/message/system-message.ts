@@ -65,11 +65,11 @@ export class SystemMessage extends Message {
 		const action = banned ? "banned" : "unbanned";
 
 		this.#text = moderator
-			? `${this.#name(moderator)} ${action} ${target}`
-			: `${target} has been ${action}`;
+			? `${this.#name(moderator)} ${action} ${target}.`
+			: `${target} has been ${action}.`;
 
 		if (reason) {
-			this.#text += `: ${reason}`;
+			this.#text = `${this.#text.slice(0, -1)}: ${reason}`;
 		}
 
 		return this;
@@ -88,7 +88,7 @@ export class SystemMessage extends Message {
 			? `${this.#name(moderator)} cleared the chat`
 			: `The chat has been cleared`;
 
-		this.#text += " for non-moderator viewers";
+		this.#text += " for non-moderator viewers.";
 
 		return this;
 	}
@@ -109,7 +109,7 @@ export class SystemMessage extends Message {
 
 		this.#text = "";
 		this.#text += `${this.#name(moderator)} ${action} ${duration}`;
-		this.#text += mode === "slow" ? "slow mode" : `${mode} chat`;
+		this.#text += mode === "slow" ? "slow mode." : `${mode} chat.`;
 
 		return this;
 	}
@@ -127,7 +127,7 @@ export class SystemMessage extends Message {
 		broadcaster: Viewer,
 	) {
 		const action = added ? "added" : "removed";
-		this.#text = `${this.#name(broadcaster)} ${action} ${this.#name(user)} as a ${role}`;
+		this.#text = `${this.#name(broadcaster)} ${action} ${this.#name(user)} as a ${role}.`;
 
 		return this;
 	}
@@ -140,14 +140,14 @@ export class SystemMessage extends Message {
 	 */
 	public term(data: AutomodTermsMetadata, moderator: Viewer) {
 		const action = data.action === "add" ? "added" : "removed";
-		const viaAutoMod = data.from_automod ? " (via AutoMod)" : "";
+		const via = data.from_automod ? " (via AutoMod)" : "";
 
 		this.#text = `${this.#name(moderator)} ${action} `;
 
 		if (data.terms.length === 1) {
-			this.#text += `a ${data.list} term${viaAutoMod}: ${data.terms[0]}`;
+			this.#text += `a ${data.list} term${via}: ${data.terms[0]}`;
 		} else {
-			this.#text += `${data.terms.length} ${data.list} terms${viaAutoMod}: ${data.terms.join(", ")}`;
+			this.#text += `${data.terms.length} ${data.list} terms${via}: ${data.terms.join(", ")}`;
 		}
 
 		return this;
@@ -170,11 +170,11 @@ export class SystemMessage extends Message {
 		const duration = formatDuration(seconds);
 
 		this.#text = moderator
-			? `${this.#name(moderator)} timed out ${target} for ${duration}`
-			: `${target} has been timed out for ${duration}`;
+			? `${this.#name(moderator)} timed out ${target} for ${duration}.`
+			: `${target} has been timed out for ${duration}.`;
 
 		if (reason) {
-			this.#text += `: ${reason}`;
+			this.#text = `${this.#text.slice(0, -1)}: ${reason}`;
 		}
 
 		return this;
@@ -190,7 +190,7 @@ export class SystemMessage extends Message {
 		const user = Viewer.from(request);
 		const action = request.is_approved ? "approved" : "denied";
 
-		this.#text = `${this.#name(moderator)} ${action} ${this.#name(user)}'s unban request`;
+		this.#text = `${this.#name(moderator)} ${action} ${this.#name(user)}'s unban request.`;
 		return this;
 	}
 
@@ -200,7 +200,7 @@ export class SystemMessage extends Message {
 	 * `{moderator} removed timeout on {user}`
 	 */
 	public untimeout(user: Viewer, moderator: Viewer) {
-		this.#text = `${this.#name(moderator)} removed timeout on ${this.#name(user)}`;
+		this.#text = `${this.#name(moderator)} removed timeout on ${this.#name(user)}.`;
 		return this;
 	}
 
@@ -211,7 +211,7 @@ export class SystemMessage extends Message {
 	 */
 	public warn(warning: WarnMetadata, moderator: Viewer) {
 		const user = Viewer.from(warning);
-		this.#text = `${this.#name(moderator)} warned ${this.#name(user)}`;
+		this.#text = `${this.#name(moderator)} warned ${this.#name(user)}.`;
 
 		if (warning.reason || warning.chat_rules_cited) {
 			const reasons = [
@@ -221,7 +221,7 @@ export class SystemMessage extends Message {
 				.filter((r) => r !== null)
 				.join(", ");
 
-			this.#text += `: ${reasons}`;
+			this.#text = `${this.#text.slice(0, -1)}: ${reasons}`;
 		}
 
 		return this;
