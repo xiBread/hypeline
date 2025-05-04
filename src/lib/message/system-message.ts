@@ -160,6 +160,19 @@ export class SystemMessage extends Message {
 	}
 
 	/**
+	 * Sets the text of the system message when a user's unban request is
+	 * approved or denied.
+	 *
+	 * `{moderator} approved/denied {user}'s unban request`
+	 */
+	public unbanRequest(approved: boolean, user: Viewer, moderator: Viewer) {
+		const action = approved ? "approved" : "denied";
+		this.#text = `${this.#name(moderator)} ${action} ${this.#name(user)}'s unban request`;
+
+		return this;
+	}
+
+	/**
 	 * Sets the text of the system message when a user's timeout is removed.
 	 *
 	 * `{moderator} removed timeout on {user}`
@@ -180,11 +193,9 @@ export class SystemMessage extends Message {
 	}
 
 	#name(user: PartialUser) {
-		return html`
-			<span class="font-semibold" style="color: ${user.color};">
-				${user.displayName}
-			</span>
-		`;
+		return html`<span class="font-semibold" style="color: ${user.color};"
+			>${user.displayName}</span
+		>`;
 	}
 
 	public setText(text: string) {

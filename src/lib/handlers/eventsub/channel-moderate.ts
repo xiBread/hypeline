@@ -16,6 +16,20 @@ export default defineHandler({
 		});
 
 		switch (data.action) {
+			case "approve_unban_request":
+			case "deny_unban_request": {
+				const target = Viewer.from(data.unban_request);
+				app.active.addMessage(
+					message.unbanRequest(
+						data.unban_request.is_approved,
+						target,
+						moderator,
+					),
+				);
+
+				break;
+			}
+
 			case "emoteonly":
 			case "emoteonlyoff":
 			case "subscribers":
