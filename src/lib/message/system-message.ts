@@ -21,6 +21,7 @@ const html = String.raw;
  * information to the user.
  */
 export class SystemMessage extends Message {
+	#id = crypto.randomUUID();
 	#text = "";
 
 	public constructor(data: Partial<SystemMessageData> = {}) {
@@ -42,7 +43,7 @@ export class SystemMessage extends Message {
 	}
 
 	public override get id() {
-		return crypto.randomUUID();
+		return this.#id;
 	}
 
 	public override get text() {
