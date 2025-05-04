@@ -3,9 +3,9 @@
 	import MonitorCog from "@lucide/svelte/icons/monitor-cog";
 	import X from "@lucide/svelte/icons/x";
 	import { Dialog, Tabs } from "bits-ui";
+	import { settings } from "$lib/settings";
 	import Chat from "./Chat.svelte";
 	import General from "./General.svelte";
-	import { settings } from "$lib/settings";
 
 	let { open = $bindable(false) } = $props();
 

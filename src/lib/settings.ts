@@ -1,11 +1,17 @@
 import { RuneStore } from "@tauri-store/svelte";
 
+export interface TimestampSettings {
+	enabled: boolean;
+	format: "auto" | "12" | "24" | "custom";
+	customFormat?: string;
+}
+
 export interface Settings {
 	// Index signature needed for RuneStore
 	[key: string]: unknown;
 	user: { id: string; token: string } | null;
 	lastJoined: string | null;
-	timeFormat: "auto" | "12" | "24";
+	timestamps: TimestampSettings;
 	historyEnabled: boolean;
 	historyLimit: number;
 }
@@ -13,7 +19,10 @@ export interface Settings {
 export const settings = new RuneStore<Settings>("settings", {
 	user: null,
 	lastJoined: null,
-	timeFormat: "auto",
+	timestamps: {
+		enabled: true,
+		format: "auto",
+	},
 	historyEnabled: true,
 	historyLimit: 250,
 });
