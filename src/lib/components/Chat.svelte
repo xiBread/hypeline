@@ -48,7 +48,7 @@
 <div class="relative h-full">
 	{#if scrollingPaused}
 		<button
-			class="bg-muted/50 absolute bottom-0 z-10 flex h-10 w-full items-center justify-center text-sm font-medium backdrop-blur-xs hover:cursor-pointer"
+			class="bg-muted/50 absolute bottom-0 z-10 flex h-10 w-full items-center justify-center text-sm font-medium backdrop-blur-xs"
 			type="button"
 			onclick={scrollToEnd}
 		>

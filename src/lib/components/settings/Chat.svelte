@@ -20,9 +20,11 @@
 			disable this setting.
 		</p>
 
-		<Label.Root class="mb-6 flex items-center">
+		<Label.Root
+			class="mb-6 flex max-w-min items-center hover:cursor-pointer"
+		>
 			<Switch.Root
-				class="data-[state=checked]:bg-twitch data-[state=unchecked]:bg-input h-6 w-11 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors"
+				class="data-[state=checked]:bg-twitch data-[state=unchecked]:bg-input h-6 w-11 items-center rounded-full border-2 border-transparent transition-colors"
 				bind:checked={settings.state.historyEnabled}
 			>
 				<Switch.Thumb

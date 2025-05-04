@@ -13,7 +13,7 @@
 	<ScrollArea.Viewport class="h-screen">
 		<nav class="bg-sidebar flex h-full flex-col gap-4 border-r p-3">
 			<button
-				class="bg-twitch flex size-10 items-center justify-center rounded-md hover:cursor-pointer"
+				class="bg-twitch flex size-10 items-center justify-center rounded-md"
 				title="Settings"
 				type="button"
 				onclick={() => (settingsOpen = true)}
