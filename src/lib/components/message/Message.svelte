@@ -45,9 +45,11 @@
 	</Tooltip>
 {/each}
 
+<!-- Formatting is ugly here, but it needs to be in order for the colon to
+render properly without an extra space in between. -->
 <span class="font-semibold break-words" style:color={message.viewer.color}>
 	{message.viewer.displayName}
-</span>:
+</span>{#if !message.isAction}:{/if}
 
 <p
 	class={["inline", message.isAction && "italic"]}
