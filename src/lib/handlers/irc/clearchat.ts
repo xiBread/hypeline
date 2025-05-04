@@ -28,10 +28,10 @@ export default defineHandler({
 		});
 
 		if (data.action.type === "ban") {
-			app.active.addMessage(message.banStatus(false, target));
+			app.active.addMessage(message.banStatus(false, null, target));
 		} else {
 			app.active.addMessage(
-				message.timeout(data.action.duration.secs, target),
+				message.timeout(data.action.duration.secs, null, target),
 			);
 		}
 	},

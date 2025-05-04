@@ -1,4 +1,4 @@
-import type { AutomodTermsMetadata } from "$lib/twitch/eventsub";
+import type { AutomodTermsMetadata, WarnMetadata } from "$lib/twitch/eventsub";
 import type { PartialUser } from "$lib/user";
 import { formatDuration } from "$lib/util";
 import type { Viewer } from "$lib/viewer.svelte";
@@ -51,13 +51,22 @@ export class SystemMessage extends Message {
 	 * - `{user} has been banned/unbanned` for `CLEARCHAT` messages
 	 * - `{moderator} banned/unbanned {user}` for `channel.moderate` events
 	 */
-	public banStatus(banned: boolean, user: Viewer, moderator?: Viewer) {
+	public banStatus(
+		banned: boolean,
+		reason: string | null,
+		user: Viewer,
+		moderator?: Viewer,
+	) {
 		const target = this.#name(user);
 		const action = banned ? "banned" : "unbanned";
 
 		this.#text = moderator
 			? `${this.#name(moderator)} ${action} ${target}`
 			: `${target} has been ${action}`;
+
+		if (reason) {
+			this.#text += `: ${reason}`;
+		}
 
 		return this;
 	}
@@ -144,16 +153,25 @@ export class SystemMessage extends Message {
 	 * Sets the text of the system message when a user is timed out.
 	 *
 	 * - `{user} has been timed out for {duration}` for `CLEARCHAT` messages
-	 * - `{moderator} timed out {user} for {duration}` for `channel.moderate`
-	 *   events
+	 * - `{moderator} timed out {user} for {duration}[: {reason}]` for
+	 *   `channel.moderate` events
 	 */
-	public timeout(seconds: number, user: Viewer, moderator?: Viewer) {
+	public timeout(
+		seconds: number,
+		reason: string | null,
+		user: Viewer,
+		moderator?: Viewer,
+	) {
 		const target = this.#name(user);
 		const duration = formatDuration(seconds);
 
 		this.#text = moderator
 			? `${this.#name(moderator)} timed out ${target} for ${duration}`
 			: `${target} has been timed out for ${duration}`;
+
+		if (reason) {
+			this.#text += `: ${reason}`;
+		}
 
 		return this;
 	}
@@ -186,8 +204,20 @@ export class SystemMessage extends Message {
 	 *
 	 * `{moderator} warned {user}`
 	 */
-	public warn(user: Viewer, moderator: Viewer) {
+	public warn(warning: WarnMetadata, user: Viewer, moderator: Viewer) {
 		this.#text = `${this.#name(moderator)} warned ${this.#name(user)}`;
+
+		if (warning.reason || warning.chat_rules_cited) {
+			const reasons = [
+				warning.reason,
+				...(warning.chat_rules_cited ?? []),
+			]
+				.filter((r) => r !== null)
+				.join(", ");
+
+			this.#text += `: ${reasons}`;
+		}
+
 		return this;
 	}
 

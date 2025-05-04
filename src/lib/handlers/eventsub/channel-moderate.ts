@@ -102,7 +102,9 @@ export default defineHandler({
 
 			case "warn": {
 				const target = Viewer.from(data.warn);
-				app.active.addMessage(message.warn(target, moderator));
+				app.active.addMessage(
+					message.warn(data.warn, target, moderator),
+				);
 
 				break;
 			}
@@ -117,6 +119,7 @@ export default defineHandler({
 				app.active.addMessage(
 					message.timeout(
 						Math.ceil(duration / 1000),
+						data.timeout.reason,
 						target,
 						moderator,
 					),
@@ -138,7 +141,12 @@ export default defineHandler({
 				const target = Viewer.from(isBan ? data.ban : data.unban);
 
 				app.active.addMessage(
-					message.banStatus(isBan, target, moderator),
+					message.banStatus(
+						isBan,
+						isBan ? data.ban.reason : null,
+						target,
+						moderator,
+					),
 				);
 
 				break;
