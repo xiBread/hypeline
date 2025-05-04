@@ -80,6 +80,7 @@ export default defineHandler({
 			}
 
 			case "clear": {
+				app.active.clearMessages();
 				app.active.addMessage(message.clear(moderator));
 				break;
 			}
@@ -101,6 +102,8 @@ export default defineHandler({
 			}
 
 			case "timeout": {
+				app.active.clearMessages(data.timeout.user_id);
+
 				const target = Viewer.from(data.timeout);
 
 				const expiration = new Date(data.timeout.expires_at);
@@ -130,6 +133,10 @@ export default defineHandler({
 			case "unban": {
 				const isBan = data.action === "ban";
 				const target = Viewer.from(isBan ? data.ban : data.unban);
+
+				if (isBan) {
+					app.active.clearMessages(data.ban.user_id);
+				}
 
 				app.active.addMessage(
 					message.banStatus(

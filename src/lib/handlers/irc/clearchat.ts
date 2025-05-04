@@ -15,6 +15,7 @@ export default defineHandler({
 		const message = new SystemMessage(data);
 
 		if (data.action.type === "clear") {
+			app.active.clearMessages();
 			app.active.addMessage(message.clear());
 			return;
 		}
@@ -26,6 +27,8 @@ export default defineHandler({
 			username: data.action.user_login,
 			displayName: data.action.user_login,
 		});
+
+		app.active.clearMessages(target.id);
 
 		if (data.action.type === "ban") {
 			app.active.addMessage(message.banStatus(false, null, target));

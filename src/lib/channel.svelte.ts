@@ -138,6 +138,23 @@ export class Channel {
 		return this;
 	}
 
+	public clearMessages(id?: string) {
+		if (id) {
+			for (const message of this.messages) {
+				if (message.isUser() && message.viewer.id === id) {
+					message.setDeleted();
+				}
+			}
+		} else {
+			for (const message of this.messages) {
+				// System messages can also be deleted, but there's no reliable
+				// way to identify which ones (that doesn't involve more
+				// complexity), so they're only deleted if it's recent.
+				if (message.isUser()) message.setDeleted();
+			}
+		}
+	}
+
 	public async send(message: string) {
 		await invoke("send_message", {
 			content: message,
