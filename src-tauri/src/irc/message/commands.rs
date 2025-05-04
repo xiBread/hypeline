@@ -14,6 +14,7 @@ pub struct ClearChatMessage {
     pub channel_login: String,
     pub channel_id: String,
     pub action: ClearChatAction,
+    pub is_recent: bool,
     pub server_timestamp: u64,
     pub source: IrcMessage,
 }
@@ -76,6 +77,9 @@ impl TryFrom<IrcMessage> for ClearChatMessage {
             channel_login: source.try_get_channel_login()?.to_owned(),
             channel_id: source.try_get_nonempty_tag_value("room-id")?.to_owned(),
             action,
+            is_recent: source
+                .try_get_optional_bool("historical")?
+                .unwrap_or_default(),
             server_timestamp: source.try_get_timestamp("tmi-sent-ts")?,
             source,
         })
@@ -204,6 +208,9 @@ pub struct NoticeMessage {
     pub channel_login: Option<String>,
     pub message_text: String,
     pub message_id: Option<String>,
+    pub deleted: bool,
+    pub is_recent: bool,
+    pub recent_timestamp: Option<u64>,
     pub source: IrcMessage,
 }
 
@@ -223,6 +230,13 @@ impl TryFrom<IrcMessage> for NoticeMessage {
             message_id: source
                 .try_get_optional_nonempty_tag_value("msg-id")?
                 .map(|s| s.to_owned()),
+            deleted: source
+                .try_get_optional_bool("rm-deleted")?
+                .unwrap_or_default(),
+            is_recent: source
+                .try_get_optional_bool("historical")?
+                .unwrap_or_default(),
+            recent_timestamp: source.try_get_timestamp("rm-received-ts").ok(),
             source,
         })
     }
@@ -376,7 +390,9 @@ impl TryFrom<IrcMessage> for PrivmsgMessage {
             deleted: source
                 .try_get_optional_bool("rm-deleted")?
                 .unwrap_or_default(),
-            is_recent: source.tags.0.contains_key("rm-received-ts"),
+            is_recent: source
+                .try_get_optional_bool("historical")?
+                .unwrap_or_default(),
             source,
         })
     }
@@ -712,7 +728,9 @@ impl TryFrom<IrcMessage> for UserNoticeMessage {
             deleted: source
                 .try_get_optional_bool("rm-deleted")?
                 .unwrap_or_default(),
-            is_recent: source.tags.0.contains_key("rm-received-ts"),
+            is_recent: source
+                .try_get_optional_bool("historical")?
+                .unwrap_or_default(),
             server_timestamp: source.try_get_timestamp("tmi-sent-ts")?.to_owned(),
             source,
         })

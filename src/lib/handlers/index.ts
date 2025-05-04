@@ -1,22 +1,29 @@
 /* eslint-disable perfectionist/sort-imports */
 
-import type { IrcMessageMap } from "$lib/twitch/irc";
 import type { Handler } from "./helper";
 //
-import join from "./join";
-import clearmsg from "./clearmsg";
-import privmsg from "./privmsg";
-import usernotice from "./usernotice";
-import part from "./part";
+import join from "./irc/join";
+import clearchat from "./irc/clearchat";
+import clearmsg from "./irc/clearmsg";
+import privmsg from "./irc/privmsg";
+import usernotice from "./irc/usernotice";
+import notice from "./irc/notice";
+import part from "./irc/part";
+//
+import channelModerate from "./eventsub/channel-moderate";
 
-export const handlers = new Map<string, Handler<keyof IrcMessageMap>>();
+export const handlers = new Map<string, Handler>();
 
 function register(handler: Handler<any>) {
 	handlers.set(handler.name, handler);
 }
 
 register(join);
+register(clearchat);
 register(clearmsg);
 register(privmsg);
 register(usernotice);
+register(notice);
 register(part);
+
+register(channelModerate);

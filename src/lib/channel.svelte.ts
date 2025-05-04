@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { SvelteMap } from "svelte/reactivity";
 import { replyTarget } from "./components/Input.svelte";
-import type { Message, UserMessage } from "./message";
+import type { Message } from "./message";
 import { settings } from "./settings";
 import type { JoinedChannel } from "./tauri";
 import type { Badge, BadgeSet, Stream } from "./twitch/api";
@@ -118,7 +118,7 @@ export class Channel {
 		return this;
 	}
 
-	public addMessage(message: UserMessage) {
+	public addMessage(message: Message) {
 		if (this.messages.some((m) => m.id === message.id)) {
 			return;
 		}
@@ -134,6 +134,8 @@ export class Channel {
 		} else {
 			this.messages.push(message);
 		}
+
+		return this;
 	}
 
 	public async send(message: string) {

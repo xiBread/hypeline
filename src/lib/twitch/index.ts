@@ -1,5 +1,6 @@
 import { Channel, invoke } from "@tauri-apps/api/core";
 import { handlers } from "$lib/handlers";
+import type { NotificationPayload } from "./eventsub";
 import type { IrcMessage } from "./irc";
 
 export const SCOPES = [
@@ -56,11 +57,18 @@ export const SCOPES = [
 ];
 
 export async function connect() {
-	const channel = new Channel<IrcMessage>(async (message) => {
+	const ircChannel = new Channel<IrcMessage>(async (message) => {
 		const handler = handlers.get(message.type);
 		await handler?.handle(message);
 	});
 
-	await invoke("connect_irc", { channel });
-	await invoke("connect_eventsub", { channel });
+	const eventsubChannel = new Channel<NotificationPayload>(
+		async (message) => {
+			const handler = handlers.get(message.subscription.type);
+			await handler?.handle(message.event);
+		},
+	);
+
+	await invoke("connect_irc", { channel: ircChannel });
+	await invoke("connect_eventsub", { channel: eventsubChannel });
 }

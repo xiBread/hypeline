@@ -48,6 +48,19 @@ export class UserMessage extends Message {
 		this.fragments = this.#fragment();
 	}
 
+	public override get id() {
+		return this.data.message_id;
+	}
+
+	public override get text() {
+		// message_text should only be possibly null if it's a USERNOTICE, in
+		// which case we can assume system_message is present
+		return (
+			this.data.message_text ??
+			(this.data as UserNoticeMessage).system_message
+		);
+	}
+
 	/**
 	 * Whether the current user can perform mod actions on the message.
 	 *
@@ -66,7 +79,7 @@ export class UserMessage extends Message {
 
 		// prettier-ignore
 		return (
-			app.user.moderating.has(app.active.user.id) &&
+			app.user.moderating.has(app.active.user.username) &&
 			diff <= 6 * 60 * 60 * 1000 &&
 			(
 				app.user.id === this.viewer.id ||
@@ -111,13 +124,6 @@ export class UserMessage extends Message {
 	}
 
 	/**
-	 * Whether the message was retreived by the `recent-messages` API.
-	 */
-	public get isRecent() {
-		return this.data.is_recent;
-	}
-
-	/**
 	 * The event associated with the message if it's a `USERNOTICE` message.
 	 */
 	public get event() {
@@ -140,7 +146,7 @@ export class UserMessage extends Message {
 				id: this.data.sender.id,
 				username: this.data.sender.login,
 				displayName: this.data.sender.name,
-				color: this.data.name_color || "inherit",
+				color: this.data.name_color,
 			});
 		}
 

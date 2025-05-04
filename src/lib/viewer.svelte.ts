@@ -1,3 +1,5 @@
+import { app } from "./state.svelte";
+import type { ActionMetadata } from "./twitch/eventsub";
 import type { PartialUser } from "./user";
 
 export class Viewer implements PartialUser {
@@ -22,12 +24,25 @@ export class Viewer implements PartialUser {
 		this.#data = data;
 	}
 
+	public static from(metadata: ActionMetadata) {
+		const stored = app.active.viewers.get(metadata.user_login);
+
+		return (
+			stored ??
+			new Viewer({
+				id: metadata.user_id,
+				username: metadata.user_login,
+				displayName: metadata.user_name,
+			})
+		);
+	}
+
 	public get id() {
 		return this.#data.id;
 	}
 
 	public get color() {
-		return this.#data.color || "inherit";
+		return this.#data.color ?? "inherit";
 	}
 
 	public get username() {
