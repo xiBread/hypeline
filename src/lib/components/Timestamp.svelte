@@ -28,6 +28,8 @@
 	const formatted = $derived(dayjs(date).format(format));
 </script>
 
-<time class="text-muted-foreground text-xs" datetime={date.toISOString()}>
-	{formatted}
-</time>
+{#if settings.state.timestamps.show}
+	<time class="text-muted-foreground text-xs" datetime={date.toISOString()}>
+		{formatted}
+	</time>
+{/if}

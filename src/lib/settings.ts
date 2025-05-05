@@ -1,7 +1,7 @@
 import { RuneStore } from "@tauri-store/svelte";
 
 export interface TimestampSettings {
-	enabled: boolean;
+	show: boolean;
 	format: "auto" | "12" | "24" | "custom";
 	customFormat: string;
 }
@@ -20,7 +20,7 @@ export const settings = new RuneStore<Settings>("settings", {
 	user: null,
 	lastJoined: null,
 	timestamps: {
-		enabled: true,
+		show: true,
 		format: "auto",
 		customFormat: "",
 	},
