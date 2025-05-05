@@ -21,14 +21,14 @@
 			disable this setting.
 		</p>
 
-		<Switch class="mb-6" bind:checked={settings.state.historyEnabled}>
+		<Switch class="mb-6" bind:checked={settings.state.history.enabled}>
 			Fetch recent messages upon joining a channel
 		</Switch>
 
 		<p
 			class={[
 				"text-muted-foreground mb-6 text-sm",
-				!settings.state.historyEnabled && "opacity-50",
+				!settings.state.history.enabled && "opacity-50",
 			]}
 		>
 			Change how many previous messages to load when joining a channel.
@@ -40,8 +40,8 @@
 			min={0}
 			max={800}
 			step={50}
-			disabled={!settings.state.historyEnabled}
-			bind:value={settings.state.historyLimit}
+			disabled={!settings.state.history.enabled}
+			bind:value={settings.state.history.limit}
 		>
 			<div
 				class="bg-input relative h-2 w-full rounded-full hover:cursor-pointer"
@@ -54,7 +54,7 @@
 				index={0}
 			>
 				<div class="mt-7 text-center text-xs font-medium">
-					{settings.state.historyLimit}
+					{settings.state.history.limit}
 				</div>
 			</Slider.Thumb>
 		</Slider.Root>
