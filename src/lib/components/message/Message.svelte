@@ -3,7 +3,8 @@
 	import type { UserMessage } from "$lib/message";
 	import { app } from "$lib/state.svelte";
 	import type { Badge } from "$lib/twitch/api";
-	import Tooltip from "../Tooltip.svelte";
+	import Timestamp from "../Timestamp.svelte";
+	import Tooltip from "../ui/Tooltip.svelte";
 
 	const { message }: { message: UserMessage } = $props();
 
@@ -22,12 +23,7 @@
 	}
 </script>
 
-<time
-	class="text-muted-foreground text-xs"
-	datetime={message.timestamp.toISOString()}
->
-	{message.formattedTime}
-</time>
+<Timestamp date={message.timestamp} />
 
 {#each badges as badge (badge.title)}
 	<Tooltip class="p-1 text-xs" side="top" sideOffset={4}>
