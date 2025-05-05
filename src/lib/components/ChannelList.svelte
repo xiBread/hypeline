@@ -10,7 +10,7 @@
 	import type { FullChannel } from "$lib/tauri";
 	import type { Stream } from "$lib/twitch/api";
 	import { User } from "$lib/user";
-	import Tooltip from "./Tooltip.svelte";
+	import Tooltip from "./ui/Tooltip.svelte";
 
 	let unlisten: UnlistenFn | undefined;
 

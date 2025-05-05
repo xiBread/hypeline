@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Slider } from "bits-ui";
 	import { settings } from "$lib/settings";
-	import Switch from "../Switch.svelte";
+	import Switch from "../ui/Switch.svelte";
 </script>
 
 <div class="space-y-6">
@@ -21,7 +21,9 @@
 			disable this setting.
 		</p>
 
-		<Switch bind:checked={settings.state.historyEnabled}>Enable</Switch>
+		<Switch class="mb-6" bind:checked={settings.state.historyEnabled}>
+			Fetch recent messages upon joining a channel
+		</Switch>
 
 		<p
 			class={[

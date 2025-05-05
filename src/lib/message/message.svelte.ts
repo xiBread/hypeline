@@ -1,5 +1,4 @@
 import type { BaseUserMessage } from "$lib/twitch/irc";
-import { formatTime } from "$lib/util";
 import type { SystemMessageData, UserMessage } from ".";
 
 export type MessageData = BaseUserMessage | SystemMessageData;
@@ -9,8 +8,7 @@ export abstract class Message {
 	#system: boolean;
 
 	/**
-	 * The timestamp at which the message was sent at. For a human-readable
-	 * format, use {@linkcode formattedTime}.
+	 * The timestamp at which the message was sent at.
 	 */
 	public readonly timestamp: Date;
 
@@ -39,10 +37,6 @@ export abstract class Message {
 	 */
 	public get isRecent() {
 		return this.data.is_recent;
-	}
-
-	public get formattedTime() {
-		return formatTime(this.timestamp);
 	}
 
 	public isUser(): this is UserMessage {
