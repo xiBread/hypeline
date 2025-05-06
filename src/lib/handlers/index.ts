@@ -2,13 +2,13 @@
 
 import type { Handler } from "./helper";
 //
-import join from "./irc/join";
 import clearchat from "./irc/clearchat";
 import clearmsg from "./irc/clearmsg";
-import privmsg from "./irc/privmsg";
-import usernotice from "./irc/usernotice";
+import join from "./irc/join";
 import notice from "./irc/notice";
 import part from "./irc/part";
+import privmsg from "./irc/privmsg";
+import usernotice from "./irc/usernotice";
 //
 import channelModerate from "./eventsub/channel-moderate";
 import streamOnline from "./eventsub/stream-online";
@@ -20,13 +20,13 @@ function register(handler: Handler<any>) {
 	handlers.set(handler.name, handler);
 }
 
-register(join);
 register(clearchat);
 register(clearmsg);
-register(privmsg);
-register(usernotice);
+register(join);
 register(notice);
 register(part);
+register(privmsg);
+register(usernotice);
 
 register(channelModerate);
 register(streamOnline);
