@@ -132,6 +132,18 @@ export class SystemMessage extends Message {
 	}
 
 	/**
+	 * Sets the text of the system message when a stream goes online or offline.
+	 *
+	 * `{broadcaster} is now online/offline`
+	 */
+	public streamStatus(online: boolean, broadcaster: Viewer) {
+		const status = online ? "online" : "offline";
+		this.#text = `${colorizeName(broadcaster)} is now ${status}.`;
+
+		return this;
+	}
+
+	/**
 	 * Sets the text of the system message when a term is added or removed to
 	 * the blocked or permitted list.
 	 *

@@ -78,14 +78,25 @@ pub async fn join(
 
     global_badges.extend(channel_badges);
 
+    let channel_cond = json!({ "broadcaster_user_id": broadcaster_id });
+
     if let Some(eventsub) = eventsub {
-        eventsub.subscribe_all(
-            login.as_str(),
-            &[(
-                EventType::ChannelModerate,
-                &json!({ "broadcaster_user_id": broadcaster_id, "moderator_user_id": token.user_id }),
-            )],
-        ).await?;
+        eventsub
+            .subscribe_all(
+                login.as_str(),
+                &[
+                    (
+                        EventType::ChannelModerate,
+                        &json!({
+                            "broadcaster_user_id": broadcaster_id,
+                            "moderator_user_id": token.user_id
+                        }),
+                    ),
+                    (EventType::StreamOnline, &channel_cond),
+                    (EventType::StreamOffline, &channel_cond),
+                ],
+            )
+            .await?;
     }
 
     irc.join(login.to_string());

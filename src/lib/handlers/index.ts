@@ -11,6 +11,8 @@ import notice from "./irc/notice";
 import part from "./irc/part";
 //
 import channelModerate from "./eventsub/channel-moderate";
+import streamOnline from "./eventsub/stream-online";
+import streamOffline from "./eventsub/stream-offline";
 
 export const handlers = new Map<string, Handler>();
 
@@ -27,3 +29,5 @@ register(notice);
 register(part);
 
 register(channelModerate);
+register(streamOnline);
+register(streamOffline);

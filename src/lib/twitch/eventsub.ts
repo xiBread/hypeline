@@ -161,13 +161,28 @@ export type ChannelModerate =
 	| VipAction
 	| WarnAction;
 
-export type SubscriptionEvent = ChannelModerate;
+export interface StreamOffline {
+	broadcaster_user_id: string;
+	broadcaster_user_login: string;
+	broadcaster_user_name: string;
+}
 
-export interface NotificationPayload {
-	subscription: { type: string };
-	event: SubscriptionEvent;
+export interface StreamOnline extends StreamOffline {
+	id: string;
+	type: "live" | "playlist" | "premiere" | "rerun";
+	started_at: string;
 }
 
 export interface SubscriptionEventMap {
 	"channel.moderate": ChannelModerate;
+	"stream.online": StreamOnline;
+	"stream.offline": StreamOffline;
+}
+
+export type SubscriptionEvent =
+	SubscriptionEventMap[keyof SubscriptionEventMap];
+
+export interface NotificationPayload {
+	subscription: { type: string };
+	event: SubscriptionEvent;
 }
