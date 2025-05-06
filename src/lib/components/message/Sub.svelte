@@ -4,8 +4,8 @@
 	import type { UserMessage } from "$lib/message";
 	import { app } from "$lib/state.svelte";
 	import type { SubGiftEvent, SubOrResubEvent } from "$lib/twitch/irc";
-	import type { PartialUser } from "$lib/user";
 	import { colorizeName } from "$lib/util";
+	import { Viewer } from "$lib/viewer.svelte";
 	import Message from "./Message.svelte";
 
 	interface Props {
@@ -48,14 +48,8 @@
 			msg += `a ${tier} sub `;
 		}
 
-		let recipient: PartialUser | undefined = app.active.viewers.get(
-			sub.recipient.login,
-		);
-		recipient ??= {
-			id: sub.recipient.id,
-			username: sub.recipient.login,
-			displayName: sub.recipient.name,
-		};
+		let recipient = app.active.viewers.get(sub.recipient.login);
+		recipient ??= Viewer.from(sub.recipient);
 
 		msg += `to ${colorizeName(recipient)}!`;
 

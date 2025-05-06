@@ -132,12 +132,7 @@ export class UserMessage extends Message {
 		let viewer = app.active.viewers.get(this.data.sender.name);
 
 		if (!viewer) {
-			viewer = new Viewer({
-				id: this.data.sender.id,
-				username: this.data.sender.login,
-				displayName: this.data.sender.name,
-				color: this.data.name_color,
-			});
+			viewer = Viewer.from(this.data.sender, this.data.name_color);
 		}
 
 		return viewer;
