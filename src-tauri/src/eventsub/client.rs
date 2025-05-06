@@ -19,7 +19,15 @@ use crate::api::Response;
 use crate::error::Error;
 use crate::HTTP;
 
+#[cfg(local)]
+const TWITCH_EVENTSUB_WS_URI: &str = "ws://127.0.0.1:8080/ws";
+#[cfg(local)]
+const TWITCH_EVENTSUB_ENDPOINT: &str = "http://127.0.0.1:8080/eventsub/subscriptions";
+
+#[cfg(not(local))]
 const TWITCH_EVENTSUB_WS_URI: &str = "wss://eventsub.wss.twitch.tv/ws";
+#[cfg(not(local))]
+const TWITCH_EVENTSUB_ENDPOINT: &str = "https://api.twitch.tv/helix/eventsub/subscriptions";
 
 const V2_EVENTS: [EventType; 4] = [
     EventType::AutomodMessageHold,
@@ -280,7 +288,7 @@ impl EventSubClient {
         });
 
         let response: Response<(EventSubSubscription,)> = HTTP
-            .post("https://api.twitch.tv/helix/eventsub/subscriptions")
+            .post(TWITCH_EVENTSUB_ENDPOINT)
             .bearer_auth(self.token.access_token.as_str())
             .header("Client-Id", self.token.client_id().as_str())
             .json(&body)
