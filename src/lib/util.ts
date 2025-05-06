@@ -1,6 +1,10 @@
 import { clsx } from "clsx";
 import type { ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { PartialUser } from "./user";
+
+// Only for syntax highlighting
+export const html = String.raw;
 
 export function cn(...values: ClassValue[]) {
 	return twMerge(clsx(values));
@@ -32,4 +36,10 @@ export function formatDuration(seconds: number) {
 	}
 
 	return parts.join(" ");
+}
+
+export function colorizeName(user: PartialUser) {
+	return html`<span class="font-semibold" style="color: ${user.color};"
+		>${user.displayName}</span
+	>`;
 }

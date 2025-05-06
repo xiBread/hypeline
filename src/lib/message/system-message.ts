@@ -3,8 +3,7 @@ import type {
 	UnbanRequestMetadata,
 	WarnMetadata,
 } from "$lib/twitch/eventsub";
-import type { PartialUser } from "$lib/user";
-import { formatDuration } from "$lib/util";
+import { colorizeName, formatDuration } from "$lib/util";
 import { Viewer } from "$lib/viewer.svelte";
 import { Message } from "./message.svelte";
 
@@ -13,9 +12,6 @@ export interface SystemMessageData {
 	is_recent: boolean;
 	server_timestamp: number;
 }
-
-// Only for syntax highlighting
-const html = String.raw;
 
 /**
  * System messages are messages constructed internally and sent to relay
@@ -41,7 +37,7 @@ export class SystemMessage extends Message {
 	public static joined(channel: Viewer) {
 		const message = new SystemMessage();
 
-		return message.setText(`Joined ${message.#name(channel)}`);
+		return message.setText(`Joined ${colorizeName(channel)}`);
 	}
 
 	public override get id() {
@@ -64,11 +60,11 @@ export class SystemMessage extends Message {
 		user: Viewer,
 		moderator?: Viewer,
 	) {
-		const target = this.#name(user);
+		const target = colorizeName(user);
 		const action = banned ? "banned" : "unbanned";
 
 		this.#text = moderator
-			? `${this.#name(moderator)} ${action} ${target}.`
+			? `${colorizeName(moderator)} ${action} ${target}.`
 			: `${target} has been ${action}.`;
 
 		if (reason) {
@@ -88,7 +84,7 @@ export class SystemMessage extends Message {
 	 */
 	public clear(moderator?: Viewer) {
 		this.#text = moderator
-			? `${this.#name(moderator)} cleared the chat`
+			? `${colorizeName(moderator)} cleared the chat`
 			: `The chat has been cleared`;
 
 		this.#text += " for non-moderator viewers.";
@@ -111,7 +107,7 @@ export class SystemMessage extends Message {
 		const duration = Number.isNaN(seconds) ? "" : formatDuration(seconds);
 
 		this.#text = "";
-		this.#text += `${this.#name(moderator)} ${action} ${duration}`;
+		this.#text += `${colorizeName(moderator)} ${action} ${duration}`;
 		this.#text += mode === "slow" ? "slow mode." : `${mode} chat.`;
 
 		return this;
@@ -130,7 +126,7 @@ export class SystemMessage extends Message {
 		broadcaster: Viewer,
 	) {
 		const action = added ? "added" : "removed";
-		this.#text = `${this.#name(broadcaster)} ${action} ${this.#name(user)} as a ${role}.`;
+		this.#text = `${colorizeName(broadcaster)} ${action} ${colorizeName(user)} as a ${role}.`;
 
 		return this;
 	}
@@ -145,7 +141,7 @@ export class SystemMessage extends Message {
 		const action = data.action === "add" ? "added" : "removed";
 		const via = data.from_automod ? " (via AutoMod)" : "";
 
-		this.#text = `${this.#name(moderator)} ${action} `;
+		this.#text = `${colorizeName(moderator)} ${action} `;
 
 		if (data.terms.length === 1) {
 			this.#text += `a ${data.list} term${via}: ${data.terms[0]}`;
@@ -169,11 +165,11 @@ export class SystemMessage extends Message {
 		user: Viewer,
 		moderator?: Viewer,
 	) {
-		const target = this.#name(user);
+		const target = colorizeName(user);
 		const duration = formatDuration(seconds);
 
 		this.#text = moderator
-			? `${this.#name(moderator)} timed out ${target} for ${duration}.`
+			? `${colorizeName(moderator)} timed out ${target} for ${duration}.`
 			: `${target} has been timed out for ${duration}.`;
 
 		if (reason) {
@@ -193,7 +189,7 @@ export class SystemMessage extends Message {
 		const user = Viewer.from(request);
 		const action = request.is_approved ? "approved" : "denied";
 
-		this.#text = `${this.#name(moderator)} ${action} ${this.#name(user)}'s unban request.`;
+		this.#text = `${colorizeName(moderator)} ${action} ${colorizeName(user)}'s unban request.`;
 		return this;
 	}
 
@@ -203,7 +199,7 @@ export class SystemMessage extends Message {
 	 * `{moderator} removed timeout on {user}`
 	 */
 	public untimeout(user: Viewer, moderator: Viewer) {
-		this.#text = `${this.#name(moderator)} removed timeout on ${this.#name(user)}.`;
+		this.#text = `${colorizeName(moderator)} removed timeout on ${colorizeName(user)}.`;
 		return this;
 	}
 
@@ -214,7 +210,7 @@ export class SystemMessage extends Message {
 	 */
 	public warn(warning: WarnMetadata, moderator: Viewer) {
 		const user = Viewer.from(warning);
-		this.#text = `${this.#name(moderator)} warned ${this.#name(user)}.`;
+		this.#text = `${colorizeName(moderator)} warned ${colorizeName(user)}.`;
 
 		if (warning.reason || warning.chat_rules_cited) {
 			const reasons = [
@@ -228,12 +224,6 @@ export class SystemMessage extends Message {
 		}
 
 		return this;
-	}
-
-	#name(user: PartialUser) {
-		return html`<span class="font-semibold" style="color: ${user.color};"
-			>${user.displayName}</span
-		>`;
 	}
 
 	public setText(text: string) {
