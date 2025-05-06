@@ -15,10 +15,9 @@
 	onMount(async () => {
 		app.loading = true;
 
-		// does this need better handling?
-		try {
+		if (settings.state.user) {
 			await connect();
-		} catch {}
+		}
 
 		app.loading = false;
 
