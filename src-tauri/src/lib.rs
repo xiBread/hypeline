@@ -18,6 +18,7 @@ mod error;
 mod eventsub;
 mod irc;
 mod providers;
+mod server;
 
 const CLIENT_ID: &str = "kimne78kx3ncx6brgo4mv6wki5h1ko";
 
@@ -110,7 +111,6 @@ pub fn run() {
 
 fn get_handler() -> impl Fn(Invoke) -> bool {
     tauri::generate_handler![
-        api::set_access_token,
         api::channels::get_stream,
         api::channels::get_followed_channels,
         api::channels::run_following_update_loop,
@@ -125,5 +125,6 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         irc::connect_irc,
         emotes::fetch_global_emotes,
         eventsub::connect_eventsub,
+        server::start_server
     ]
 }

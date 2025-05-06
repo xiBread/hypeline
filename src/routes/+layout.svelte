@@ -15,7 +15,9 @@
 	onMount(async () => {
 		app.loading = true;
 
-		await connect();
+		if (settings.state.user) {
+			await connect();
+		}
 
 		app.loading = false;
 
