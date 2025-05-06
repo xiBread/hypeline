@@ -15,7 +15,10 @@
 	onMount(async () => {
 		app.loading = true;
 
-		await connect();
+		// does this need better handling?
+		try {
+			await connect();
+		} catch {}
 
 		app.loading = false;
 

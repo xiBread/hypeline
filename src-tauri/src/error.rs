@@ -14,6 +14,9 @@ pub enum Error {
     Helix(#[from] ClientRequestError<reqwest::Error>),
 
     #[error(transparent)]
+    Io(#[from] std::io::Error),
+
+    #[error(transparent)]
     WebSocket(#[from] tungstenite::Error),
 }
 

@@ -1869,6 +1869,7 @@ dependencies = [
  "either",
  "enum_dispatch",
  "futures",
+ "httparse",
  "log",
  "regex",
  "reqwest",

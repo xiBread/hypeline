@@ -1,9 +1,19 @@
 <script lang="ts">
+	import { invoke } from "@tauri-apps/api/core";
+	import { listen } from "@tauri-apps/api/event";
+	import type { UnlistenFn } from "@tauri-apps/api/event";
+	import { info } from "@tauri-apps/plugin-log";
+	import { openUrl } from "@tauri-apps/plugin-opener";
+	import { onDestroy, onMount, tick } from "svelte";
+	import { goto } from "$app/navigation";
 	import {
 		PUBLIC_TWITCH_CLIENT_ID,
 		PUBLIC_TWITCH_REDIRECT_URL,
 	} from "$env/static/public";
+	import { settings } from "$lib/settings";
+	import { app } from "$lib/state.svelte";
 	import { SCOPES } from "$lib/twitch";
+	import { User } from "$lib/user";
 
 	const params = {
 		client_id: PUBLIC_TWITCH_CLIENT_ID,
@@ -17,12 +27,38 @@
 	for (const [key, value] of Object.entries(params)) {
 		authUrl.searchParams.set(key, value);
 	}
+
+	let unlisten: UnlistenFn | undefined;
+
+	onMount(async () => {
+		await invoke("start_server");
+
+		unlisten = await listen<string>("accesstoken", async (event) => {
+			app.user = await User.from(null);
+			settings.state.user = { id: app.user.id, token: event.payload };
+
+			await tick();
+			await settings.save();
+
+			await goto("/");
+		});
+	});
+
+	onDestroy(async () => {
+		await invoke("stop_server");
+		unlisten?.();
+	});
+
+	async function openAuth() {
+		await openUrl(authUrl.toString());
+	}
 </script>
 
 <div class="flex h-screen items-center justify-center">
-	<a
+	<button
 		class="bg-twitch m-auto flex items-center gap-2.5 rounded-md px-4 py-2 font-medium text-white"
-		href={authUrl.toString()}
+		type="button"
+		onclick={openAuth}
 	>
 		<svg
 			class="size-5 fill-white"
@@ -36,5 +72,5 @@
 		</svg>
 
 		Log in with Twitch
-	</a>
+	</button>
 </div>
