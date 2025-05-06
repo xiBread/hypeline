@@ -11,7 +11,6 @@ use crate::error::Error;
 use crate::AppState;
 
 const ADDR: &str = "127.0.0.1:55331";
-const EXIT: [u8; 4] = [0, 1, 1, 0];
 
 #[tauri::command]
 pub async fn start_server(app_handle: AppHandle) -> Result<(), Error> {
@@ -44,26 +43,10 @@ pub async fn start_server(app_handle: AppHandle) -> Result<(), Error> {
     Ok(())
 }
 
-#[tauri::command]
-pub async fn stop_server() -> Result<(), Error> {
-    while let Ok(mut stream) = TcpStream::connect(ADDR).await {
-        println!("stopping server");
-        stream.write_all(&EXIT).await?;
-        stream.flush().await?;
-        stream.shutdown().await?;
-    }
-
-    Ok(())
-}
-
 async fn handle_connection(mut stream: TcpStream) -> Option<String> {
     let mut buffer = [0; 4096];
 
     if stream.read(&mut buffer).await.is_err() {
-        return None;
-    }
-
-    if buffer[..4] == EXIT {
         return None;
     }
 

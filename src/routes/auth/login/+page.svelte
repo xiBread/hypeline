@@ -2,7 +2,6 @@
 	import { invoke } from "@tauri-apps/api/core";
 	import { listen } from "@tauri-apps/api/event";
 	import type { UnlistenFn } from "@tauri-apps/api/event";
-	import { info } from "@tauri-apps/plugin-log";
 	import { openUrl } from "@tauri-apps/plugin-opener";
 	import { onDestroy, onMount, tick } from "svelte";
 	import { goto } from "$app/navigation";
@@ -44,10 +43,7 @@
 		});
 	});
 
-	onDestroy(async () => {
-		await invoke("stop_server");
-		unlisten?.();
-	});
+	onDestroy(() => unlisten?.());
 
 	async function openAuth() {
 		await openUrl(authUrl.toString());
