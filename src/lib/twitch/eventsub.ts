@@ -165,6 +165,8 @@ export interface ChannelSubscriptionEnd extends WithBasicUser, WithBroadcaster {
 	is_gift: boolean;
 }
 
+export type ChannelWarningAcknowledge = WithBroadcaster & WithBasicUser;
+
 export type StreamOffline = WithBroadcaster;
 
 export interface StreamOnline extends WithBroadcaster {
@@ -175,9 +177,10 @@ export interface StreamOnline extends WithBroadcaster {
 
 export interface SubscriptionEventMap {
 	"channel.moderate": ChannelModerate;
+	"channel.subscription.end": ChannelSubscriptionEnd;
+	"channel.warning.acknowledge": ChannelWarningAcknowledge;
 	"stream.offline": StreamOffline;
 	"stream.online": StreamOnline;
-	"channel.subscription.end": ChannelSubscriptionEnd;
 }
 
 export type SubscriptionEvent =

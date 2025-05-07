@@ -238,6 +238,17 @@ export class SystemMessage extends Message {
 		return this;
 	}
 
+	/**
+	 * Sets the text of the system message when a user acknowledges their
+	 * warning.
+	 *
+	 * `{user} acknowledged their warning`
+	 */
+	public warnAck(user: Viewer) {
+		this.#text = `${colorizeName(user)} acknowledged their warning.`;
+		return this;
+	}
+
 	public setText(text: string) {
 		this.#text = text;
 		return this;

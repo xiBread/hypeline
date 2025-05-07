@@ -80,21 +80,21 @@ pub async fn join(
 
     let channel_cond = json!({ "broadcaster_user_id": broadcaster_id });
 
+    let channel_with_mod_cond = json!({
+        "broadcaster_user_id": broadcaster_id,
+        "moderator_user_id": token.user_id
+    });
+
     if let Some(eventsub) = eventsub {
         eventsub
             .subscribe_all(
                 login.as_str(),
                 &[
-                    (
-                        EventType::ChannelModerate,
-                        &json!({
-                            "broadcaster_user_id": broadcaster_id,
-                            "moderator_user_id": token.user_id
-                        }),
-                    ),
+                    (EventType::ChannelModerate, &channel_with_mod_cond),
+                    (EventType::ChannelSubscriptionEnd, &channel_cond),
+                    (EventType::ChannelWarningAcknowledge, &channel_with_mod_cond),
                     (EventType::StreamOffline, &channel_cond),
                     (EventType::StreamOnline, &channel_cond),
-                    (EventType::ChannelSubscriptionEnd, &channel_cond),
                 ],
             )
             .await?;
