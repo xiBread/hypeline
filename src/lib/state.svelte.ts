@@ -6,7 +6,6 @@ import type { User } from "./user";
 class AppState {
 	#active = $state<Channel>();
 
-	public loading = $state(true);
 	public user?: User;
 
 	public readonly globalEmotes = new SvelteMap<string, Emote>();
