@@ -165,6 +165,30 @@ export interface ChannelSubscriptionEnd extends WithBasicUser, WithBroadcaster {
 	is_gift: boolean;
 }
 
+export type SuspiciousUserStatus = "none" | "active_monitoring" | "restricted";
+
+export type SuspiciousUserType =
+	| "manually_added"
+	| "ban_evader"
+	| "banned_in_shared_channel";
+
+export interface ChannelSuspiciousUserMessage
+	extends WithBasicUser,
+		WithBroadcaster {
+	low_trust_status: SuspiciousUserStatus;
+	shared_ban_channel_ids: string[];
+	types: SuspiciousUserType[];
+	ban_evasion_evaluation: "unknown" | "possible" | "likely";
+	message: never; // todo
+}
+
+export interface ChannelSuspiciousUserUpdate
+	extends WithBasicUser,
+		WithBroadcaster,
+		WithModerator {
+	low_trust_status: SuspiciousUserStatus;
+}
+
 export interface ChannelUnbanRequestCreate
 	extends WithBasicUser,
 		WithBroadcaster {
@@ -195,6 +219,8 @@ export interface StreamOnline extends WithBroadcaster {
 export interface SubscriptionEventMap {
 	"channel.moderate": ChannelModerate;
 	"channel.subscription.end": ChannelSubscriptionEnd;
+	"channel.suspicious_user.message": ChannelSuspiciousUserMessage;
+	"channel.suspicious_user.update": ChannelSuspiciousUserUpdate;
 	"channel.unban_request.create": ChannelUnbanRequestCreate;
 	"channel.unban_request.resolve": ChannelUnbanRequestResolve;
 	"channel.warning.acknowledge": ChannelWarningAcknowledge;
