@@ -179,7 +179,7 @@ export interface ChannelSuspiciousUserMessage
 	extends WithBasicUser,
 		WithBroadcaster {
 	low_trust_status: SuspiciousUserStatus;
-	shared_ban_channel_ids: string[];
+	shared_ban_channel_ids: string[] | null;
 	types: SuspiciousUserType[];
 	ban_evasion_evaluation: "unknown" | "possible" | "likely";
 	message: never; // todo
