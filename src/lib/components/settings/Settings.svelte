@@ -1,8 +1,11 @@
 <script lang="ts">
+	import LogOut from "@lucide/svelte/icons/log-out";
 	import MessageSquare from "@lucide/svelte/icons/message-square";
 	import MonitorCog from "@lucide/svelte/icons/monitor-cog";
 	import X from "@lucide/svelte/icons/x";
-	import { Dialog, Tabs } from "bits-ui";
+	import { Dialog, Separator, Tabs } from "bits-ui";
+	import { tick } from "svelte";
+	import { goto } from "$app/navigation";
 	import { settings } from "$lib/settings";
 	import Chat from "./Chat.svelte";
 	import General from "./General.svelte";
@@ -19,6 +22,15 @@
 
 		settings.saveNow();
 	});
+
+	async function logOut() {
+		settings.state.user = null;
+
+		await tick();
+		await settings.saveNow();
+
+		await goto("/auth/login");
+	}
 </script>
 
 <svelte:document
@@ -59,6 +71,17 @@
 							</Tabs.Trigger>
 						{/each}
 					</Tabs.List>
+
+					<Separator.Root class="bg-border my-1 h-px w-full" />
+
+					<button
+						class="text-destructive hover:bg-muted flex w-full items-center gap-2 rounded-sm px-2.5 py-1.5 transition-colors duration-100"
+						type="button"
+						onclick={logOut}
+					>
+						<LogOut class="size-4" />
+						<span class="text-sm">Log out</span>
+					</button>
 				</nav>
 
 				<div class="relative grow p-4">
