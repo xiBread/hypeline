@@ -7,13 +7,7 @@ export default defineHandler({
 	name: "channel.moderate",
 	handle(data) {
 		const message = new SystemMessage();
-
-		let moderator = app.active.viewers.get(data.moderator_user_login);
-		moderator ??= new Viewer({
-			id: data.moderator_user_id,
-			username: data.moderator_user_login,
-			displayName: data.moderator_user_name,
-		});
+		const moderator = Viewer.fromMod(data);
 
 		switch (data.action) {
 			case "approve_unban_request":
@@ -104,7 +98,7 @@ export default defineHandler({
 			case "timeout": {
 				app.active.clearMessages(data.timeout.user_id);
 
-				const target = Viewer.from(data.timeout);
+				const target = Viewer.fromBasic(data.timeout);
 
 				const expiration = new Date(data.timeout.expires_at);
 				const duration =
@@ -123,7 +117,7 @@ export default defineHandler({
 			}
 
 			case "untimeout": {
-				const target = Viewer.from(data.untimeout);
+				const target = Viewer.fromBasic(data.untimeout);
 				app.active.addMessage(message.untimeout(target, moderator));
 
 				break;
@@ -132,7 +126,7 @@ export default defineHandler({
 			case "ban":
 			case "unban": {
 				const isBan = data.action === "ban";
-				const target = Viewer.from(isBan ? data.ban : data.unban);
+				const target = Viewer.fromBasic(isBan ? data.ban : data.unban);
 
 				if (isBan) {
 					app.active.clearMessages(data.ban.user_id);
@@ -153,7 +147,7 @@ export default defineHandler({
 			case "mod":
 			case "unmod": {
 				const added = data.action === "mod";
-				const target = Viewer.from(added ? data.mod : data.unmod);
+				const target = Viewer.fromBasic(added ? data.mod : data.unmod);
 
 				app.active.addMessage(
 					message.roleStatus("moderator", added, target, moderator),
@@ -165,7 +159,7 @@ export default defineHandler({
 			case "vip":
 			case "unvip": {
 				const added = data.action === "vip";
-				const target = Viewer.from(added ? data.vip : data.unvip);
+				const target = Viewer.fromBasic(added ? data.vip : data.unvip);
 
 				app.active.addMessage(
 					message.roleStatus("VIP", added, target, moderator),

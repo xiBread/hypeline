@@ -1,9 +1,11 @@
 import { app } from "./state.svelte";
-import type { ActionMetadata } from "./twitch/eventsub";
+import type {
+	WithBasicUser,
+	WithBroadcaster,
+	WithModerator,
+} from "./twitch/eventsub";
 import type { BasicUser } from "./twitch/irc";
 import type { PartialUser } from "./user";
-
-export type ViewerLike = ActionMetadata | BasicUser;
 
 export class Viewer implements PartialUser {
 	readonly #data: PartialUser;
@@ -27,25 +29,55 @@ export class Viewer implements PartialUser {
 		this.#data = data;
 	}
 
-	public static from(data: ViewerLike, color?: string) {
-		const isAction = "user_id" in data;
-		let username: string;
-
-		if (isAction) {
-			username = data.user_login;
-		} else {
-			username = data.login;
-		}
-
-		const stored = app.active.viewers.get(username);
+	public static from(data: BasicUser, color?: string) {
+		const stored = app.active.viewers.get(data.login);
 
 		return (
 			stored ??
 			new Viewer({
-				id: isAction ? data.user_id : data.id,
-				username,
-				displayName: isAction ? data.user_name : data.name,
+				id: data.id,
+				username: data.login,
+				displayName: data.name,
 				color,
+			})
+		);
+	}
+
+	public static fromBasic(data: WithBasicUser) {
+		const stored = app.active.viewers.get(data.user_login);
+
+		return (
+			stored ??
+			new Viewer({
+				id: data.user_id,
+				username: data.user_login,
+				displayName: data.user_name,
+			})
+		);
+	}
+
+	public static fromBroadcaster(data: WithBroadcaster) {
+		const stored = app.active.viewers.get(data.broadcaster_user_login);
+
+		return (
+			stored ??
+			new Viewer({
+				id: data.broadcaster_user_id,
+				username: data.broadcaster_user_login,
+				displayName: data.broadcaster_user_name,
+			})
+		);
+	}
+
+	public static fromMod(data: WithModerator) {
+		const stored = app.active.viewers.get(data.moderator_user_login);
+
+		return (
+			stored ??
+			new Viewer({
+				id: data.moderator_user_id,
+				username: data.moderator_user_login,
+				displayName: data.moderator_user_name,
 			})
 		);
 	}

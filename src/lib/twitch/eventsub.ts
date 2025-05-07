@@ -1,27 +1,19 @@
 import type { Prefix } from "$lib/util";
+import type { BasicUser } from "./irc";
 
-export interface WithBasicUser {
-	user_id: string;
-	user_login: string;
-	user_name: string;
-}
+export type WithBasicUser = Prefix<BasicUser, "user_">;
 
 export type WithBroadcaster = Prefix<WithBasicUser, "broadcaster_">;
 
-export interface BaseAction<A extends string> extends WithBroadcaster {
+export type WithModerator = Prefix<WithBasicUser, "moderator_">;
+
+export interface BaseAction<A extends string>
+	extends WithBroadcaster,
+		WithModerator {
 	action: A;
 	source_broadcaster_user_id: string;
 	source_broadcaster_user_login: string;
 	source_broadcaster_user_name: string;
-	moderator_user_id: string;
-	moderator_user_login: string;
-	moderator_user_name: string;
-}
-
-export interface ActionMetadata {
-	user_id: string;
-	user_name: string;
-	user_login: string;
 }
 
 export interface AutomodTermsMetadata {
@@ -31,11 +23,11 @@ export interface AutomodTermsMetadata {
 	from_automod: boolean;
 }
 
-export interface BanMetadata extends ActionMetadata {
+export interface BanMetadata extends WithBasicUser {
 	reason: string | null;
 }
 
-export interface DeleteMetadata extends ActionMetadata {
+export interface DeleteMetadata extends WithBasicUser {
 	message_id: string;
 	message_body: string;
 }
@@ -44,7 +36,7 @@ export interface FollowersMetadata {
 	follow_duration_minutes: number;
 }
 
-export interface RaidMetadata extends ActionMetadata {
+export interface RaidMetadata extends WithBasicUser {
 	viewer_count: number;
 }
 
@@ -56,12 +48,12 @@ export interface TimeoutMetadata extends BanMetadata {
 	expires_at: string;
 }
 
-export interface UnbanRequestMetadata extends ActionMetadata {
+export interface UnbanRequestMetadata extends WithBasicUser {
 	is_approved: boolean;
 	moderator_message: string;
 }
 
-export interface WarnMetadata extends ActionMetadata {
+export interface WarnMetadata extends WithBasicUser {
 	reason: string | null;
 	chat_rules_cited: string[] | null;
 }
@@ -94,7 +86,7 @@ export interface FollowersAction
 }
 
 export interface ModAction extends BaseAction<"mod"> {
-	mod: ActionMetadata;
+	mod: WithBasicUser;
 }
 
 export interface RaidAction extends BaseAction<"raid"> {
@@ -112,7 +104,7 @@ export interface TimeoutAction extends BaseAction<"timeout"> {
 }
 
 export interface UnbanAction extends BaseAction<"unban"> {
-	unban: ActionMetadata;
+	unban: WithBasicUser;
 }
 
 export interface UnbanRequestAction
@@ -123,23 +115,23 @@ export interface UnbanRequestAction
 export type UniqueAction = BaseAction<"uniquechat" | "uniquechatoff">;
 
 export interface UnmodAction extends BaseAction<"unmod"> {
-	unmod: ActionMetadata;
+	unmod: WithBasicUser;
 }
 
 export interface UnraidAction extends BaseAction<"unraid"> {
-	unraid: ActionMetadata;
+	unraid: WithBasicUser;
 }
 
 export interface UntimeoutAction extends BaseAction<"untimeout"> {
-	untimeout: ActionMetadata;
+	untimeout: WithBasicUser;
 }
 
 export interface UnvipAction extends BaseAction<"unvip"> {
-	unvip: ActionMetadata;
+	unvip: WithBasicUser;
 }
 
 export interface VipAction extends BaseAction<"vip"> {
-	vip: ActionMetadata;
+	vip: WithBasicUser;
 }
 
 export interface WarnAction extends BaseAction<"warn"> {

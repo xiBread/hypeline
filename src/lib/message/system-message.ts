@@ -198,7 +198,7 @@ export class SystemMessage extends Message {
 	 * `{moderator} approved/denied {user}'s unban request`
 	 */
 	public unbanRequest(request: UnbanRequestMetadata, moderator: Viewer) {
-		const user = Viewer.from(request);
+		const user = Viewer.fromBasic(request);
 		const action = request.is_approved ? "approved" : "denied";
 
 		this.#text = `${colorizeName(moderator)} ${action} ${colorizeName(user)}'s unban request.`;
@@ -221,7 +221,7 @@ export class SystemMessage extends Message {
 	 * `{moderator} warned {user}[: {reason[, ]}]`
 	 */
 	public warn(warning: WarnMetadata, moderator: Viewer) {
-		const user = Viewer.from(warning);
+		const user = Viewer.fromBasic(warning);
 		this.#text = `${colorizeName(moderator)} warned ${colorizeName(user)}.`;
 
 		if (warning.reason || warning.chat_rules_cited) {

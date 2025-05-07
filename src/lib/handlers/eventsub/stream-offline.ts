@@ -7,12 +7,7 @@ export default defineHandler({
 	name: "stream.offline",
 	handle(data) {
 		const message = new SystemMessage();
-
-		const broadcaster = Viewer.from({
-			id: data.broadcaster_user_id,
-			login: data.broadcaster_user_login,
-			name: data.broadcaster_user_name,
-		});
+		const broadcaster = Viewer.fromBroadcaster(data);
 
 		app.active.addMessage(message.streamStatus(false, broadcaster));
 	},
