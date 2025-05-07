@@ -107,7 +107,7 @@ export class SystemMessage extends Message {
 		const duration = Number.isNaN(seconds) ? "" : formatDuration(seconds);
 
 		this.#text = "";
-		this.#text += `${colorizeName(moderator)} ${action} ${duration}`;
+		this.#text += `${colorizeName(moderator)} ${action} ${duration} `;
 		this.#text += mode === "slow" ? "slow mode." : `${mode} chat.`;
 
 		return this;
