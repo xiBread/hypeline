@@ -4,6 +4,7 @@ use std::sync::{Arc, LazyLock};
 
 use eventsub::EventSubClient;
 use irc::IrcClient;
+use providers::seventv::SeventTvClient;
 use reqwest::header::HeaderMap;
 use tauri::async_runtime::{self, Mutex};
 use tauri::ipc::Invoke;
@@ -38,6 +39,7 @@ pub struct AppState {
     token: Option<UserToken>,
     irc: Option<IrcClient>,
     eventsub: Option<Arc<EventSubClient>>,
+    seventv: Option<Arc<SeventTvClient>>,
 }
 
 impl Default for AppState {
@@ -47,6 +49,7 @@ impl Default for AppState {
             token: None,
             irc: None,
             eventsub: None,
+            seventv: None,
         }
     }
 }
