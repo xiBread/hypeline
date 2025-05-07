@@ -145,6 +145,22 @@ export class SystemMessage extends Message {
 	}
 
 	/**
+	 * Sets the text of the system message when a user's suspicion status is
+	 * updated.
+	 *
+	 * `{moderator} started/stopped monitoring/restricting {user}'s messages`
+	 */
+	public suspicionStatus(active: boolean, user: Viewer, moderator: Viewer) {
+		this.#text = `${colorizeName(moderator)} ${active ? "started" : "stopped"} `;
+
+		if (user.monitored) this.#text += "monitoring ";
+		else if (user.restricted) this.#text += "restricting ";
+
+		this.#text += `${colorizeName(user)}'s messages.`;
+		return this;
+	}
+
+	/**
 	 * Sets the text of the system message when a term is added or removed to
 	 * the blocked or permitted list.
 	 *

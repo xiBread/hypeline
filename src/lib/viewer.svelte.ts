@@ -38,6 +38,16 @@ export class Viewer implements PartialUser {
 	 */
 	public isReturning = $state(false);
 
+	/**
+	 * Whether the viewer's messages are being monitored.
+	 */
+	public monitored = $state(false);
+
+	/**
+	 * Whether the viewer's messages are being restricted.
+	 */
+	public restricted = $state(false);
+
 	public constructor(data: PartialUser) {
 		this.#data = data;
 	}
@@ -57,16 +67,19 @@ export class Viewer implements PartialUser {
 	}
 
 	public static fromBasic(data: WithBasicUser) {
-		const stored = app.active.viewers.get(data.user_login);
+		let stored = app.active.viewers.get(data.user_login);
 
-		return (
-			stored ??
-			new Viewer({
+		if (!stored) {
+			stored = new Viewer({
 				id: data.user_id,
 				username: data.user_login,
 				displayName: data.user_name,
-			})
-		);
+			});
+
+			app.active.viewers.set(data.user_login, stored);
+		}
+
+		return stored;
 	}
 
 	public static fromBroadcaster(data: WithBroadcaster) {

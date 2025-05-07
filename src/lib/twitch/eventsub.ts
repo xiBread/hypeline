@@ -165,7 +165,10 @@ export interface ChannelSubscriptionEnd extends WithBasicUser, WithBroadcaster {
 	is_gift: boolean;
 }
 
-export type SuspiciousUserStatus = "none" | "active_monitoring" | "restricted";
+export type SuspiciousUserStatus =
+	| "no_treatment"
+	| "active_monitoring"
+	| "restricted";
 
 export type SuspiciousUserType =
 	| "manually_added"
