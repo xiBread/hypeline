@@ -3,6 +3,10 @@ import type { ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { PartialUser } from "./user";
 
+export type Prefix<T, P extends string> = {
+	[K in keyof T as `${P}${K & string}`]: T[K];
+};
+
 // Only for syntax highlighting
 export const html = String.raw;
 

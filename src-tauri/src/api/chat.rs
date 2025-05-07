@@ -92,8 +92,9 @@ pub async fn join(
                             "moderator_user_id": token.user_id
                         }),
                     ),
-                    (EventType::StreamOnline, &channel_cond),
                     (EventType::StreamOffline, &channel_cond),
+                    (EventType::StreamOnline, &channel_cond),
+                    (EventType::ChannelSubscriptionEnd, &channel_cond),
                 ],
             )
             .await?;

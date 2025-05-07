@@ -11,6 +11,7 @@ import privmsg from "./irc/privmsg";
 import usernotice from "./irc/usernotice";
 //
 import channelModerate from "./eventsub/channel-moderate";
+import channelSubscriptionEnd from "./eventsub/channel-subscription-end";
 import streamOnline from "./eventsub/stream-online";
 import streamOffline from "./eventsub/stream-offline";
 
@@ -29,5 +30,6 @@ register(privmsg);
 register(usernotice);
 
 register(channelModerate);
+register(channelSubscriptionEnd);
 register(streamOnline);
 register(streamOffline);

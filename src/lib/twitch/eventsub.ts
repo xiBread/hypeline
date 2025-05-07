@@ -1,8 +1,15 @@
-export interface BaseAction<A extends string> {
+import type { Prefix } from "$lib/util";
+
+export interface WithBasicUser {
+	user_id: string;
+	user_login: string;
+	user_name: string;
+}
+
+export type WithBroadcaster = Prefix<WithBasicUser, "broadcaster_">;
+
+export interface BaseAction<A extends string> extends WithBroadcaster {
 	action: A;
-	broadcaster_user_id: string;
-	broadcaster_user_login: string;
-	broadcaster_user_name: string;
 	source_broadcaster_user_id: string;
 	source_broadcaster_user_login: string;
 	source_broadcaster_user_name: string;
@@ -161,13 +168,14 @@ export type ChannelModerate =
 	| VipAction
 	| WarnAction;
 
-export interface StreamOffline {
-	broadcaster_user_id: string;
-	broadcaster_user_login: string;
-	broadcaster_user_name: string;
+export interface ChannelSubscriptionEnd extends WithBasicUser, WithBroadcaster {
+	tier: string;
+	is_gift: boolean;
 }
 
-export interface StreamOnline extends StreamOffline {
+export type StreamOffline = WithBroadcaster;
+
+export interface StreamOnline extends WithBroadcaster {
 	id: string;
 	type: "live" | "playlist" | "premiere" | "rerun";
 	started_at: string;
@@ -175,8 +183,9 @@ export interface StreamOnline extends StreamOffline {
 
 export interface SubscriptionEventMap {
 	"channel.moderate": ChannelModerate;
-	"stream.online": StreamOnline;
 	"stream.offline": StreamOffline;
+	"stream.online": StreamOnline;
+	"channel.subscription.end": ChannelSubscriptionEnd;
 }
 
 export type SubscriptionEvent =
