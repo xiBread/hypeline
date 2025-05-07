@@ -120,7 +120,7 @@ export class Channel {
 
 	public addMessage(message: Message) {
 		if (this.messages.some((m) => m.id === message.id)) {
-			return;
+			return this;
 		}
 
 		if (message.isRecent) {
