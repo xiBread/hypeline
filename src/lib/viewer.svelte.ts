@@ -25,6 +25,11 @@ export class Viewer implements PartialUser {
 	 */
 	public isSub = $state(false);
 
+	/**
+	 * Whether the viewer is a VIP in the channel.
+	 */
+	public isVip = $state(false);
+
 	public constructor(data: PartialUser) {
 		this.#data = data;
 	}
