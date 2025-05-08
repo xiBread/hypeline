@@ -3,6 +3,8 @@ import type { ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { PartialUser } from "./user";
 
+export type Nullable<T> = { [K in keyof T]: T[K] | null };
+
 export type Prefix<T, P extends string> = {
 	[K in keyof T as `${P}${K & string}`]: T[K];
 };

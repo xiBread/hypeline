@@ -1,6 +1,7 @@
 import type {
 	AutomodTermsMetadata,
-	UnbanRequestMetadata,
+	ChannelUnbanRequestCreate,
+	ChannelUnbanRequestResolve,
 	WarnMetadata,
 } from "$lib/twitch/eventsub";
 import { colorizeName, formatDuration } from "$lib/util";
@@ -192,16 +193,37 @@ export class SystemMessage extends Message {
 	}
 
 	/**
-	 * Sets the text of the system message when a user's unban request is
-	 * approved or denied.
+	 * Sets the text of the system message when a user submits an unban request
+	 * or when a user's unban request is approved or denied.
 	 *
-	 * `{moderator} approved/denied {user}'s unban request`
+	 * - `{user} submitted an unban request: {message}` for
+	 *   `channel.unban_request.create`
+	 * - For `channel.unban_request.resolve`:
+	 *   - `{moderator} approved/denied {user}'s unban request[: {reason}]` if
+	 *     there's a moderator attached
+	 *   - `{user}'s unban request was approved/denied/cancelled` otherwise
 	 */
-	public unbanRequest(request: UnbanRequestMetadata, moderator: Viewer) {
+	public unbanRequest(
+		request: ChannelUnbanRequestCreate | ChannelUnbanRequestResolve,
+		moderator?: Viewer,
+	) {
 		const user = Viewer.fromBasic(request);
-		const action = request.is_approved ? "approved" : "denied";
+		const name = colorizeName(user);
 
-		this.#text = `${colorizeName(moderator)} ${action} ${colorizeName(user)}'s unban request.`;
+		if ("status" in request) {
+			if (!moderator) {
+				this.#text = `${name}'s unban request was ${request.status}.`;
+			} else {
+				this.#text = `${colorizeName(moderator)} ${request.status} ${name}'s unban request.`;
+
+				if (request.resolution_text) {
+					this.#text = `${this.#text.slice(0, -1)}: ${request.resolution_text}`;
+				}
+			}
+		} else {
+			this.#text = `${name} submitted an unban request: ${request.text}`;
+		}
+
 		return this;
 	}
 

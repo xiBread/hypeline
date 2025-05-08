@@ -1,4 +1,4 @@
-import type { Prefix } from "$lib/util";
+import type { Nullable, Prefix } from "$lib/util";
 import type { BasicUser } from "./irc";
 
 export type WithBasicUser = Prefix<BasicUser, "user_">;
@@ -165,6 +165,23 @@ export interface ChannelSubscriptionEnd extends WithBasicUser, WithBroadcaster {
 	is_gift: boolean;
 }
 
+export interface ChannelUnbanRequestCreate
+	extends WithBasicUser,
+		WithBroadcaster {
+	id: string;
+	text: string;
+	created_at: string;
+}
+
+export interface ChannelUnbanRequestResolve
+	extends WithBasicUser,
+		WithBroadcaster,
+		Nullable<WithModerator> {
+	id: string;
+	resolution_text: string | null;
+	status: "approved" | "denied" | "cancelled";
+}
+
 export type ChannelWarningAcknowledge = WithBroadcaster & WithBasicUser;
 
 export type StreamOffline = WithBroadcaster;
@@ -178,6 +195,8 @@ export interface StreamOnline extends WithBroadcaster {
 export interface SubscriptionEventMap {
 	"channel.moderate": ChannelModerate;
 	"channel.subscription.end": ChannelSubscriptionEnd;
+	"channel.unban_request.create": ChannelUnbanRequestCreate;
+	"channel.unban_request.resolve": ChannelUnbanRequestResolve;
 	"channel.warning.acknowledge": ChannelWarningAcknowledge;
 	"stream.offline": StreamOffline;
 	"stream.online": StreamOnline;

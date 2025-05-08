@@ -12,6 +12,8 @@ import usernotice from "./irc/usernotice";
 //
 import channelModerate from "./eventsub/channel-moderate";
 import channelSubscriptionEnd from "./eventsub/channel-subscription-end";
+import channelUnbanRequestCreate from "./eventsub/channel-unban-request-create";
+import channelUnbanRequestResolve from "./eventsub/channel-unban-request-resolve";
 import channelWarningAcknowledge from "./eventsub/channel-warning-acknowledge";
 import streamOnline from "./eventsub/stream-online";
 import streamOffline from "./eventsub/stream-offline";
@@ -32,6 +34,8 @@ register(usernotice);
 
 register(channelModerate);
 register(channelSubscriptionEnd);
+register(channelUnbanRequestCreate);
+register(channelUnbanRequestResolve);
 register(channelWarningAcknowledge);
 register(streamOnline);
 register(streamOffline);
