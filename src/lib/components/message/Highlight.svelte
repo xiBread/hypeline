@@ -3,7 +3,7 @@
 	export type HighlightType = keyof typeof highlights;
 
 	const highlights = {
-		"first-time": {
+		new: {
 			color: "#ff75e6",
 			icon: "lucide--sparkles",
 			label: "First Time Chat",
@@ -18,13 +18,27 @@
 			icon: "lucide--sword -scale-x-100",
 			label: "Moderator",
 		},
-		// raider
+		// Currently unused because it's not sent by Twitch
+		raider: {
+			color: "#f5f500",
+			icon: "",
+			label: "Raider",
+		},
 		subscriber: {
 			color: "#528bff",
 			icon: "lucide--star",
 			label: "Subscriber",
 		},
-		// suspicious-user
+		returning: {
+			color: "#00a3a3",
+			icon: "lucide--repeat",
+			label: "Returning Chatter",
+		},
+		suspicious: {
+			color: "#ff8280",
+			icon: "lucide--shield-alert",
+			label: "Suspicious User",
+		},
 		vip: {
 			color: "#db00b3",
 			icon: "lucide--gem",

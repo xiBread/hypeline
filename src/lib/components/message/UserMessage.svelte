@@ -13,9 +13,11 @@
 	let quickActionsOpen = $state(false);
 
 	if (message.isFirst) {
-		highlightType = "first-time";
+		highlightType = "new";
 	} else if (message.viewer.isMod) {
 		highlightType = "moderator";
+	} else if (message.viewer.isVip) {
+		highlightType = "vip";
 	} else if (message.viewer.isSub) {
 		highlightType = "subscriber";
 	} else if (
