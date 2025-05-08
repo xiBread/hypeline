@@ -10,15 +10,6 @@ export default defineHandler({
 		const moderator = Viewer.fromMod(data);
 
 		switch (data.action) {
-			case "approve_unban_request":
-			case "deny_unban_request": {
-				app.active.addMessage(
-					message.unbanRequest(data.unban_request, moderator),
-				);
-
-				break;
-			}
-
 			case "emoteonly":
 			case "emoteonlyoff":
 			case "subscribers":

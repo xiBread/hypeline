@@ -92,6 +92,11 @@ pub async fn join(
                 &[
                     (EventType::ChannelModerate, &channel_with_mod_cond),
                     (EventType::ChannelSubscriptionEnd, &channel_cond),
+                    (EventType::ChannelUnbanRequestCreate, &channel_with_mod_cond),
+                    (
+                        EventType::ChannelUnbanRequestResolve,
+                        &channel_with_mod_cond,
+                    ),
                     (EventType::ChannelWarningAcknowledge, &channel_with_mod_cond),
                     (EventType::StreamOffline, &channel_cond),
                     (EventType::StreamOnline, &channel_cond),
