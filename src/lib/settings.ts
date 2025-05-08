@@ -1,5 +1,9 @@
 import { RuneStore } from "@tauri-store/svelte";
 
+export interface HighlightSettings {
+	enabled: boolean;
+}
+
 export interface MessageHistorySettings {
 	enabled: boolean;
 	limit: number;
@@ -14,8 +18,13 @@ export interface TimestampSettings {
 export interface Settings {
 	// Index signature needed for RuneStore
 	[key: string]: unknown;
+
+	// Internal
 	user: { id: string; token: string } | null;
 	lastJoined: string | null;
+
+	// User
+	highlights: HighlightSettings;
 	history: MessageHistorySettings;
 	timestamps: TimestampSettings;
 }
@@ -23,6 +32,9 @@ export interface Settings {
 export const settings = new RuneStore<Settings>("settings", {
 	user: null,
 	lastJoined: null,
+	highlights: {
+		enabled: true,
+	},
 	history: {
 		enabled: true,
 		limit: 250,
