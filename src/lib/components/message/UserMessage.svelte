@@ -12,7 +12,13 @@
 	let highlightType = $state<HighlightType>();
 	let quickActionsOpen = $state(false);
 
-	if (message.isFirst) {
+	const hasMention = message.text
+		.toLowerCase()
+		.includes(`@${app.active.user.username}`);
+
+	if (hasMention) {
+		highlightType = "mention";
+	} else if (message.isFirst) {
 		highlightType = "new";
 	} else if (message.viewer.isMod) {
 		highlightType = "moderator";
@@ -20,10 +26,6 @@
 		highlightType = "vip";
 	} else if (message.viewer.isSub) {
 		highlightType = "subscriber";
-	} else if (
-		message.text.toLowerCase().includes(`@${app.active.user.username}`)
-	) {
-		highlightType = "mention";
 	} else {
 		//
 	}
