@@ -11,8 +11,6 @@
 </script>
 
 <script lang="ts">
-	import CircleX from "@lucide/svelte/icons/circle-x";
-	import Smile from "@lucide/svelte/icons/smile";
 	import { onMount } from "svelte";
 	import type { HTMLInputAttributes } from "svelte/elements";
 	import { cn } from "$lib/util";
@@ -45,9 +43,9 @@
 				aria-label="Cancel reply"
 				onclick={() => (replyTarget.value = null)}
 			>
-				<CircleX
-					class="text-muted-foreground hover:text-foreground size-4 transition-colors duration-150"
-				/>
+				<span
+					class="text-muted-foreground hover:text-foreground lucide--circle-x iconify size-4 transition-colors duration-150"
+				></span>
 			</button>
 		</div>
 
@@ -81,9 +79,10 @@
 			class="text-muted-foreground hover:text-foreground flex size-10 items-center justify-center rounded-sm transition-colors duration-150"
 			type="button"
 			onclick={() => (emotePickerOpen = !emotePickerOpen)}
+			aria-label="Open emote picker"
 			bind:this={anchor}
 		>
-			<Smile class="size-5" />
+			<span class="iconify lucide--smile size-5"></span>
 		</button>
 	</div>
 </div>

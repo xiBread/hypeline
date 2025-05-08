@@ -1,5 +1,4 @@
 <script lang="ts">
-	import Users from "@lucide/svelte/icons/users";
 	import { invoke } from "@tauri-apps/api/core";
 	import { listen } from "@tauri-apps/api/event";
 	import type { UnlistenFn } from "@tauri-apps/api/event";
@@ -101,7 +100,7 @@
 				<p class="line-clamp-2">{stream.title}</p>
 
 				<div class="text-muted-foreground flex items-center">
-					<Users class="mr-1 size-3" />
+					<span class="lucide--user iconify mr-1 size-3"></span>
 
 					<p class="text-xs">
 						{stream.viewer_count} viewers

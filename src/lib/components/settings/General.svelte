@@ -1,5 +1,4 @@
 <script lang="ts">
-	import RefreshCw from "@lucide/svelte/icons/refresh-cw";
 	import { Label, RadioGroup } from "bits-ui";
 	import { setMode, userPrefersMode } from "mode-watcher";
 	import { settings } from "$lib/settings";
@@ -46,7 +45,9 @@
 						value={theme.value}
 					>
 						{#if theme.value === "system"}
-							<RefreshCw class="text-muted-foreground size-6" />
+							<span
+								class="text-muted-foreground lucide--refresh-cw iconify size-6"
+							></span>
 						{/if}
 					</RadioGroup.Item>
 

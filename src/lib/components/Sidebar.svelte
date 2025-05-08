@@ -1,5 +1,4 @@
 <script lang="ts">
-	import SettingsIcon from "@lucide/svelte/icons/settings";
 	import { ScrollArea } from "bits-ui";
 	import ChannelList from "./ChannelList.svelte";
 	import Settings from "./settings/Settings.svelte";
@@ -17,8 +16,9 @@
 				title="Settings"
 				type="button"
 				onclick={() => (settingsOpen = true)}
+				aria-label="Open settings"
 			>
-				<SettingsIcon class="size-5 text-white" />
+				<span class="lucide--settings iconify size-5 text-white"></span>
 			</button>
 
 			<ChannelList />

@@ -1,8 +1,4 @@
 <script lang="ts">
-	import LogOut from "@lucide/svelte/icons/log-out";
-	import MessageSquare from "@lucide/svelte/icons/message-square";
-	import MonitorCog from "@lucide/svelte/icons/monitor-cog";
-	import X from "@lucide/svelte/icons/x";
 	import { Dialog, Separator, Tabs } from "bits-ui";
 	import { tick } from "svelte";
 	import { goto } from "$app/navigation";
@@ -13,8 +9,8 @@
 	let { open = $bindable(false) } = $props();
 
 	const categories = [
-		{ name: "General", icon: MonitorCog, component: General },
-		{ name: "Chat", icon: MessageSquare, component: Chat },
+		{ name: "General", icon: "lucide--monitor-cog", component: General },
+		{ name: "Chat", icon: "lucide--message-square", component: Chat },
 	];
 
 	$effect(() => {
@@ -66,7 +62,8 @@
 								]}
 								value={category.name}
 							>
-								<category.icon class="size-4" />
+								<span class="iconify size-4 {category.icon}"
+								></span>
 								<span class="text-sm">{category.name}</span>
 							</Tabs.Trigger>
 						{/each}
@@ -79,7 +76,7 @@
 						type="button"
 						onclick={logOut}
 					>
-						<LogOut class="size-4" />
+						<span class="iconify lucide--log-out size-4"></span>
 						<span class="text-sm">Log out</span>
 					</button>
 				</nav>
@@ -92,7 +89,7 @@
 						<div
 							class="group-hover:border-foreground border-muted-foreground flex size-8 items-center justify-center rounded-full border-2 transition-colors duration-100"
 						>
-							<X class="size-4" />
+							<span class="iconify lucide--x size-4"></span>
 						</div>
 
 						<span
