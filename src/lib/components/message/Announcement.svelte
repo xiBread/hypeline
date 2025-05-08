@@ -1,5 +1,4 @@
 <script lang="ts">
-	import Megaphone from "@lucide/svelte/icons/megaphone";
 	import type { UserMessage } from "$lib/message";
 	import { app } from "$lib/state.svelte";
 	import Message from "./Message.svelte";
@@ -26,7 +25,7 @@
 	style:border-image-source="linear-gradient({stops[0]}, {stops[1]})"
 >
 	<div class="bg-muted flex items-center px-2.5 py-1.5 text-xs font-medium">
-		<Megaphone class="mr-2 size-4" /> Announcement
+		<span class="iconify lucide--megaphone mr-2 size-4"></span> Announcement
 	</div>
 
 	<div class="bg-muted/50 p-1.5">

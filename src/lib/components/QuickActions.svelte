@@ -1,7 +1,4 @@
 <script lang="ts">
-	import ClipboardCopy from "@lucide/svelte/icons/clipboard-copy";
-	import Reply from "@lucide/svelte/icons/reply";
-	import Trash from "@lucide/svelte/icons/trash";
 	import { invoke } from "@tauri-apps/api/core";
 	import { Separator, Toolbar } from "bits-ui";
 	import { input, replyTarget } from "$lib/components/Input.svelte";
@@ -42,7 +39,7 @@
 		title="Copy message"
 		onclick={copy}
 	>
-		<ClipboardCopy class="size-4" />
+		<span class="lucide--clipboard iconify size-4"></span>
 	</Toolbar.Button>
 
 	<Toolbar.Button
@@ -53,7 +50,7 @@
 			input.value?.focus();
 		}}
 	>
-		<Reply class="size-4" />
+		<span class="iconify lucide--reply size-4"></span>
 	</Toolbar.Button>
 
 	{#if message.actionable}
@@ -64,7 +61,7 @@
 			title="Delete message"
 			onclick={deleteMessage}
 		>
-			<Trash class="size-4" />
+			<span class="iconify lucide--trash size-4"></span>
 		</Toolbar.Button>
 	{/if}
 </Toolbar.Root>

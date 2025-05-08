@@ -1,6 +1,4 @@
 <script lang="ts">
-	import Gift from "@lucide/svelte/icons/gift";
-	import Star from "@lucide/svelte/icons/star";
 	import type { UserMessage } from "$lib/message";
 	import { app } from "$lib/state.svelte";
 	import type { SubGiftEvent, SubOrResubEvent } from "$lib/twitch/irc";
@@ -63,9 +61,10 @@
 >
 	<div class="flex gap-1">
 		{#if sub.type === "sub_or_resub"}
-			<Star class="fill-foreground mt-px size-4" />
+			<span class="fill-foreground iconify lucide--star mt-px size-4"
+			></span>
 		{:else}
-			<Gift class="mt-px size-4" />
+			<span class="iconify lucide--gift mt-px size-4"></span>
 		{/if}
 
 		{#if sub.type === "sub_or_resub"}

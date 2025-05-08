@@ -1,5 +1,4 @@
 <script lang="ts">
-	import Sparkles from "@lucide/svelte/icons/sparkles";
 	import type { UserMessage } from "$lib/message";
 	import { app } from "$lib/state.svelte";
 	import { replyTarget } from "../Input.svelte";
@@ -39,7 +38,8 @@
 			<div
 				class="bg-muted flex items-center px-2.5 py-1.5 text-xs font-medium"
 			>
-				<Sparkles class="mr-2 size-4" /> First Time Chat
+				<span class="lucide--sparkles iconify mr-2 size-4"></span> First
+				Time Chat
 			</div>
 
 			<div
