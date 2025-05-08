@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { invoke } from "@tauri-apps/api/core";
 	import { listen } from "@tauri-apps/api/event";
 	import type { UnlistenFn } from "@tauri-apps/api/event";
 	import { onDestroy, onMount } from "svelte";
@@ -37,6 +38,13 @@
 	async function join() {
 		const channel = await Channel.join(data.channel);
 		app.setActive(channel);
+
+		await invoke("fetch_recent_messages", {
+			channel: channel.user.username,
+			historyLimit: settings.state.history.enabled
+				? settings.state.history.limit
+				: 0,
+		});
 
 		channel.addEmotes(app.globalEmotes);
 

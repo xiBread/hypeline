@@ -1,8 +1,8 @@
 use anyhow::anyhow;
 use serde::Serialize;
 use serde_json::json;
-use tauri::async_runtime::{self, Mutex};
-use tauri::{AppHandle, Emitter, State};
+use tauri::State;
+use tokio::sync::Mutex;
 use twitch_api::eventsub::EventType;
 use twitch_api::helix::chat::BadgeSet;
 use twitch_api::helix::streams::Stream;
@@ -11,7 +11,6 @@ use super::channels::get_stream;
 use super::users::{get_user_from_login, User};
 use crate::emotes::{fetch_user_emotes, EmoteMap};
 use crate::error::Error;
-use crate::providers::recent_messages::get_recent_messages;
 use crate::providers::twitch::{fetch_channel_badges, fetch_global_badges};
 use crate::AppState;
 
@@ -26,10 +25,8 @@ pub struct JoinedChannel {
 
 #[tauri::command]
 pub async fn join(
-    app: AppHandle,
     state: State<'_, Mutex<AppState>>,
     login: String,
-    history_limit: u32,
 ) -> Result<JoinedChannel, Error> {
     let (helix, token, irc, eventsub) = {
         let state = state.lock().await;
@@ -66,15 +63,6 @@ pub async fn join(
     )?;
 
     let login = user.data.login.clone();
-    let login_query = login.clone();
-
-    async_runtime::spawn(async move {
-        let recent_messages = get_recent_messages(login_query.to_string(), history_limit)
-            .await
-            .unwrap_or_default();
-
-        app.emit("recentmessages", recent_messages)
-    });
 
     global_badges.extend(channel_badges);
 

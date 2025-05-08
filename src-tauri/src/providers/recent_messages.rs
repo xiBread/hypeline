@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use tauri::{async_runtime, AppHandle, Emitter};
 
 use crate::error::Error;
 use crate::irc::message::{IrcMessage, ServerMessage};
@@ -10,26 +11,30 @@ struct RecentMessages {
     messages: Vec<String>,
 }
 
-pub async fn get_recent_messages(channel: String, limit: u32) -> Result<Vec<ServerMessage>, Error> {
+#[tauri::command]
+pub async fn fetch_recent_messages(app_handle: AppHandle, channel: String, history_limit: u32) {
     // Return early as to not trigger wakeups
-    if limit == 0 {
-        return Ok(vec![]);
+    if history_limit == 0 {
+        return;
     }
 
-    let response: RecentMessages = HTTP
-        .get(format!(
-            "https://recent-messages.robotty.de/api/v2/recent-messages/{channel}?limit={limit}",
-        ))
-        .send()
-        .await?
-        .json()
-        .await?;
+    async_runtime::spawn(async move {
+        let response: RecentMessages = HTTP
+            .get(format!(
+                "https://recent-messages.robotty.de/api/v2/recent-messages/{channel}?limit={history_limit}",
+            ))
+            .send()
+            .await?
+            .json()
+            .await?;
 
-    let server_messages: Vec<_> = response
-        .messages
-        .into_iter()
-        .filter_map(|m| ServerMessage::try_from(IrcMessage::parse(&m).ok()?).ok())
-        .collect();
+        let server_messages: Vec<_> = response
+            .messages
+            .into_iter()
+            .filter_map(|m| ServerMessage::try_from(IrcMessage::parse(&m).ok()?).ok())
+            .collect();
 
-    Ok(server_messages)
+        app_handle.emit("recentmessages", server_messages).unwrap();
+        Ok::<_, Error>(())
+    });
 }
