@@ -125,6 +125,7 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         irc::connect_irc,
         emotes::fetch_global_emotes,
         eventsub::connect_eventsub,
+        providers::fetch_recent_messages,
         server::start_server
     ]
 }

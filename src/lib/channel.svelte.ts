@@ -2,7 +2,6 @@ import { invoke } from "@tauri-apps/api/core";
 import { SvelteMap } from "svelte/reactivity";
 import { replyTarget } from "./components/Input.svelte";
 import type { Message } from "./message";
-import { settings } from "./settings";
 import type { JoinedChannel } from "./tauri";
 import type { Badge, BadgeSet, Stream } from "./twitch/api";
 import { User } from "./user";
@@ -61,12 +60,7 @@ export class Channel {
 	}
 
 	public static async join(login: string) {
-		const joined = await invoke<JoinedChannel>("join", {
-			login,
-			historyLimit: settings.state.history.enabled
-				? settings.state.history.limit
-				: 0,
-		});
+		const joined = await invoke<JoinedChannel>("join", { login });
 
 		const user = new User(joined.user);
 
