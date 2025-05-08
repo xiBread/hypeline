@@ -6,7 +6,6 @@ import { defineHandler } from "../helper";
 export default defineHandler({
 	name: "channel.warning.acknowledge",
 	handle(data) {
-		console.log(data);
 		const message = new SystemMessage();
 		const viewer = Viewer.fromBasic(data);
 
