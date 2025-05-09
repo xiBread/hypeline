@@ -58,18 +58,18 @@
 		</div>
 	{:else if hlType && highlights.enabled && highlights[hlType].enabled}
 		<Highlight type={hlType}>
-			{@render innerMessage(true)}
+			{@render innerMessage(highlights[hlType].style !== "background")}
 		</Highlight>
 	{:else}
 		{@render innerMessage(false)}
 	{/if}
 </div>
 
-{#snippet innerMessage(highlighted: boolean)}
+{#snippet innerMessage(bordered: boolean)}
 	<div
 		class={[
 			"not-group-aria-disabled:hover:bg-muted/50 py-2",
-			highlighted ? "px-1.5" : "px-3",
+			bordered ? "px-1.5" : "px-3",
 		]}
 	>
 		{#if message.reply}

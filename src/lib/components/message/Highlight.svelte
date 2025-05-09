@@ -50,14 +50,24 @@
 	const hlType = $derived(settings.state.highlights[type]);
 </script>
 
-<div
-	class="mx-1 my-0.5 box-border overflow-hidden rounded-md border"
-	style:border-color={hlType.color}
->
-	<div class="bg-muted flex items-center px-2.5 py-1.5 text-xs font-medium">
-		<span class="{highlight.icon} iconify mr-2 size-4"></span>
-		{highlight.label}
-	</div>
+{#if hlType.style !== "background"}
+	<div
+		class="mx-1 my-0.5 box-border overflow-hidden rounded-md border"
+		style:border-color={hlType.color}
+	>
+		{#if hlType.style === "default"}
+			<div
+				class="bg-muted flex items-center px-2.5 py-1.5 text-xs font-medium"
+			>
+				<span class="{highlight.icon} iconify mr-2 size-4"></span>
+				{highlight.label}
+			</div>
+		{/if}
 
-	{@render children()}
-</div>
+		{@render children()}
+	</div>
+{:else}
+	<div class="bg-(--highlight)/30" style:--highlight={hlType.color}>
+		{@render children()}
+	</div>
+{/if}
