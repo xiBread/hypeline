@@ -40,12 +40,14 @@ export class Viewer implements PartialUser {
 	public isReturning = $state(false);
 
 	/**
-	 * Whether the viewer's messages are being monitored.
+	 * Whether the viewer's messages are being monitored. This is mutually
+	 * exclusive with `restricted`.
 	 */
 	public monitored = $state(false);
 
 	/**
-	 * Whether the viewer's messages are being restricted.
+	 * Whether the viewer's messages are being restricted. This is mutually
+	 * exclusive with `monitored`.
 	 */
 	public restricted = $state(false);
 
