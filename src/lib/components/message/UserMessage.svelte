@@ -14,7 +14,7 @@
 
 	const hasMention = message.text
 		.toLowerCase()
-		.includes(`@${app.active.user.username}`);
+		.includes(`@${app.user?.username}`);
 
 	if (hasMention) {
 		highlightType = "mention";
