@@ -21,7 +21,7 @@
 </script>
 
 <div
-	class="my-0.5 border-x-6 [border-image-slice:1]"
+	class="my-1 border-x-6 [border-image-slice:1]"
 	style:border-image-source="linear-gradient({stops[0]}, {stops[1]})"
 >
 	<div class="bg-muted flex items-center px-2.5 py-1.5 text-xs font-medium">

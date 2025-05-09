@@ -52,7 +52,7 @@
 
 {#if hlType.style !== "background"}
 	<div
-		class="mx-1 my-0.5 box-border overflow-hidden rounded-md border"
+		class="m-1 box-border overflow-hidden rounded-md border"
 		style:border-color={hlType.color}
 	>
 		{#if hlType.style === "default"}
