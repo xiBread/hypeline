@@ -9,23 +9,25 @@
 
 	const { message }: { message: UserMessage } = $props();
 
-	let highlightType = $state<HighlightType>();
+	let hlType = $state<HighlightType>();
 	let quickActionsOpen = $state(false);
+
+	const highlights = $derived(settings.state.highlights);
 
 	const hasMention = message.text
 		.toLowerCase()
 		.includes(`@${app.user?.username}`);
 
 	if (hasMention) {
-		highlightType = "mention";
+		hlType = "mention";
 	} else if (message.isFirst) {
-		highlightType = "new";
+		hlType = "new";
 	} else if (message.viewer.isMod) {
-		highlightType = "moderator";
+		hlType = "moderator";
 	} else if (message.viewer.isVip) {
-		highlightType = "vip";
+		hlType = "vip";
 	} else if (message.viewer.isSub) {
-		highlightType = "subscriber";
+		hlType = "subscriber";
 	} else {
 		//
 	}
@@ -52,8 +54,8 @@
 		>
 			<Message {message} />
 		</div>
-	{:else if highlightType && settings.state.highlights.enabled}
-		<Highlight type={highlightType}>
+	{:else if hlType && highlights.enabled && highlights[hlType].enabled}
+		<Highlight type={hlType}>
 			{@render innerMessage(true)}
 		</Highlight>
 	{:else}
