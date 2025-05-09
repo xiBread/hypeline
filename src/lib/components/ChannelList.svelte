@@ -67,7 +67,7 @@
 <div class="bg-border h-px" role="separator"></div>
 
 {#each sorted as channel (channel.user.id)}
-	<div animate:flip>
+	<div animate:flip={{ duration: 500 }}>
 		{@render channelIcon(channel.user, channel.stream)}
 	</div>
 {/each}
