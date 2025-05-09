@@ -175,6 +175,8 @@ export type SuspiciousUserType =
 	| "ban_evader"
 	| "banned_in_shared_channel";
 
+export type BanEvasionEvaluation = "unknown" | "possible" | "likely";
+
 export interface TextFragment {
 	type: "text";
 	text: string;
@@ -213,7 +215,7 @@ export interface ChannelSuspiciousUserMessage
 	low_trust_status: SuspiciousUserStatus;
 	shared_ban_channel_ids: string[] | null;
 	types: SuspiciousUserType[];
-	ban_evasion_evaluation: "unknown" | "possible" | "likely";
+	ban_evasion_evaluation: BanEvasionEvaluation;
 	message: StructuredMessage;
 }
 

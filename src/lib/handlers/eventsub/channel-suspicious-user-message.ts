@@ -44,6 +44,7 @@ export default defineHandler({
 		message.viewer.monitored =
 			data.low_trust_status === "active_monitoring";
 		message.viewer.restricted = data.low_trust_status === "restricted";
+		message.viewer.banEvasion = data.ban_evasion_evaluation;
 
 		app.active.addMessage(message);
 	},

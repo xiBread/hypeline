@@ -1,5 +1,6 @@
 import { app } from "./state.svelte";
 import type {
+	BanEvasionEvaluation,
 	WithBasicUser,
 	WithBroadcaster,
 	WithModerator,
@@ -47,6 +48,12 @@ export class Viewer implements PartialUser {
 	 * Whether the viewer's messages are being restricted.
 	 */
 	public restricted = $state(false);
+
+	/**
+	 * The likelihood that the viewer is ban evading if they are considered a
+	 * suspicious user.
+	 */
+	public banEvasion = $state<BanEvasionEvaluation>("unknown");
 
 	public constructor(data: PartialUser) {
 		this.#data = data;
