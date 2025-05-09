@@ -11,7 +11,6 @@ export interface HighlightSettings {
 	mention: HighlightTypeSettings;
 	new: HighlightTypeSettings;
 	returning: HighlightTypeSettings;
-	// raider: HighlightTypeSettings;
 	suspicious: HighlightTypeSettings;
 	moderator: HighlightTypeSettings;
 	subscriber: HighlightTypeSettings;

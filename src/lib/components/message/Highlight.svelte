@@ -17,12 +17,6 @@
 			icon: "lucide--repeat",
 			label: "Returning Chatter",
 		},
-		// Currently unused because it's not sent by Twitch
-		// raider: {
-		// 	color: "#f5f500",
-		// 	icon: "",
-		// 	label: "Raider",
-		// },
 		suspicious: {
 			icon: "lucide--shield-alert",
 			label: "Suspicious User",
