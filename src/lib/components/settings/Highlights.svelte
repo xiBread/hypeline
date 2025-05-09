@@ -28,7 +28,14 @@
 </script>
 
 <div class="space-y-6">
-	<h2 class="text-xl font-medium">Highlights</h2>
+	<hgroup>
+		<h2 class="text-xl font-medium">Highlights</h2>
+
+		<p class="text-muted-foreground mt-2 text-sm">
+			Message highlights allow you to easily identify different types of
+			viewers.
+		</p>
+	</hgroup>
 
 	<div class="grid grid-cols-[repeat(4,auto)] items-center gap-x-3 gap-y-4">
 		<span class="col-start-2 text-sm font-medium">Color</span>
@@ -70,7 +77,7 @@
 					}
 				}
 			>
-				<Select.Trigger class="w-full">
+				<Select.Trigger class="w-full min-w-36">
 					{hlType.enabled
 						? styles.find((h) => h.value === hlType.style)!.label
 						: "Disabled"}
