@@ -1,5 +1,6 @@
 import { app } from "./state.svelte";
 import type {
+	BanEvasionEvaluation,
 	WithBasicUser,
 	WithBroadcaster,
 	WithModerator,
@@ -38,6 +39,24 @@ export class Viewer implements PartialUser {
 	 */
 	public isReturning = $state(false);
 
+	/**
+	 * Whether the viewer's messages are being monitored. This is mutually
+	 * exclusive with `restricted`.
+	 */
+	public monitored = $state(false);
+
+	/**
+	 * Whether the viewer's messages are being restricted. This is mutually
+	 * exclusive with `monitored`.
+	 */
+	public restricted = $state(false);
+
+	/**
+	 * The likelihood that the viewer is ban evading if they are considered a
+	 * suspicious user.
+	 */
+	public banEvasion = $state<BanEvasionEvaluation>("unknown");
+
 	public constructor(data: PartialUser) {
 		this.#data = data;
 	}
@@ -57,16 +76,19 @@ export class Viewer implements PartialUser {
 	}
 
 	public static fromBasic(data: WithBasicUser) {
-		const stored = app.active.viewers.get(data.user_login);
+		let stored = app.active.viewers.get(data.user_login);
 
-		return (
-			stored ??
-			new Viewer({
+		if (!stored) {
+			stored = new Viewer({
 				id: data.user_id,
 				username: data.user_login,
 				displayName: data.user_name,
-			})
-		);
+			});
+
+			app.active.viewers.set(data.user_login, stored);
+		}
+
+		return stored;
 	}
 
 	public static fromBroadcaster(data: WithBroadcaster) {

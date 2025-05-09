@@ -1,6 +1,8 @@
 import { clsx } from "clsx";
 import type { ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { Fragment } from "./twitch/eventsub";
+import type { Emote } from "./twitch/irc";
 import type { PartialUser } from "./user";
 
 export type Nullable<T> = { [K in keyof T]: T[K] | null };
@@ -48,4 +50,28 @@ export function colorizeName(user: PartialUser) {
 	return html`<span class="font-semibold" style="color: ${user.color};"
 		>${user.displayName}</span
 	>`;
+}
+
+export function extractEmotes(fragments: Fragment[]): Emote[] {
+	const emotes: Emote[] = [];
+	let offset = 0;
+
+	for (const fragment of fragments) {
+		const length = Array.from(fragment.text).length;
+
+		if (fragment.type === "emote") {
+			emotes.push({
+				id: fragment.emote.id,
+				code: fragment.text,
+				range: {
+					start: offset,
+					end: offset + length,
+				},
+			});
+		}
+
+		offset += length;
+	}
+
+	return emotes;
 }

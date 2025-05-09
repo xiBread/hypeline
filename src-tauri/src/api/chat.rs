@@ -74,12 +74,15 @@ pub async fn join(
     });
 
     if let Some(eventsub) = eventsub {
+        #[rustfmt::skip]
         eventsub
             .subscribe_all(
                 login.as_str(),
                 &[
                     (EventType::ChannelModerate, &channel_with_mod_cond),
                     (EventType::ChannelSubscriptionEnd, &channel_cond),
+					(EventType::ChannelSuspiciousUserMessage, &channel_with_mod_cond),
+					(EventType::ChannelSuspiciousUserUpdate, &channel_with_mod_cond),
                     (EventType::ChannelUnbanRequestCreate, &channel_with_mod_cond),
                     (
                         EventType::ChannelUnbanRequestResolve,
