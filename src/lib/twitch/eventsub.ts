@@ -175,6 +175,38 @@ export type SuspiciousUserType =
 	| "ban_evader"
 	| "banned_in_shared_channel";
 
+export interface TextFragment {
+	type: "text";
+	text: string;
+}
+
+export interface CheermoteFragment {
+	type: "cheermote";
+	text: string;
+	cheermote: {
+		prefix: string;
+		bits: number;
+		tier: number;
+	};
+}
+
+export interface EmoteFragment {
+	type: "emote";
+	text: string;
+	emote: {
+		id: string;
+		emote_set_id: string;
+	};
+}
+
+export type Fragment = TextFragment | CheermoteFragment | EmoteFragment;
+
+export interface StructuredMessage {
+	message_id: string;
+	text: string;
+	fragments: Fragment[];
+}
+
 export interface ChannelSuspiciousUserMessage
 	extends WithBasicUser,
 		WithBroadcaster {
@@ -182,7 +214,7 @@ export interface ChannelSuspiciousUserMessage
 	shared_ban_channel_ids: string[] | null;
 	types: SuspiciousUserType[];
 	ban_evasion_evaluation: "unknown" | "possible" | "likely";
-	message: never; // todo
+	message: StructuredMessage;
 }
 
 export interface ChannelSuspiciousUserUpdate
