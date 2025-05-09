@@ -22,6 +22,8 @@
 		hlType = "mention";
 	} else if (message.isFirst) {
 		hlType = "new";
+	} else if (message.viewer.isReturning) {
+		hlType = "returning";
 	} else if (message.viewer.isMod) {
 		hlType = "moderator";
 	} else if (message.viewer.isVip) {
