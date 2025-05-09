@@ -10,6 +10,7 @@
 	const { message }: { message: UserMessage } = $props();
 
 	let hlType = $state<HighlightType>();
+	let info = $state<string>();
 	let quickActionsOpen = $state(false);
 
 	const highlights = $derived(settings.state.highlights);
@@ -28,12 +29,25 @@
 		hlType = "broadcaster";
 	} else if (message.viewer.isMod) {
 		hlType = "moderator";
+	} else if (message.viewer.isSuspicious) {
+		hlType = "suspicious";
 	} else if (message.viewer.isVip) {
 		hlType = "vip";
 	} else if (message.viewer.isSub) {
 		hlType = "subscriber";
-	} else {
-		//
+	}
+
+	const likelihood = message.viewer.banEvasion;
+
+	if (message.viewer.isSuspicious) {
+		if (message.viewer.monitored) {
+			info = "Montioring";
+		} else if (message.viewer.restricted) {
+			info = "Restricted";
+		} else if (likelihood !== "unknown") {
+			const status = likelihood[0].toUpperCase() + likelihood.slice(1);
+			info = `${status} Ban Evader`;
+		}
 	}
 </script>
 
@@ -59,7 +73,7 @@
 			<Message {message} />
 		</div>
 	{:else if hlType && highlights.enabled && highlights[hlType].enabled}
-		<Highlight type={hlType}>
+		<Highlight type={hlType} {info}>
 			{@render innerMessage(highlights[hlType].style !== "background")}
 		</Highlight>
 	{:else}

@@ -6,9 +6,10 @@
 	interface Props {
 		children: Snippet;
 		type: HighlightType;
+		info?: string;
 	}
 
-	const { children, type }: Props = $props();
+	const { children, type, info }: Props = $props();
 
 	const highlights = {
 		mention: {
@@ -60,6 +61,10 @@
 			>
 				<span class="{highlight.icon} iconify mr-2 size-4"></span>
 				{highlight.label}
+
+				{#if info}
+					({info})
+				{/if}
 			</div>
 		{/if}
 
