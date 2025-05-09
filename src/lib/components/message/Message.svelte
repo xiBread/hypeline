@@ -53,7 +53,7 @@ render properly without an extra space in between. -->
 >
 	{#each message.fragments as fragment, i}
 		{#if fragment.type === "mention"}
-			{#if !message.reply}
+			{#if !message.reply || (message.reply && i > 0)}
 				<span
 					class="font-semibold break-words"
 					style:color={fragment.color}
