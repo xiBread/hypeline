@@ -37,7 +37,7 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-	class={["group group relative", message.deleted && "opacity-30"]}
+	class={["group relative", message.deleted && "opacity-30"]}
 	onmouseenter={() => (quickActionsOpen = true)}
 	onmouseleave={() => (quickActionsOpen = false)}
 	aria-disabled={message.deleted}
