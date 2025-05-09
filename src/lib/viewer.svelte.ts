@@ -30,6 +30,14 @@ export class Viewer implements PartialUser {
 	 */
 	public isVip = $state(false);
 
+	/**
+	 * Whether the viewer is a returning user to the channel.
+	 *
+	 * Returning users are new viewers who have chatted at least twice in the
+	 * last 30 days.
+	 */
+	public isReturning = $state(false);
+
 	public constructor(data: PartialUser) {
 		this.#data = data;
 	}

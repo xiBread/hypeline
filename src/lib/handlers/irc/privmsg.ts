@@ -16,6 +16,7 @@ export default defineHandler({
 		viewer.isMod = data.is_mod;
 		viewer.isSub = data.is_subscriber;
 		viewer.isVip = message.badges.some((b) => b.name === "vip");
+		viewer.isReturning = data.is_returning_chatter;
 
 		if (!storedViewer) {
 			app.active.viewers.set(message.viewer.username, viewer);
