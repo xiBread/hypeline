@@ -1,21 +1,24 @@
 import { RuneStore } from "@tauri-store/svelte";
 
+export type HighlightType =
+	| "mention"
+	| "new"
+	| "returning"
+	| "suspicious"
+	| "broadcaster"
+	| "moderator"
+	| "subscriber"
+	| "vip";
+
 export interface HighlightTypeSettings {
 	enabled: boolean;
 	color: string;
 	style: "default" | "compact" | "background";
 }
 
-export interface HighlightSettings {
+export interface HighlightSettings
+	extends Record<HighlightType, HighlightTypeSettings> {
 	enabled: boolean;
-	mention: HighlightTypeSettings;
-	new: HighlightTypeSettings;
-	returning: HighlightTypeSettings;
-	suspicious: HighlightTypeSettings;
-	broadcaster: HighlightTypeSettings;
-	moderator: HighlightTypeSettings;
-	subscriber: HighlightTypeSettings;
-	vip: HighlightTypeSettings;
 }
 
 export interface MessageHistorySettings {
@@ -43,7 +46,10 @@ export interface Settings {
 	timestamps: TimestampSettings;
 }
 
-export const defaultHighlightTypes: Omit<HighlightSettings, "enabled"> = {
+export const defaultHighlightTypes: Record<
+	HighlightType,
+	HighlightTypeSettings
+> = {
 	mention: {
 		enabled: true,
 		color: "#adadb8",

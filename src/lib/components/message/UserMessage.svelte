@@ -1,10 +1,10 @@
 <script lang="ts">
 	import type { UserMessage } from "$lib/message";
 	import { settings } from "$lib/settings";
+	import type { HighlightType } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
 	import QuickActions from "../QuickActions.svelte";
 	import Highlight from "./Highlight.svelte";
-	import type { HighlightType } from "./Highlight.svelte";
 	import Message from "./Message.svelte";
 
 	const { message }: { message: UserMessage } = $props();

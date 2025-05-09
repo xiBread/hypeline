@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { defaultHighlightTypes, settings } from "$lib/settings";
+	import type { HighlightType } from "$lib/settings";
 	import Input from "../ui/Input.svelte";
 	import * as Select from "../ui/select";
-
-	type HlKey = Exclude<keyof typeof settings.state.highlights, "enabled">;
 
 	const highlights = [
 		{ label: "Mentions", value: "mention" },
@@ -14,7 +13,7 @@
 		{ label: "Moderators", value: "moderator" },
 		{ label: "Subscribers", value: "subscriber" },
 		{ label: "VIPs", value: "vip" },
-	];
+	] as const;
 
 	const styles = [
 		{ label: "Default", value: "default" },
@@ -23,7 +22,7 @@
 		{ label: "Disabled", value: "disabled" },
 	];
 
-	function reset(key: HlKey) {
+	function reset(key: HighlightType) {
 		settings.state.highlights[key] = defaultHighlightTypes[key];
 	}
 </script>
@@ -44,7 +43,7 @@
 
 		{#each highlights as highlight}
 			{@const hlType =
-				settings.state.highlights[highlight.value as HlKey]}
+				settings.state.highlights[highlight.value as HighlightType]}
 
 			<span class="col-start-1 text-sm font-medium"
 				>{highlight.label}</span
@@ -100,7 +99,7 @@
 				class="dark:hover:bg-input/50 dark:bg-input/30 border-input flex size-9 items-center justify-center rounded-md border bg-transparent"
 				type="button"
 				aria-label="Reset to default"
-				onclick={() => reset(highlight.value as HlKey)}
+				onclick={() => reset(highlight.value)}
 			>
 				<span class="iconify lucide--rotate-cw"></span>
 			</button>

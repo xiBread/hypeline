@@ -1,8 +1,14 @@
-<script lang="ts" module>
+<script lang="ts">
+	import type { Snippet } from "svelte";
 	import { settings } from "$lib/settings";
+	import type { HighlightType } from "$lib/settings";
 
-	// eslint-disable-next-line no-use-before-define
-	export type HighlightType = keyof typeof highlights;
+	interface Props {
+		children: Snippet;
+		type: HighlightType;
+	}
+
+	const { children, type }: Props = $props();
 
 	const highlights = {
 		mention: {
@@ -38,17 +44,6 @@
 			label: "VIP",
 		},
 	};
-</script>
-
-<script lang="ts">
-	import type { Snippet } from "svelte";
-
-	interface Props {
-		children: Snippet;
-		type: HighlightType;
-	}
-
-	const { children, type }: Props = $props();
 
 	const highlight = $derived(highlights[type]);
 	const hlType = $derived(settings.state.highlights[type]);
