@@ -58,7 +58,7 @@
 				<Input
 					class="min-w-24"
 					type="text"
-					pattern="#[\da-fA-F]{'{6}'}"
+					disabled={!hlType.enabled}
 					bind:value={hlType.color}
 				/>
 			</div>
