@@ -12,6 +12,7 @@ export interface HighlightSettings {
 	new: HighlightTypeSettings;
 	returning: HighlightTypeSettings;
 	suspicious: HighlightTypeSettings;
+	broadcaster: HighlightTypeSettings;
 	moderator: HighlightTypeSettings;
 	subscriber: HighlightTypeSettings;
 	vip: HighlightTypeSettings;
@@ -61,6 +62,11 @@ export const defaultHighlightTypes: Omit<HighlightSettings, "enabled"> = {
 	suspicious: {
 		enabled: true,
 		color: "#ff8280",
+		style: "default",
+	},
+	broadcaster: {
+		enabled: false,
+		color: "#fc3430",
 		style: "default",
 	},
 	moderator: {

@@ -21,6 +21,10 @@
 			icon: "lucide--shield-alert",
 			label: "Suspicious User",
 		},
+		broadcaster: {
+			icon: "lucide--video",
+			label: "Broadcaster",
+		},
 		moderator: {
 			icon: "lucide--sword -scale-x-100",
 			label: "Moderator",

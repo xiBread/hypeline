@@ -10,6 +10,7 @@
 		{ label: "First Time Chats", value: "new" },
 		{ label: "Returning Chatters", value: "returning" },
 		{ label: "Suspicious Users", value: "suspicious" },
+		{ label: "Broadcasters", value: "broadcaster" },
 		{ label: "Moderators", value: "moderator" },
 		{ label: "Subscribers", value: "subscriber" },
 		{ label: "VIPs", value: "vip" },
