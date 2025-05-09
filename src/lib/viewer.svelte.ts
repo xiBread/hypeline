@@ -132,4 +132,10 @@ export class Viewer implements PartialUser {
 	public get displayName() {
 		return this.#data.displayName;
 	}
+
+	public get isSuspicious() {
+		return (
+			this.monitored || this.restricted || this.banEvasion !== "unknown"
+		);
+	}
 }

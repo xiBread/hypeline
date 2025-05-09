@@ -2,61 +2,70 @@
 	import { Slider } from "bits-ui";
 	import { settings } from "$lib/settings";
 	import Switch from "../ui/Switch.svelte";
+	import Highlights from "./Highlights.svelte";
 </script>
 
 <div class="space-y-6">
 	<h1 class="text-2xl font-semibold">Chat</h1>
 
-	<h2 class="text-xl font-medium">Messages</h2>
+	<Highlights />
 
-	<div>
-		<h3 class="mb-2 text-lg font-medium">Message History Limit</h3>
+	<div class="space-y-6">
+		<h2 class="text-xl font-medium">Messages</h2>
 
-		<p class="text-muted-foreground mb-4 text-sm">
-			This feature uses a
-			<a
-				class="text-twitch-link"
-				href="https://recent-messages.robotty.de/">third-party API</a
-			> that temporarily stores the messages sent in joined channels. To opt-out,
-			disable this setting.
-		</p>
+		<div>
+			<h3 class="mb-2 text-lg font-medium">Message History Limit</h3>
 
-		<Switch class="mb-6" bind:checked={settings.state.history.enabled}>
-			Fetch recent messages upon joining a channel
-		</Switch>
+			<p class="text-muted-foreground mb-4 text-sm">
+				This feature uses a
+				<a
+					class="text-twitch-link"
+					href="https://recent-messages.robotty.de/"
+					>third-party API</a
+				> that temporarily stores the messages sent in joined channels. To
+				opt-out, disable this setting.
+			</p>
 
-		<p
-			class={[
-				"text-muted-foreground mb-6 text-sm",
-				!settings.state.history.enabled && "opacity-50",
-			]}
-		>
-			Change how many previous messages to load when joining a channel.
-		</p>
+			<Switch class="mb-6" bind:checked={settings.state.history.enabled}>
+				Fetch recent messages upon joining a channel
+			</Switch>
 
-		<Slider.Root
-			class="relative flex items-center data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
-			type="single"
-			min={0}
-			max={800}
-			step={50}
-			disabled={!settings.state.history.enabled}
-			bind:value={settings.state.history.limit}
-		>
-			<div
-				class="bg-input relative h-2 w-full rounded-full hover:cursor-pointer"
+			<p
+				class={[
+					"text-muted-foreground mb-6 text-sm",
+					!settings.state.history.enabled && "opacity-50",
+				]}
 			>
-				<Slider.Range class="bg-twitch absolute h-full rounded-full" />
-			</div>
+				Change how many previous messages to load when joining a
+				channel.
+			</p>
 
-			<Slider.Thumb
-				class="flex size-5 justify-center rounded-full bg-white hover:cursor-grab active:scale-110 active:cursor-grabbing"
-				index={0}
+			<Slider.Root
+				class="relative flex items-center data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+				type="single"
+				min={0}
+				max={800}
+				step={50}
+				disabled={!settings.state.history.enabled}
+				bind:value={settings.state.history.limit}
 			>
-				<div class="mt-7 text-center text-xs font-medium">
-					{settings.state.history.limit}
+				<div
+					class="bg-input relative h-2 w-full rounded-full hover:cursor-pointer"
+				>
+					<Slider.Range
+						class="bg-twitch absolute h-full rounded-full"
+					/>
 				</div>
-			</Slider.Thumb>
-		</Slider.Root>
+
+				<Slider.Thumb
+					class="flex size-5 justify-center rounded-full bg-white hover:cursor-grab active:scale-110 active:cursor-grabbing"
+					index={0}
+				>
+					<div class="mt-7 text-center text-xs font-medium">
+						{settings.state.history.limit}
+					</div>
+				</Slider.Thumb>
+			</Slider.Root>
+		</div>
 	</div>
 </div>
