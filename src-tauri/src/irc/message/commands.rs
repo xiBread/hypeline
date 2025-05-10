@@ -550,6 +550,7 @@ pub enum UserNoticeEvent {
         sub_plan: String,
         sub_plan_name: String,
         num_gifted_months: u64,
+        sender_total_months: u64,
     },
     SubMysteryGift {
         mass_gift_count: u64,
@@ -643,6 +644,9 @@ impl TryFrom<IrcMessage> for UserNoticeMessage {
                     .try_get_nonempty_tag_value("msg-param-sub-plan-name")?
                     .to_owned(),
                 num_gifted_months: source.try_get_number("msg-param-gift-months")?,
+                sender_total_months: source
+                    .try_get_optional_number("msg-param-sender-count")?
+                    .unwrap_or_default(),
             },
             _ if (sender.id == "274598607" && event_id == "submysterygift")
                 || event_id == "anonsubmysterygift" =>

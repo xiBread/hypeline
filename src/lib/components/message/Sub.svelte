@@ -54,6 +54,10 @@
 		const recipient = Viewer.from(sub.recipient);
 		msg += `to ${colorizeName(recipient)}!`;
 
+		if (sub.sender_total_months > sub.num_gifted_months) {
+			msg += ` They've gifted a total of ${sub.sender_total_months} months of subs to the channel.`;
+		}
+
 		return msg;
 	}
 </script>

@@ -189,6 +189,7 @@ export interface SubGiftEvent {
 	sub_plan: string;
 	sub_plan_name: string;
 	num_gifted_months: number;
+	sender_total_months: number;
 }
 
 export interface SubMysteryGiftEvent {
