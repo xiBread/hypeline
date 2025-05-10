@@ -1,28 +1,28 @@
 <script lang="ts">
 	import { Slider } from "bits-ui";
-	import Color from "color";
-	import type { ColorLike } from "color";
+	import chroma from "chroma-js";
 	import type { HTMLAttributes } from "svelte/elements";
 	import { clamp, cn } from "$lib/util";
 	import Input from "./Input.svelte";
 
 	interface Props extends HTMLAttributes<HTMLDivElement> {
-		value?: ColorLike;
+		value?: chroma.ChromaInput;
 	}
 
 	let { class: className, value = $bindable(), ...rest }: Props = $props();
 
-	const color = $state(Color(value));
+	const color = $state(chroma(value ?? "#FFF"));
+	const hsv = color.hsv();
 
-	let h = $state(color.hue() || 0);
-	let s = $state(color.saturationv() || 100);
-	let v = $state(color.value() || 50);
+	let h = $state(hsv[0] || 0);
+	let s = $state(hsv[1] * 100 || 100);
+	let v = $state(hsv[2] * 100 || 50);
 
 	let well = $state<HTMLElement>();
 	let isDragging = $state(false);
 
 	const position = $derived({ x: s, y: 100 - v });
-	const hex = $derived(Color.hsv(h, s, v).hex());
+	const hex = $derived(chroma.hsv(h, s / 100, v / 100).hex());
 
 	$effect(() => {
 		value = hex;
@@ -53,13 +53,11 @@
 	}
 
 	function handleChange(event: Event & { currentTarget: HTMLInputElement }) {
-		try {
-			const color = Color(event.currentTarget.value);
+		const hsv = chroma(event.currentTarget.value).hsv();
 
-			h = color.hue();
-			s = color.saturationv();
-			v = color.value();
-		} catch {}
+		h = hsv[0];
+		s = hsv[1] * 100;
+		v = hsv[2] * 100;
 	}
 </script>
 
@@ -105,7 +103,7 @@
 	</Slider.Root>
 
 	<Input
-		class="text-xs shadow-none"
+		class="text-xs uppercase shadow-none"
 		type="text"
 		value={hex}
 		onchange={handleChange}
