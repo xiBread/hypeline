@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { defaultHighlightTypes, settings } from "$lib/settings";
 	import type { HighlightType } from "$lib/settings";
-	import Input from "../ui/Input.svelte";
-	import * as Select from "../ui/select";
+	import Input from "../../ui/Input.svelte";
+	import * as Select from "../../ui/select";
 
 	const highlights = [
 		{ label: "Mentions", value: "mention" },
@@ -29,9 +29,9 @@
 
 <div class="space-y-6">
 	<hgroup>
-		<h2 class="text-xl font-medium">Highlights</h2>
+		<h2 class="mb-2">Highlights</h2>
 
-		<p class="text-muted-foreground mt-2 text-sm">
+		<p class="text-muted-foreground text-sm">
 			Message highlights allow you to easily identify different types of
 			viewers.
 		</p>

@@ -126,4 +126,22 @@
 	button:hover {
 		cursor: pointer;
 	}
+
+	h1 {
+		font-weight: var(--font-weight-bold);
+		font-size: var(--text-2xl);
+		line-height: var(--text-2xl--line-height);
+	}
+
+	h2 {
+		font-weight: var(--font-weight-semibold);
+		font-size: var(--text-xl);
+		line-height: var(--text-xl--line-height);
+	}
+
+	h3 {
+		font-weight: var(--font-weight-medium);
+		font-size: var(--text-lg);
+		line-height: var(--text-lg--line-height);
+	}
 }

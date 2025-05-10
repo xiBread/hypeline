@@ -3,14 +3,22 @@
 	import { tick } from "svelte";
 	import { goto } from "$app/navigation";
 	import { settings } from "$lib/settings";
-	import Chat from "./Chat.svelte";
-	import General from "./General.svelte";
+	import Appearance from "./appearance/Appearance.svelte";
+	import Chat from "./chat/Chat.svelte";
 
 	let { open = $bindable(false) } = $props();
 
 	const categories = [
-		{ name: "General", icon: "lucide--monitor-cog", component: General },
-		{ name: "Chat", icon: "lucide--message-square", component: Chat },
+		{
+			name: "Appearance",
+			icon: "lucide--monitor-cog",
+			component: Appearance,
+		},
+		{
+			name: "Chat",
+			icon: "lucide--message-square",
+			component: Chat,
+		},
 	];
 
 	$effect(() => {
@@ -43,7 +51,7 @@
 			<Tabs.Root
 				class="flex h-full"
 				orientation="vertical"
-				value="General"
+				value="Appearance"
 			>
 				<nav class="bg-sidebar h-full min-w-44 border-r p-2">
 					<Dialog.Title
@@ -81,7 +89,7 @@
 					</button>
 				</nav>
 
-				<div class="relative grow p-4">
+				<div class="relative grow overflow-y-auto p-4 pb-16">
 					<Dialog.Close
 						class="text-muted-foreground group hover:text-foreground absolute top-4 right-4 flex flex-col items-center"
 						onclick={() => (open = false)}
