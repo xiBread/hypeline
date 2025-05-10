@@ -22,11 +22,12 @@
 			message += `Tier ${sub.sub_plan[0]}.`;
 		}
 
-		message += ` They've subscribed for ${sub.cumulative_months} months!`;
+		if (sub.cumulative_months > 1) {
+			message += ` They've subscribed for ${sub.cumulative_months} months!`;
 
-		if (sub.streak_months) {
-			message = message.slice(0, -1);
-			message += `, currently on a ${sub.streak_months} month streak!`;
+			if (sub.streak_months) {
+				message = `${message.slice(0, -1)}, currently on a ${sub.streak_months} month streak!`;
+			}
 		}
 
 		return message;
