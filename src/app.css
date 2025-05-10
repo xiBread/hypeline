@@ -68,11 +68,6 @@
 }
 
 @theme inline {
-	--radius-sm: calc(var(--radius) - 4px);
-	--radius-md: calc(var(--radius) - 2px);
-	--radius-lg: var(--radius);
-	--radius-xl: calc(var(--radius) + 4px);
-
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-card: var(--card);
@@ -104,8 +99,6 @@
 }
 
 @theme {
-	--radius: 0.625rem;
-
 	--color-twitch: oklch(0.59 0.2535 296);
 	--color-twitch-link: oklch(0.75 0.1549 301.29);
 }
