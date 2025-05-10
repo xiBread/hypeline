@@ -54,11 +54,11 @@
 
 	function handleChange(event: Event & { currentTarget: HTMLInputElement }) {
 		try {
-			const newColor = Color(event.currentTarget.value);
+			const color = Color(event.currentTarget.value);
 
-			h = newColor.hue();
-			s = newColor.saturationv();
-			v = newColor.value();
+			h = color.hue();
+			s = color.saturationv();
+			v = color.value();
 		} catch {}
 	}
 </script>
@@ -77,15 +77,15 @@
 		bind:this={well}
 	>
 		<div
-			class="pointer-events-none absolute size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white"
+			class="pointer-events-none absolute size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white"
 			style:top="{position.y}%"
 			style:left="{position.x}%"
-			style:box-shadow="0 0 0 1px rgb(0 0 0 / 50%)"
+			style:box-shadow="0 0 0 2px rgb(0 0 0 / 50%)"
 		></div>
 	</div>
 
 	<Slider.Root
-		class="relative flex h-4 w-full touch-none"
+		class="relative flex h-3 w-full items-center"
 		type="single"
 		step={1}
 		max={360}
@@ -93,13 +93,13 @@
 	>
 		<div
 			id="color-picker-hue"
-			class="relative my-0.5 h-3 w-full grow rounded-full"
+			class="relative my-0.5 h-2 w-full grow rounded-full"
 		>
 			<Slider.Range class="absolute w-full" />
 		</div>
 
 		<Slider.Thumb
-			class="border-primary/50 bg-background focus-visible:ring-ring block h-4 w-4 rounded-full border shadow transition-colors focus-visible:ring-1 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
+			class="bg-primary focus-visible:ring-ring block h-4 w-2 rounded-sm border shadow transition-colors hover:cursor-ew-resize focus-visible:ring-1 focus-visible:outline-none active:cursor-ew-resize"
 			index={0}
 		/>
 	</Slider.Root>
