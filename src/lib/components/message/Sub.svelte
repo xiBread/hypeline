@@ -46,9 +46,7 @@
 			msg += `a ${tier} sub `;
 		}
 
-		let recipient = app.active.viewers.get(sub.recipient.login);
-		recipient ??= Viewer.from(sub.recipient);
-
+		const recipient = Viewer.from(sub.recipient);
 		msg += `to ${colorizeName(recipient)}!`;
 
 		return msg;
@@ -61,8 +59,7 @@
 >
 	<div class="flex gap-1">
 		{#if sub.type === "sub_or_resub"}
-			<span class="fill-foreground iconify lucide--star mt-px size-4"
-			></span>
+			<span class="iconify lucide--star mt-px size-4"></span>
 		{:else}
 			<span class="iconify lucide--gift mt-px size-4"></span>
 		{/if}

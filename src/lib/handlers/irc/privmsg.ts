@@ -7,19 +7,16 @@ export default defineHandler({
 	handle(data) {
 		const message = new UserMessage(data);
 
-		const storedViewer = app.active.viewers.get(message.viewer.username);
-		const viewer = storedViewer ?? message.viewer;
-
-		viewer.isBroadcaster = message.badges.some(
+		message.viewer.isBroadcaster = message.badges.some(
 			(b) => b.name === "broadcaster",
 		);
-		viewer.isMod = data.is_mod;
-		viewer.isSub = data.is_subscriber;
-		viewer.isVip = message.badges.some((b) => b.name === "vip");
-		viewer.isReturning = data.is_returning_chatter;
+		message.viewer.isMod = data.is_mod;
+		message.viewer.isSub = data.is_subscriber;
+		message.viewer.isVip = message.badges.some((b) => b.name === "vip");
+		message.viewer.isReturning = data.is_returning_chatter;
 
-		if (!storedViewer) {
-			app.active.viewers.set(message.viewer.username, viewer);
+		if (!app.active.viewers.has(message.viewer.username)) {
+			app.active.viewers.set(message.viewer.username, message.viewer);
 		}
 
 		app.active.addMessage(message);
