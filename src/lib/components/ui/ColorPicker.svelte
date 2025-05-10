@@ -87,10 +87,9 @@
 	<Slider.Root
 		class="relative flex h-4 w-full touch-none"
 		type="single"
-		value={h}
 		step={1}
 		max={360}
-		onValueChange={(value) => (h = value)}
+		bind:value={h}
 	>
 		<div
 			id="color-picker-hue"
