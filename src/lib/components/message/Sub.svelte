@@ -1,14 +1,18 @@
 <script lang="ts">
 	import type { UserMessage } from "$lib/message";
 	import { app } from "$lib/state.svelte";
-	import type { SubGiftEvent, SubOrResubEvent } from "$lib/twitch/irc";
+	import type {
+		SubGiftEvent,
+		SubMysteryGiftEvent,
+		SubOrResubEvent,
+	} from "$lib/twitch/irc";
 	import { colorizeName } from "$lib/util";
 	import { Viewer } from "$lib/viewer.svelte";
 	import Message from "./Message.svelte";
 
 	interface Props {
 		message: UserMessage;
-		sub: SubOrResubEvent | SubGiftEvent;
+		sub: SubOrResubEvent | SubMysteryGiftEvent | SubGiftEvent;
 	}
 
 	const { message, sub }: Props = $props();
@@ -73,6 +77,12 @@
 
 				<p>{subMessage(sub)}</p>
 			</div>
+		{:else if sub.type === "sub_mystery_gift"}
+			<p>
+				{@html colorizeName(message.viewer)} is gifting {sub.mass_gift_count}
+				Tier {sub.sub_plan[0]} subs! They've gifted a total of {sub.sender_total_gifts}
+				subs to the channel.
+			</p>
 		{:else}
 			<p>{@html giftMessage(sub)}</p>
 		{/if}

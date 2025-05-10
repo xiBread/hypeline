@@ -11,7 +11,7 @@
 
 	{#if type === "announcement"}
 		<Announcement {message} color={message.event.color} />
-	{:else if type === "sub_or_resub" || type === "sub_gift"}
+	{:else if type === "sub_or_resub" || type === "sub_mystery_gift" || type === "sub_gift"}
 		<Sub {message} sub={message.event} />
 	{/if}
 {/if}
