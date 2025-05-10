@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { Popover } from "bits-ui";
 	import { defaultHighlightTypes, settings } from "$lib/settings";
 	import type { HighlightType } from "$lib/settings";
-	import Input from "../../ui/Input.svelte";
+	import ColorPicker from "../../ui/ColorPicker.svelte";
 	import * as Select from "../../ui/select";
 
 	const highlights = [
@@ -42,26 +43,25 @@
 		<span class="text-sm font-medium">Style</span>
 
 		{#each highlights as highlight}
-			{@const hlType =
-				settings.state.highlights[highlight.value as HighlightType]}
+			{@const hlType = settings.state.highlights[highlight.value]}
 
-			<span class="col-start-1 text-sm font-medium"
-				>{highlight.label}</span
-			>
+			<span class="col-start-1 text-sm font-medium">
+				{highlight.label}
+			</span>
 
-			<div class="flex items-center gap-x-1.5">
-				<div
-					class="border-input size-9 shrink-0 rounded-md border"
-					style:background-color={hlType.color}
-				></div>
-
-				<Input
-					class="min-w-24"
-					type="text"
-					disabled={!hlType.enabled}
-					bind:value={hlType.color}
+			<Popover.Root>
+				<Popover.Trigger
+					class="border-input size-9 shrink-0 rounded-md border bg-(--highlight)"
+					--highlight={hlType.color}
 				/>
-			</div>
+
+				<Popover.Content class="w-60" sideOffset={10}>
+					<ColorPicker
+						class="bg-background rounded-md border p-3"
+						bind:value={hlType.color}
+					/>
+				</Popover.Content>
+			</Popover.Root>
 
 			<Select.Root
 				type="single"

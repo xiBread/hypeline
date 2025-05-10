@@ -18,6 +18,10 @@ export function cn(...values: ClassValue[]) {
 	return twMerge(clsx(values));
 }
 
+export function clamp(min: number, value: number, max: number) {
+	return Math.min(Math.max(min, value), max);
+}
+
 export function formatDuration(seconds: number) {
 	const parts: string[] = [];
 
