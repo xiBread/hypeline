@@ -24,11 +24,7 @@ export default defineHandler({
 		}
 
 		app.active.addMessage(
-			message.suspicionStatus(
-				status !== "no_treatment",
-				viewer,
-				moderator,
-			),
+			message.suspicionStatus(status !== "no_treatment", viewer, moderator),
 		);
 
 		// Update AFTER message is sent so the previous status is available.

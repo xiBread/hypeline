@@ -1,11 +1,7 @@
 <script lang="ts">
 	import type { UserMessage } from "$lib/message";
 	import { app } from "$lib/state.svelte";
-	import type {
-		SubGiftEvent,
-		SubMysteryGiftEvent,
-		SubOrResubEvent,
-	} from "$lib/twitch/irc";
+	import type { SubGiftEvent, SubMysteryGiftEvent, SubOrResubEvent } from "$lib/twitch/irc";
 	import { colorizeName } from "$lib/util";
 	import { Viewer } from "$lib/viewer.svelte";
 	import Message from "./Message.svelte";
@@ -62,10 +58,7 @@
 	}
 </script>
 
-<div
-	class="bg-muted/50 my-0.5 border-l-4 p-2.5"
-	style:border-color={app.active.user.color}
->
+<div class="bg-muted/50 my-0.5 border-l-4 p-2.5" style:border-color={app.active.user.color}>
 	<div class="flex gap-1">
 		{#if sub.type === "sub_or_resub"}
 			<span class="iconify lucide--star mt-px size-4"></span>

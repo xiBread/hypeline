@@ -17,15 +17,12 @@
 	let unlisten: UnlistenFn | undefined;
 
 	onMount(async () => {
-		unlisten = await listen<IrcMessage[]>(
-			"recentmessages",
-			async (event) => {
-				for (const message of event.payload) {
-					const handler = handlers.get(message.type);
-					await handler?.handle(message);
-				}
-			},
-		);
+		unlisten = await listen<IrcMessage[]>("recentmessages", async (event) => {
+			for (const message of event.payload) {
+				const handler = handlers.get(message.type);
+				await handler?.handle(message);
+			}
+		});
 	});
 
 	onDestroy(() => unlisten?.());
@@ -42,9 +39,7 @@
 
 		await invoke("fetch_recent_messages", {
 			channel: channel.user.username,
-			historyLimit: settings.state.history.enabled
-				? settings.state.history.limit
-				: 0,
+			historyLimit: settings.state.history.enabled ? settings.state.history.limit : 0,
 		});
 
 		channel.addEmotes(app.globalEmotes);

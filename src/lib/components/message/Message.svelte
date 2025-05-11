@@ -1,11 +1,11 @@
 <script lang="ts">
 	import * as opener from "@tauri-apps/plugin-opener";
 	import type { UserMessage } from "$lib/message";
+	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
 	import type { Badge } from "$lib/twitch/api";
 	import Timestamp from "../Timestamp.svelte";
 	import Tooltip from "../ui/Tooltip.svelte";
-	import { settings } from "$lib/settings";
 
 	const { message }: { message: UserMessage } = $props();
 
@@ -57,9 +57,7 @@ render properly without an extra space in between. -->
 			{#if !message.reply || (message.reply && i > 0)}
 				<span
 					class="font-semibold break-words"
-					style:color={settings.state.coloredMentions
-						? fragment.color
-						: "inherit"}
+					style:color={settings.state.coloredMentions ? fragment.color : "inherit"}
 				>
 					@{fragment.displayName}
 				</span>
@@ -75,11 +73,7 @@ render properly without an extra space in between. -->
 				{fragment.text}
 			</span>
 		{:else if fragment.type === "emote"}
-			<Tooltip
-				triggerClass="-my-2 align-middle inline-block"
-				side="top"
-				sideOffset={4}
-			>
+			<Tooltip triggerClass="-my-2 align-middle inline-block" side="top" sideOffset={4}>
 				{#snippet trigger()}
 					<img
 						class="object-contain"

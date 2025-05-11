@@ -16,8 +16,7 @@ export interface HighlightTypeSettings {
 	style: "default" | "compact" | "background";
 }
 
-export interface HighlightSettings
-	extends Record<HighlightType, HighlightTypeSettings> {
+export interface HighlightSettings extends Record<HighlightType, HighlightTypeSettings> {
 	enabled: boolean;
 }
 
@@ -49,10 +48,7 @@ export interface Settings {
 	timestamps: TimestampSettings;
 }
 
-export const defaultHighlightTypes: Record<
-	HighlightType,
-	HighlightTypeSettings
-> = {
+export const defaultHighlightTypes: Record<HighlightType, HighlightTypeSettings> = {
 	mention: { enabled: true, color: "#adadb8", style: "default" },
 	new: { enabled: true, color: "#ff75e6", style: "default" },
 	returning: { enabled: true, color: "#00a3a3", style: "default" },

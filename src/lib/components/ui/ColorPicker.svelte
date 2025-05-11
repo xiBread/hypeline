@@ -89,10 +89,7 @@
 		max={360}
 		bind:value={h}
 	>
-		<div
-			id="color-picker-hue"
-			class="relative my-0.5 h-2 w-full grow rounded-full"
-		>
+		<div id="color-picker-hue" class="relative my-0.5 h-2 w-full grow rounded-full">
 			<Slider.Range class="absolute w-full" />
 		</div>
 
@@ -102,23 +99,14 @@
 		/>
 	</Slider.Root>
 
-	<Input
-		class="text-xs uppercase shadow-none"
-		type="text"
-		value={hex}
-		onchange={handleChange}
-	/>
+	<Input class="text-xs uppercase shadow-none" type="text" value={hex} onchange={handleChange} />
 </div>
 
 <style>
 	#color-picker-well {
 		background:
-			linear-gradient(0deg, rgb(0, 0, 0), transparent),
-			linear-gradient(
-				90deg,
-				rgb(255, 255, 255),
-				hsl(var(--color-picker-well-hue), 100%, 50%)
-			);
+			linear-gradient(0deg, #000, transparent),
+			linear-gradient(90deg, #fff, hsl(var(--color-picker-well-hue), 100%, 50%));
 	}
 
 	#color-picker-hue {

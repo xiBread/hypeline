@@ -81,20 +81,14 @@
 				</Tabs.List>
 
 				{#each channels as channel}
-					<Tabs.Content
-						class="max-h-96 overflow-y-auto"
-						value={channel.displayName}
-					>
+					<Tabs.Content class="max-h-96 overflow-y-auto" value={channel.displayName}>
 						<div class="bg-sidebar border-b p-2">
 							{channel.displayName}'s emotes
 						</div>
 
 						<div class="grid grid-cols-7 content-start gap-2 p-2">
 							{#each channel.emotes as emote}
-								<button
-									title={emote.name}
-									onclick={() => appendEmote(emote.name)}
-								>
+								<button title={emote.name} onclick={() => appendEmote(emote.name)}>
 									<img
 										class="size-8"
 										src="https://static-cdn.jtvnw.net/emoticons/v2/{emote.id}/{emote.format}/dark/3.0"

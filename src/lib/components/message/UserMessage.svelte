@@ -15,9 +15,7 @@
 
 	const highlights = $derived(settings.state.highlights);
 
-	const hasMention = message.text
-		.toLowerCase()
-		.includes(`@${app.user?.username}`);
+	const hasMention = message.text.toLowerCase().includes(`@${app.user?.username}`);
 
 	if (hasMention) {
 		hlType = "mention";
@@ -59,17 +57,11 @@
 	aria-disabled={message.deleted}
 >
 	{#if quickActionsOpen && !message.deleted}
-		<QuickActions
-			class="absolute top-0 right-2 -translate-y-1/2"
-			{message}
-		/>
+		<QuickActions class="absolute top-0 right-2 -translate-y-1/2" {message} />
 	{/if}
 
 	{#if message.highlighted}
-		<div
-			class="bg-muted/50 my-0.5 border-l-4 p-2.5"
-			style:border-color={app.active.user.color}
-		>
+		<div class="bg-muted/50 my-0.5 border-l-4 p-2.5" style:border-color={app.active.user.color}>
 			<Message {message} />
 		</div>
 	{:else if hlType && highlights.enabled && highlights[hlType].enabled}
@@ -82,16 +74,9 @@
 </div>
 
 {#snippet innerMessage(bordered: boolean)}
-	<div
-		class={[
-			"not-group-aria-disabled:hover:bg-muted/50 py-2",
-			bordered ? "px-1.5" : "px-3",
-		]}
-	>
+	<div class={["not-group-aria-disabled:hover:bg-muted/50 py-2", bordered ? "px-1.5" : "px-3"]}>
 		{#if message.reply}
-			{@const viewer = app.active.viewers.get(
-				message.reply.parent.user.login,
-			)}
+			{@const viewer = app.active.viewers.get(message.reply.parent.user.login)}
 
 			<div class="mb-1 flex items-center gap-2">
 				<div
@@ -99,10 +84,8 @@
 				></div>
 
 				<div class="line-clamp-1 text-xs">
-					<span
-						style:color={settings.state.coloredMentions
-							? viewer?.color
-							: "inherit"}>@{message.reply.parent.user.name}</span
+					<span style:color={settings.state.coloredMentions ? viewer?.color : "inherit"}
+						>@{message.reply.parent.user.name}</span
 					>:
 					<p class="text-muted-foreground inline">
 						{message.reply.parent.message_text}

@@ -12,17 +12,14 @@
 
 		<p class="text-muted-foreground mb-4 text-sm">
 			This feature uses a
-			<a
-				class="text-twitch-link"
-				href="https://recent-messages.robotty.de/">third-party API</a
-			> that temporarily stores the messages sent in joined channels. To opt-out,
-			disable this setting.
+			<a class="text-twitch-link" href="https://recent-messages.robotty.de/"
+				>third-party API</a
+			> that temporarily stores the messages sent in joined channels. To opt-out, disable this
+			setting.
 		</p>
 
 		<Switch class="mb-6" bind:checked={settings.state.history.enabled}>
-			<span class="text-sm font-medium">
-				Fetch recent messages upon joining a channel
-			</span>
+			<span class="text-sm font-medium">Fetch recent messages upon joining a channel</span>
 		</Switch>
 
 		<p
@@ -43,9 +40,7 @@
 			disabled={!settings.state.history.enabled}
 			bind:value={settings.state.history.limit}
 		>
-			<div
-				class="bg-input relative h-2 w-full rounded-full hover:cursor-pointer"
-			>
+			<div class="bg-input relative h-2 w-full rounded-full hover:cursor-pointer">
 				<Slider.Range class="bg-twitch absolute h-full rounded-full" />
 			</div>
 

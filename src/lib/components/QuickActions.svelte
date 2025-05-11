@@ -28,12 +28,7 @@
 	}
 </script>
 
-<Toolbar.Root
-	class={cn(
-		"bg-muted flex items-center gap-x-1 rounded-sm border p-0.5",
-		className,
-	)}
->
+<Toolbar.Root class={cn("bg-muted flex items-center gap-x-1 rounded-sm border p-0.5", className)}>
 	<Toolbar.Button
 		class="hover:bg-muted-foreground/50 flex items-center justify-center rounded-[4px] p-1"
 		title="Copy message"

@@ -10,21 +10,11 @@
 		checked?: boolean;
 	}
 
-	let {
-		children,
-		description,
-		class: className,
-		checked = $bindable(false),
-	}: Props = $props();
+	let { children, description, class: className, checked = $bindable(false) }: Props = $props();
 </script>
 
 <div>
-	<Label.Root
-		class={cn(
-			"flex items-center justify-between hover:cursor-pointer",
-			className,
-		)}
-	>
+	<Label.Root class={cn("flex items-center justify-between hover:cursor-pointer", className)}>
 		{@render children?.()}
 
 		<Switch.Root

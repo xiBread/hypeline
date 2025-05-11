@@ -23,12 +23,7 @@ export default defineHandler({
 						: "subscriber-only";
 
 				app.active.addMessage(
-					message.mode(
-						mode,
-						!data.action.includes("off"),
-						Number.NaN,
-						moderator,
-					),
+					message.mode(mode, !data.action.includes("off"), Number.NaN, moderator),
 				);
 
 				break;
@@ -40,9 +35,7 @@ export default defineHandler({
 					message.mode(
 						"follower-only",
 						!data.action.includes("off"),
-						data.followers
-							? data.followers.follow_duration_minutes * 60
-							: Number.NaN,
+						data.followers ? data.followers.follow_duration_minutes * 60 : Number.NaN,
 						moderator,
 					),
 				);
@@ -74,10 +67,7 @@ export default defineHandler({
 			case "add_permitted_term":
 			case "remove_blocked_term":
 			case "remove_permitted_term": {
-				app.active.addMessage(
-					message.term(data.automod_terms, moderator),
-				);
-
+				app.active.addMessage(message.term(data.automod_terms, moderator));
 				break;
 			}
 
@@ -92,8 +82,7 @@ export default defineHandler({
 				const target = Viewer.fromBasic(data.timeout);
 
 				const expiration = new Date(data.timeout.expires_at);
-				const duration =
-					expiration.getTime() - message.timestamp.getTime();
+				const duration = expiration.getTime() - message.timestamp.getTime();
 
 				app.active.addMessage(
 					message.timeout(
@@ -124,12 +113,7 @@ export default defineHandler({
 				}
 
 				app.active.addMessage(
-					message.banStatus(
-						isBan,
-						isBan ? data.ban.reason : null,
-						target,
-						moderator,
-					),
+					message.banStatus(isBan, isBan ? data.ban.reason : null, target, moderator),
 				);
 
 				break;
@@ -140,10 +124,7 @@ export default defineHandler({
 				const added = data.action === "mod";
 				const target = Viewer.fromBasic(added ? data.mod : data.unmod);
 
-				app.active.addMessage(
-					message.roleStatus("moderator", added, target, moderator),
-				);
-
+				app.active.addMessage(message.roleStatus("moderator", added, target, moderator));
 				break;
 			}
 
@@ -152,10 +133,7 @@ export default defineHandler({
 				const added = data.action === "vip";
 				const target = Viewer.fromBasic(added ? data.vip : data.unvip);
 
-				app.active.addMessage(
-					message.roleStatus("VIP", added, target, moderator),
-				);
-
+				app.active.addMessage(message.roleStatus("VIP", added, target, moderator));
 				break;
 			}
 		}

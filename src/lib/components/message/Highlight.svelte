@@ -51,14 +51,9 @@
 </script>
 
 {#if hlType.style !== "background"}
-	<div
-		class="m-1 box-border overflow-hidden rounded-md border"
-		style:border-color={hlType.color}
-	>
+	<div class="m-1 box-border overflow-hidden rounded-md border" style:border-color={hlType.color}>
 		{#if hlType.style === "default"}
-			<div
-				class="bg-muted flex items-center px-2.5 py-1.5 text-xs font-medium"
-			>
+			<div class="bg-muted flex items-center px-2.5 py-1.5 text-xs font-medium">
 				<span class="{highlight.icon} iconify mr-2 size-4"></span>
 				{highlight.label}
 

@@ -9,13 +9,4 @@ import Trigger from "./select-trigger.svelte";
 
 const Root = SelectPrimitive.Root;
 
-export {
-	Content,
-	Group,
-	Item,
-	Label,
-	Root,
-	ScrollDownButton,
-	ScrollUpButton,
-	Trigger,
-};
+export { Content, Group, Item, Label, Root, ScrollDownButton, ScrollUpButton, Trigger };

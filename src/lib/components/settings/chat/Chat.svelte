@@ -16,8 +16,8 @@
 				<span class="font-medium">Display localized names</span>
 
 				{#snippet description()}
-					Show the user's localized display name if they have their
-					Twitch language set to Chinese, Japanese, or Korean.
+					Show the user's localized display name if they have their Twitch language set to
+					Chinese, Japanese, or Korean.
 				{/snippet}
 			</Switch>
 
@@ -25,8 +25,7 @@
 				<span class="font-medium">Colored mentions</span>
 
 				{#snippet description()}
-					Whether to color usernames when mentioned in chat. This also
-					applies to replies.
+					Whether to color usernames when mentioned in chat. This also applies to replies.
 				{/snippet}
 			</Switch>
 
@@ -35,8 +34,7 @@
 
 				<!-- todo: mention not applied to 7tv paints when added -->
 				{#snippet description()}
-					Lightens or darkens the color of usernames based on the
-					current theme.
+					Lightens or darkens the color of usernames based on the current theme.
 				{/snippet}
 			</Switch>
 		</div>

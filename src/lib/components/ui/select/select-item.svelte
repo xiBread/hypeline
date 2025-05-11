@@ -24,9 +24,7 @@
 	{...restProps}
 >
 	{#snippet children({ selected, highlighted })}
-		<span
-			class="absolute right-2 flex size-3.5 items-center justify-center"
-		>
+		<span class="absolute right-2 flex size-3.5 items-center justify-center">
 			{#if selected}
 				<span
 					class="iconify lucide--check text-muted-foreground pointer-events-none size-4 shrink-0"

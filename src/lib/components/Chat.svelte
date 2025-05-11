@@ -40,8 +40,7 @@
 	function handleScroll(offset: number) {
 		if (!list) return;
 
-		scrollingPaused =
-			offset < list.getScrollSize() - list.getViewportSize() - TOLERANCE;
+		scrollingPaused = offset < list.getScrollSize() - list.getViewportSize() - TOLERANCE;
 	}
 </script>
 
@@ -77,9 +76,7 @@
 
 			{#if message.isRecent && !next?.isRecent}
 				<div class="text-twitch relative px-3.5">
-					<Separator.Root
-						class="my-4 h-px w-full rounded-full bg-current"
-					/>
+					<Separator.Root class="my-4 h-px w-full rounded-full bg-current" />
 
 					<div
 						class="bg-background absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 text-xs font-semibold uppercase"

@@ -1,11 +1,6 @@
 import type { Emote } from "$lib/channel.svelte";
 import { app } from "$lib/state.svelte";
-import type {
-	Badge,
-	PrivmsgMessage,
-	Range,
-	UserNoticeMessage,
-} from "$lib/twitch/irc";
+import type { Badge, PrivmsgMessage, Range, UserNoticeMessage } from "$lib/twitch/irc";
 import type { PartialUser } from "$lib/user";
 import { Viewer } from "$lib/viewer.svelte";
 import { Message } from ".";
@@ -37,9 +32,7 @@ interface TextSegment extends Range {
 export class UserMessage extends Message {
 	public readonly fragments: Fragment[];
 
-	public constructor(
-		public readonly data: PrivmsgMessage | UserNoticeMessage,
-	) {
+	public constructor(public readonly data: PrivmsgMessage | UserNoticeMessage) {
 		super(data);
 
 		this.fragments = this.#fragment();
@@ -52,10 +45,7 @@ export class UserMessage extends Message {
 	public override get text() {
 		// message_text should only be possibly null if it's a USERNOTICE, in
 		// which case we can assume system_message is present
-		return (
-			this.data.message_text ??
-			(this.data as UserNoticeMessage).system_message
-		);
+		return this.data.message_text ?? (this.data as UserNoticeMessage).system_message;
 	}
 
 	/**
@@ -74,14 +64,10 @@ export class UserMessage extends Message {
 		const now = Date.now();
 		const diff = Math.abs(now - this.timestamp.getTime());
 
-		// prettier-ignore
 		return (
 			app.user.moderating.has(app.active.user.username) &&
 			diff <= 6 * 60 * 60 * 1000 &&
-			(
-				app.user.id === this.viewer.id ||
-				!(this.viewer.isBroadcaster || this.viewer.isMod)
-			)
+			(app.user.id === this.viewer.id || !(this.viewer.isBroadcaster || this.viewer.isMod))
 		);
 	}
 

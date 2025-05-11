@@ -34,10 +34,7 @@
 
 		unlisten = await listen<FullChannel[]>("followedchannels", (event) => {
 			for (const channel of event.payload) {
-				const chan = followed.find(
-					(f) => f.user.id === channel.user.data.id,
-				);
-
+				const chan = followed.find((f) => f.user.id === channel.user.data.id);
 				chan?.setStream(channel.stream);
 			}
 		});
@@ -95,9 +92,7 @@
 
 		{#if stream}
 			<div class="space-y-0.5">
-				<div
-					class="text-twitch-link overflow-hidden overflow-ellipsis whitespace-nowrap"
-				>
+				<div class="text-twitch-link overflow-hidden overflow-ellipsis whitespace-nowrap">
 					{user.displayName} &bullet; {stream.game_name}
 				</div>
 

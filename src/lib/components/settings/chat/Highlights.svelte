@@ -33,8 +33,7 @@
 		<h2 class="mb-2">Highlights</h2>
 
 		<p class="text-muted-foreground text-sm">
-			Message highlights allow you to easily identify different types of
-			viewers.
+			Message highlights allow you to easily identify different types of viewers.
 		</p>
 	</hgroup>
 
@@ -85,10 +84,7 @@
 
 				<Select.Content>
 					{#each styles as style}
-						<Select.Item
-							class="hover:cursor-pointer"
-							value={style.value}
-						>
+						<Select.Item class="hover:cursor-pointer" value={style.value}>
 							{style.label}
 						</Select.Item>
 					{/each}

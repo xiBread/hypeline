@@ -65,12 +65,10 @@ export async function connect() {
 		await handler?.handle(message);
 	});
 
-	const eventsubChannel = new Channel<NotificationPayload>(
-		async (message) => {
-			const handler = handlers.get(message.subscription.type);
-			await handler?.handle(message.event);
-		},
-	);
+	const eventsubChannel = new Channel<NotificationPayload>(async (message) => {
+		const handler = handlers.get(message.subscription.type);
+		await handler?.handle(message.event);
+	});
 
 	await invoke("connect_irc", { channel: ircChannel });
 	await invoke("connect_eventsub", { channel: eventsubChannel });

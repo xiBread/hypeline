@@ -45,14 +45,8 @@
 
 <Dialog.Root bind:open>
 	<Dialog.Portal>
-		<Dialog.Content
-			class="bg-background absolute inset-0 h-screen w-screen"
-		>
-			<Tabs.Root
-				class="flex h-full"
-				orientation="vertical"
-				value="Appearance"
-			>
+		<Dialog.Content class="bg-background absolute inset-0 h-screen w-screen">
+			<Tabs.Root class="flex h-full" orientation="vertical" value="Appearance">
 				<nav class="bg-sidebar h-full min-w-44 border-r p-2">
 					<Dialog.Title
 						class="text-muted-foreground mb-2 text-xs font-semibold uppercase"
@@ -70,8 +64,7 @@
 								]}
 								value={category.name}
 							>
-								<span class="iconify size-4 {category.icon}"
-								></span>
+								<span class="iconify size-4 {category.icon}"></span>
 								<span class="text-sm">{category.name}</span>
 							</Tabs.Trigger>
 						{/each}
@@ -100,11 +93,7 @@
 							<span class="iconify lucide--x size-4"></span>
 						</div>
 
-						<span
-							class="mt-1 text-xs transition-colors duration-100"
-						>
-							ESC
-						</span>
+						<span class="mt-1 text-xs transition-colors duration-100"> ESC </span>
 					</Dialog.Close>
 
 					{#each categories as category (category.name)}

@@ -22,14 +22,12 @@
 					class={[
 						"flex size-16 items-center justify-center rounded-full border border-neutral-500",
 						theme.class,
-						userPrefersMode.current === theme.value &&
-							"border-twitch border-2",
+						userPrefersMode.current === theme.value && "border-twitch border-2",
 					]}
 					value={theme.value}
 				>
 					{#if theme.value === "system"}
-						<span
-							class="text-muted-foreground lucide--refresh-cw iconify size-6"
+						<span class="text-muted-foreground lucide--refresh-cw iconify size-6"
 						></span>
 					{/if}
 				</RadioGroup.Item>

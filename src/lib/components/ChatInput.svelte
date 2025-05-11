@@ -32,9 +32,7 @@
 <EmotePicker input={chatInput} {anchor} bind:open={emotePickerOpen} />
 
 {#if replyTarget.value}
-	<div
-		class="bg-muted rounded-t-md border border-b-0 px-3 pt-1.5 pb-2 text-sm"
-	>
+	<div class="bg-muted rounded-t-md border border-b-0 px-3 pt-1.5 pb-2 text-sm">
 		<div class="flex items-center justify-between">
 			<span class="text-muted-foreground">Replying to:</span>
 

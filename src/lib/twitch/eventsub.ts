@@ -7,9 +7,7 @@ export type WithBroadcaster = Prefix<WithBasicUser, "broadcaster_">;
 
 export type WithModerator = Prefix<WithBasicUser, "moderator_">;
 
-export interface BaseAction<A extends string>
-	extends WithBroadcaster,
-		WithModerator {
+export interface BaseAction<A extends string> extends WithBroadcaster, WithModerator {
 	action: A;
 	source_broadcaster_user_id: string;
 	source_broadcaster_user_login: string;
@@ -60,10 +58,7 @@ export interface WarnMetadata extends WithBasicUser {
 
 export interface AutomodTermsAction
 	extends BaseAction<
-		| "add_blocked_term"
-		| "add_permitted_term"
-		| "remove_blocked_term"
-		| "remove_permitted_term"
+		"add_blocked_term" | "add_permitted_term" | "remove_blocked_term" | "remove_permitted_term"
 	> {
 	automod_terms: AutomodTermsMetadata;
 }
@@ -80,8 +75,7 @@ export interface DeleteAction extends BaseAction<"delete"> {
 
 export type EmoteOnlyAction = BaseAction<"emoteonly" | "emoteonlyoff">;
 
-export interface FollowersAction
-	extends BaseAction<"followers" | "followersoff"> {
+export interface FollowersAction extends BaseAction<"followers" | "followersoff"> {
 	followers: FollowersMetadata | null;
 }
 
@@ -165,15 +159,9 @@ export interface ChannelSubscriptionEnd extends WithBasicUser, WithBroadcaster {
 	is_gift: boolean;
 }
 
-export type SuspiciousUserStatus =
-	| "no_treatment"
-	| "active_monitoring"
-	| "restricted";
+export type SuspiciousUserStatus = "no_treatment" | "active_monitoring" | "restricted";
 
-export type SuspiciousUserType =
-	| "manually_added"
-	| "ban_evader"
-	| "banned_in_shared_channel";
+export type SuspiciousUserType = "manually_added" | "ban_evader" | "banned_in_shared_channel";
 
 export type BanEvasionEvaluation = "unknown" | "possible" | "likely";
 
@@ -209,9 +197,7 @@ export interface StructuredMessage {
 	fragments: Fragment[];
 }
 
-export interface ChannelSuspiciousUserMessage
-	extends WithBasicUser,
-		WithBroadcaster {
+export interface ChannelSuspiciousUserMessage extends WithBasicUser, WithBroadcaster {
 	low_trust_status: SuspiciousUserStatus;
 	shared_ban_channel_ids: string[] | null;
 	types: SuspiciousUserType[];
@@ -219,16 +205,11 @@ export interface ChannelSuspiciousUserMessage
 	message: StructuredMessage;
 }
 
-export interface ChannelSuspiciousUserUpdate
-	extends WithBasicUser,
-		WithBroadcaster,
-		WithModerator {
+export interface ChannelSuspiciousUserUpdate extends WithBasicUser, WithBroadcaster, WithModerator {
 	low_trust_status: SuspiciousUserStatus;
 }
 
-export interface ChannelUnbanRequestCreate
-	extends WithBasicUser,
-		WithBroadcaster {
+export interface ChannelUnbanRequestCreate extends WithBasicUser, WithBroadcaster {
 	id: string;
 	text: string;
 	created_at: string;
@@ -265,8 +246,7 @@ export interface SubscriptionEventMap {
 	"stream.online": StreamOnline;
 }
 
-export type SubscriptionEvent =
-	SubscriptionEventMap[keyof SubscriptionEventMap];
+export type SubscriptionEvent = SubscriptionEventMap[keyof SubscriptionEventMap];
 
 export interface NotificationPayload {
 	subscription: { type: string };

@@ -7,9 +7,7 @@ export default defineHandler({
 	name: "channel.suspicious_user.message",
 	handle(data) {
 		const isAction = /^\x01ACTION.*$/.test(data.message.text);
-		const text = isAction
-			? data.message.text.slice(8, -1)
-			: data.message.text;
+		const text = isAction ? data.message.text.slice(8, -1) : data.message.text;
 
 		const message = new UserMessage({
 			type: "privmsg",
@@ -41,8 +39,7 @@ export default defineHandler({
 			server_timestamp: Date.now(),
 		});
 
-		message.viewer.monitored =
-			data.low_trust_status === "active_monitoring";
+		message.viewer.monitored = data.low_trust_status === "active_monitoring";
 		message.viewer.restricted = data.low_trust_status === "restricted";
 		message.viewer.banEvasion = data.ban_evasion_evaluation;
 

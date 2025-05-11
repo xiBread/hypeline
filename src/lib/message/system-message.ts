@@ -55,12 +55,7 @@ export class SystemMessage extends Message {
 	 * - `{user} has been banned/unbanned` for `CLEARCHAT` messages
 	 * - `{moderator} banned/unbanned {user}[: {reason}]` for `channel.moderate` events
 	 */
-	public banStatus(
-		banned: boolean,
-		reason: string | null,
-		user: Viewer,
-		moderator?: Viewer,
-	) {
+	public banStatus(banned: boolean, reason: string | null, user: Viewer, moderator?: Viewer) {
 		const target = colorizeName(user);
 		const action = banned ? "banned" : "unbanned";
 
@@ -98,12 +93,7 @@ export class SystemMessage extends Message {
 	 *
 	 * `{moderator} enabled/disabled {duration?} {mode} [chat]`
 	 */
-	public mode(
-		mode: string,
-		enabled: boolean,
-		seconds: number,
-		moderator: Viewer,
-	) {
+	public mode(mode: string, enabled: boolean, seconds: number, moderator: Viewer) {
 		const action = enabled ? "enabled" : "disabled";
 		const duration = Number.isNaN(seconds) ? "" : formatDuration(seconds);
 
@@ -120,12 +110,7 @@ export class SystemMessage extends Message {
 	 *
 	 * `{broadcaster} added/removed {user} as a moderator/VIP`
 	 */
-	public roleStatus(
-		role: string,
-		added: boolean,
-		user: Viewer,
-		broadcaster: Viewer,
-	) {
+	public roleStatus(role: string, added: boolean, user: Viewer, broadcaster: Viewer) {
 		const action = added ? "added" : "removed";
 		this.#text = `${colorizeName(broadcaster)} ${action} ${colorizeName(user)} as a ${role}.`;
 
@@ -188,12 +173,7 @@ export class SystemMessage extends Message {
 	 * - `{moderator} timed out {user} for {duration}[: {reason}]` for
 	 *   `channel.moderate` events
 	 */
-	public timeout(
-		seconds: number,
-		reason: string | null,
-		user: Viewer,
-		moderator?: Viewer,
-	) {
+	public timeout(seconds: number, reason: string | null, user: Viewer, moderator?: Viewer) {
 		const target = colorizeName(user);
 		const duration = formatDuration(seconds);
 
@@ -263,10 +243,7 @@ export class SystemMessage extends Message {
 		this.#text = `${colorizeName(moderator)} warned ${colorizeName(user)}.`;
 
 		if (warning.reason || warning.chat_rules_cited) {
-			const reasons = [
-				warning.reason,
-				...(warning.chat_rules_cited ?? []),
-			]
+			const reasons = [warning.reason, ...(warning.chat_rules_cited ?? [])]
 				.filter((r) => r !== null)
 				.join(", ");
 

@@ -16,7 +16,7 @@
 	<h2>Timestamps</h2>
 
 	<Switch bind:checked={settings.state.timestamps.show}>
-		Show timestamps next to messages
+		<span class="font-medium">Show timestamps next to messages</span>
 	</Switch>
 
 	<div>
@@ -57,12 +57,10 @@
 
 		<p class="text-muted-foreground mt-2 text-sm">
 			Formats use the format tokens used by
-			<a class="text-twitch-link" href="https://day.js.org/en">Day.js</a>;
-			view the full list of tokens and their descriptions
-			<a
-				class="text-twitch-link"
-				href="https://day.js.org/docs/en/display/format">here</a
-			> (note that localized formats are not enabled).
+			<a class="text-twitch-link" href="https://day.js.org/en">Day.js</a>; view the full list
+			of tokens and their descriptions
+			<a class="text-twitch-link" href="https://day.js.org/docs/en/display/format">here</a> (note
+			that localized formats are not enabled).
 		</p>
 	</div>
 </div>

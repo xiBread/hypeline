@@ -7,9 +7,7 @@ export default defineHandler({
 	handle(data) {
 		const message = new UserMessage(data);
 
-		message.viewer.isBroadcaster = message.badges.some(
-			(b) => b.name === "broadcaster",
-		);
+		message.viewer.isBroadcaster = message.badges.some((b) => b.name === "broadcaster");
 		message.viewer.isMod = data.is_mod;
 		message.viewer.isSub = data.is_subscriber;
 		message.viewer.isVip = message.badges.some((b) => b.name === "vip");
