@@ -13,13 +13,11 @@
 </script>
 
 <div class="space-y-6">
-	<div>
-		<h2 class="mb-2">Timestamps</h2>
+	<h2>Timestamps</h2>
 
-		<Switch bind:checked={settings.state.timestamps.show}>
-			Show timestamps next to messages
-		</Switch>
-	</div>
+	<Switch bind:checked={settings.state.timestamps.show}>
+		Show timestamps next to messages
+	</Switch>
 
 	<div>
 		<h3 class="mb-2">Format</h3>

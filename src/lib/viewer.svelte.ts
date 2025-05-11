@@ -1,3 +1,4 @@
+import { settings } from "./settings";
 import { app } from "./state.svelte";
 import type {
 	BanEvasionEvaluation,
@@ -7,6 +8,7 @@ import type {
 } from "./twitch/eventsub";
 import type { BasicUser } from "./twitch/irc";
 import type { PartialUser } from "./user";
+import { makeReadable } from "./util";
 
 export class Viewer implements PartialUser {
 	readonly #data: PartialUser;
@@ -122,6 +124,10 @@ export class Viewer implements PartialUser {
 	}
 
 	public get color() {
+		if (this.#data.color && settings.state.readableColors) {
+			return makeReadable(this.#data.color);
+		}
+
 		return this.#data.color ?? "inherit";
 	}
 
@@ -130,6 +136,14 @@ export class Viewer implements PartialUser {
 	}
 
 	public get displayName() {
+		if (this.#data.username !== this.#data.displayName.toLowerCase()) {
+			if (settings.state.localizedNames) {
+				return `${this.#data.displayName} (${this.username})`;
+			}
+
+			return this.username;
+		}
+
 		return this.#data.displayName;
 	}
 

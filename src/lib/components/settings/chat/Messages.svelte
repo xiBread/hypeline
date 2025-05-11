@@ -20,7 +20,9 @@
 		</p>
 
 		<Switch class="mb-6" bind:checked={settings.state.history.enabled}>
-			Fetch recent messages upon joining a channel
+			<span class="text-sm font-medium">
+				Fetch recent messages upon joining a channel
+			</span>
 		</Switch>
 
 		<p

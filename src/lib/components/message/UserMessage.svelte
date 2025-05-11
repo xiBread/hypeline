@@ -99,8 +99,10 @@
 				></div>
 
 				<div class="line-clamp-1 text-xs">
-					<span style:color={viewer?.color}
-						>@{message.reply.parent.user.name}</span
+					<span
+						style:color={settings.state.coloredMentions
+							? viewer?.color
+							: "inherit"}>@{message.reply.parent.user.name}</span
 					>:
 					<p class="text-muted-foreground inline">
 						{message.reply.parent.message_text}

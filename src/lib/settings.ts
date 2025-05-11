@@ -41,6 +41,9 @@ export interface Settings {
 	lastJoined: string | null;
 
 	// User
+	coloredMentions: boolean;
+	localizedNames: boolean;
+	readableColors: boolean;
 	highlights: HighlightSettings;
 	history: MessageHistorySettings;
 	timestamps: TimestampSettings;
@@ -50,51 +53,22 @@ export const defaultHighlightTypes: Record<
 	HighlightType,
 	HighlightTypeSettings
 > = {
-	mention: {
-		enabled: true,
-		color: "#adadb8",
-		style: "default",
-	},
-	new: {
-		enabled: true,
-		color: "#ff75e6",
-		style: "default",
-	},
-	returning: {
-		enabled: true,
-		color: "#00a3a3",
-		style: "default",
-	},
-	suspicious: {
-		enabled: true,
-		color: "#ff8280",
-		style: "default",
-	},
-	broadcaster: {
-		enabled: false,
-		color: "#fc3430",
-		style: "default",
-	},
-	moderator: {
-		enabled: false,
-		color: "#00a865",
-		style: "default",
-	},
-	subscriber: {
-		enabled: false,
-		color: "#528bff",
-		style: "default",
-	},
-	vip: {
-		enabled: false,
-		color: "#db00b3",
-		style: "default",
-	},
+	mention: { enabled: true, color: "#adadb8", style: "default" },
+	new: { enabled: true, color: "#ff75e6", style: "default" },
+	returning: { enabled: true, color: "#00a3a3", style: "default" },
+	suspicious: { enabled: true, color: "#ff8280", style: "default" },
+	broadcaster: { enabled: false, color: "#fc3430", style: "default" },
+	moderator: { enabled: false, color: "#00a865", style: "default" },
+	subscriber: { enabled: false, color: "#528bff", style: "default" },
+	vip: { enabled: false, color: "#db00b3", style: "default" },
 };
 
 export const settings = new RuneStore<Settings>("settings", {
 	user: null,
 	lastJoined: null,
+	coloredMentions: true,
+	localizedNames: true,
+	readableColors: true,
 	highlights: {
 		enabled: true,
 		...defaultHighlightTypes,

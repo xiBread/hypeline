@@ -1,7 +1,9 @@
 import { invoke } from "@tauri-apps/api/core";
 import { SvelteSet } from "svelte/reactivity";
+import { settings } from "./settings";
 import type { UserWithColor } from "./tauri";
 import type { User as HelixUser } from "./twitch/api";
+import { makeReadable } from "./util";
 
 export interface PartialUser {
 	id: string;
@@ -45,6 +47,10 @@ export class User implements PartialUser {
 	 * if the user doesn't have a color set.
 	 */
 	public get color() {
+		if (this.#color && settings.state.readableColors) {
+			return makeReadable(this.#color);
+		}
+
 		return this.#color ?? "inherit";
 	}
 
