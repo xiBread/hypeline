@@ -11,7 +11,7 @@
 	import { app } from "$lib/state.svelte";
 	import type { IrcMessage } from "$lib/twitch/irc";
 
-	const { data } = $props();
+	const { username }: { username: string } = $props();
 
 	let historyCursor = $state(-1);
 	let unlisten: UnlistenFn | undefined;
@@ -37,7 +37,7 @@
 	});
 
 	async function join() {
-		const channel = await Channel.join(data.channel);
+		const channel = await Channel.join(username);
 		app.setActive(channel);
 
 		await invoke("fetch_recent_messages", {
@@ -48,8 +48,6 @@
 		});
 
 		channel.addEmotes(app.globalEmotes);
-
-		settings.state.lastJoined = data.channel;
 	}
 
 	async function send(event: KeyboardEvent) {

@@ -5,6 +5,7 @@
 	import { onDestroy, onMount } from "svelte";
 	import { flip } from "svelte/animate";
 	import { Channel } from "$lib/channel.svelte";
+	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
 	import type { FullChannel } from "$lib/tauri";
 	import type { Stream } from "$lib/twitch/api";
@@ -75,9 +76,12 @@
 {#snippet channelIcon(user: User, stream: Stream | null)}
 	<Tooltip class="max-w-64" side="right" sideOffset={18}>
 		{#snippet trigger()}
-			<a
+			<button
 				class="bg-muted flex size-10 items-center justify-center overflow-hidden rounded-full border"
-				href="/{user.displayName}"
+				type="button"
+				onclick={() => {
+					settings.state.lastJoined = user.username;
+				}}
 			>
 				<img
 					class={["object-cover", !stream && "grayscale"]}
@@ -86,7 +90,7 @@
 					width="300"
 					height="300"
 				/>
-			</a>
+			</button>
 		{/snippet}
 
 		{#if stream}
