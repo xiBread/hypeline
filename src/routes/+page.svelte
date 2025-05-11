@@ -1,22 +1,22 @@
 <script lang="ts">
-	import { onMount } from "svelte";
-	import { goto } from "$app/navigation";
+	import Channel from "$lib/components/Channel.svelte";
 	import { settings } from "$lib/settings";
 	import { connect } from "$lib/twitch";
-
-	onMount(async () => {
-		if (!settings.state.user) return;
-
-		await connect();
-
-		if (settings.state.lastJoined) {
-			await goto(`/${settings.state.lastJoined}`);
-		}
-	});
 </script>
 
-<div class="flex size-full items-center justify-center">
-	<p class="text-center">
-		Select a channel from your following list to start chatting
-	</p>
-</div>
+{#await connect()}
+	<div class="flex size-full items-center justify-center gap-x-2 text-lg">
+		<span class="iconify lucide--loader-circle size-6 animate-spin"></span>
+		Loading
+	</div>
+{:then}
+	{#if settings.state.lastJoined}
+		<Channel username={settings.state.lastJoined} />
+	{:else}
+		<div class="flex size-full items-center justify-center">
+			<p class="text-center">
+				Select a channel from your following list to start chatting
+			</p>
+		</div>
+	{/if}
+{/await}
