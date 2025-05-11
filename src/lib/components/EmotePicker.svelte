@@ -6,7 +6,7 @@
 
 	interface Props {
 		open?: boolean;
-		input?: HTMLInputElement;
+		input?: HTMLInputElement | null;
 		anchor?: HTMLElement;
 	}
 

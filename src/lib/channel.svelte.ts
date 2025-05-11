@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { SvelteMap } from "svelte/reactivity";
-import { replyTarget } from "./components/Input.svelte";
+import { replyTarget } from "./components/ChatInput.svelte";
 import type { Message } from "./message";
 import type { JoinedChannel } from "./tauri";
 import type { Badge, BadgeSet, Stream } from "./twitch/api";
@@ -22,6 +22,10 @@ export class Channel {
 	public readonly emotes = new SvelteMap<string, Emote>();
 	public readonly viewers = new SvelteMap<string, Viewer>();
 
+	/**
+	 * An array of messages the user has sent in the channel.
+	 */
+	public history = $state<string[]>([]);
 	public messages = $state<Message[]>([]);
 
 	public constructor(

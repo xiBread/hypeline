@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { invoke } from "@tauri-apps/api/core";
 	import { Separator, Toolbar } from "bits-ui";
-	import { input, replyTarget } from "$lib/components/Input.svelte";
+	import { input, replyTarget } from "$lib/components/ChatInput.svelte";
 	import type { UserMessage } from "$lib/message";
 	import { app } from "$lib/state.svelte";
 	import { cn } from "$lib/util";
