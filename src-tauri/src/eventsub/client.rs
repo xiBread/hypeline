@@ -167,8 +167,7 @@ impl EventSubClient {
                     Err(e) => return Err::<(), _>(Error::WebSocket(e)),
                 };
 
-                self.set_connected(false);
-                *self.session_id.lock().await = None;
+                self.set_connected(true);
 
                 let mut reconnect_url: Option<String> = None;
 
