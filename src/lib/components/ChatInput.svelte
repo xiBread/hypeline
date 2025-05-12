@@ -32,7 +32,9 @@
 <EmotePicker input={chatInput} {anchor} bind:open={emotePickerOpen} />
 
 {#if replyTarget.value}
-	<div class="bg-muted rounded-t-md border border-b-0 px-3 pt-1.5 pb-2 text-sm">
+	<div
+		class="bg-muted/50 border-muted has-[+div>input:focus-visible]:border-input rounded-t-md border border-b-0 px-3 pt-1.5 pb-2.5 text-sm transition-colors duration-200"
+	>
 		<div class="flex items-center justify-between">
 			<span class="text-muted-foreground">Replying to:</span>
 
@@ -42,7 +44,7 @@
 				onclick={() => (replyTarget.value = null)}
 			>
 				<span
-					class="text-muted-foreground hover:text-foreground lucide--circle-x iconify size-4 transition-colors duration-150"
+					class="text-muted-foreground hover:text-foreground lucide--circle-x iconify block size-4 transition-colors duration-150"
 				></span>
 			</button>
 		</div>
@@ -56,8 +58,8 @@
 <div class="relative">
 	<Input
 		class={[
-			"focus-visible:ring-twitch focus-visible:border-twitch h-12 focus-visible:ring-1",
-			replyTarget.value && "rounded-b-none",
+			"focus-visible:border-input border-muted h-12 pr-10 transition-colors duration-200 focus-visible:ring-0",
+			replyTarget.value && "rounded-t-none",
 			className,
 		]}
 		type="text"
