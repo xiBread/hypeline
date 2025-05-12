@@ -218,9 +218,13 @@ impl EventSubClient {
             Ws::Welcome(payload) => {
                 *self.session_id.lock().await = Some(payload.session.id);
 
-                if self.reconnecting.load(Ordering::Relaxed) {
-                    self.reconnecting.store(false, Ordering::Relaxed);
-                } else {
+                if self
+                    .reconnecting
+                    .compare_exchange(true, false, Ordering::Relaxed, Ordering::Relaxed)
+                    .is_err()
+                {
+                    println!("initial subscribe");
+
                     self.subscribe(
                         self.token.login.as_str(),
                         EventType::UserUpdate,
