@@ -45,7 +45,12 @@
 
 <Dialog.Root bind:open>
 	<Dialog.Portal>
-		<Dialog.Content class="bg-background absolute inset-0 h-screen w-screen">
+		<Dialog.Content
+			class={[
+				"bg-background absolute inset-0 h-screen w-screen",
+				"data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+			]}
+		>
 			<Tabs.Root class="flex h-full" orientation="vertical" value="Appearance">
 				<nav class="bg-sidebar h-full min-w-44 border-r p-2">
 					<Dialog.Title
