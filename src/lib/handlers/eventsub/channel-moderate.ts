@@ -63,6 +63,13 @@ export default defineHandler({
 				break;
 			}
 
+			case "delete": {
+				const target = Viewer.fromBasic(data.delete);
+				app.active.addMessage(message.delete(data.delete.message_body, target, moderator));
+
+				break;
+			}
+
 			case "add_blocked_term":
 			case "add_permitted_term":
 			case "remove_blocked_term":

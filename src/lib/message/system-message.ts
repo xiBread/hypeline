@@ -89,6 +89,22 @@ export class SystemMessage extends Message {
 	}
 
 	/**
+	 * Sets the text of the system message when a user's message is deleted.
+	 *
+	 * - `{user}'s message was deleted: {text}` for `CLEARMSG` messages
+	 * - `{moderator} deleted {user}'s message: {text}` for `channel.moderate` events
+	 */
+	public delete(text: string, user: Viewer, moderator?: Viewer) {
+		if (moderator) {
+			this.#text = `${colorizeName(moderator)} deleted ${colorizeName(user)}'s message: ${text}`;
+		} else {
+			this.#text = `${colorizeName(user)}'s message was deleted: ${text}`;
+		}
+
+		return this;
+	}
+
+	/**
 	 * Sets the text of the system message when the chat mode is changed.
 	 *
 	 * `{moderator} enabled/disabled {duration?} {mode} [chat]`
@@ -97,8 +113,7 @@ export class SystemMessage extends Message {
 		const action = enabled ? "enabled" : "disabled";
 		const duration = Number.isNaN(seconds) ? "" : formatDuration(seconds);
 
-		this.#text = "";
-		this.#text += `${colorizeName(moderator)} ${action} ${duration} `;
+		this.#text = `${colorizeName(moderator)} ${action} ${duration} `;
 		this.#text += mode === "slow" ? "slow mode." : `${mode} chat.`;
 
 		return this;

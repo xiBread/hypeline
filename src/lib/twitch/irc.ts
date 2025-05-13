@@ -31,6 +31,7 @@ export interface ClearMsgMessage {
 	message_id: string;
 	message_text: string;
 	is_action: boolean;
+	is_recent: boolean;
 	server_timestamp: number;
 }
 

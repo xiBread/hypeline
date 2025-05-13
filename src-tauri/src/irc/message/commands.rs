@@ -100,6 +100,7 @@ pub struct ClearMsgMessage {
     pub message_id: String,
     pub message_text: String,
     pub is_action: bool,
+    pub is_recent: bool,
     pub server_timestamp: u64,
     pub source: IrcMessage,
 }
@@ -124,6 +125,9 @@ impl TryFrom<IrcMessage> for ClearMsgMessage {
             server_timestamp: source.try_get_timestamp("tmi-sent-ts")?,
             message_text: message_text.to_owned(),
             is_action,
+            is_recent: source
+                .try_get_optional_bool("historical")?
+                .unwrap_or_default(),
             source,
         })
     }
