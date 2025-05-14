@@ -21,20 +21,22 @@
 	let scrollingPaused = $state(false);
 
 	const newMessageCount = $derived.by(() => {
-		if (!list) return 0;
+		if (!list || !app.active) return 0;
 
 		const total = app.active.messages.length - list.findEndIndex();
 		return total > 99 ? "99+" : total;
 	});
 
 	$effect(() => {
-		if (app.active.messages.length && !scrollingPaused) {
+		if (app.active?.messages.length && !scrollingPaused) {
 			scrollToEnd();
 		}
 	});
 
 	function scrollToEnd() {
-		list?.scrollToIndex(app.active.messages.length - 1, { align: "end" });
+		if (app.active) {
+			list?.scrollToIndex(app.active.messages.length - 1, { align: "end" });
+		}
 	}
 
 	function handleScroll(offset: number) {
@@ -57,7 +59,7 @@
 
 	<VList
 		class="{className} overflow-y-auto text-sm"
-		data={app.active.messages}
+		data={app.active?.messages ?? []}
 		getKey={(msg: Message) => msg.id}
 		onscroll={handleScroll}
 		bind:this={list}
@@ -72,7 +74,7 @@
 				<UserMessage {message} />
 			{/if}
 
-			{@const next = app.active.messages.at(i + 1)}
+			{@const next = app.active?.messages.at(i + 1)}
 
 			{#if message.isRecent && !next?.isRecent}
 				<div class="text-twitch relative px-3.5">

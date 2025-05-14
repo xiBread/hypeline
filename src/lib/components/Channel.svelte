@@ -18,9 +18,11 @@
 
 	onMount(async () => {
 		unlisten = await listen<IrcMessage[]>("recentmessages", async (event) => {
+			if (!app.active) return;
+
 			for (const message of event.payload) {
 				const handler = handlers.get(message.type);
-				await handler?.handle(message);
+				await handler?.handle(message, app.active);
 			}
 		});
 	});
@@ -30,7 +32,7 @@
 	$effect(() => {
 		join();
 
-		return () => app.active.leave();
+		return () => app.active?.leave();
 	});
 
 	async function join() {
@@ -46,6 +48,8 @@
 	}
 
 	async function send(event: KeyboardEvent) {
+		if (!app.active) return;
+
 		const input = event.currentTarget as HTMLInputElement;
 
 		if (event.key === "Escape" && replyTarget.value) {

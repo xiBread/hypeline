@@ -38,31 +38,6 @@ export class Channel {
 		this.#stream = stream;
 	}
 
-	/**
-	 * An "empty" channel to use during app initialization.
-	 *
-	 * This is to prevent {@linkcode app.active} being possibly `null` and
-	 * using optional chaining everywhere.
-	 */
-	public static empty() {
-		const emptyUser = new User({
-			data: {
-				id: "",
-				login: "",
-				display_name: "",
-				type: "",
-				broadcaster_type: "",
-				description: "",
-				profile_image_url: "",
-				offline_image_url: "",
-				created_at: "",
-			},
-			color: null,
-		});
-
-		return new Channel(emptyUser);
-	}
-
 	public static async join(login: string) {
 		const joined = await invoke<JoinedChannel>("join", { login });
 

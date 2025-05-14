@@ -4,7 +4,7 @@ import { defineHandler } from "../helper";
 
 export default defineHandler({
 	name: "notice",
-	async handle(data) {
+	async handle(data, channel) {
 		if (!data.is_recent && app.user?.moderating.has(data.channel_login)) {
 			return;
 		}
@@ -31,7 +31,7 @@ export default defineHandler({
 					.replace("This room", "The chat")
 					.replace("s-only", "-only");
 
-				app.active.addMessage(message.setText(text));
+				channel.addMessage(message.setText(text));
 				break;
 			}
 		}

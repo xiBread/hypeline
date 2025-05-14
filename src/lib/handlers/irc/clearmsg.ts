@@ -5,8 +5,8 @@ import { defineHandler } from "../helper";
 
 export default defineHandler({
 	name: "clearmsg",
-	handle(data) {
-		const message = app.active.messages.find(
+	handle(data, channel) {
+		const message = channel.messages.find(
 			(m): m is UserMessage => m.isUser() && m.id === data.message_id,
 		);
 		if (!message) return;
@@ -16,7 +16,7 @@ export default defineHandler({
 		if (data.is_recent || (!data.is_recent && !app.user?.moderating.has(data.channel_login))) {
 			const sysmsg = new SystemMessage(data);
 
-			app.active.addMessage(sysmsg.delete(data.message_text, message.viewer));
+			channel.addMessage(sysmsg.delete(data.message_text, message.viewer));
 		}
 	},
 });

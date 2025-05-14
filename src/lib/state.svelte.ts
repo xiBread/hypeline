@@ -1,10 +1,9 @@
 import { SvelteMap } from "svelte/reactivity";
-import { Channel } from "./channel.svelte";
-import type { Emote } from "./channel.svelte";
+import type { Channel, Emote } from "./channel.svelte";
 import type { User } from "./user";
 
 class AppState {
-	#active = $state<Channel>();
+	#active = $state<Channel | null>(null);
 
 	public user?: User;
 
@@ -14,7 +13,7 @@ class AppState {
 	 * The currently joined channel.
 	 */
 	public get active() {
-		return this.#active ?? Channel.empty();
+		return this.#active;
 	}
 
 	public setActive(channel: Channel) {

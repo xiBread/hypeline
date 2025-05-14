@@ -59,7 +59,7 @@ export class UserMessage extends Message {
 	 * moderator
 	 */
 	public get actionable() {
-		if (!app.user) return false;
+		if (!app.user || !app.active) return false;
 
 		const now = Date.now();
 		const diff = Math.abs(now - this.timestamp.getTime());
@@ -115,7 +115,7 @@ export class UserMessage extends Message {
 	}
 
 	public get viewer() {
-		let viewer = app.active.viewers.get(this.data.sender.name);
+		let viewer = app.active?.viewers.get(this.data.sender.name);
 
 		if (!viewer) {
 			viewer = Viewer.from(this.data.sender, this.data.name_color);
@@ -195,7 +195,7 @@ export class UserMessage extends Message {
 			}
 
 			for (const token of chunk.split(/\s+/)) {
-				const emote = app.active.emotes.get(token);
+				const emote = app.active?.emotes.get(token);
 
 				if (emote) {
 					flush();
@@ -225,7 +225,7 @@ export class UserMessage extends Message {
 				});
 			} else if (segment.type === "mention") {
 				const mention = segment.data.username;
-				const viewer = app.active.viewers.get(mention.toLowerCase());
+				const viewer = app.active?.viewers.get(mention.toLowerCase());
 
 				fragments.push({
 					type: "mention",

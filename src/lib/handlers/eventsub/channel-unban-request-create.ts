@@ -1,12 +1,11 @@
 import { SystemMessage } from "$lib/message";
-import { app } from "$lib/state.svelte";
 import { defineHandler } from "../helper";
 
 export default defineHandler({
 	name: "channel.unban_request.create",
-	handle(data) {
+	handle(data, channel) {
 		const message = new SystemMessage();
 
-		app.active.addMessage(message.unbanRequest(data));
+		channel.addMessage(message.unbanRequest(data));
 	},
 });

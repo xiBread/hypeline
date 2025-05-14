@@ -18,7 +18,7 @@
 	}
 
 	async function deleteMessage() {
-		if (!app.user) return;
+		if (!app.user || !app.active) return;
 
 		await invoke("delete_message", {
 			broadcasterId: app.active.user.id,

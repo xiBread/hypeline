@@ -1,11 +1,10 @@
 import { SystemMessage } from "$lib/message";
-import { app } from "$lib/state.svelte";
 import { Viewer } from "$lib/viewer.svelte";
 import { defineHandler } from "../helper";
 
 export default defineHandler({
 	name: "channel.suspicious_user.update",
-	handle(data) {
+	handle(data, channel) {
 		const message = new SystemMessage();
 		const status = data.low_trust_status;
 
@@ -23,9 +22,7 @@ export default defineHandler({
 			viewer.restricted = status === "restricted";
 		}
 
-		app.active.addMessage(
-			message.suspicionStatus(status !== "no_treatment", viewer, moderator),
-		);
+		channel.addMessage(message.suspicionStatus(status !== "no_treatment", viewer, moderator));
 
 		// Update AFTER message is sent so the previous status is available.
 		viewer.monitored = status === "active_monitoring";
