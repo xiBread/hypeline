@@ -6,6 +6,8 @@ import { defineHandler } from "../helper";
 export default defineHandler({
 	name: "channel.moderate",
 	handle(data) {
+		if (!app.active) return;
+
 		const message = new SystemMessage();
 		const moderator = Viewer.fromMod(data);
 
@@ -22,7 +24,7 @@ export default defineHandler({
 						? "unique-mode"
 						: "subscriber-only";
 
-				app.active.addMessage(
+				app.active?.addMessage(
 					message.mode(mode, !data.action.includes("off"), Number.NaN, moderator),
 				);
 
@@ -31,7 +33,7 @@ export default defineHandler({
 
 			case "followers":
 			case "followersoff": {
-				app.active.addMessage(
+				app.active?.addMessage(
 					message.mode(
 						"follower-only",
 						!data.action.includes("off"),

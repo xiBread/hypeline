@@ -6,6 +6,8 @@ import { defineHandler } from "../helper";
 export default defineHandler({
 	name: "stream.offline",
 	handle(data) {
+		if (!app.active) return;
+
 		const message = new SystemMessage();
 		const broadcaster = Viewer.fromBroadcaster(data);
 

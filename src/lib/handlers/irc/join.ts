@@ -5,6 +5,8 @@ import { defineHandler } from "../helper";
 export default defineHandler({
 	name: "join",
 	handle(data) {
+		if (!app.active) return;
+
 		const user = app.active.viewers.get(data.channel_login);
 		if (!user) return;
 

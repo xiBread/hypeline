@@ -6,6 +6,8 @@ import { defineHandler } from "../helper";
 export default defineHandler({
 	name: "clearmsg",
 	handle(data) {
+		if (!app.active) return;
+
 		const message = app.active.messages.find(
 			(m): m is UserMessage => m.isUser() && m.id === data.message_id,
 		);

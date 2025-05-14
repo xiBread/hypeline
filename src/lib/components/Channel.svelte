@@ -30,7 +30,7 @@
 	$effect(() => {
 		join();
 
-		return () => app.active.leave();
+		return () => app.active?.leave();
 	});
 
 	async function join() {
@@ -46,6 +46,8 @@
 	}
 
 	async function send(event: KeyboardEvent) {
+		if (!app.active) return;
+
 		const input = event.currentTarget as HTMLInputElement;
 
 		if (event.key === "Escape" && replyTarget.value) {

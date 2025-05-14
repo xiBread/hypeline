@@ -7,6 +7,8 @@ import { defineHandler } from "../helper";
 export default defineHandler({
 	name: "channel.unban_request.resolve",
 	handle(data) {
+		if (!app.active) return;
+
 		const message = new SystemMessage();
 		let moderator: Viewer | undefined;
 

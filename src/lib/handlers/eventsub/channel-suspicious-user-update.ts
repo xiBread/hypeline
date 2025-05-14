@@ -6,6 +6,8 @@ import { defineHandler } from "../helper";
 export default defineHandler({
 	name: "channel.suspicious_user.update",
 	handle(data) {
+		if (!app.active) return;
+
 		const message = new SystemMessage();
 		const status = data.low_trust_status;
 

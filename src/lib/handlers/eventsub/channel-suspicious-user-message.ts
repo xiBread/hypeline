@@ -6,6 +6,8 @@ import { defineHandler } from "../helper";
 export default defineHandler({
 	name: "channel.suspicious_user.message",
 	handle(data) {
+		if (!app.active) return;
+
 		const isAction = /^\x01ACTION.*$/.test(data.message.text);
 		const text = isAction ? data.message.text.slice(8, -1) : data.message.text;
 

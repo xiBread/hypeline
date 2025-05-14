@@ -64,7 +64,7 @@ export class Viewer implements PartialUser {
 	}
 
 	public static from(data: BasicUser, color?: string) {
-		const stored = app.active.viewers.get(data.login);
+		const stored = app.active?.viewers.get(data.login);
 
 		return (
 			stored ??
@@ -78,7 +78,7 @@ export class Viewer implements PartialUser {
 	}
 
 	public static fromBasic(data: WithBasicUser) {
-		let stored = app.active.viewers.get(data.user_login);
+		let stored = app.active?.viewers.get(data.user_login);
 
 		if (!stored) {
 			stored = new Viewer({
@@ -87,14 +87,14 @@ export class Viewer implements PartialUser {
 				displayName: data.user_name,
 			});
 
-			app.active.viewers.set(data.user_login, stored);
+			app.active?.viewers.set(data.user_login, stored);
 		}
 
 		return stored;
 	}
 
 	public static fromBroadcaster(data: WithBroadcaster) {
-		const stored = app.active.viewers.get(data.broadcaster_user_login);
+		const stored = app.active?.viewers.get(data.broadcaster_user_login);
 
 		return (
 			stored ??
@@ -107,7 +107,7 @@ export class Viewer implements PartialUser {
 	}
 
 	public static fromMod(data: WithModerator) {
-		const stored = app.active.viewers.get(data.moderator_user_login);
+		const stored = app.active?.viewers.get(data.moderator_user_login);
 
 		return (
 			stored ??

@@ -5,6 +5,8 @@ import { defineHandler } from "../helper";
 export default defineHandler({
 	name: "privmsg",
 	handle(data) {
+		if (!app.active) return;
+
 		const message = new UserMessage(data);
 
 		message.viewer.isBroadcaster = message.badges.some((b) => b.name === "broadcaster");
