@@ -97,7 +97,7 @@
 	}
 </script>
 
-<div class="flex h-screen flex-col">
+<div class="flex h-full flex-col">
 	<Chat class="grow" />
 
 	<div class="p-2">

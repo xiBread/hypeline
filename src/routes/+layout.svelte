@@ -4,20 +4,44 @@
 	import { ModeWatcher } from "mode-watcher";
 	import Sidebar from "$lib/components/Sidebar.svelte";
 	import { settings } from "$lib/settings";
+	import { app } from "$lib/state.svelte";
 
 	const { children } = $props();
+
+	const titleBar = $derived({
+		icon: app.active?.user.profilePictureUrl ?? "/favicon.png",
+		title: app.active?.user.displayName ?? "Hypeline",
+	});
 </script>
 
 <ModeWatcher />
 
-<Tooltip.Provider delayDuration={99}>
-	<div class="flex">
-		{#if settings.state.user}
-			<Sidebar />
-		{/if}
+<div class="flex max-h-screen flex-col">
+	<div
+		class="min-h-title-bar flex w-full shrink-0 items-center justify-center gap-1.5"
+		data-tauri-drag-region
+	>
+		<img
+			class="size-5 rounded-full"
+			src={titleBar.icon}
+			alt={titleBar.title}
+			data-tauri-drag-region
+		/>
 
-		<main class="grow">
-			{@render children()}
-		</main>
+		<span class="pointer-events-none text-sm font-medium" data-tauri-drag-region>
+			{titleBar.title}
+		</span>
 	</div>
-</Tooltip.Provider>
+
+	<Tooltip.Provider delayDuration={100}>
+		<div class="flex grow overflow-hidden">
+			{#if settings.state.user}
+				<Sidebar />
+			{/if}
+
+			<main class="grow rounded-tl-lg border-t border-l">
+				{@render children()}
+			</main>
+		</div>
+	</Tooltip.Provider>
+</div>
