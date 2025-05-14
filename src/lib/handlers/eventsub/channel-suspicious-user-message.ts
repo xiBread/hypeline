@@ -1,13 +1,10 @@
 import { UserMessage } from "$lib/message";
-import { app } from "$lib/state.svelte";
 import { extractEmotes } from "$lib/util";
 import { defineHandler } from "../helper";
 
 export default defineHandler({
 	name: "channel.suspicious_user.message",
-	handle(data) {
-		if (!app.active) return;
-
+	handle(data, channel) {
 		const isAction = /^\x01ACTION.*$/.test(data.message.text);
 		const text = isAction ? data.message.text.slice(8, -1) : data.message.text;
 
@@ -45,6 +42,6 @@ export default defineHandler({
 		message.viewer.restricted = data.low_trust_status === "restricted";
 		message.viewer.banEvasion = data.ban_evasion_evaluation;
 
-		app.active.addMessage(message);
+		channel.addMessage(message);
 	},
 });

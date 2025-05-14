@@ -1,15 +1,12 @@
 import { SystemMessage } from "$lib/message";
-import { app } from "$lib/state.svelte";
 import { defineHandler } from "../helper";
 
 export default defineHandler({
 	name: "join",
-	handle(data) {
-		if (!app.active) return;
-
-		const user = app.active.viewers.get(data.channel_login);
+	handle(data, channel) {
+		const user = channel.viewers.get(data.channel_login);
 		if (!user) return;
 
-		app.active.messages.push(SystemMessage.joined(user));
+		channel.messages.push(SystemMessage.joined(user));
 	},
 });

@@ -5,9 +5,7 @@ import { defineHandler } from "../helper";
 
 export default defineHandler({
 	name: "clearchat",
-	handle(data) {
-		if (!app.active) return;
-
+	handle(data, channel) {
 		// Return early if the message isn't recent and the user is a moderator
 		// in the channel to prevent showing two different messages.
 		if (!data.is_recent && app.user?.moderating.has(data.channel_login)) {
@@ -17,12 +15,12 @@ export default defineHandler({
 		const message = new SystemMessage(data);
 
 		if (data.action.type === "clear") {
-			app.active.clearMessages();
-			app.active.addMessage(message.clear());
+			channel.clearMessages();
+			channel.addMessage(message.clear());
 			return;
 		}
 
-		let target = app.active.viewers.get(data.action.user_login);
+		let target = channel.viewers.get(data.action.user_login);
 
 		target ??= new Viewer({
 			id: data.action.user_id,
@@ -30,12 +28,12 @@ export default defineHandler({
 			displayName: data.action.user_login,
 		});
 
-		app.active.clearMessages(target.id);
+		channel.clearMessages(target.id);
 
 		if (data.action.type === "ban") {
-			app.active.addMessage(message.banStatus(false, null, target));
+			channel.addMessage(message.banStatus(false, null, target));
 		} else {
-			app.active.addMessage(message.timeout(data.action.duration.secs, null, target));
+			channel.addMessage(message.timeout(data.action.duration.secs, null, target));
 		}
 	},
 });

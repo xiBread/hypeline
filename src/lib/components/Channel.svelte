@@ -18,9 +18,11 @@
 
 	onMount(async () => {
 		unlisten = await listen<IrcMessage[]>("recentmessages", async (event) => {
+			if (!app.active) return;
+
 			for (const message of event.payload) {
 				const handler = handlers.get(message.type);
-				await handler?.handle(message);
+				await handler?.handle(message, app.active);
 			}
 		});
 	});
