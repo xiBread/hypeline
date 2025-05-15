@@ -22,7 +22,19 @@ export default defineHandler({
 			viewer.restricted = status === "restricted";
 		}
 
-		channel.addMessage(message.suspicionStatus(status !== "no_treatment", viewer, moderator));
+		channel.addMessage(
+			message.setContext({
+				type: "suspicionStatus",
+				active: status !== "no_treatment",
+				previous: viewer.monitored
+					? "monitoring"
+					: viewer.restricted
+						? "restricting"
+						: null,
+				user: viewer,
+				moderator,
+			}),
+		);
 
 		// Update AFTER message is sent so the previous status is available.
 		viewer.monitored = status === "active_monitoring";

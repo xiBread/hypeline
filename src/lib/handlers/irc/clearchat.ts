@@ -16,7 +16,7 @@ export default defineHandler({
 
 		if (data.action.type === "clear") {
 			channel.clearMessages();
-			channel.addMessage(message.clear());
+			channel.addMessage(message.setContext({ type: "clear" }));
 			return;
 		}
 
@@ -31,9 +31,23 @@ export default defineHandler({
 		channel.clearMessages(target.id);
 
 		if (data.action.type === "ban") {
-			channel.addMessage(message.banStatus(false, null, target));
+			channel.addMessage(
+				message.setContext({
+					type: "banStatus",
+					banned: true,
+					reason: null,
+					user: target,
+				}),
+			);
 		} else {
-			channel.addMessage(message.timeout(data.action.duration.secs, null, target));
+			channel.addMessage(
+				message.setContext({
+					type: "timeout",
+					seconds: data.action.duration.secs,
+					reason: null,
+					user: target,
+				}),
+			);
 		}
 	},
 });

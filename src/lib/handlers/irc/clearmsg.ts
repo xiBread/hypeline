@@ -16,7 +16,13 @@ export default defineHandler({
 		if (data.is_recent || (!data.is_recent && !app.user?.moderating.has(data.channel_login))) {
 			const sysmsg = new SystemMessage(data);
 
-			channel.addMessage(sysmsg.delete(data.message_text, message.viewer));
+			channel.addMessage(
+				sysmsg.setContext({
+					type: "delete",
+					text: data.message_text,
+					user: message.viewer,
+				}),
+			);
 		}
 	},
 });

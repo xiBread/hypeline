@@ -22,7 +22,13 @@ export default defineHandler({
 						: "subscriber-only";
 
 				channel.addMessage(
-					message.mode(mode, !data.action.includes("off"), Number.NaN, moderator),
+					message.setContext({
+						type: "mode",
+						mode,
+						enabled: !data.action.includes("off"),
+						seconds: Number.NaN,
+						moderator,
+					}),
 				);
 
 				break;
@@ -31,12 +37,15 @@ export default defineHandler({
 			case "followers":
 			case "followersoff": {
 				channel.addMessage(
-					message.mode(
-						"follower-only",
-						!data.action.includes("off"),
-						data.followers ? data.followers.follow_duration_minutes * 60 : Number.NaN,
+					message.setContext({
+						type: "mode",
+						mode: "follower-only",
+						enabled: !data.action.includes("off"),
+						seconds: data.followers
+							? data.followers.follow_duration_minutes * 60
+							: Number.NaN,
 						moderator,
-					),
+					}),
 				);
 
 				break;
@@ -45,12 +54,13 @@ export default defineHandler({
 			case "slow":
 			case "slowoff": {
 				channel.addMessage(
-					message.mode(
-						"slow",
-						data.slow !== null,
-						data.slow?.wait_time_seconds ?? Number.NaN,
+					message.setContext({
+						type: "mode",
+						mode: "slow",
+						enabled: data.slow !== null,
+						seconds: data.slow?.wait_time_seconds ?? Number.NaN,
 						moderator,
-					),
+					}),
 				);
 
 				break;
@@ -58,13 +68,19 @@ export default defineHandler({
 
 			case "clear": {
 				channel.clearMessages();
-				channel.addMessage(message.clear(moderator));
+				channel.addMessage(message.setContext({ type: "clear", moderator }));
 				break;
 			}
 
 			case "delete": {
-				const target = Viewer.fromBasic(data.delete);
-				channel.addMessage(message.delete(data.delete.message_body, target, moderator));
+				channel.addMessage(
+					message.setContext({
+						type: "delete",
+						text: data.delete.message_body,
+						user: Viewer.fromBasic(data.delete),
+						moderator,
+					}),
+				);
 
 				break;
 			}
@@ -73,38 +89,53 @@ export default defineHandler({
 			case "add_permitted_term":
 			case "remove_blocked_term":
 			case "remove_permitted_term": {
-				channel.addMessage(message.term(data.automod_terms, moderator));
+				channel.addMessage(
+					message.setContext({ type: "term", data: data.automod_terms, moderator }),
+				);
+
 				break;
 			}
 
 			case "warn": {
-				channel.addMessage(message.warn(data.warn, moderator));
+				channel.addMessage(
+					message.setContext({
+						type: "warn",
+						warning: data.warn,
+						user: Viewer.fromBasic(data.warn),
+						moderator,
+					}),
+				);
+
 				break;
 			}
 
 			case "timeout": {
 				channel.clearMessages(data.timeout.user_id);
 
-				const target = Viewer.fromBasic(data.timeout);
-
 				const expiration = new Date(data.timeout.expires_at);
 				const duration = expiration.getTime() - message.timestamp.getTime();
 
 				channel.addMessage(
-					message.timeout(
-						Math.ceil(duration / 1000),
-						data.timeout.reason,
-						target,
+					message.setContext({
+						type: "timeout",
+						seconds: Math.ceil(duration / 1000),
+						reason: data.timeout.reason,
+						user: Viewer.fromBasic(data.timeout),
 						moderator,
-					),
+					}),
 				);
 
 				break;
 			}
 
 			case "untimeout": {
-				const target = Viewer.fromBasic(data.untimeout);
-				channel.addMessage(message.untimeout(target, moderator));
+				channel.addMessage(
+					message.setContext({
+						type: "untimeout",
+						user: Viewer.fromBasic(data.untimeout),
+						moderator,
+					}),
+				);
 
 				break;
 			}
@@ -112,14 +143,19 @@ export default defineHandler({
 			case "ban":
 			case "unban": {
 				const isBan = data.action === "ban";
-				const target = Viewer.fromBasic(isBan ? data.ban : data.unban);
 
 				if (isBan) {
 					channel.clearMessages(data.ban.user_id);
 				}
 
 				channel.addMessage(
-					message.banStatus(isBan, isBan ? data.ban.reason : null, target, moderator),
+					message.setContext({
+						type: "banStatus",
+						banned: isBan,
+						reason: isBan ? data.ban.reason : null,
+						user: Viewer.fromBasic(isBan ? data.ban : data.unban),
+						moderator,
+					}),
 				);
 
 				break;
@@ -128,18 +164,34 @@ export default defineHandler({
 			case "mod":
 			case "unmod": {
 				const added = data.action === "mod";
-				const target = Viewer.fromBasic(added ? data.mod : data.unmod);
 
-				channel.addMessage(message.roleStatus("moderator", added, target, moderator));
+				channel.addMessage(
+					message.setContext({
+						type: "roleStatus",
+						role: "moderator",
+						added,
+						user: Viewer.fromBasic(added ? data.mod : data.unmod),
+						broadcaster: moderator,
+					}),
+				);
+
 				break;
 			}
 
 			case "vip":
 			case "unvip": {
 				const added = data.action === "vip";
-				const target = Viewer.fromBasic(added ? data.vip : data.unvip);
 
-				channel.addMessage(message.roleStatus("VIP", added, target, moderator));
+				channel.addMessage(
+					message.setContext({
+						type: "roleStatus",
+						role: "VIP",
+						added,
+						user: Viewer.fromBasic(added ? data.vip : data.unvip),
+						broadcaster: moderator,
+					}),
+				);
+
 				break;
 			}
 		}
