@@ -67,7 +67,7 @@
 		{#snippet children(message: Message, i)}
 			{#if !message.isUser()}
 				{/* @ts-expect-error */ null}
-				<SystemMessage {message} />
+				<SystemMessage {message} context={message.context} />
 			{:else if message.event}
 				<Notification {message} />
 			{:else}
