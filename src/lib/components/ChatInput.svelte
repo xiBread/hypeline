@@ -13,6 +13,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import type { HTMLInputAttributes } from "svelte/elements";
+	import { app } from "$lib/state.svelte";
 	import EmotePicker from "./EmotePicker.svelte";
 	import Message from "./message/Message.svelte";
 	import Input from "./ui/Input.svelte";
@@ -23,10 +24,60 @@
 	let anchor = $state<HTMLElement>();
 
 	let emotePickerOpen = $state(false);
+	let historyCursor = $state(-1);
 
 	onMount(() => {
 		input.value = chatInput;
 	});
+
+	async function send(event: KeyboardEvent) {
+		if (!app.active) return;
+
+		const input = event.currentTarget as HTMLInputElement;
+
+		if (event.key === "Escape" && replyTarget.value) {
+			replyTarget.value = null;
+		} else if (event.key === "ArrowUp") {
+			if (!app.active.history.length) return;
+
+			if (historyCursor === -1) {
+				historyCursor = app.active.history.length - 1;
+			} else if (historyCursor > 0) {
+				historyCursor--;
+			}
+
+			input.value = app.active.history[historyCursor];
+
+			setTimeout(() => {
+				input.setSelectionRange(input.value.length, input.value.length);
+			}, 0);
+		} else if (event.key === "ArrowDown") {
+			if (historyCursor === -1) return;
+
+			if (historyCursor < app.active.history.length - 1) {
+				historyCursor++;
+				input.value = app.active.history[historyCursor];
+			} else {
+				historyCursor = -1;
+				input.value = "";
+			}
+
+			input.setSelectionRange(input.value.length, input.value.length);
+		} else if (event.key === "Enter") {
+			event.preventDefault();
+
+			const message = input.value.trim();
+
+			if (!message) return;
+			if (!event.ctrlKey) input.value = "";
+
+			app.active.history.push(message);
+			await app.active.send(message);
+
+			historyCursor = -1;
+			replyTarget.value = null;
+		}
+	}
 </script>
 
 <EmotePicker input={chatInput} {anchor} bind:open={emotePickerOpen} />
@@ -67,6 +118,7 @@
 		autocorrect="off"
 		maxlength={500}
 		placeholder="Send a message"
+		onkeydown={send}
 		{...rest}
 		bind:ref={chatInput}
 	/>
