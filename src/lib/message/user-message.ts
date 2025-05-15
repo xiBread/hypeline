@@ -59,13 +59,13 @@ export class UserMessage extends Message {
 	 * moderator
 	 */
 	public get actionable() {
-		if (!app.user || !app.active) return false;
+		if (!app.user || !app.joined) return false;
 
 		const now = Date.now();
 		const diff = Math.abs(now - this.timestamp.getTime());
 
 		return (
-			app.user.moderating.has(app.active.user.username) &&
+			app.user.moderating.has(app.joined.user.username) &&
 			diff <= 6 * 60 * 60 * 1000 &&
 			(app.user.id === this.viewer.id || !(this.viewer.isBroadcaster || this.viewer.isMod))
 		);
@@ -115,7 +115,7 @@ export class UserMessage extends Message {
 	}
 
 	public get viewer() {
-		let viewer = app.active?.viewers.get(this.data.sender.name);
+		let viewer = app.joined?.viewers.get(this.data.sender.name);
 
 		if (!viewer) {
 			viewer = Viewer.from(this.data.sender, this.data.name_color);
@@ -195,7 +195,7 @@ export class UserMessage extends Message {
 			}
 
 			for (const token of chunk.split(/\s+/)) {
-				const emote = app.active?.emotes.get(token);
+				const emote = app.joined?.emotes.get(token);
 
 				if (emote) {
 					flush();
@@ -225,7 +225,7 @@ export class UserMessage extends Message {
 				});
 			} else if (segment.type === "mention") {
 				const mention = segment.data.username;
-				const viewer = app.active?.viewers.get(mention.toLowerCase());
+				const viewer = app.joined?.viewers.get(mention.toLowerCase());
 
 				fragments.push({
 					type: "mention",

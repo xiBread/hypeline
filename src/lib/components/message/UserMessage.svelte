@@ -63,7 +63,7 @@
 	{#if message.highlighted}
 		<div
 			class="bg-muted/50 my-0.5 border-l-4 p-2.5"
-			style:border-color={app.active?.user.color}
+			style:border-color={app.joined?.user.color}
 		>
 			<Message {message} />
 		</div>
@@ -79,7 +79,7 @@
 {#snippet innerMessage(bordered: boolean)}
 	<div class={["not-group-aria-disabled:hover:bg-muted/50 py-2", bordered ? "px-1.5" : "px-3"]}>
 		{#if message.reply}
-			{@const viewer = app.active?.viewers.get(message.reply.parent.user.login)}
+			{@const viewer = app.joined?.viewers.get(message.reply.parent.user.login)}
 
 			<div class="mb-1 flex items-center gap-2">
 				<div

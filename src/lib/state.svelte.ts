@@ -3,7 +3,7 @@ import type { Channel, Emote } from "./channel.svelte";
 import type { User } from "./user";
 
 class AppState {
-	#active = $state<Channel | null>(null);
+	#joined = $state<Channel | null>(null);
 
 	public user?: User;
 
@@ -12,12 +12,12 @@ class AppState {
 	/**
 	 * The currently joined channel.
 	 */
-	public get active() {
-		return this.#active;
+	public get joined() {
+		return this.#joined;
 	}
 
 	public setActive(channel: Channel) {
-		this.#active = channel;
+		this.#joined = channel;
 		return this;
 	}
 }

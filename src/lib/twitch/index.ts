@@ -62,17 +62,17 @@ export async function connect() {
 	if (!settings.state.user) return;
 
 	const ircChannel = new Channel<IrcMessage>(async (message) => {
-		if (!app.active) return;
+		if (!app.joined) return;
 
 		const handler = handlers.get(message.type);
-		await handler?.handle(message, app.active);
+		await handler?.handle(message, app.joined);
 	});
 
 	const eventsubChannel = new Channel<NotificationPayload>(async (message) => {
-		if (!app.active) return;
+		if (!app.joined) return;
 
 		const handler = handlers.get(message.subscription.type);
-		await handler?.handle(message.event, app.active);
+		await handler?.handle(message.event, app.joined);
 	});
 
 	await invoke("connect_irc", { channel: ircChannel });

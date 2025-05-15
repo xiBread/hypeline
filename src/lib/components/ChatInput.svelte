@@ -31,22 +31,22 @@
 	});
 
 	async function send(event: KeyboardEvent) {
-		if (!app.active) return;
+		if (!app.joined) return;
 
 		const input = event.currentTarget as HTMLInputElement;
 
 		if (event.key === "Escape" && replyTarget.value) {
 			replyTarget.value = null;
 		} else if (event.key === "ArrowUp") {
-			if (!app.active.history.length) return;
+			if (!app.joined.history.length) return;
 
 			if (historyCursor === -1) {
-				historyCursor = app.active.history.length - 1;
+				historyCursor = app.joined.history.length - 1;
 			} else if (historyCursor > 0) {
 				historyCursor--;
 			}
 
-			input.value = app.active.history[historyCursor];
+			input.value = app.joined.history[historyCursor];
 
 			setTimeout(() => {
 				input.setSelectionRange(input.value.length, input.value.length);
@@ -54,9 +54,9 @@
 		} else if (event.key === "ArrowDown") {
 			if (historyCursor === -1) return;
 
-			if (historyCursor < app.active.history.length - 1) {
+			if (historyCursor < app.joined.history.length - 1) {
 				historyCursor++;
-				input.value = app.active.history[historyCursor];
+				input.value = app.joined.history[historyCursor];
 			} else {
 				historyCursor = -1;
 				input.value = "";
@@ -71,8 +71,8 @@
 			if (!message) return;
 			if (!event.ctrlKey) input.value = "";
 
-			app.active.history.push(message);
-			await app.active.send(message);
+			app.joined.history.push(message);
+			await app.joined.send(message);
 
 			historyCursor = -1;
 			replyTarget.value = null;

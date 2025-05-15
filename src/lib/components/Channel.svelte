@@ -17,11 +17,11 @@
 
 	onMount(async () => {
 		unlisten = await listen<IrcMessage[]>("recentmessages", async (event) => {
-			if (!app.active) return;
+			if (!app.joined) return;
 
 			for (const message of event.payload) {
 				const handler = handlers.get(message.type);
-				await handler?.handle(message, app.active);
+				await handler?.handle(message, app.joined);
 			}
 		});
 	});
@@ -31,7 +31,7 @@
 	$effect(() => {
 		join();
 
-		return () => app.active?.leave();
+		return () => app.joined?.leave();
 	});
 
 	async function join() {

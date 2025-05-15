@@ -21,21 +21,21 @@
 	let scrollingPaused = $state(false);
 
 	const newMessageCount = $derived.by(() => {
-		if (!list || !app.active) return 0;
+		if (!list || !app.joined) return 0;
 
-		const total = app.active.messages.length - list.findEndIndex();
+		const total = app.joined.messages.length - list.findEndIndex();
 		return total > 99 ? "99+" : total;
 	});
 
 	$effect(() => {
-		if (app.active?.messages.length && !scrollingPaused) {
+		if (app.joined?.messages.length && !scrollingPaused) {
 			scrollToEnd();
 		}
 	});
 
 	function scrollToEnd() {
-		if (app.active) {
-			list?.scrollToIndex(app.active.messages.length - 1, { align: "end" });
+		if (app.joined) {
+			list?.scrollToIndex(app.joined.messages.length - 1, { align: "end" });
 		}
 	}
 
@@ -59,7 +59,7 @@
 
 	<VList
 		class="{className} overflow-y-auto text-sm"
-		data={app.active?.messages ?? []}
+		data={app.joined?.messages ?? []}
 		getKey={(msg: Message) => msg.id}
 		onscroll={handleScroll}
 		bind:this={list}
@@ -74,7 +74,7 @@
 				<UserMessage {message} />
 			{/if}
 
-			{@const next = app.active?.messages.at(i + 1)}
+			{@const next = app.joined?.messages.at(i + 1)}
 
 			{#if message.isRecent && !next?.isRecent}
 				<div class="text-twitch relative px-3.5">
