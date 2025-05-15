@@ -131,6 +131,7 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         emotes::fetch_global_emotes,
         eventsub::connect_eventsub,
         providers::fetch_recent_messages,
+        providers::seventv::connect_seventv,
         server::start_server
     ]
 }

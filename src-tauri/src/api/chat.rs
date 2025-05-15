@@ -33,7 +33,7 @@ pub async fn join(
     state: State<'_, Mutex<AppState>>,
     login: String,
 ) -> Result<JoinedChannel, Error> {
-    let (helix, token, irc, eventsub) = {
+    let (helix, token, irc, eventsub, seventv) = {
         let state = state.lock().await;
 
         let token = state
@@ -50,6 +50,7 @@ pub async fn join(
             token.clone(),
             irc,
             state.eventsub.clone(),
+            state.seventv.clone(),
         )
     };
 
@@ -105,6 +106,14 @@ pub async fn join(
                 ],
             )
             .await?;
+    }
+
+    if let Some(seventv) = seventv {
+        seventv.subscribe("cosmetic.create", &broadcaster_id).await;
+        seventv
+            .subscribe("entitlement.create", &broadcaster_id)
+            .await;
+        seventv.subscribe("emote_set.*", &broadcaster_id).await;
     }
 
     irc.join(login.to_string());

@@ -1,6 +1,7 @@
 import { Channel, invoke } from "@tauri-apps/api/core";
 import { handlers } from "$lib/handlers";
 import { settings } from "$lib/settings";
+import type { DispatchPayload } from "$lib/seventv";
 import { app } from "$lib/state.svelte";
 import type { NotificationPayload } from "./eventsub";
 import type { IrcMessage } from "./irc";
@@ -62,19 +63,25 @@ export async function connect() {
 	if (!settings.state.user) return;
 
 	const ircChannel = new Channel<IrcMessage>(async (message) => {
-		if (!app.joined) return;
-
-		const handler = handlers.get(message.type);
-		await handler?.handle(message, app.joined);
+		await handle(message.type, message);
 	});
 
 	const eventsubChannel = new Channel<NotificationPayload>(async (message) => {
-		if (!app.joined) return;
+		await handle(message.subscription.type, message.event);
+	});
 
-		const handler = handlers.get(message.subscription.type);
-		await handler?.handle(message.event, app.joined);
+	const seventvChannel = new Channel<DispatchPayload>(async (message) => {
+		await handle(message.type, message.body);
 	});
 
 	await invoke("connect_irc", { channel: ircChannel });
 	await invoke("connect_eventsub", { channel: eventsubChannel });
+	await invoke("connect_seventv", { channel: seventvChannel });
+}
+
+async function handle(key: string, payload: any) {
+	if (!app.joined) return;
+
+	const handler = handlers.get(key);
+	await handler?.handle(payload, app.joined);
 }
