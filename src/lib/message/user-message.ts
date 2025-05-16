@@ -1,17 +1,19 @@
 import type { Emote } from "$lib/channel.svelte";
 import { app } from "$lib/state.svelte";
-import type { Badge, PrivmsgMessage, Range, UserNoticeMessage } from "$lib/twitch/irc";
+import type { Boundary, StructuredMessage } from "$lib/twitch/eventsub";
+import type { Badge, BasicUser, PrivmsgMessage, Range, UserNoticeMessage } from "$lib/twitch/irc";
 import type { PartialUser } from "$lib/user";
+import { extractEmotes } from "$lib/util";
 import { Viewer } from "$lib/viewer.svelte";
 import { Message } from ".";
 
 export type Fragment =
-	| { type: "text"; value: string }
-	| ({ type: "mention" } & PartialUser)
-	| { type: "url"; text: string; url: URL }
-	| ({ type: "emote" } & Emote)
+	| { type: "text"; value: string; marked?: boolean }
+	| ({ type: "mention"; marked?: boolean } & PartialUser)
+	| { type: "url"; text: string; url: URL; marked?: boolean }
+	| ({ type: "emote"; marked?: boolean } & Emote)
 	// todo: cheermotes
-	| { type: "cheermote"; value: string };
+	| { type: "cheermote"; value: string; marked?: boolean };
 
 const URL_RE =
 	/https?:\/\/(?:www\.)?[-\w@:%.+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-\w()@:%+.~#?&/=]*/g;
@@ -19,6 +21,12 @@ const URL_RE =
 interface TextSegment extends Range {
 	type: "emote" | "mention" | "url";
 	data: Record<string, string>;
+}
+
+export interface UserMessageAutoModMetadata {
+	reason: string;
+	level?: number;
+	boundaries: Boundary[];
 }
 
 /**
@@ -30,12 +38,41 @@ interface TextSegment extends Range {
  * checked to differentiate the two.
  */
 export class UserMessage extends Message {
-	public readonly fragments: Fragment[];
+	#autoMod: UserMessageAutoModMetadata | null = null;
 
 	public constructor(public readonly data: PrivmsgMessage | UserNoticeMessage) {
 		super(data);
+	}
 
-		this.fragments = this.#fragment();
+	public static from(message: StructuredMessage, sender: BasicUser) {
+		const isAction = /^\x01ACTION.*$/.test(message.text);
+		const text = isAction ? message.text.slice(8, -1) : message.text;
+
+		return new UserMessage({
+			type: "privmsg",
+			badge_info: [],
+			badges: [],
+			bits: message.fragments.reduce((a, b) => {
+				return a + (b.type === "cheermote" ? b.cheermote.bits : 0);
+			}, 0),
+			channel_id: "",
+			channel_login: "",
+			deleted: false,
+			emotes: extractEmotes(message.fragments),
+			message_id: message.message_id,
+			message_text: text,
+			name_color: "",
+			is_action: isAction,
+			is_first_msg: false,
+			is_highlighted: false,
+			is_mod: false,
+			is_subscriber: false,
+			is_recent: false,
+			is_returning_chatter: false,
+			reply: null,
+			sender,
+			server_timestamp: Date.now(),
+		});
 	}
 
 	public override get id() {
@@ -69,6 +106,13 @@ export class UserMessage extends Message {
 			diff <= 6 * 60 * 60 * 1000 &&
 			(app.user.id === this.viewer.id || !(this.viewer.isBroadcaster || this.viewer.isMod))
 		);
+	}
+
+	/**
+	 * The AutoMod metadata attached to the message if it was caught by AutoMod.
+	 */
+	public get autoMod() {
+		return this.#autoMod;
 	}
 
 	/**
@@ -124,19 +168,33 @@ export class UserMessage extends Message {
 		return viewer;
 	}
 
-	#fragment() {
-		const fragments: Fragment[] = [];
-		const message = this.text;
+	public addAutoModMetadata(metadata: UserMessageAutoModMetadata) {
+		this.#autoMod = metadata;
+		return this;
+	}
 
-		const chars = Array.from(message);
+	public toFragments() {
+		const output: Fragment[] = [];
+
+		const text = this.text;
+		if (!text) return output;
+
+		const chars = Array.from(text);
+		const isCharMarked = Array.from<boolean>({ length: chars.length }).fill(false);
+
+		for (const boundary of this.#autoMod?.boundaries ?? []) {
+			for (let i = boundary.start_pos; i < boundary.end_pos && i < chars.length; i++) {
+				isCharMarked[i] = true;
+			}
+		}
 
 		const segments: TextSegment[] = [];
 
 		for (const emote of this.data.emotes) {
 			segments.push({
+				type: "emote",
 				start: emote.range.start,
 				end: emote.range.end,
-				type: "emote",
 				data: { id: emote.id, code: emote.code },
 			});
 		}
@@ -145,7 +203,7 @@ export class UserMessage extends Message {
 		let match: RegExpExecArray | null;
 
 		// eslint-disable-next-line no-cond-assign
-		while ((match = mentionRe.exec(message))) {
+		while ((match = mentionRe.exec(text))) {
 			segments.push({
 				start: match.index,
 				end: match.index + match[0].length,
@@ -157,20 +215,20 @@ export class UserMessage extends Message {
 		URL_RE.lastIndex = 0;
 
 		// eslint-disable-next-line no-cond-assign
-		while ((match = URL_RE.exec(message))) {
+		while ((match = URL_RE.exec(text))) {
 			if (!URL.canParse(match[0])) continue;
 
 			segments.push({
+				type: "url",
 				start: match.index,
 				end: match.index + match[0].length,
-				type: "url",
 				data: { text: match[0] },
 			});
 		}
 
 		segments.sort((a, b) => a.start - b.start);
 
-		const processed = [];
+		const processed: TextSegment[] = [];
 		let lastEnd = -1;
 
 		for (const segment of segments) {
@@ -182,85 +240,149 @@ export class UserMessage extends Message {
 
 		let currentIndex = 0;
 
-		function processChunk(chunk: string) {
-			if (!chunk) return;
-
-			let buffer: string[] = [];
-
-			function flush() {
-				if (buffer.length) {
-					fragments.push({ type: "text", value: buffer.join(" ") });
-					buffer = [];
-				}
-			}
-
-			for (const token of chunk.split(/\s+/)) {
-				const emote = app.joined?.emotes.get(token);
-
-				if (emote) {
-					flush();
-					fragments.push({ type: "emote", ...emote });
-				} else {
-					buffer.push(token);
-				}
-			}
-
-			flush();
-		}
-
 		for (const segment of processed) {
 			if (segment.start > currentIndex) {
-				const text = chars.slice(currentIndex, segment.start).join("");
-
-				processChunk(text);
+				const chunk = chars.slice(currentIndex, segment.start).join("");
+				this.#processChunk(chunk, currentIndex, isCharMarked, output);
 			}
 
+			const marked = this.#isRangeMarked(segment.start, segment.end, isCharMarked);
+
 			if (segment.type === "emote") {
-				fragments.push({
+				output.push({
 					type: "emote",
 					name: segment.data.code,
-					height: 28,
+					url: `https://static-cdn.jtvnw.net/emoticons/v2/${segment.data.id}/default/dark/1.0`,
 					width: 28,
-					url: `https://static-cdn.jtvnw.net/emoticons/v2/${segment.data.id}/default/dark/3.0`,
+					height: 28,
+					marked,
 				});
 			} else if (segment.type === "mention") {
 				const mention = segment.data.username;
 				const viewer = app.joined?.viewers.get(mention.toLowerCase());
 
-				fragments.push({
+				output.push({
 					type: "mention",
 					id: viewer?.id ?? "0",
 					color: viewer?.color ?? "inherit",
 					username: viewer?.username ?? mention.toLowerCase(),
 					displayName: viewer?.displayName ?? mention,
+					marked,
 				});
 			} else if (segment.type === "url") {
-				fragments.push({
+				output.push({
 					type: "url",
 					text: segment.data.text,
 					url: new URL(segment.data.text),
+					marked,
 				});
 			}
 
 			currentIndex = segment.end;
 		}
 
-		if (currentIndex < chars.length) {
-			processChunk(chars.slice(currentIndex).join(""));
+		if (currentIndex < text.length) {
+			const chunk = chars.slice(currentIndex).join("");
+			this.#processChunk(chunk, currentIndex, isCharMarked, output);
 		}
 
-		const final: Fragment[] = [];
-		let previous: Fragment | null = null;
+		const fragments: Fragment[] = [];
+		let lastFrag: Extract<Fragment, { type: "text" }> | null = null;
 
-		for (const frag of fragments) {
-			if (frag.type === "text" && previous?.type === "text") {
-				previous.value += frag.value;
+		for (const frag of output) {
+			if (frag.type === "text") {
+				if (lastFrag && lastFrag.marked === frag.marked) {
+					lastFrag.value += frag.value;
+				} else {
+					if (lastFrag) fragments.push(lastFrag);
+					lastFrag = { ...frag };
+				}
 			} else {
-				final.push(frag);
-				previous = frag;
+				if (lastFrag) {
+					fragments.push(lastFrag);
+					lastFrag = null;
+				}
+
+				fragments.push(frag);
 			}
 		}
 
-		return final;
+		if (lastFrag) fragments.push(lastFrag);
+
+		return fragments;
+	}
+
+	#isRangeMarked(start: number, end: number, isCharMarked: boolean[]): boolean {
+		if (start >= end) return false;
+		for (let i = start; i < end; i++) {
+			if (isCharMarked[i]) return true;
+		}
+
+		return false;
+	}
+
+	#processChunk(
+		chunk: string,
+		offset: number,
+		isCharMarked: boolean[],
+		fragments: Fragment[],
+	): void {
+		if (!chunk) return;
+
+		let buffer: string[] = [];
+		let wordStart = 0;
+
+		const flush = (joiner = " ") => {
+			if (buffer.length) {
+				const text = buffer.join(joiner);
+
+				const start = offset + wordStart;
+				const end = start + Array.from(text).length;
+
+				const marked = this.#isRangeMarked(start, end, isCharMarked);
+
+				fragments.push({ type: "text", value: text, marked });
+				buffer = [];
+			}
+		};
+
+		let chunkPos = 0;
+
+		for (const token of chunk.split(/(\s+)/)) {
+			if (/\s+/.test(token)) {
+				flush("");
+
+				const start = offset + chunkPos;
+				const end = start + token.length;
+
+				const marked = this.#isRangeMarked(start, end, isCharMarked);
+
+				fragments.push({ type: "text", value: token, marked });
+			} else if (token) {
+				const emote = app.joined?.emotes.get(token);
+
+				if (emote) {
+					flush();
+
+					const start = offset + chunkPos;
+					const end = start + token.length;
+
+					const marked = this.#isRangeMarked(start, end, isCharMarked);
+
+					fragments.push({ type: "emote", ...emote, marked });
+				} else {
+					if (buffer.length === 0) {
+						wordStart = chunkPos;
+					}
+
+					buffer.push(token);
+					flush();
+				}
+			}
+
+			chunkPos += Array.from(token).length;
+		}
+
+		flush();
 	}
 }

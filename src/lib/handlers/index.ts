@@ -10,6 +10,7 @@ import part from "./irc/part";
 import privmsg from "./irc/privmsg";
 import usernotice from "./irc/usernotice";
 //
+import automodMessageHold from "./eventsub/automod-message-hold";
 import channelModerate from "./eventsub/channel-moderate";
 import channelSubscriptionEnd from "./eventsub/channel-subscription-end";
 import channelSuspiciousUserMessage from "./eventsub/channel-suspicious-user-message";
@@ -34,6 +35,7 @@ register(part);
 register(privmsg);
 register(usernotice);
 
+register(automodMessageHold);
 register(channelModerate);
 register(channelSubscriptionEnd);
 register(channelSuspiciousUserMessage);

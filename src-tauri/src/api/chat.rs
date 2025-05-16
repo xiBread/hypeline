@@ -79,15 +79,13 @@ pub async fn join(
             .subscribe_all(
                 login.as_str(),
                 &[
+					(EventType::AutomodMessageHold, &channel_with_mod_cond),
                     (EventType::ChannelModerate, &channel_with_mod_cond),
                     (EventType::ChannelSubscriptionEnd, &channel_cond),
 					(EventType::ChannelSuspiciousUserMessage, &channel_with_mod_cond),
 					(EventType::ChannelSuspiciousUserUpdate, &channel_with_mod_cond),
                     (EventType::ChannelUnbanRequestCreate, &channel_with_mod_cond),
-                    (
-                        EventType::ChannelUnbanRequestResolve,
-                        &channel_with_mod_cond,
-                    ),
+                    (EventType::ChannelUnbanRequestResolve, &channel_with_mod_cond),
                     (EventType::ChannelWarningAcknowledge, &channel_with_mod_cond),
                     (EventType::StreamOffline, &channel_cond),
                     (EventType::StreamOnline, &channel_cond),

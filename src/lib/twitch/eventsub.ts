@@ -7,6 +7,44 @@ export type WithBroadcaster = Prefix<WithBasicUser, "broadcaster_">;
 
 export type WithModerator = Prefix<WithBasicUser, "moderator_">;
 
+export interface Boundary {
+	start_pos: number;
+	end_pos: number;
+}
+
+export interface AutomodMetadata {
+	category: string;
+	level: number;
+	boundaries: Boundary[];
+}
+
+export interface BlockedTerm extends Prefix<WithBroadcaster, "owner_"> {
+	term_id: string;
+	boundary: Boundary;
+}
+
+export interface BlockedTermMetadata {
+	terms_found: BlockedTerm[];
+}
+
+export interface BaseAutomodMessageHold extends WithBasicUser, WithBroadcaster {
+	message_id: string;
+	message: StructuredMessage;
+	held_at: string;
+}
+
+export interface AutomodAutomated extends BaseAutomodMessageHold {
+	reason: "automod";
+	automod: AutomodMetadata;
+}
+
+export interface AutomodBlockedTerm extends BaseAutomodMessageHold {
+	reason: "blocked_term";
+	blocked_term: BlockedTermMetadata;
+}
+
+export type AutomodMessageHold = AutomodAutomated | AutomodBlockedTerm;
+
 export interface BaseAction<A extends string> extends WithBroadcaster, WithModerator {
 	action: A;
 	source_broadcaster_user_id: string;
@@ -235,6 +273,7 @@ export interface StreamOnline extends WithBroadcaster {
 }
 
 export interface SubscriptionEventMap {
+	"automod.message.hold": AutomodMessageHold;
 	"channel.moderate": ChannelModerate;
 	"channel.subscription.end": ChannelSubscriptionEnd;
 	"channel.suspicious_user.message": ChannelSuspiciousUserMessage;
