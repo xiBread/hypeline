@@ -1,5 +1,7 @@
 import { SvelteMap } from "svelte/reactivity";
 import type { Channel, Emote } from "./channel.svelte";
+import type { Paint } from "./seventv";
+import type { Badge } from "./twitch/api";
 import type { User } from "./user";
 
 class AppState {
@@ -8,6 +10,8 @@ class AppState {
 	public user?: User;
 
 	public readonly globalEmotes = new SvelteMap<string, Emote>();
+	public readonly badges = new SvelteMap<string, Badge>();
+	public readonly paints = new SvelteMap<string, Paint>();
 
 	/**
 	 * The currently joined channel.
