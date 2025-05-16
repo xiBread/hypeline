@@ -10,7 +10,7 @@
 	const { message }: { message: UserMessage } = $props();
 
 	const fragments = message.toFragments();
-	const badges: Badge[] = [];
+	const badges = $state<Badge[]>([]);
 
 	for (const badge of message.badges) {
 		const chatBadge = app.joined?.badges.get(badge.name)?.[badge.version];
@@ -21,6 +21,10 @@
 		if (resolved) {
 			badges.push(resolved);
 		}
+	}
+
+	if (message.viewer.badge) {
+		badges.push(message.viewer.badge);
 	}
 
 	async function openUrl(url: URL) {
@@ -48,7 +52,7 @@
 
 <!-- Formatting is ugly here, but it needs to be in order for the colon to
 render properly without an extra space in between. -->
-<span class="font-semibold break-words" style:color={message.viewer.color}>
+<span class="font-semibold break-words" style={message.viewer.style}>
 	{message.viewer.displayName}
 </span>{#if !message.isAction}:{/if}
 

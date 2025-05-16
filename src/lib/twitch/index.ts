@@ -71,7 +71,7 @@ export async function connect() {
 	});
 
 	const seventvChannel = new Channel<DispatchPayload>(async (message) => {
-		await handle(message.type, message.body);
+		await handle(message.type, message.body.object);
 	});
 
 	await invoke("connect_irc", { channel: ircChannel });
