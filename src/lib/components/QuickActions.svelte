@@ -22,7 +22,6 @@
 
 		await invoke("delete_message", {
 			broadcasterId: app.joined.user.id,
-			userId: app.user.id,
 			messageId: message.id,
 		});
 	}
