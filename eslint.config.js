@@ -32,6 +32,7 @@ export default antfu({
 				},
 			},
 		],
+		"unicorn/number-literal-case": ["error", { hexadecimalValue: "lowercase" }],
 		"unused-imports/no-unused-imports": "warn",
 		"unused-imports/no-unused-vars": "off",
 		"svelte/no-at-html-tags": "off",
