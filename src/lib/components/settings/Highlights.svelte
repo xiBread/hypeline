@@ -2,8 +2,8 @@
 	import { Popover } from "bits-ui";
 	import { defaultHighlightTypes, settings } from "$lib/settings";
 	import type { HighlightType } from "$lib/settings";
-	import ColorPicker from "../../ui/ColorPicker.svelte";
-	import * as Select from "../../ui/select";
+	import ColorPicker from "../ui/ColorPicker.svelte";
+	import * as Select from "../ui/select";
 
 	const highlights = [
 		{ label: "Mentions", value: "mention" },
@@ -30,12 +30,15 @@
 
 <div class="space-y-6">
 	<hgroup>
-		<h2 class="mb-2">Highlights</h2>
+		<h1 class="mb-2">Highlights</h1>
 
-		<p class="text-muted-foreground text-sm">
-			Message highlights allow you to easily identify different types of viewers.
+		<p class="text-muted-foreground mr-8 text-sm">
+			Message highlights allow you to easily identify different types of viewers or when
+			specific keywords are sent in chat.
 		</p>
 	</hgroup>
+
+	<h2>Viewer Types</h2>
 
 	<div class="grid grid-cols-[repeat(4,auto)] items-center gap-x-3 gap-y-4">
 		<span class="col-start-2 text-sm font-medium">Color</span>
@@ -99,6 +102,14 @@
 			>
 				<span class="iconify lucide--rotate-cw"></span>
 			</button>
+		{/each}
+	</div>
+
+	<h2>Custom</h2>
+
+	<div class="grid">
+		{#each settings.state.highlights.custom as highlight}
+			<!--  -->
 		{/each}
 	</div>
 </div>

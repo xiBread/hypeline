@@ -5,6 +5,7 @@
 	import { settings } from "$lib/settings";
 	import Appearance from "./appearance/Appearance.svelte";
 	import Chat from "./chat/Chat.svelte";
+	import Highlights from "./Highlights.svelte";
 
 	let { open = $bindable(false) } = $props();
 
@@ -18,6 +19,11 @@
 			name: "Chat",
 			icon: "lucide--message-square",
 			component: Chat,
+		},
+		{
+			name: "Highlights",
+			icon: "lucide--highlighter",
+			component: Highlights,
 		},
 	];
 

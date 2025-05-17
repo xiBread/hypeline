@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { settings } from "$lib/settings";
 	import Switch from "../../ui/Switch.svelte";
-	import Highlights from "./Highlights.svelte";
 	import Messages from "./Messages.svelte";
 </script>
 
@@ -39,7 +38,6 @@
 			</Switch>
 		</div>
 
-		<Highlights />
 		<Messages />
 	</div>
 </div>
