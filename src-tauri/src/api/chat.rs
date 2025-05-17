@@ -4,10 +4,14 @@ use serde_json::json;
 use tauri::State;
 use tokio::sync::Mutex;
 use twitch_api::eventsub::EventType;
+use twitch_api::helix::bits::{Cheermote, GetCheermotesRequest};
 use twitch_api::helix::chat::BadgeSet;
 use twitch_api::helix::streams::Stream;
+use twitch_api::twitch_oauth2::UserToken;
+use twitch_api::HelixClient;
 
 use super::channels::get_stream;
+use super::get_access_token;
 use super::users::{get_user_from_login, User};
 use crate::emotes::{fetch_user_emotes, EmoteMap};
 use crate::error::Error;
@@ -20,6 +24,7 @@ pub struct JoinedChannel {
     user: User,
     stream: Option<Stream>,
     emotes: EmoteMap,
+    cheermotes: Vec<Cheermote>,
     badges: Vec<BadgeSet>,
 }
 
@@ -55,9 +60,10 @@ pub async fn join(
     let broadcaster_id = user.data.id.as_str();
     let login = user.data.login.to_string();
 
-    let (stream, emotes, mut global_badges, channel_badges) = tokio::try_join!(
+    let (stream, emotes, cheermotes, mut global_badges, channel_badges) = tokio::try_join!(
         get_stream(state.clone(), user.data.id.to_string()),
         fetch_user_emotes(broadcaster_id),
+        get_cheermotes(&helix, &token, broadcaster_id.to_string()),
         fetch_global_badges(&helix, &token),
         fetch_channel_badges(&helix, &token, login),
     )?;
@@ -111,6 +117,7 @@ pub async fn join(
         user,
         stream,
         emotes,
+        cheermotes,
         badges: global_badges,
     })
 }
@@ -138,25 +145,38 @@ pub async fn send_message(
     reply_id: Option<String>,
 ) -> Result<(), Error> {
     let state = state.lock().await;
-
-    if state.token.is_none() {
-        return Err(Error::Generic(anyhow!("Access token not set")));
-    }
-
-    let token = state.token.as_ref().unwrap();
-    let user_id = token.user_id.clone();
+    let token = get_access_token(&state).await?;
 
     if let Some(reply_id) = reply_id {
         state
             .helix
-            .send_chat_message_reply(&broadcaster_id, user_id, &reply_id, content.as_str(), token)
+            .send_chat_message_reply(
+                &broadcaster_id,
+                &token.user_id,
+                &reply_id,
+                content.as_str(),
+                token,
+            )
             .await?;
     } else {
         state
             .helix
-            .send_chat_message(&broadcaster_id, user_id, content.as_str(), token)
+            .send_chat_message(&broadcaster_id, &token.user_id, content.as_str(), token)
             .await?;
     }
 
     Ok(())
+}
+
+pub async fn get_cheermotes(
+    helix: &HelixClient<'static, reqwest::Client>,
+    token: &UserToken,
+    broadcaster_id: String,
+) -> Result<Vec<Cheermote>, Error> {
+    let request = GetCheermotesRequest::broadcaster_id(broadcaster_id);
+
+    match helix.req_get(request, token).await {
+        Ok(response) => Ok(response.data),
+        Err(_) => Ok(vec![]),
+    }
 }

@@ -3,7 +3,7 @@ import { SvelteMap } from "svelte/reactivity";
 import { replyTarget } from "./components/ChatInput.svelte";
 import type { Message } from "./message";
 import type { JoinedChannel } from "./tauri";
-import type { Badge, BadgeSet, Stream } from "./twitch/api";
+import type { Badge, BadgeSet, Cheermote, Stream } from "./twitch/api";
 import { User } from "./user";
 import { Viewer } from "./viewer.svelte";
 
@@ -20,6 +20,7 @@ export class Channel {
 
 	public readonly badges = new SvelteMap<string, Record<string, Badge>>();
 	public readonly emotes = new SvelteMap<string, Emote>();
+	public readonly cheermotes = $state<Cheermote[]>([]);
 	public readonly viewers = new SvelteMap<string, Viewer>();
 
 	/**
@@ -46,6 +47,7 @@ export class Channel {
 		const channel = new Channel(user)
 			.addBadges(joined.badges)
 			.addEmotes(joined.emotes)
+			.addCheermotes(joined.cheermotes)
 			.setStream(joined.stream);
 
 		const viewer = new Viewer(user);
@@ -76,6 +78,14 @@ export class Channel {
 			}
 
 			this.badges.set(set.set_id, badges);
+		}
+
+		return this;
+	}
+
+	public addCheermotes(cheermotes: Cheermote[]) {
+		for (const cheermote of cheermotes) {
+			this.cheermotes.push(cheermote);
 		}
 
 		return this;

@@ -1,5 +1,6 @@
 import type { Emote } from "$lib/channel.svelte";
 import { app } from "$lib/state.svelte";
+import type { CheermoteTier } from "$lib/twitch/api";
 import type { AutoModMetadata, StructuredMessage } from "$lib/twitch/eventsub";
 import type { Badge, BasicUser, PrivmsgMessage, Range, UserNoticeMessage } from "$lib/twitch/irc";
 import type { PartialUser } from "$lib/user";
@@ -12,15 +13,14 @@ export type Fragment =
 	| ({ type: "mention"; marked?: boolean } & PartialUser)
 	| { type: "url"; text: string; url: URL; marked?: boolean }
 	| ({ type: "emote"; marked?: boolean } & Emote)
-	// todo: cheermotes
-	| { type: "cheermote"; value: string; marked?: boolean };
+	| ({ type: "cheermote"; prefix: string; bits: number; marked?: boolean } & CheermoteTier);
 
 const URL_RE =
 	/https?:\/\/(?:www\.)?[-\w@:%.+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-\w()@:%+.~#?&/=]*/g;
 
 interface TextSegment extends Range {
-	type: "emote" | "mention" | "url";
-	data: Record<string, string>;
+	type: "emote" | "cheermote" | "mention" | "url";
+	data: Record<string, any>;
 }
 
 /**
@@ -117,6 +117,13 @@ export class UserMessage extends Message {
 	}
 
 	/**
+	 * The amount of bits sent with the message if it was a cheer.
+	 */
+	public get bits(): number {
+		return "bits" in this.data ? (this.data.bits ?? 0) : 0;
+	}
+
+	/**
 	 * Whether channel points were used to highlight the message.
 	 */
 	public get highlighted() {
@@ -184,6 +191,40 @@ export class UserMessage extends Message {
 
 		const segments: TextSegment[] = [];
 
+		if (this.bits > 0) {
+			for (const cheermote of app.joined?.cheermotes ?? []) {
+				const cheermoteRe = new RegExp(`\\b(${cheermote.prefix})(\\d+)\\b`, "gi");
+				let match: RegExpExecArray | null;
+
+				// eslint-disable-next-line no-cond-assign
+				while ((match = cheermoteRe.exec(text))) {
+					const bits = Number(match[2]);
+
+					let selectedTier: CheermoteTier | undefined;
+
+					for (const tier of cheermote.tiers.sort((a, b) => b.min_bits - a.min_bits)) {
+						if (bits >= tier.min_bits) {
+							selectedTier = tier;
+							break;
+						}
+					}
+
+					if (!selectedTier) continue;
+
+					segments.push({
+						type: "cheermote",
+						start: match.index,
+						end: match.index + match[0].length,
+						data: {
+							prefix: match[1],
+							bits: match[2],
+							tier: selectedTier,
+						},
+					});
+				}
+			}
+		}
+
 		for (const emote of this.data.emotes) {
 			segments.push({
 				type: "emote",
@@ -199,9 +240,9 @@ export class UserMessage extends Message {
 		// eslint-disable-next-line no-cond-assign
 		while ((match = mentionRe.exec(text))) {
 			segments.push({
+				type: "mention",
 				start: match.index,
 				end: match.index + match[0].length,
-				type: "mention",
 				data: { token: match[0], username: match[1] },
 			});
 		}
@@ -242,7 +283,15 @@ export class UserMessage extends Message {
 
 			const marked = this.#isRangeMarked(segment.start, segment.end, isCharMarked);
 
-			if (segment.type === "emote") {
+			if (segment.type === "cheermote") {
+				output.push({
+					type: "cheermote",
+					prefix: segment.data.prefix,
+					bits: segment.data.bits,
+					marked,
+					...segment.data.tier,
+				});
+			} else if (segment.type === "emote") {
 				output.push({
 					type: "emote",
 					name: segment.data.code,

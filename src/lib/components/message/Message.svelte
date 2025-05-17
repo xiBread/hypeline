@@ -81,6 +81,20 @@ render properly without an extra space in between. -->
 			>
 				{fragment.text}
 			</svelte:element>
+		{:else if fragment.type === "cheermote"}
+			{#if fragment.marked}
+				<mark class="wrap-anywhere">{fragment.prefix + fragment.bits}</mark>
+			{:else}
+				<img
+					class="-my-2 inline-block align-middle"
+					src={fragment.images.dark.animated["2"]}
+					alt="{fragment.prefix} {fragment.bits}"
+					width="32"
+					height="32"
+				/>
+
+				<span class="font-semibold" style:color={fragment.color}>{fragment.bits}</span>
+			{/if}
 		{:else if fragment.type === "emote"}
 			{#if fragment.marked}
 				<mark class="wrap-anywhere">{fragment.name}</mark>
