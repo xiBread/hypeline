@@ -58,7 +58,7 @@
 	}
 </script>
 
-<div class="bg-muted/50 my-0.5 border-l-4 p-2.5" style:border-color={app.joined?.user.color}>
+<div class="bg-muted/50 my-0.5 border-l-4 p-2" style:border-color={app.joined?.user.color}>
 	<div class="flex gap-1">
 		{#if sub.type === "sub_or_resub"}
 			<span class="iconify lucide--star mt-px size-4"></span>

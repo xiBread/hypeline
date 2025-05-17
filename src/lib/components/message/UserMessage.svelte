@@ -61,10 +61,7 @@
 	{/if}
 
 	{#if message.highlighted}
-		<div
-			class="bg-muted/50 my-0.5 border-l-4 p-2.5"
-			style:border-color={app.joined?.user.color}
-		>
+		<div class="bg-muted/50 my-0.5 border-l-4 p-2" style:border-color={app.joined?.user.color}>
 			<Message {message} />
 		</div>
 	{:else if hlType && highlights.enabled && highlights[hlType].enabled}

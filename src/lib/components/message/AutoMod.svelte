@@ -34,7 +34,7 @@
 	}
 </script>
 
-<div class="bg-muted/50 my-0.5 space-y-2 border-l-4 border-red-500 p-2.5">
+<div class="bg-muted/50 my-0.5 space-y-2 border-l-4 border-red-500 p-2">
 	<div
 		class={["flex w-full items-start justify-between gap-x-4", message.deleted && "opacity-30"]}
 	>
