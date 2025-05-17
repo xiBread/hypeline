@@ -3,6 +3,7 @@
 	import { VList } from "virtua/svelte";
 	import type { Message } from "$lib/message";
 	import { app } from "$lib/state.svelte";
+	import AutoMod from "./message/AutoMod.svelte";
 	import Notification from "./message/Notification.svelte";
 	import SystemMessage from "./message/SystemMessage.svelte";
 	import UserMessage from "./message/UserMessage.svelte";
@@ -70,6 +71,8 @@
 				<SystemMessage {message} context={message.context} />
 			{:else if message.event}
 				<Notification {message} />
+			{:else if message.autoMod}
+				<AutoMod {message} metadata={message.autoMod} />
 			{:else}
 				<UserMessage {message} />
 			{/if}

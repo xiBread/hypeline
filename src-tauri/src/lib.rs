@@ -118,6 +118,7 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         api::chat::leave,
         api::chat::send_message,
         api::moderation::delete_message,
+        api::moderation::update_held_message,
         api::users::get_user_from_id,
         api::users::get_user_from_login,
         api::users::get_user_emotes,

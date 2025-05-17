@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { SystemMessage } from "$lib/message";
 	import type {
+		AutoModContext,
 		BanStatusContext,
 		ClearContext,
 		DeleteContext,
@@ -41,7 +42,9 @@
 
 	<p class="inline">
 		{#if ctx}
-			{#if ctx.type === "banStatus"}
+			{#if ctx.type === "autoMod"}
+				{@render autoMod(ctx)}
+			{:else if ctx.type === "banStatus"}
 				{@render banStatus(ctx)}
 			{:else if ctx.type === "clear"}
 				{@render clear(ctx)}
@@ -77,6 +80,16 @@
 		{/if}
 	</p>
 </div>
+
+{#snippet autoMod(ctx: AutoModContext)}
+	{@const target = colorizeName(ctx.user)}
+
+	{#if ctx.status === "expired"}
+		{@html target}'s message expired and was not shown in chat.
+	{:else}
+		{@html colorizeName(ctx.moderator)} {ctx.status} {@html target}'s message.
+	{/if}
+{/snippet}
 
 {#snippet banStatus(ctx: BanStatusContext)}
 	{@const target = colorizeName(ctx.user)}
