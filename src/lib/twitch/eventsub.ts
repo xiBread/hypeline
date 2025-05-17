@@ -27,9 +27,7 @@ export interface BlockedTermMetadata {
 	terms_found: BlockedTerm[];
 }
 
-export interface BaseAutoModMessageHold extends WithBasicUser, WithBroadcaster {
-	message_id: string;
-	message: StructuredMessage;
+export interface BaseAutoModMessageHold extends ChannelChatUserMessageHold {
 	held_at: string;
 }
 
@@ -51,6 +49,17 @@ export type AutoModMessageUpdate = (AutoModAutomated | AutoModBlockedTerm) &
 	WithModerator & {
 		status: AutoModMessageStatus;
 	};
+
+export interface ChannelChatUserMessageHold extends WithBasicUser, WithBroadcaster {
+	message_id: string;
+	message: StructuredMessage;
+}
+
+export type ChannelChatUserMessageStatus = "approved" | "denied" | "invalid";
+
+export interface ChannelChatUserMessageUpdate extends ChannelChatUserMessageHold {
+	status: ChannelChatUserMessageStatus;
+}
 
 export interface BaseAction<A extends string> extends WithBroadcaster, WithModerator {
 	action: A;
@@ -282,6 +291,8 @@ export interface StreamOnline extends WithBroadcaster {
 export interface SubscriptionEventMap {
 	"automod.message.hold": AutoModMessageHold;
 	"automod.message.update": AutoModMessageUpdate;
+	"channel.chat.user_message_hold": ChannelChatUserMessageHold;
+	"channel.chat.user_message_update": ChannelChatUserMessageUpdate;
 	"channel.moderate": ChannelModerate;
 	"channel.subscription.end": ChannelSubscriptionEnd;
 	"channel.suspicious_user.message": ChannelSuspiciousUserMessage;

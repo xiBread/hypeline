@@ -12,6 +12,8 @@ import usernotice from "./irc/usernotice";
 //
 import automodMessageHold from "./eventsub/automod-message-hold";
 import automodMessageUpdate from "./eventsub/automod-message-update";
+import channelChatUserMessageHold from "./eventsub/channel-chat-user-message-hold";
+import channelChatUserMessageUpdate from "./eventsub/channel-chat-user-message-update";
 import channelModerate from "./eventsub/channel-moderate";
 import channelSubscriptionEnd from "./eventsub/channel-subscription-end";
 import channelSuspiciousUserMessage from "./eventsub/channel-suspicious-user-message";
@@ -38,6 +40,8 @@ register(usernotice);
 
 register(automodMessageHold);
 register(automodMessageUpdate);
+register(channelChatUserMessageHold);
+register(channelChatUserMessageUpdate);
 register(channelModerate);
 register(channelSubscriptionEnd);
 register(channelSuspiciousUserMessage);

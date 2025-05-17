@@ -66,7 +66,14 @@ pub async fn join(
 
     global_badges.extend(channel_badges);
 
-    let channel_cond = json!({ "broadcaster_user_id": broadcaster_id });
+    let channel_cond = json!({
+        "broadcaster_user_id": broadcaster_id
+    });
+
+    let channel_with_user_cond = json!({
+        "broadcaster_user_id": broadcaster_id,
+        "user_id": token.user_id
+    });
 
     let channel_with_mod_cond = json!({
         "broadcaster_user_id": broadcaster_id,
@@ -81,6 +88,8 @@ pub async fn join(
                 &[
 					(EventType::AutomodMessageHold, &channel_with_mod_cond),
 					(EventType::AutomodMessageUpdate, &channel_with_mod_cond),
+					(EventType::ChannelChatUserMessageHold, &channel_with_user_cond),
+					(EventType::ChannelChatUserMessageUpdate, &channel_with_user_cond),
                     (EventType::ChannelModerate, &channel_with_mod_cond),
                     (EventType::ChannelSubscriptionEnd, &channel_cond),
 					(EventType::ChannelSuspiciousUserMessage, &channel_with_mod_cond),
