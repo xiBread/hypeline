@@ -7,6 +7,7 @@ export default defineHandler({
 	handle(data, channel) {
 		const message = new SystemMessage();
 
+		channel.setStream(null);
 		channel.addMessage(
 			message.setContext({
 				type: "streamStatus",
