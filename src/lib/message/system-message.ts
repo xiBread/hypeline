@@ -1,16 +1,24 @@
 import type {
-	AutomodTermsMetadata,
+	AutoModMessageStatus,
+	AutoModTermsMetadata,
 	ChannelUnbanRequestCreate,
 	ChannelUnbanRequestResolve,
 	WarnMetadata,
 } from "$lib/twitch/eventsub";
-import { Viewer } from "$lib/viewer.svelte";
+import type { Viewer } from "$lib/viewer.svelte";
 import { Message } from "./message.svelte";
 
 export interface SystemMessageData {
 	deleted: boolean;
 	is_recent: boolean;
 	server_timestamp: number;
+}
+
+export interface AutoModContext {
+	type: "autoMod";
+	status: AutoModMessageStatus;
+	user: Viewer;
+	moderator: Viewer;
 }
 
 export interface BanStatusContext {
@@ -70,7 +78,7 @@ export interface SuspicionStatusContext {
 
 export interface TermContext {
 	type: "term";
-	data: AutomodTermsMetadata;
+	data: AutoModTermsMetadata;
 	moderator: Viewer;
 }
 
@@ -108,6 +116,7 @@ export interface WarnAckContext {
 }
 
 export type SystemMessageContext =
+	| AutoModContext
 	| BanStatusContext
 	| ClearContext
 	| DeleteContext

@@ -80,6 +80,7 @@ pub async fn join(
                 login.as_str(),
                 &[
 					(EventType::AutomodMessageHold, &channel_with_mod_cond),
+					(EventType::AutomodMessageUpdate, &channel_with_mod_cond),
                     (EventType::ChannelModerate, &channel_with_mod_cond),
                     (EventType::ChannelSubscriptionEnd, &channel_cond),
 					(EventType::ChannelSuspiciousUserMessage, &channel_with_mod_cond),

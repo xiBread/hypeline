@@ -45,6 +45,13 @@ export interface AutoModBlockedTerm extends BaseAutoModMessageHold {
 
 export type AutoModMessageHold = AutoModAutomated | AutoModBlockedTerm;
 
+export type AutoModMessageStatus = "approved" | "denied" | "expired";
+
+export type AutoModMessageUpdate = (AutoModAutomated | AutoModBlockedTerm) &
+	WithModerator & {
+		status: AutoModMessageStatus;
+	};
+
 export interface BaseAction<A extends string> extends WithBroadcaster, WithModerator {
 	action: A;
 	source_broadcaster_user_id: string;
@@ -52,7 +59,7 @@ export interface BaseAction<A extends string> extends WithBroadcaster, WithModer
 	source_broadcaster_user_name: string;
 }
 
-export interface AutomodTermsMetadata {
+export interface AutoModTermsMetadata {
 	action: "add" | "remove";
 	list: "blocked" | "permitted";
 	terms: string[];
@@ -94,11 +101,11 @@ export interface WarnMetadata extends WithBasicUser {
 	chat_rules_cited: string[] | null;
 }
 
-export interface AutomodTermsAction
+export interface AutoModTermsAction
 	extends BaseAction<
 		"add_blocked_term" | "add_permitted_term" | "remove_blocked_term" | "remove_permitted_term"
 	> {
-	automod_terms: AutomodTermsMetadata;
+	automod_terms: AutoModTermsMetadata;
 }
 
 export interface BanAction extends BaseAction<"ban"> {
@@ -171,7 +178,7 @@ export interface WarnAction extends BaseAction<"warn"> {
 }
 
 export type ChannelModerate =
-	| AutomodTermsAction
+	| AutoModTermsAction
 	| BanAction
 	| ClearAction
 	| DeleteAction
@@ -273,7 +280,8 @@ export interface StreamOnline extends WithBroadcaster {
 }
 
 export interface SubscriptionEventMap {
-	"automod.message.hold": AutomodMessageHold;
+	"automod.message.hold": AutoModMessageHold;
+	"automod.message.update": AutoModMessageUpdate;
 	"channel.moderate": ChannelModerate;
 	"channel.subscription.end": ChannelSubscriptionEnd;
 	"channel.suspicious_user.message": ChannelSuspiciousUserMessage;
