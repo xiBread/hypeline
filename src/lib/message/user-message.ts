@@ -1,6 +1,6 @@
 import type { Emote } from "$lib/channel.svelte";
 import { app } from "$lib/state.svelte";
-import type { Boundary, StructuredMessage } from "$lib/twitch/eventsub";
+import type { AutoModMetadata, StructuredMessage } from "$lib/twitch/eventsub";
 import type { Badge, BasicUser, PrivmsgMessage, Range, UserNoticeMessage } from "$lib/twitch/irc";
 import type { PartialUser } from "$lib/user";
 import { extractEmotes } from "$lib/util";
@@ -23,12 +23,6 @@ interface TextSegment extends Range {
 	data: Record<string, string>;
 }
 
-export interface UserMessageAutoModMetadata {
-	reason: string;
-	level?: number;
-	boundaries: Boundary[];
-}
-
 /**
  * User messages are either messages received by `PRIVMSG` commands or
  * notifications received by `USERNOTICE` commands.
@@ -38,7 +32,7 @@ export interface UserMessageAutoModMetadata {
  * checked to differentiate the two.
  */
 export class UserMessage extends Message {
-	#autoMod: UserMessageAutoModMetadata | null = null;
+	#autoMod: AutoModMetadata | null = null;
 
 	public constructor(public readonly data: PrivmsgMessage | UserNoticeMessage) {
 		super(data);
@@ -168,7 +162,7 @@ export class UserMessage extends Message {
 		return viewer;
 	}
 
-	public addAutoModMetadata(metadata: UserMessageAutoModMetadata) {
+	public addAutoModMetadata(metadata: AutoModMetadata) {
 		this.#autoMod = metadata;
 		return this;
 	}

@@ -12,7 +12,7 @@ export interface Boundary {
 	end_pos: number;
 }
 
-export interface AutomodMetadata {
+export interface AutoModMetadata {
 	category: string;
 	level: number;
 	boundaries: Boundary[];
@@ -27,23 +27,23 @@ export interface BlockedTermMetadata {
 	terms_found: BlockedTerm[];
 }
 
-export interface BaseAutomodMessageHold extends WithBasicUser, WithBroadcaster {
+export interface BaseAutoModMessageHold extends WithBasicUser, WithBroadcaster {
 	message_id: string;
 	message: StructuredMessage;
 	held_at: string;
 }
 
-export interface AutomodAutomated extends BaseAutomodMessageHold {
+export interface AutoModAutomated extends BaseAutoModMessageHold {
 	reason: "automod";
-	automod: AutomodMetadata;
+	automod: AutoModMetadata;
 }
 
-export interface AutomodBlockedTerm extends BaseAutomodMessageHold {
+export interface AutoModBlockedTerm extends BaseAutoModMessageHold {
 	reason: "blocked_term";
 	blocked_term: BlockedTermMetadata;
 }
 
-export type AutomodMessageHold = AutomodAutomated | AutomodBlockedTerm;
+export type AutoModMessageHold = AutoModAutomated | AutoModBlockedTerm;
 
 export interface BaseAction<A extends string> extends WithBroadcaster, WithModerator {
 	action: A;

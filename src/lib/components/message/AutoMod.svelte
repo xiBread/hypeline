@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { invoke } from "@tauri-apps/api/core";
 	import { SystemMessage } from "$lib/message";
-	import type { UserMessage, UserMessageAutoModMetadata } from "$lib/message";
+	import type { UserMessage } from "$lib/message";
 	import { app } from "$lib/state.svelte";
+	import type { AutoModMetadata } from "$lib/twitch/eventsub";
 	import Message from "./Message.svelte";
 
 	interface Props {
 		message: UserMessage;
-		metadata: UserMessageAutoModMetadata;
+		metadata: AutoModMetadata;
 	}
 
 	const { message, metadata }: Props = $props();
@@ -46,8 +47,8 @@
 				height="18"
 			/>
 
-			<span class="text-twitch font-semibold">AutoMod</span>: Message held {metadata.reason}
-			{metadata.level ? `(Level ${metadata.level})` : null}
+			<span class="text-twitch font-semibold">AutoMod</span>: Message held {metadata.category}
+			{Number.isNaN(metadata.level) ? null : `(Level ${metadata.level})`}
 		</div>
 
 		<div class="flex gap-x-4">
