@@ -22,13 +22,6 @@
 			"csp": null
 		}
 	},
-	"plugins": {
-		"sql": {
-			"preload": [
-				"sqlite:hypeline.db"
-			]
-		}
-	},
 	"bundle": {
 		"active": true,
 		"targets": "all",
