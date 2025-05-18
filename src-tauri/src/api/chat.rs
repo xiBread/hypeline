@@ -16,7 +16,7 @@ use super::users::{get_user_from_login, User};
 use crate::emotes::{fetch_user_emotes, EmoteMap};
 use crate::error::Error;
 use crate::providers::seventv::send_presence;
-use crate::providers::twitch::{fetch_channel_badges, fetch_global_badges};
+use crate::providers::twitch::fetch_channel_badges;
 use crate::AppState;
 
 #[derive(Serialize)]
