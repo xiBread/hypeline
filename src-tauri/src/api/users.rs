@@ -8,7 +8,7 @@ use twitch_api::helix::users::User as HelixUser;
 use twitch_api::types::{Collection, EmoteAnimationSetting, UserId};
 
 use crate::error::Error;
-use crate::AppState;
+use crate::{AppState, HTTP};
 
 #[derive(Serialize)]
 pub struct UserEmote {
@@ -33,9 +33,9 @@ pub async fn get_user_from_id(
     state: State<'_, Mutex<AppState>>,
     id: Option<String>,
 ) -> Result<Option<User>, Error> {
-    let state = state.lock().await;
+    let mut state = state.lock().await;
 
-    let Some(token) = state.token.as_ref() else {
+    let Some(ref token) = state.token else {
         return Ok(None);
     };
 
@@ -45,6 +45,17 @@ pub async fn get_user_from_id(
         state.helix.get_user_from_id(&id, token),
         state.helix.get_user_chat_color(&id, token),
     )?;
+
+    let stv_user = HTTP
+        .get(format!("https://7tv.io/v3/users/twitch/{id}"))
+        .send()
+        .await?
+        .json::<serde_json::Value>()
+        .await;
+
+    state.seventv_id = stv_user
+        .ok()
+        .and_then(|u| Some(u["user"]["id"].as_str()?.to_string()));
 
     let Some(user) = helix_user else {
         return Ok(None);
@@ -62,7 +73,7 @@ pub async fn get_user_from_login(
 ) -> Result<Option<User>, Error> {
     let state = state.lock().await;
 
-    let Some(token) = state.token.as_ref() else {
+    let Some(ref token) = state.token else {
         return Ok(None);
     };
 

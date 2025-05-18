@@ -15,7 +15,8 @@ use super::get_access_token;
 use super::users::{get_user_from_login, User};
 use crate::emotes::{fetch_user_emotes, EmoteMap};
 use crate::error::Error;
-use crate::providers::twitch::fetch_channel_badges;
+use crate::providers::seventv::send_presence;
+use crate::providers::twitch::{fetch_channel_badges, fetch_global_badges};
 use crate::AppState;
 
 #[derive(Serialize)]
@@ -153,22 +154,32 @@ pub async fn send_message(
     let state = state.lock().await;
     let token = get_access_token(&state).await?;
 
-    if let Some(reply_id) = reply_id {
+    let user_id = token.user_id.clone();
+
+    let sent = if let Some(reply_id) = reply_id {
         state
             .helix
             .send_chat_message_reply(
                 &broadcaster_id,
-                &token.user_id,
+                &user_id,
                 &reply_id,
                 content.as_str(),
                 token,
             )
-            .await?;
+            .await
+            .is_ok_and(|resp| resp.is_sent)
     } else {
         state
             .helix
-            .send_chat_message(&broadcaster_id, &token.user_id, content.as_str(), token)
-            .await?;
+            .send_chat_message(&broadcaster_id, &user_id, content.as_str(), token)
+            .await
+            .is_ok_and(|resp| resp.is_sent)
+    };
+
+    if sent {
+        if let Some(ref seventv_id) = state.seventv_id {
+            send_presence(seventv_id, broadcaster_id).await;
+        }
     }
 
     Ok(())

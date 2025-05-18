@@ -40,6 +40,7 @@ pub struct AppState {
     irc: Option<IrcClient>,
     eventsub: Option<Arc<EventSubClient>>,
     seventv: Option<Arc<SeventTvClient>>,
+    seventv_id: Option<String>,
 }
 
 impl Default for AppState {
@@ -50,6 +51,7 @@ impl Default for AppState {
             irc: None,
             eventsub: None,
             seventv: None,
+            seventv_id: None,
         }
     }
 }

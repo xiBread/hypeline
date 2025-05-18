@@ -5,12 +5,13 @@ use std::sync::Arc;
 
 pub use client::SeventTvClient;
 pub use emotes::*;
+use serde_json::json;
 use tauri::ipc::Channel;
 use tauri::{async_runtime, AppHandle, Manager, State};
 use tokio::sync::Mutex;
 
 use crate::error::Error;
-use crate::AppState;
+use crate::{AppState, HTTP};
 
 #[tauri::command]
 pub async fn connect_seventv(
@@ -48,4 +49,20 @@ pub async fn connect_seventv(
     });
 
     Ok(())
+}
+
+pub async fn send_presence(user_id: &str, channel_id: String) {
+    let _ = HTTP
+        .post(format!("https://7tv.io/v3/users/{user_id}/presences"))
+        .json(&json!({
+            "kind": 1,
+            "passive": false,
+            "session_id": serde_json::Value::Null,
+            "data": {
+                "platform": "TWITCH",
+                "id": channel_id
+            }
+        }))
+        .send()
+        .await;
 }
