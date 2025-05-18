@@ -34,7 +34,7 @@ pub async fn join(
     state: State<'_, Mutex<AppState>>,
     login: String,
 ) -> Result<JoinedChannel, Error> {
-    let (helix, token, irc, eventsub, seventv) = {
+    let (helix, token, irc, eventsub, seventv, stv_id) = {
         let state = state.lock().await;
 
         let token = state
@@ -52,6 +52,7 @@ pub async fn join(
             irc,
             state.eventsub.clone(),
             state.seventv.clone(),
+            state.seventv_id.clone(),
         )
     };
 
@@ -117,6 +118,10 @@ pub async fn join(
         seventv.subscribe("emote_set.*", &broadcaster_id).await;
     }
 
+    if let Some(ref id) = stv_id {
+        send_presence(id, broadcaster_id).await;
+    }
+
     irc.join(login.to_string());
 
     Ok(JoinedChannel {
@@ -177,8 +182,8 @@ pub async fn send_message(
     };
 
     if sent {
-        if let Some(ref seventv_id) = state.seventv_id {
-            send_presence(seventv_id, broadcaster_id).await;
+        if let Some(ref id) = state.seventv_id {
+            send_presence(id, &broadcaster_id).await;
         }
     }
 

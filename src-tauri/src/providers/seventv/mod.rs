@@ -51,7 +51,7 @@ pub async fn connect_seventv(
     Ok(())
 }
 
-pub async fn send_presence(user_id: &str, channel_id: String) {
+pub async fn send_presence(user_id: &str, channel_id: &str) {
     let _ = HTTP
         .post(format!("https://7tv.io/v3/users/{user_id}/presences"))
         .json(&json!({
