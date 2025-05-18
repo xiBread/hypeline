@@ -5,7 +5,7 @@ use tauri::State;
 use tokio::sync::Mutex;
 use twitch_api::eventsub::EventType;
 use twitch_api::helix::bits::{Cheermote, GetCheermotesRequest};
-use twitch_api::helix::chat::BadgeSet;
+use twitch_api::helix::chat::{get_global_chat_badges, BadgeSet};
 use twitch_api::helix::streams::Stream;
 use twitch_api::twitch_oauth2::UserToken;
 use twitch_api::HelixClient;
@@ -15,7 +15,7 @@ use super::get_access_token;
 use super::users::{get_user_from_login, User};
 use crate::emotes::{fetch_user_emotes, EmoteMap};
 use crate::error::Error;
-use crate::providers::twitch::{fetch_channel_badges, fetch_global_badges};
+use crate::providers::twitch::fetch_channel_badges;
 use crate::AppState;
 
 #[derive(Serialize)]
@@ -60,17 +60,14 @@ pub async fn join(
     let broadcaster_id = user.data.id.as_str();
     let login = user.data.login.to_string();
 
-    let (stream, emotes, cheermotes, mut global_badges, channel_badges) = tokio::try_join!(
+    let (stream, emotes, cheermotes, badges) = tokio::try_join!(
         get_stream(state.clone(), user.data.id.to_string()),
         fetch_user_emotes(broadcaster_id),
         get_cheermotes(&helix, &token, broadcaster_id.to_string()),
-        fetch_global_badges(&helix, &token),
         fetch_channel_badges(&helix, &token, login),
     )?;
 
     let login = user.data.login.clone();
-
-    global_badges.extend(channel_badges);
 
     let channel_cond = json!({
         "broadcaster_user_id": broadcaster_id
@@ -118,7 +115,7 @@ pub async fn join(
         stream,
         emotes,
         cheermotes,
-        badges: global_badges,
+        badges,
     })
 }
 
@@ -179,4 +176,23 @@ pub async fn get_cheermotes(
         Ok(response) => Ok(response.data),
         Err(_) => Ok(vec![]),
     }
+}
+
+#[tauri::command]
+pub async fn fetch_global_badges(
+    state: State<'_, Mutex<AppState>>,
+) -> Result<Vec<BadgeSet>, Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state).await?;
+
+    let badges = state
+        .helix
+        .req_get(
+            get_global_chat_badges::GetGlobalChatBadgesRequest::new(),
+            token,
+        )
+        .await?
+        .data;
+
+    Ok(badges)
 }

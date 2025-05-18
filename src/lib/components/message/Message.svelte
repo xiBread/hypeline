@@ -14,9 +14,12 @@
 
 	for (const badge of message.badges) {
 		const chatBadge = app.joined?.badges.get(badge.name)?.[badge.version];
+		const globalBadge = app.globalBadges.get(badge.name)?.[badge.version];
 
-		if (chatBadge) {
-			badges.push(chatBadge);
+		const resolved = chatBadge ?? globalBadge;
+
+		if (resolved) {
+			badges.push(resolved);
 		}
 	}
 

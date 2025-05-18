@@ -1,5 +1,6 @@
 import { SvelteMap } from "svelte/reactivity";
 import type { Channel, Emote } from "./channel.svelte";
+import type { Badge } from "./twitch/api";
 import type { User } from "./user";
 
 class AppState {
@@ -8,6 +9,7 @@ class AppState {
 	public user?: User;
 
 	public readonly globalEmotes = new SvelteMap<string, Emote>();
+	public readonly globalBadges = new SvelteMap<string, Record<string, Badge>>();
 
 	/**
 	 * The currently joined channel.
