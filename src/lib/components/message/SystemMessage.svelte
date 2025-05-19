@@ -5,6 +5,7 @@
 		BanStatusContext,
 		ClearContext,
 		DeleteContext,
+		EmoteSetUpdateContext,
 		ModeContext,
 		RoleStatusContext,
 		StreamStatusContext,
@@ -50,6 +51,8 @@
 				{@render clear(ctx)}
 			{:else if ctx.type === "delete"}
 				{@render deleteMsg(ctx)}
+			{:else if ctx.type === "emoteSetUpdate"}
+				{@render emoteSetUpdate(ctx)}
 			{:else if ctx.type === "join"}
 				Joined {@html colorizeName(ctx.channel)}
 			{:else if ctx.type === "mode"}
@@ -120,6 +123,26 @@
 	{:else}
 		{@html target}'s message was deleted: {ctx.text}
 	{/if}
+{/snippet}
+
+{#snippet emoteSetUpdate(ctx: EmoteSetUpdateContext)}
+	{@html colorizeName(ctx.actor)}
+
+	{#if ctx.action === "renamed"}
+		renamed <span class="text-foreground font-medium">{ctx.oldName}</span> to
+		<span class="text-foreground font-medium">{ctx.emote.name}</span>
+	{:else}
+		{ctx.action} an emote:
+		<span class="text-foreground font-medium">{ctx.emote.name}</span>
+	{/if}
+
+	<img
+		class="-my-2 inline-block"
+		src={ctx.emote.url}
+		alt={ctx.emote.name}
+		width={ctx.emote.width}
+		height={ctx.emote.height}
+	/>
 {/snippet}
 
 {#snippet mode(ctx: ModeContext)}

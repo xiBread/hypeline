@@ -84,7 +84,7 @@
 				></div>
 
 				<div class="line-clamp-1 text-xs">
-					<span style:color={settings.state.coloredMentions ? viewer?.color : "inherit"}
+					<span style={settings.state.coloredMentions ? viewer?.style : null}
 						>@{message.reply.parent.user.name}</span
 					>:
 					<p class="text-muted-foreground inline">

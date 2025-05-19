@@ -160,7 +160,7 @@ export class UserMessage extends Message {
 	}
 
 	public get viewer() {
-		let viewer = app.joined?.viewers.get(this.data.sender.name);
+		let viewer = app.joined?.viewers.get(this.data.sender.login);
 
 		if (!viewer) {
 			viewer = Viewer.from(this.data.sender, this.data.name_color);

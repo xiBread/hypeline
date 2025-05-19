@@ -34,15 +34,10 @@ pub async fn fetch_global_emotes() -> Result<Vec<Emote>, Error> {
 pub async fn fetch_user_emotes(id: &str) -> Result<EmoteMap, Error> {
     let mut emotes = HashMap::new();
 
-    let (bttv, ffz, seventv) = tokio::try_join!(
-        bttv::fetch_user_emotes(id),
-        ffz::fetch_user_emotes(id),
-        seventv::fetch_user_emotes(id),
-    )?;
+    let (bttv, ffz) = tokio::try_join!(bttv::fetch_user_emotes(id), ffz::fetch_user_emotes(id))?;
 
     let mut all_emotes = bttv;
     all_emotes.extend(ffz);
-    all_emotes.extend(seventv);
 
     for emote in all_emotes {
         emotes.insert(emote.name.clone(), emote);

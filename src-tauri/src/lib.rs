@@ -4,6 +4,7 @@ use std::sync::{Arc, LazyLock};
 
 use eventsub::EventSubClient;
 use irc::IrcClient;
+use providers::seventv::SeventTvClient;
 use reqwest::header::HeaderMap;
 use tauri::async_runtime::{self, Mutex};
 use tauri::ipc::Invoke;
@@ -38,6 +39,8 @@ pub struct AppState {
     token: Option<UserToken>,
     irc: Option<IrcClient>,
     eventsub: Option<Arc<EventSubClient>>,
+    seventv: Option<Arc<SeventTvClient>>,
+    seventv_id: Option<String>,
 }
 
 impl Default for AppState {
@@ -47,6 +50,8 @@ impl Default for AppState {
             token: None,
             irc: None,
             eventsub: None,
+            seventv: None,
+            seventv_id: None,
         }
     }
 }
@@ -128,6 +133,7 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         emotes::fetch_global_emotes,
         eventsub::connect_eventsub,
         providers::fetch_recent_messages,
+        providers::seventv::connect_seventv,
         server::start_server
     ]
 }

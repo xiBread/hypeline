@@ -1,5 +1,8 @@
 import { settings } from "./settings";
+import type { Paint } from "./seventv";
 import { app } from "./state.svelte";
+import type { UserWithColor } from "./tauri";
+import type { Badge } from "./twitch/api";
 import type {
 	BanEvasionEvaluation,
 	WithBasicUser,
@@ -58,6 +61,9 @@ export class Viewer implements PartialUser {
 	 * suspicious user.
 	 */
 	public banEvasion = $state<BanEvasionEvaluation>("unknown");
+
+	public badge = $state<Badge>();
+	public paint = $state<Paint>();
 
 	public constructor(data: PartialUser) {
 		this.#data = data;
@@ -119,6 +125,23 @@ export class Viewer implements PartialUser {
 		);
 	}
 
+	public static fromTwitch(user: UserWithColor) {
+		let stored = app.joined?.viewers.get(user.data.login);
+
+		if (!stored) {
+			stored = new Viewer({
+				id: user.data.id,
+				username: user.data.login,
+				displayName: user.data.display_name,
+				color: user.color ?? undefined,
+			});
+
+			app.joined?.viewers.set(user.data.login, stored);
+		}
+
+		return stored;
+	}
+
 	public get id() {
 		return this.#data.id;
 	}
@@ -129,6 +152,12 @@ export class Viewer implements PartialUser {
 		}
 
 		return this.#data.color ?? "inherit";
+	}
+
+	public get style() {
+		const color = `color: ${this.color};`;
+
+		return this.paint ? `${this.paint.css}; ${color};` : color;
 	}
 
 	public get username() {

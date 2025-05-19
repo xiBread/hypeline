@@ -15,6 +15,7 @@ use super::get_access_token;
 use super::users::{get_user_from_login, User};
 use crate::emotes::{fetch_user_emotes, EmoteMap};
 use crate::error::Error;
+use crate::providers::seventv::{fetch_active_emote_set, parse_emote, send_presence, EmoteSet};
 use crate::providers::twitch::fetch_channel_badges;
 use crate::AppState;
 
@@ -24,6 +25,7 @@ pub struct JoinedChannel {
     user: User,
     stream: Option<Stream>,
     emotes: EmoteMap,
+    emote_set: Option<EmoteSet>,
     cheermotes: Vec<Cheermote>,
     badges: Vec<BadgeSet>,
 }
@@ -33,7 +35,7 @@ pub async fn join(
     state: State<'_, Mutex<AppState>>,
     login: String,
 ) -> Result<JoinedChannel, Error> {
-    let (helix, token, irc, eventsub) = {
+    let (helix, token, irc, eventsub, seventv, stv_id) = {
         let state = state.lock().await;
 
         let token = state
@@ -50,6 +52,8 @@ pub async fn join(
             token.clone(),
             irc,
             state.eventsub.clone(),
+            state.seventv.clone(),
+            state.seventv_id.clone(),
         )
     };
 
@@ -60,12 +64,27 @@ pub async fn join(
     let broadcaster_id = user.data.id.as_str();
     let login = user.data.login.to_string();
 
-    let (stream, emotes, cheermotes, badges) = tokio::try_join!(
+    let (stream, mut emotes, emote_set, cheermotes, badges) = tokio::try_join!(
         get_stream(state.clone(), user.data.id.to_string()),
         fetch_user_emotes(broadcaster_id),
+        fetch_active_emote_set(broadcaster_id),
         get_cheermotes(&helix, &token, broadcaster_id.to_string()),
         fetch_channel_badges(&helix, &token, login),
     )?;
+
+    let stv_emotes = match emote_set {
+        Some(ref emote_set) => emote_set
+            .emotes
+            .clone()
+            .into_iter()
+            .filter_map(parse_emote)
+            .collect(),
+        None => vec![],
+    };
+
+    for emote in stv_emotes {
+        emotes.insert(emote.name.clone(), emote);
+    }
 
     let login = user.data.login.clone();
 
@@ -107,6 +126,27 @@ pub async fn join(
             .await?;
     }
 
+    if let Some(seventv) = seventv {
+        let channel_cond = json!({
+            "ctx": "channel",
+            "platform": "TWITCH",
+            "id": broadcaster_id
+        });
+
+        seventv.subscribe("cosmetic.create", &channel_cond).await;
+        seventv.subscribe("entitlement.create", &channel_cond).await;
+
+        if let Some(ref set) = emote_set {
+            seventv
+                .subscribe("emote_set.*", &json!({ "object_id": set.id }))
+                .await;
+        }
+    }
+
+    if let Some(ref id) = stv_id {
+        send_presence(id, broadcaster_id).await;
+    }
+
     irc.join(login.to_string());
 
     Ok(JoinedChannel {
@@ -114,6 +154,7 @@ pub async fn join(
         user,
         stream,
         emotes,
+        emote_set,
         cheermotes,
         badges,
     })
@@ -123,8 +164,12 @@ pub async fn join(
 pub async fn leave(state: State<'_, Mutex<AppState>>, channel: String) -> Result<(), Error> {
     let state = state.lock().await;
 
-    if let Some(eventsub) = state.eventsub.clone() {
+    if let Some(ref eventsub) = state.eventsub {
         eventsub.unsubscribe_all(&channel).await?;
+    }
+
+    if let Some(ref seventv) = state.seventv {
+        seventv.unsubscribe().await;
     }
 
     if let Some(ref irc) = state.irc {
@@ -144,22 +189,32 @@ pub async fn send_message(
     let state = state.lock().await;
     let token = get_access_token(&state).await?;
 
-    if let Some(reply_id) = reply_id {
+    let user_id = token.user_id.clone();
+
+    let sent = if let Some(reply_id) = reply_id {
         state
             .helix
             .send_chat_message_reply(
                 &broadcaster_id,
-                &token.user_id,
+                &user_id,
                 &reply_id,
                 content.as_str(),
                 token,
             )
-            .await?;
+            .await
+            .is_ok_and(|resp| resp.is_sent)
     } else {
         state
             .helix
-            .send_chat_message(&broadcaster_id, &token.user_id, content.as_str(), token)
-            .await?;
+            .send_chat_message(&broadcaster_id, &user_id, content.as_str(), token)
+            .await
+            .is_ok_and(|resp| resp.is_sent)
+    };
+
+    if sent {
+        if let Some(ref id) = state.seventv_id {
+            send_presence(id, &broadcaster_id).await;
+        }
     }
 
     Ok(())

@@ -1,3 +1,4 @@
+import type { Emote } from "$lib/channel.svelte";
 import type {
 	AutoModMessageStatus,
 	AutoModTermsMetadata,
@@ -39,6 +40,14 @@ export interface DeleteContext {
 	text: string;
 	user: Viewer;
 	moderator?: Viewer;
+}
+
+export interface EmoteSetUpdateContext {
+	type: "emoteSetUpdate";
+	action: "added" | "removed" | "renamed";
+	oldName?: string;
+	emote: Emote;
+	actor: Viewer;
 }
 
 export interface JoinContext {
@@ -120,6 +129,7 @@ export type SystemMessageContext =
 	| BanStatusContext
 	| ClearContext
 	| DeleteContext
+	| EmoteSetUpdateContext
 	| JoinContext
 	| ModeContext
 	| RoleStatusContext
