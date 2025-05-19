@@ -15,7 +15,7 @@ export default defineHandler({
 		const user = await invoke<UserWithColor | null>("get_user_from_id", { id: twitch.id });
 		if (!user) return;
 
-		let viewer = channel.viewers.get(twitch.id);
+		let viewer = channel.viewers.get(twitch.username);
 
 		if (!viewer) {
 			viewer = new Viewer({
@@ -25,23 +25,25 @@ export default defineHandler({
 				color: user.color ?? undefined,
 			});
 
-			channel.viewers.set(user.data.id, viewer);
+			channel.viewers.set(viewer.username, viewer);
 		}
 
 		switch (data.kind) {
 			case "BADGE": {
 				viewer.badge = app.badges.get(data.ref_id);
-				app.u2b.set(user.data.login, viewer.badge);
+				app.u2b.set(viewer.username, viewer.badge);
 
 				break;
 			}
 
 			case "PAINT": {
 				viewer.paint = app.paints.get(data.ref_id);
-				app.u2p.set(user.data.login, viewer.paint);
+				app.u2p.set(viewer.username, viewer.paint);
 
 				break;
 			}
 		}
+
+		// console.log(viewer)
 	},
 });
