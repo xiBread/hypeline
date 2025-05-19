@@ -1,3 +1,27 @@
+export interface HostFile {
+	format: string;
+}
+
+export interface EmoteHost {
+	url: string;
+	files: HostFile[];
+}
+
+export interface EmoteData {
+	host: EmoteHost;
+}
+
+export interface Emote {
+	id: string;
+	name: string;
+	data: EmoteData;
+}
+
+export interface EmoteSet {
+	id: string;
+	name: string;
+}
+
 export interface Paint {
 	name: string;
 	css: string;
@@ -95,10 +119,20 @@ export interface EntitlementCreate {
 
 export interface SevenTvEventMap {
 	"cosmetic.create": CosmeticCreate;
+	"emote_set.update": ChangeMap;
 	"entitlement.create": EntitlementCreate;
+}
+
+export interface ChangeMap {
+	id: string;
+	kind: number;
+	actor: User;
+	pushed?: { value: Emote }[];
+	pulled?: { old_value: Emote }[];
+	updated?: { value: Emote; old_value: Emote }[];
 }
 
 export interface DispatchPayload {
 	type: string;
-	body: { object: any };
+	body: { object: unknown } | ChangeMap;
 }

@@ -102,13 +102,7 @@ impl SeventTvClient {
         self.connected.load(Ordering::Relaxed)
     }
 
-    pub async fn subscribe(&self, event: &str, id: &str) {
-        let condition = json!({
-            "ctx": "channel",
-            "platform": "TWITCH",
-            "id": id
-        });
-
+    pub async fn subscribe(&self, event: &str, condition: &serde_json::Value) {
         let payload = json!({
             "op": 35,
             "d": {
@@ -123,7 +117,25 @@ impl SeventTvClient {
             .is_ok()
         {
             let mut subscriptions = self.subscriptions.lock().await;
-            subscriptions.insert(id.to_string(), condition);
+            subscriptions.insert(event.to_string(), condition.clone());
+        }
+    }
+
+    pub async fn unsubscribe(&self) {
+        let mut subscriptions = self.subscriptions.lock().await;
+
+        for (event, condition) in subscriptions.drain() {
+            let payload = json!({
+                "op": 36,
+                "d": {
+                    "type": event,
+                    "condition": condition
+                }
+            });
+
+            let _ = self
+                .message_tx
+                .send(Message::Text(payload.to_string().into()));
         }
     }
 }

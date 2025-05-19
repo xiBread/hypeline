@@ -15,7 +15,7 @@ use super::get_access_token;
 use super::users::{get_user_from_login, User};
 use crate::emotes::{fetch_user_emotes, EmoteMap};
 use crate::error::Error;
-use crate::providers::seventv::send_presence;
+use crate::providers::seventv::{fetch_active_emote_set, parse_emote, send_presence, EmoteSet};
 use crate::providers::twitch::fetch_channel_badges;
 use crate::AppState;
 
@@ -25,6 +25,7 @@ pub struct JoinedChannel {
     user: User,
     stream: Option<Stream>,
     emotes: EmoteMap,
+    emote_set: Option<EmoteSet>,
     cheermotes: Vec<Cheermote>,
     badges: Vec<BadgeSet>,
 }
@@ -63,12 +64,27 @@ pub async fn join(
     let broadcaster_id = user.data.id.as_str();
     let login = user.data.login.to_string();
 
-    let (stream, emotes, cheermotes, badges) = tokio::try_join!(
+    let (stream, mut emotes, emote_set, cheermotes, badges) = tokio::try_join!(
         get_stream(state.clone(), user.data.id.to_string()),
         fetch_user_emotes(broadcaster_id),
+        fetch_active_emote_set(broadcaster_id),
         get_cheermotes(&helix, &token, broadcaster_id.to_string()),
         fetch_channel_badges(&helix, &token, login),
     )?;
+
+    let stv_emotes = match emote_set {
+        Some(ref emote_set) => emote_set
+            .emotes
+            .clone()
+            .into_iter()
+            .filter_map(parse_emote)
+            .collect(),
+        None => vec![],
+    };
+
+    for emote in stv_emotes {
+        emotes.insert(emote.name.clone(), emote);
+    }
 
     let login = user.data.login.clone();
 
@@ -111,11 +127,20 @@ pub async fn join(
     }
 
     if let Some(seventv) = seventv {
-        seventv.subscribe("cosmetic.create", &broadcaster_id).await;
-        seventv
-            .subscribe("entitlement.create", &broadcaster_id)
-            .await;
-        seventv.subscribe("emote_set.*", &broadcaster_id).await;
+        let channel_cond = json!({
+            "ctx": "channel",
+            "platform": "TWITCH",
+            "id": broadcaster_id
+        });
+
+        seventv.subscribe("cosmetic.create", &channel_cond).await;
+        seventv.subscribe("entitlement.create", &channel_cond).await;
+
+        if let Some(ref set) = emote_set {
+            seventv
+                .subscribe("emote_set.*", &json!({ "object_id": set.id }))
+                .await;
+        }
     }
 
     if let Some(ref id) = stv_id {
@@ -129,6 +154,7 @@ pub async fn join(
         user,
         stream,
         emotes,
+        emote_set,
         cheermotes,
         badges,
     })
@@ -138,8 +164,12 @@ pub async fn join(
 pub async fn leave(state: State<'_, Mutex<AppState>>, channel: String) -> Result<(), Error> {
     let state = state.lock().await;
 
-    if let Some(eventsub) = state.eventsub.clone() {
+    if let Some(ref eventsub) = state.eventsub {
         eventsub.unsubscribe_all(&channel).await?;
+    }
+
+    if let Some(ref seventv) = state.seventv {
+        seventv.unsubscribe().await;
     }
 
     if let Some(ref irc) = state.irc {

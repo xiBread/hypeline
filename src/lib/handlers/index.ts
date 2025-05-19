@@ -25,6 +25,7 @@ import streamOffline from "./eventsub/stream-offline";
 import streamOnline from "./eventsub/stream-online";
 //
 import cosmeticCreate from "./seventv/cosmetic-create";
+import emoteSetUpdate from "./seventv/emote-set-update";
 import entitlementCreate from "./seventv/entitlement-create";
 
 export const handlers = new Map<string, Handler>();
@@ -56,4 +57,5 @@ register(streamOffline);
 register(streamOnline);
 
 register(cosmeticCreate);
+register(emoteSetUpdate);
 register(entitlementCreate);
