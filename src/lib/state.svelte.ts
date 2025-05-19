@@ -14,6 +14,10 @@ class AppState {
 	public readonly badges = new SvelteMap<string, Badge>();
 	public readonly paints = new SvelteMap<string, Paint>();
 
+	// Associating a (u)sername to a &TV (b)adge or (p)aint.
+	public readonly u2b = new Map<string, Badge | undefined>();
+	public readonly u2p = new Map<string, Paint | undefined>();
+
 	/**
 	 * The currently joined channel.
 	 */
