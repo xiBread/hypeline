@@ -101,6 +101,20 @@
 @theme {
 	--color-twitch: oklch(0.59 0.2535 296);
 	--color-twitch-link: oklch(0.75 0.1549 301.29);
+
+	--color-twitch-50: #ede0ff;
+	--color-twitch-100: #e3d1ff;
+	--color-twitch-200: #d1b3ff;
+	--color-twitch-300: #bf94ff;
+	--color-twitch-400: #a970ff;
+	--color-twitch-500: #9147ff;
+	--color-twitch-600: #772ce8;
+	--color-twitch-700: #5c16c5;
+	--color-twitch-800: #451093;
+	--color-twitch-900: #330c6e;
+	--color-twitch-950: #23094e;
+
+	--spacing-title-bar: 2.25rem;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));

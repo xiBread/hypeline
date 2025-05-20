@@ -9,8 +9,8 @@
 <Settings bind:open={settingsOpen} />
 
 <ScrollArea.Root>
-	<ScrollArea.Viewport class="h-screen">
-		<nav class="bg-sidebar flex h-full flex-col gap-4 border-r p-3">
+	<ScrollArea.Viewport class="h-full">
+		<nav class="flex h-full flex-col gap-4 p-3 pt-0">
 			<button
 				class="bg-twitch flex size-10 items-center justify-center rounded-md"
 				title="Settings"

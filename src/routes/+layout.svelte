@@ -3,21 +3,41 @@
 	import { Tooltip } from "bits-ui";
 	import { ModeWatcher } from "mode-watcher";
 	import Sidebar from "$lib/components/Sidebar.svelte";
+	import TitleBar from "$lib/components/TitleBar.svelte";
 	import { settings } from "$lib/settings";
+	import { app } from "$lib/state.svelte";
 
 	const { children } = $props();
+
+	const titleBar = $derived({
+		icon: app.joined?.user.profilePictureUrl ?? "/favicon.png",
+		title: app.joined?.user.displayName ?? "Hypeline",
+	});
 </script>
 
 <ModeWatcher />
 
-<Tooltip.Provider delayDuration={99}>
-	<div class="flex">
-		{#if settings.state.user}
-			<Sidebar />
-		{/if}
+<div class="flex max-h-screen flex-col">
+	<TitleBar title={titleBar.title}>
+		{#snippet icon()}
+			<img
+				class="size-5 rounded-full"
+				src={titleBar.icon}
+				alt={titleBar.title}
+				data-tauri-drag-region
+			/>
+		{/snippet}
+	</TitleBar>
 
-		<main class="grow">
-			{@render children()}
-		</main>
-	</div>
-</Tooltip.Provider>
+	<Tooltip.Provider delayDuration={100}>
+		<div class="flex grow overflow-hidden">
+			{#if settings.state.user}
+				<Sidebar />
+			{/if}
+
+			<main class="grow rounded-tl-lg border-t border-l">
+				{@render children()}
+			</main>
+		</div>
+	</Tooltip.Provider>
+</div>

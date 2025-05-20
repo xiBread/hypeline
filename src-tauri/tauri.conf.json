@@ -15,7 +15,13 @@
 			{
 				"title": "Hypeline",
 				"width": 800,
-				"height": 600
+				"height": 600,
+				"hiddenTitle": true,
+				"titleBarStyle": "Overlay",
+				"trafficLightPosition": {
+					"x": 10,
+					"y": 15
+				}
 			}
 		],
 		"security": {
