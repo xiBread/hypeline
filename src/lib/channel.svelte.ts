@@ -2,8 +2,9 @@ import { invoke } from "@tauri-apps/api/core";
 import { SvelteMap } from "svelte/reactivity";
 import { replyTarget } from "./components/ChatInput.svelte";
 import type { Message } from "./message";
+import type { EmoteSet } from "./seventv";
 import type { JoinedChannel } from "./tauri";
-import type { Badge, BadgeSet, Stream } from "./twitch/api";
+import type { Badge, BadgeSet, Cheermote, Stream } from "./twitch/api";
 import { User } from "./user";
 import { Viewer } from "./viewer.svelte";
 
@@ -20,7 +21,13 @@ export class Channel {
 
 	public readonly badges = new SvelteMap<string, Record<string, Badge>>();
 	public readonly emotes = new SvelteMap<string, Emote>();
+	public readonly cheermotes = $state<Cheermote[]>([]);
 	public readonly viewers = new SvelteMap<string, Viewer>();
+
+	/**
+	 * The active 7TV emote set for the channel if any.
+	 */
+	public emoteSet = $state<EmoteSet>();
 
 	/**
 	 * An array of messages the user has sent in the channel.
@@ -46,7 +53,10 @@ export class Channel {
 		const channel = new Channel(user)
 			.addBadges(joined.badges)
 			.addEmotes(joined.emotes)
+			.addCheermotes(joined.cheermotes)
 			.setStream(joined.stream);
+
+		channel.emoteSet = joined.emote_set ?? undefined;
 
 		const viewer = new Viewer(user);
 		viewer.isBroadcaster = true;
@@ -76,6 +86,14 @@ export class Channel {
 			}
 
 			this.badges.set(set.set_id, badges);
+		}
+
+		return this;
+	}
+
+	public addCheermotes(cheermotes: Cheermote[]) {
+		for (const cheermote of cheermotes) {
+			this.cheermotes.push(cheermote);
 		}
 
 		return this;

@@ -1,11 +1,12 @@
+import type { Emote } from "$lib/channel.svelte";
 import type {
-	AutomodTermsMetadata,
+	AutoModMessageStatus,
+	AutoModTermsMetadata,
 	ChannelUnbanRequestCreate,
 	ChannelUnbanRequestResolve,
 	WarnMetadata,
 } from "$lib/twitch/eventsub";
-import { colorizeName, formatDuration } from "$lib/util";
-import { Viewer } from "$lib/viewer.svelte";
+import type { Viewer } from "$lib/viewer.svelte";
 import { Message } from "./message.svelte";
 
 export interface SystemMessageData {
@@ -14,6 +15,133 @@ export interface SystemMessageData {
 	server_timestamp: number;
 }
 
+export interface AutoModContext {
+	type: "autoMod";
+	status: AutoModMessageStatus;
+	user: Viewer;
+	moderator: Viewer;
+}
+
+export interface BanStatusContext {
+	type: "banStatus";
+	banned: boolean;
+	reason: string | null;
+	user: Viewer;
+	moderator?: Viewer;
+}
+
+export interface ClearContext {
+	type: "clear";
+	moderator?: Viewer;
+}
+
+export interface DeleteContext {
+	type: "delete";
+	text: string;
+	user: Viewer;
+	moderator?: Viewer;
+}
+
+export interface EmoteSetUpdateContext {
+	type: "emoteSetUpdate";
+	action: "added" | "removed" | "renamed";
+	oldName?: string;
+	emote: Emote;
+	actor: Viewer;
+}
+
+export interface JoinContext {
+	type: "join";
+	channel: Viewer;
+}
+
+export interface ModeContext {
+	type: "mode";
+	mode: string;
+	enabled: boolean;
+	seconds: number;
+	moderator: Viewer;
+}
+
+export interface RoleStatusContext {
+	type: "roleStatus";
+	role: string;
+	added: boolean;
+	user: Viewer;
+	broadcaster: Viewer;
+}
+
+export interface StreamStatusContext {
+	type: "streamStatus";
+	online: boolean;
+	broadcaster: Viewer;
+}
+
+export interface SuspicionStatusContext {
+	type: "suspicionStatus";
+	active: boolean;
+	previous: "monitoring" | "restricting" | null;
+	user: Viewer;
+	moderator: Viewer;
+}
+
+export interface TermContext {
+	type: "term";
+	data: AutoModTermsMetadata;
+	moderator: Viewer;
+}
+
+export interface TimeoutContext {
+	type: "timeout";
+	seconds: number;
+	reason: string | null;
+	user: Viewer;
+	moderator?: Viewer;
+}
+
+export interface UnbanRequestContext {
+	type: "unbanRequest";
+	request: ChannelUnbanRequestCreate | ChannelUnbanRequestResolve;
+	user: Viewer;
+	moderator?: Viewer;
+}
+
+export interface UntimeoutContext {
+	type: "untimeout";
+	user: Viewer;
+	moderator: Viewer;
+}
+
+export interface WarnContext {
+	type: "warn";
+	warning: WarnMetadata;
+	user: Viewer;
+	moderator: Viewer;
+}
+
+export interface WarnAckContext {
+	type: "warnAck";
+	user: Viewer;
+}
+
+export type SystemMessageContext =
+	| AutoModContext
+	| BanStatusContext
+	| ClearContext
+	| DeleteContext
+	| EmoteSetUpdateContext
+	| JoinContext
+	| ModeContext
+	| RoleStatusContext
+	| StreamStatusContext
+	| SuspicionStatusContext
+	| TermContext
+	| TimeoutContext
+	| UnbanRequestContext
+	| UntimeoutContext
+	| WarnContext
+	| WarnAckContext;
+
 /**
  * System messages are messages constructed internally and sent to relay
  * information to the user.
@@ -21,6 +149,8 @@ export interface SystemMessageData {
 export class SystemMessage extends Message {
 	#id = crypto.randomUUID();
 	#text = "";
+
+	public context: SystemMessageContext | null = null;
 
 	public constructor(data: Partial<SystemMessageData> = {}) {
 		const prepared: SystemMessageData = {
@@ -32,13 +162,9 @@ export class SystemMessage extends Message {
 		super(prepared, true);
 	}
 
-	/**
-	 * Creates a new system message with its text set to `Joined {channel}`.
-	 */
 	public static joined(channel: Viewer) {
 		const message = new SystemMessage();
-
-		return message.setText(`Joined ${colorizeName(channel)}`);
+		return message.setContext({ type: "join", channel });
 	}
 
 	public override get id() {
@@ -49,233 +175,8 @@ export class SystemMessage extends Message {
 		return this.#text;
 	}
 
-	/**
-	 * Sets the text of the system message when a user is banned or unbanned.
-	 *
-	 * - `{user} has been banned/unbanned` for `CLEARCHAT` messages
-	 * - `{moderator} banned/unbanned {user}[: {reason}]` for `channel.moderate` events
-	 */
-	public banStatus(banned: boolean, reason: string | null, user: Viewer, moderator?: Viewer) {
-		const target = colorizeName(user);
-		const action = banned ? "banned" : "unbanned";
-
-		this.#text = moderator
-			? `${colorizeName(moderator)} ${action} ${target}.`
-			: `${target} has been ${action}.`;
-
-		if (reason) {
-			this.#text = `${this.#text.slice(0, -1)}: ${reason}`;
-		}
-
-		return this;
-	}
-
-	/**
-	 * Sets the text of the system message when the chat is cleared.
-	 *
-	 * - `The chat has been cleared for non-moderator viewers` for `CLEARCHAT`
-	 *   messages
-	 * - `{moderator} cleared the chat for non-moderator viewers` for
-	 *   `channel.moderate` events
-	 */
-	public clear(moderator?: Viewer) {
-		this.#text = moderator
-			? `${colorizeName(moderator)} cleared the chat`
-			: `The chat has been cleared`;
-
-		this.#text += " for non-moderator viewers.";
-
-		return this;
-	}
-
-	/**
-	 * Sets the text of the system message when a user's message is deleted.
-	 *
-	 * - `{user}'s message was deleted: {text}` for `CLEARMSG` messages
-	 * - `{moderator} deleted {user}'s message: {text}` for `channel.moderate` events
-	 */
-	public delete(text: string, user: Viewer, moderator?: Viewer) {
-		if (moderator) {
-			this.#text = `${colorizeName(moderator)} deleted ${colorizeName(user)}'s message: ${text}`;
-		} else {
-			this.#text = `${colorizeName(user)}'s message was deleted: ${text}`;
-		}
-
-		return this;
-	}
-
-	/**
-	 * Sets the text of the system message when the chat mode is changed.
-	 *
-	 * `{moderator} enabled/disabled {duration?} {mode} [chat]`
-	 */
-	public mode(mode: string, enabled: boolean, seconds: number, moderator: Viewer) {
-		const action = enabled ? "enabled" : "disabled";
-		const duration = Number.isNaN(seconds) ? "" : formatDuration(seconds);
-
-		this.#text = `${colorizeName(moderator)} ${action} ${duration} `;
-		this.#text += mode === "slow" ? "slow mode." : `${mode} chat.`;
-
-		return this;
-	}
-
-	/**
-	 * Sets the text of the system message when a user is added or removed as a
-	 * moderator or VIP.
-	 *
-	 * `{broadcaster} added/removed {user} as a moderator/VIP`
-	 */
-	public roleStatus(role: string, added: boolean, user: Viewer, broadcaster: Viewer) {
-		const action = added ? "added" : "removed";
-		this.#text = `${colorizeName(broadcaster)} ${action} ${colorizeName(user)} as a ${role}.`;
-
-		return this;
-	}
-
-	/**
-	 * Sets the text of the system message when a stream goes online or offline.
-	 *
-	 * `{broadcaster} is now online/offline`
-	 */
-	public streamStatus(online: boolean, broadcaster: Viewer) {
-		const status = online ? "online" : "offline";
-		this.#text = `${colorizeName(broadcaster)} is now ${status}.`;
-
-		return this;
-	}
-
-	/**
-	 * Sets the text of the system message when a user's suspicion status is
-	 * updated.
-	 *
-	 * `{moderator} started/stopped monitoring/restricting {user}'s messages`
-	 */
-	public suspicionStatus(active: boolean, user: Viewer, moderator: Viewer) {
-		this.#text = `${colorizeName(moderator)} ${active ? "started" : "stopped"} `;
-
-		if (user.monitored) this.#text += "monitoring ";
-		else if (user.restricted) this.#text += "restricting ";
-
-		this.#text += `${colorizeName(user)}'s messages.`;
-		return this;
-	}
-
-	/**
-	 * Sets the text of the system message when a term is added or removed to
-	 * the blocked or permitted list.
-	 *
-	 * `{moderator} added/removed [a] blocked/permitted term[s][ (via AutoMod)]: {term[, ]}`
-	 */
-	public term(data: AutomodTermsMetadata, moderator: Viewer) {
-		const action = data.action === "add" ? "added" : "removed";
-		const via = data.from_automod ? " (via AutoMod)" : "";
-
-		this.#text = `${colorizeName(moderator)} ${action} `;
-
-		if (data.terms.length === 1) {
-			this.#text += `a ${data.list} term${via}: ${data.terms[0]}`;
-		} else {
-			this.#text += `${data.terms.length} ${data.list} terms${via}: ${data.terms.join(", ")}`;
-		}
-
-		return this;
-	}
-
-	/**
-	 * Sets the text of the system message when a user is timed out.
-	 *
-	 * - `{user} has been timed out for {duration}` for `CLEARCHAT` messages
-	 * - `{moderator} timed out {user} for {duration}[: {reason}]` for
-	 *   `channel.moderate` events
-	 */
-	public timeout(seconds: number, reason: string | null, user: Viewer, moderator?: Viewer) {
-		const target = colorizeName(user);
-		const duration = formatDuration(seconds);
-
-		this.#text = moderator
-			? `${colorizeName(moderator)} timed out ${target} for ${duration}.`
-			: `${target} has been timed out for ${duration}.`;
-
-		if (reason) {
-			this.#text = `${this.#text.slice(0, -1)}: ${reason}`;
-		}
-
-		return this;
-	}
-
-	/**
-	 * Sets the text of the system message when a user submits an unban request
-	 * or when a user's unban request is approved or denied.
-	 *
-	 * - `{user} submitted an unban request: {message}` for
-	 *   `channel.unban_request.create`
-	 * - For `channel.unban_request.resolve`:
-	 *   - `{moderator} approved/denied {user}'s unban request[: {reason}]` if
-	 *     there's a moderator attached
-	 *   - `{user}'s unban request was approved/denied/cancelled` otherwise
-	 */
-	public unbanRequest(
-		request: ChannelUnbanRequestCreate | ChannelUnbanRequestResolve,
-		moderator?: Viewer,
-	) {
-		const user = Viewer.fromBasic(request);
-		const name = colorizeName(user);
-
-		if ("status" in request) {
-			if (!moderator) {
-				this.#text = `${name}'s unban request was ${request.status}.`;
-			} else {
-				this.#text = `${colorizeName(moderator)} ${request.status} ${name}'s unban request.`;
-
-				if (request.resolution_text) {
-					this.#text = `${this.#text.slice(0, -1)}: ${request.resolution_text}`;
-				}
-			}
-		} else {
-			this.#text = `${name} submitted an unban request: ${request.text}`;
-		}
-
-		return this;
-	}
-
-	/**
-	 * Sets the text of the system message when a user's timeout is removed.
-	 *
-	 * `{moderator} removed timeout on {user}`
-	 */
-	public untimeout(user: Viewer, moderator: Viewer) {
-		this.#text = `${colorizeName(moderator)} removed timeout on ${colorizeName(user)}.`;
-		return this;
-	}
-
-	/**
-	 * Sets the text of the system message when a user is warned.
-	 *
-	 * `{moderator} warned {user}[: {reason[, ]}]`
-	 */
-	public warn(warning: WarnMetadata, moderator: Viewer) {
-		const user = Viewer.fromBasic(warning);
-		this.#text = `${colorizeName(moderator)} warned ${colorizeName(user)}.`;
-
-		if (warning.reason || warning.chat_rules_cited) {
-			const reasons = [warning.reason, ...(warning.chat_rules_cited ?? [])]
-				.filter((r) => r !== null)
-				.join(", ");
-
-			this.#text = `${this.#text.slice(0, -1)}: ${reasons}`;
-		}
-
-		return this;
-	}
-
-	/**
-	 * Sets the text of the system message when a user acknowledges their
-	 * warning.
-	 *
-	 * `{user} acknowledged their warning`
-	 */
-	public warnAck(user: Viewer) {
-		this.#text = `${colorizeName(user)} acknowledged their warning.`;
+	public setContext(context: SystemMessageContext) {
+		this.context = context;
 		return this;
 	}
 

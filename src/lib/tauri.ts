@@ -1,5 +1,6 @@
 import type { Emote } from "./channel.svelte";
-import type { BadgeSet, User as HelixUser, Stream } from "./twitch/api";
+import type { EmoteSet } from "./seventv";
+import type { BadgeSet, Cheermote, User as HelixUser, Stream } from "./twitch/api";
 
 export interface UserEmote {
 	set_id: string;
@@ -24,5 +25,7 @@ export interface FullChannel {
 export interface JoinedChannel extends FullChannel {
 	id: string;
 	emotes: Record<string, Emote>;
+	emote_set: EmoteSet | null;
+	cheermotes: Cheermote[];
 	badges: BadgeSet[];
 }

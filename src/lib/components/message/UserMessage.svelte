@@ -61,10 +61,7 @@
 	{/if}
 
 	{#if message.highlighted}
-		<div
-			class="bg-muted/50 my-0.5 border-l-4 p-2.5"
-			style:border-color={app.active?.user.color}
-		>
+		<div class="bg-muted/50 my-0.5 border-l-4 p-2" style:border-color={app.joined?.user.color}>
 			<Message {message} />
 		</div>
 	{:else if hlType && highlights.enabled && highlights[hlType].enabled}
@@ -79,7 +76,7 @@
 {#snippet innerMessage(bordered: boolean)}
 	<div class={["not-group-aria-disabled:hover:bg-muted/50 py-2", bordered ? "px-1.5" : "px-3"]}>
 		{#if message.reply}
-			{@const viewer = app.active?.viewers.get(message.reply.parent.user.login)}
+			{@const viewer = app.joined?.viewers.get(message.reply.parent.user.login)}
 
 			<div class="mb-1 flex items-center gap-2">
 				<div
@@ -87,7 +84,7 @@
 				></div>
 
 				<div class="line-clamp-1 text-xs">
-					<span style:color={settings.state.coloredMentions ? viewer?.color : "inherit"}
+					<span style={settings.state.coloredMentions ? viewer?.style : null}
 						>@{message.reply.parent.user.name}</span
 					>:
 					<p class="text-muted-foreground inline">

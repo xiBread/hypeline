@@ -1,6 +1,7 @@
 use anyhow::Result;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
+use crate::error::Error;
 use crate::{emotes, HTTP};
 
 const BASE_URL: &str = "https://7tv.io/v3";
@@ -11,13 +12,15 @@ pub struct User {
     pub emote_set: Option<EmoteSet>,
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 
 pub struct EmoteSet {
+    pub id: String,
+    pub name: String,
     pub emotes: Vec<Emote>,
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 
 pub struct Emote {
     pub id: String,
@@ -25,20 +28,20 @@ pub struct Emote {
     pub data: EmoteData,
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 
 pub struct EmoteData {
     pub host: EmoteHost,
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 
 pub struct EmoteHost {
     pub url: String,
     pub files: Vec<EmoteHostFile>,
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct EmoteHostFile {
     pub name: String,
     pub width: u32,
@@ -46,7 +49,7 @@ pub struct EmoteHostFile {
     pub format: String,
 }
 
-fn parse_emote(emote: Emote) -> Option<emotes::Emote> {
+pub fn parse_emote(emote: Emote) -> Option<emotes::Emote> {
     let host = emote.data.host;
 
     let files: Vec<&_> = host
@@ -112,7 +115,7 @@ pub async fn fetch_global_emotes() -> Result<Vec<emotes::Emote>> {
     Ok(emotes)
 }
 
-pub async fn fetch_user_emotes(id: &str) -> Result<Vec<emotes::Emote>> {
+pub async fn fetch_active_emote_set(id: &str) -> Result<Option<EmoteSet>, Error> {
     let user: User = HTTP
         .get(format!("{BASE_URL}/users/twitch/{id}"))
         .send()
@@ -120,14 +123,5 @@ pub async fn fetch_user_emotes(id: &str) -> Result<Vec<emotes::Emote>> {
         .json()
         .await?;
 
-    let emotes = match user.emote_set {
-        Some(emote_set) => emote_set
-            .emotes
-            .into_iter()
-            .filter_map(parse_emote)
-            .collect(),
-        None => vec![],
-    };
-
-    Ok(emotes)
+    Ok(user.emote_set)
 }

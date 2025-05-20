@@ -3,6 +3,7 @@
 	import { VList } from "virtua/svelte";
 	import type { Message } from "$lib/message";
 	import { app } from "$lib/state.svelte";
+	import AutoMod from "./message/AutoMod.svelte";
 	import Notification from "./message/Notification.svelte";
 	import SystemMessage from "./message/SystemMessage.svelte";
 	import UserMessage from "./message/UserMessage.svelte";
@@ -21,21 +22,21 @@
 	let scrollingPaused = $state(false);
 
 	const newMessageCount = $derived.by(() => {
-		if (!list || !app.active) return 0;
+		if (!list || !app.joined) return 0;
 
-		const total = app.active.messages.length - list.findEndIndex();
+		const total = app.joined.messages.length - list.findEndIndex();
 		return total > 99 ? "99+" : total;
 	});
 
 	$effect(() => {
-		if (app.active?.messages.length && !scrollingPaused) {
+		if (app.joined?.messages.length && !scrollingPaused) {
 			scrollToEnd();
 		}
 	});
 
 	function scrollToEnd() {
-		if (app.active) {
-			list?.scrollToIndex(app.active.messages.length - 1, { align: "end" });
+		if (app.joined) {
+			list?.scrollToIndex(app.joined.messages.length - 1, { align: "end" });
 		}
 	}
 
@@ -59,7 +60,7 @@
 
 	<VList
 		class="{className} overflow-y-auto text-sm"
-		data={app.active?.messages ?? []}
+		data={app.joined?.messages ?? []}
 		getKey={(msg: Message) => msg.id}
 		onscroll={handleScroll}
 		bind:this={list}
@@ -67,14 +68,16 @@
 		{#snippet children(message: Message, i)}
 			{#if !message.isUser()}
 				{/* @ts-expect-error */ null}
-				<SystemMessage {message} />
+				<SystemMessage {message} context={message.context} />
 			{:else if message.event}
 				<Notification {message} />
+			{:else if message.autoMod}
+				<AutoMod {message} metadata={message.autoMod} />
 			{:else}
 				<UserMessage {message} />
 			{/if}
 
-			{@const next = app.active?.messages.at(i + 1)}
+			{@const next = app.joined?.messages.at(i + 1)}
 
 			{#if message.isRecent && !next?.isRecent}
 				<div class="text-twitch relative px-3.5">

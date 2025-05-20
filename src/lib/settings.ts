@@ -49,7 +49,7 @@ export interface Settings {
 }
 
 export const defaultHighlightTypes: Record<HighlightType, HighlightTypeSettings> = {
-	mention: { enabled: true, color: "#adadb8", style: "default" },
+	mention: { enabled: true, color: "#adadb8", style: "background" },
 	new: { enabled: true, color: "#ff75e6", style: "default" },
 	returning: { enabled: true, color: "#00a3a3", style: "default" },
 	suspicious: { enabled: true, color: "#ff8280", style: "default" },

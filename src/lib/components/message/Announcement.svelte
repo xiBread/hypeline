@@ -8,7 +8,7 @@
 		color: string;
 	}
 
-	const primary = app.active?.user.color ?? "inherit";
+	const primary = app.joined?.user.color ?? "inherit";
 
 	const colors: Record<string, string[]> = {
 		PRIMARY: [primary, primary],

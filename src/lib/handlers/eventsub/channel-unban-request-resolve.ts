@@ -13,6 +13,13 @@ export default defineHandler({
 			moderator = Viewer.fromMod(data as WithModerator);
 		}
 
-		channel.addMessage(message.unbanRequest(data, moderator));
+		channel.addMessage(
+			message.setContext({
+				type: "unbanRequest",
+				request: data,
+				user: Viewer.fromBasic(data),
+				moderator,
+			}),
+		);
 	},
 });

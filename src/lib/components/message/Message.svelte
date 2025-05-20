@@ -9,14 +9,22 @@
 
 	const { message }: { message: UserMessage } = $props();
 
-	const badges: Badge[] = [];
+	const fragments = message.toFragments();
+	const badges = $state<Badge[]>([]);
 
 	for (const badge of message.badges) {
-		const chatBadge = app.active?.badges.get(badge.name)?.[badge.version];
+		const chatBadge = app.joined?.badges.get(badge.name)?.[badge.version];
+		const globalBadge = app.globalBadges.get(badge.name)?.[badge.version];
 
-		if (chatBadge) {
-			badges.push(chatBadge);
+		const resolved = chatBadge ?? globalBadge;
+
+		if (resolved) {
+			badges.push(resolved);
 		}
+	}
+
+	if (message.viewer.badge) {
+		badges.push(message.viewer.badge);
 	}
 
 	async function openUrl(url: URL) {
@@ -44,7 +52,7 @@
 
 <!-- Formatting is ugly here, but it needs to be in order for the colon to
 render properly without an extra space in between. -->
-<span class="font-semibold break-words" style:color={message.viewer.color}>
+<span class="font-semibold break-words" style={message.viewer.style}>
 	{message.viewer.displayName}
 </span>{#if !message.isAction}:{/if}
 
@@ -52,59 +60,92 @@ render properly without an extra space in between. -->
 	class={["inline", message.isAction && "italic"]}
 	style:color={message.isAction ? message.viewer.color : null}
 >
-	{#each message.fragments as fragment, i}
+	{#each fragments as fragment, i}
 		{#if fragment.type === "mention"}
 			{#if !message.reply || (message.reply && i > 0)}
-				<span
+				<svelte:element
+					this={fragment.marked ? "mark" : "span"}
 					class="font-semibold break-words"
-					style:color={settings.state.coloredMentions ? fragment.color : "inherit"}
+					style:color={fragment.marked
+						? null
+						: settings.state.coloredMentions
+							? fragment.color
+							: "inherit"}
 				>
 					@{fragment.displayName}
-				</span>
+				</svelte:element>
 			{/if}
 		{:else if fragment.type === "url"}
-			<!-- svelte-ignore a11y_click_events_have_key_events -->
-			<span
-				class="wrap-anywhere text-blue-600 underline hover:cursor-pointer"
+			<svelte:element
+				this={fragment.marked ? "mark" : "span"}
+				class={[
+					"wrap-anywhere underline hover:cursor-pointer",
+					!fragment.marked && "text-twitch-link",
+				]}
 				role="link"
 				tabindex="-1"
 				onclick={() => openUrl(fragment.url)}
 			>
 				{fragment.text}
-			</span>
+			</svelte:element>
+		{:else if fragment.type === "cheermote"}
+			{#if fragment.marked}
+				<mark class="wrap-anywhere">{fragment.prefix + fragment.bits}</mark>
+			{:else}
+				<img
+					class="-my-2 inline-block align-middle"
+					src={fragment.images.dark.animated["2"]}
+					alt="{fragment.prefix} {fragment.bits}"
+					width="32"
+					height="32"
+				/>
+
+				<span class="font-semibold" style:color={fragment.color}>{fragment.bits}</span>
+			{/if}
 		{:else if fragment.type === "emote"}
-			<Tooltip triggerClass="-my-2 align-middle inline-block" side="top" sideOffset={4}>
-				{#snippet trigger()}
-					<img
-						class="object-contain"
-						src={fragment.url}
-						alt={fragment.name}
-						width={fragment.width}
-						height={fragment.height}
-					/>
-				{/snippet}
+			{#if fragment.marked}
+				<mark class="wrap-anywhere">{fragment.name}</mark>
+			{:else}
+				<Tooltip triggerClass="-my-2 align-middle inline-block" side="top" sideOffset={4}>
+					{#snippet trigger()}
+						<img
+							class="object-contain"
+							src={fragment.url}
+							alt={fragment.name}
+							width={fragment.width}
+							height={fragment.height}
+						/>
+					{/snippet}
 
-				<div class="flex flex-col items-center">
-					<img
-						class="mb-1"
-						src={fragment.url}
-						alt={fragment.name}
-						width={fragment.width * 2}
-						height={fragment.height * 2}
-					/>
+					<div class="flex flex-col items-center">
+						<img
+							class="mb-1"
+							src={fragment.url}
+							alt={fragment.name}
+							width={fragment.width * 2}
+							height={fragment.height * 2}
+						/>
 
-					{fragment.name}
-				</div>
-			</Tooltip>
+						{fragment.name}
+					</div>
+				</Tooltip>
+			{/if}
 		{:else}
-			<span class="wrap-anywhere">
+			<svelte:element this={fragment.marked ? "mark" : "span"} class="wrap-anywhere">
 				{fragment.value}
-			</span>
+			</svelte:element>
 		{/if}
 
-		{#if i < message.fragments.length - 1}
+		{#if i < fragments.length - 1}
 			<!-- eslint-disable-next-line svelte/no-useless-mustaches -->
 			<span>{" "}</span>
 		{/if}
 	{/each}
 </p>
+
+<style>
+	mark {
+		color: white;
+		background-color: --alpha(var(--color-red-500) / 40%);
+	}
+</style>

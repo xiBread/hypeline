@@ -6,8 +6,12 @@ export default defineHandler({
 	name: "channel.warning.acknowledge",
 	handle(data, channel) {
 		const message = new SystemMessage();
-		const viewer = Viewer.fromBasic(data);
 
-		channel.addMessage(message.warnAck(viewer));
+		channel.addMessage(
+			message.setContext({
+				type: "warnAck",
+				user: Viewer.fromBasic(data),
+			}),
+		);
 	},
 });

@@ -1,5 +1,8 @@
 import { settings } from "./settings";
+import type { Paint } from "./seventv";
 import { app } from "./state.svelte";
+import type { UserWithColor } from "./tauri";
+import type { Badge } from "./twitch/api";
 import type {
 	BanEvasionEvaluation,
 	WithBasicUser,
@@ -59,12 +62,15 @@ export class Viewer implements PartialUser {
 	 */
 	public banEvasion = $state<BanEvasionEvaluation>("unknown");
 
+	public badge = $state<Badge>();
+	public paint = $state<Paint>();
+
 	public constructor(data: PartialUser) {
 		this.#data = data;
 	}
 
 	public static from(data: BasicUser, color?: string) {
-		const stored = app.active?.viewers.get(data.login);
+		const stored = app.joined?.viewers.get(data.login);
 
 		return (
 			stored ??
@@ -78,7 +84,7 @@ export class Viewer implements PartialUser {
 	}
 
 	public static fromBasic(data: WithBasicUser) {
-		let stored = app.active?.viewers.get(data.user_login);
+		let stored = app.joined?.viewers.get(data.user_login);
 
 		if (!stored) {
 			stored = new Viewer({
@@ -87,14 +93,14 @@ export class Viewer implements PartialUser {
 				displayName: data.user_name,
 			});
 
-			app.active?.viewers.set(data.user_login, stored);
+			app.joined?.viewers.set(data.user_login, stored);
 		}
 
 		return stored;
 	}
 
 	public static fromBroadcaster(data: WithBroadcaster) {
-		const stored = app.active?.viewers.get(data.broadcaster_user_login);
+		const stored = app.joined?.viewers.get(data.broadcaster_user_login);
 
 		return (
 			stored ??
@@ -107,7 +113,7 @@ export class Viewer implements PartialUser {
 	}
 
 	public static fromMod(data: WithModerator) {
-		const stored = app.active?.viewers.get(data.moderator_user_login);
+		const stored = app.joined?.viewers.get(data.moderator_user_login);
 
 		return (
 			stored ??
@@ -117,6 +123,23 @@ export class Viewer implements PartialUser {
 				displayName: data.moderator_user_name,
 			})
 		);
+	}
+
+	public static fromTwitch(user: UserWithColor) {
+		let stored = app.joined?.viewers.get(user.data.login);
+
+		if (!stored) {
+			stored = new Viewer({
+				id: user.data.id,
+				username: user.data.login,
+				displayName: user.data.display_name,
+				color: user.color ?? undefined,
+			});
+
+			app.joined?.viewers.set(user.data.login, stored);
+		}
+
+		return stored;
 	}
 
 	public get id() {
@@ -129,6 +152,12 @@ export class Viewer implements PartialUser {
 		}
 
 		return this.#data.color ?? "inherit";
+	}
+
+	public get style() {
+		const color = `color: ${this.color};`;
+
+		return this.paint ? `${this.paint.css}; ${color};` : color;
 	}
 
 	public get username() {

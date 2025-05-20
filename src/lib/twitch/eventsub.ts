@@ -7,6 +7,60 @@ export type WithBroadcaster = Prefix<WithBasicUser, "broadcaster_">;
 
 export type WithModerator = Prefix<WithBasicUser, "moderator_">;
 
+export interface Boundary {
+	start_pos: number;
+	end_pos: number;
+}
+
+export interface AutoModMetadata {
+	category: string;
+	level: number;
+	boundaries: Boundary[];
+}
+
+export interface BlockedTerm extends Prefix<WithBroadcaster, "owner_"> {
+	term_id: string;
+	boundary: Boundary;
+}
+
+export interface BlockedTermMetadata {
+	terms_found: BlockedTerm[];
+}
+
+export interface BaseAutoModMessageHold extends ChannelChatUserMessageHold {
+	held_at: string;
+}
+
+export interface AutoModAutomated extends BaseAutoModMessageHold {
+	reason: "automod";
+	automod: AutoModMetadata;
+}
+
+export interface AutoModBlockedTerm extends BaseAutoModMessageHold {
+	reason: "blocked_term";
+	blocked_term: BlockedTermMetadata;
+}
+
+export type AutoModMessageHold = AutoModAutomated | AutoModBlockedTerm;
+
+export type AutoModMessageStatus = "approved" | "denied" | "expired";
+
+export type AutoModMessageUpdate = (AutoModAutomated | AutoModBlockedTerm) &
+	WithModerator & {
+		status: AutoModMessageStatus;
+	};
+
+export interface ChannelChatUserMessageHold extends WithBasicUser, WithBroadcaster {
+	message_id: string;
+	message: StructuredMessage;
+}
+
+export type ChannelChatUserMessageStatus = "approved" | "denied" | "invalid";
+
+export interface ChannelChatUserMessageUpdate extends ChannelChatUserMessageHold {
+	status: ChannelChatUserMessageStatus;
+}
+
 export interface BaseAction<A extends string> extends WithBroadcaster, WithModerator {
 	action: A;
 	source_broadcaster_user_id: string;
@@ -14,7 +68,7 @@ export interface BaseAction<A extends string> extends WithBroadcaster, WithModer
 	source_broadcaster_user_name: string;
 }
 
-export interface AutomodTermsMetadata {
+export interface AutoModTermsMetadata {
 	action: "add" | "remove";
 	list: "blocked" | "permitted";
 	terms: string[];
@@ -56,11 +110,11 @@ export interface WarnMetadata extends WithBasicUser {
 	chat_rules_cited: string[] | null;
 }
 
-export interface AutomodTermsAction
+export interface AutoModTermsAction
 	extends BaseAction<
 		"add_blocked_term" | "add_permitted_term" | "remove_blocked_term" | "remove_permitted_term"
 	> {
-	automod_terms: AutomodTermsMetadata;
+	automod_terms: AutoModTermsMetadata;
 }
 
 export interface BanAction extends BaseAction<"ban"> {
@@ -133,7 +187,7 @@ export interface WarnAction extends BaseAction<"warn"> {
 }
 
 export type ChannelModerate =
-	| AutomodTermsAction
+	| AutoModTermsAction
 	| BanAction
 	| ClearAction
 	| DeleteAction
@@ -235,6 +289,10 @@ export interface StreamOnline extends WithBroadcaster {
 }
 
 export interface SubscriptionEventMap {
+	"automod.message.hold": AutoModMessageHold;
+	"automod.message.update": AutoModMessageUpdate;
+	"channel.chat.user_message_hold": ChannelChatUserMessageHold;
+	"channel.chat.user_message_update": ChannelChatUserMessageUpdate;
 	"channel.moderate": ChannelModerate;
 	"channel.subscription.end": ChannelSubscriptionEnd;
 	"channel.suspicious_user.message": ChannelSuspiciousUserMessage;

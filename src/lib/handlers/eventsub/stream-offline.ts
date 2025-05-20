@@ -6,8 +6,14 @@ export default defineHandler({
 	name: "stream.offline",
 	handle(data, channel) {
 		const message = new SystemMessage();
-		const broadcaster = Viewer.fromBroadcaster(data);
 
-		channel.addMessage(message.streamStatus(false, broadcaster));
+		channel.setStream(null);
+		channel.addMessage(
+			message.setContext({
+				type: "streamStatus",
+				online: false,
+				broadcaster: Viewer.fromBroadcaster(data),
+			}),
+		);
 	},
 });

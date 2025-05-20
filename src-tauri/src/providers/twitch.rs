@@ -1,24 +1,9 @@
 use anyhow::anyhow;
-use twitch_api::helix::chat::{get_channel_chat_badges, get_global_chat_badges, BadgeSet};
+use twitch_api::helix::chat::{get_channel_chat_badges, BadgeSet};
 use twitch_api::twitch_oauth2::UserToken;
 use twitch_api::HelixClient;
 
 use crate::error::Error;
-
-pub async fn fetch_global_badges(
-    helix: &HelixClient<'static, reqwest::Client>,
-    token: &UserToken,
-) -> Result<Vec<BadgeSet>, Error> {
-    let badges = helix
-        .req_get(
-            get_global_chat_badges::GetGlobalChatBadgesRequest::new(),
-            token,
-        )
-        .await?
-        .data;
-
-    Ok(badges)
-}
 
 pub async fn fetch_channel_badges(
     helix: &HelixClient<'static, reqwest::Client>,
