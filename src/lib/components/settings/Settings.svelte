@@ -1,12 +1,16 @@
 <script lang="ts">
+	import { platform } from "@tauri-apps/plugin-os";
 	import { Dialog, Separator, Tabs } from "bits-ui";
 	import { tick } from "svelte";
 	import { goto } from "$app/navigation";
 	import { settings } from "$lib/settings";
+	import WindowsControls from "../WindowsControls.svelte";
 	import Appearance from "./appearance/Appearance.svelte";
 	import Chat from "./chat/Chat.svelte";
 
 	let { open = $bindable(false) } = $props();
+
+	const platformName = platform();
 
 	const categories = [
 		{
@@ -52,12 +56,18 @@
 			]}
 		>
 			<div
-				class="min-h-title-bar flex items-center justify-center bg-transparent"
+				class="min-h-title-bar relative flex items-center justify-center bg-transparent"
 				data-tauri-drag-region
 			>
 				<Dialog.Title class="pointer-events-none text-sm font-medium">
 					Settings
 				</Dialog.Title>
+
+				{#if platformName === "windows"}
+					<div class="absolute top-0 right-0 flex">
+						<WindowsControls />
+					</div>
+				{/if}
 			</div>
 
 			<Tabs.Root class="relative flex h-full" orientation="vertical" value="Appearance">
