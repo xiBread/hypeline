@@ -13,9 +13,9 @@ use twitch_api::HelixClient;
 use super::channels::get_stream;
 use super::get_access_token;
 use super::users::{get_user_from_login, User};
-use crate::emotes::{fetch_user_emotes, EmoteMap};
+use crate::emotes::{fetch_user_emotes, Emote, EmoteMap};
 use crate::error::Error;
-use crate::providers::seventv::{fetch_active_emote_set, parse_emote, send_presence, EmoteSet};
+use crate::providers::seventv::{fetch_active_emote_set, send_presence, EmoteSet};
 use crate::providers::twitch::fetch_channel_badges;
 use crate::AppState;
 
@@ -77,7 +77,7 @@ pub async fn join(
             .emotes
             .clone()
             .into_iter()
-            .filter_map(parse_emote)
+            .map(Emote::from)
             .collect(),
         None => vec![],
     };

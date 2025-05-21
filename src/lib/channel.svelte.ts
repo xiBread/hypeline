@@ -10,9 +10,9 @@ import { Viewer } from "./viewer.svelte";
 
 export interface Emote {
 	name: string;
-	url: string;
 	width: number;
 	height: number;
+	srcset: string[];
 }
 
 export class Channel {

@@ -292,12 +292,17 @@ export class UserMessage extends Message {
 					...segment.data.tier,
 				});
 			} else if (segment.type === "emote") {
+				const baseUrl = "https://static-cdn.jtvnw.net/emoticons/v2";
+
 				output.push({
 					type: "emote",
 					name: segment.data.code,
-					url: `https://static-cdn.jtvnw.net/emoticons/v2/${segment.data.id}/default/dark/1.0`,
-					width: 28,
-					height: 28,
+					width: 56,
+					height: 56,
+					srcset: [1, 2, 3].map(
+						(density) =>
+							`${baseUrl}/${segment.data.id}/default/dark/${density}.0 ${density}x`,
+					),
 					marked,
 				});
 			} else if (segment.type === "mention") {

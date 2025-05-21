@@ -1,8 +1,9 @@
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
+use crate::emotes::Emote;
 use crate::error::Error;
-use crate::{emotes, HTTP};
+use crate::HTTP;
 
 const BASE_URL: &str = "https://7tv.io/v3";
 
@@ -17,12 +18,12 @@ pub struct User {
 pub struct EmoteSet {
     pub id: String,
     pub name: String,
-    pub emotes: Vec<Emote>,
+    pub emotes: Vec<ApiEmote>,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
 
-pub struct Emote {
+pub struct ApiEmote {
     pub id: String,
     pub name: String,
     pub data: EmoteData,
@@ -49,56 +50,48 @@ pub struct EmoteHostFile {
     pub format: String,
 }
 
-pub fn parse_emote(emote: Emote) -> Option<emotes::Emote> {
-    let host = emote.data.host;
+impl From<ApiEmote> for Emote {
+    fn from(value: ApiEmote) -> Self {
+        let mut width = 28;
+        let mut height = 28;
+        let mut srcset = vec![];
 
-    let files: Vec<&_> = host
-        .files
-        .iter()
-        .filter(|file| file.name.starts_with("4x"))
-        .collect();
+        for format in ["webp", "gif", "png"] {
+            let mut matched_files: Vec<&_> = value
+                .data
+                .host
+                .files
+                .iter()
+                .filter(|file| file.format.to_lowercase() == format)
+                .collect();
 
-    if files.is_empty() {
-        return None;
-    }
+            if !matched_files.is_empty() {
+                matched_files.sort_by_key(|file| file.width);
 
-    let priority = |format: &str| match format.to_lowercase().as_str() {
-        // Animated AVIFs are broken
-        // "avif" => Some(0),
-        "webp" => Some(1),
-        "png" => Some(2),
-        "gif" => Some(3),
-        _ => None,
-    };
+                for file in matched_files {
+                    let url = format!("https:{}/{}", &value.data.host.url, file.name);
 
-    let mut best_priority: Option<usize> = None;
-    let mut best_file: Option<&_> = None;
+                    width = file.width;
+                    height = file.height;
 
-    for file in files {
-        if let Some(p) = priority(&file.format) {
-            if best_priority.is_none() || p < best_priority.unwrap() {
-                best_priority = Some(p);
-                best_file = Some(file);
+                    srcset.push(format!("{url} {}x", file.name.chars().nth(0).unwrap()));
+                }
+
+                break;
             }
         }
+
+        Emote {
+            id: value.id,
+            name: value.name,
+            width: width / 2,
+            height: height / 2,
+            srcset,
+        }
     }
-
-    if let Some(file) = best_file {
-        let new_emote = emotes::Emote {
-            id: emote.id,
-            name: emote.name,
-            url: format!("https:{}/{}", host.url, file.name),
-            width: file.width / 4,
-            height: file.height / 4,
-        };
-
-        return Some(new_emote);
-    }
-
-    None
 }
 
-pub async fn fetch_global_emotes() -> Result<Vec<emotes::Emote>> {
+pub async fn fetch_global_emotes() -> Result<Vec<Emote>> {
     let global_set: EmoteSet = HTTP
         .get(format!("{BASE_URL}/emote-sets/global"))
         .send()
@@ -106,13 +99,7 @@ pub async fn fetch_global_emotes() -> Result<Vec<emotes::Emote>> {
         .json()
         .await?;
 
-    let emotes = global_set
-        .emotes
-        .into_iter()
-        .filter_map(parse_emote)
-        .collect();
-
-    Ok(emotes)
+    Ok(global_set.emotes.into_iter().map(ApiEmote::into).collect())
 }
 
 pub async fn fetch_active_emote_set(id: &str) -> Result<Option<EmoteSet>, Error> {

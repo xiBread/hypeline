@@ -4,6 +4,7 @@
 	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
 	import type { Badge } from "$lib/twitch/api";
+	import Emote from "../Emote.svelte";
 	import Timestamp from "../Timestamp.svelte";
 	import Tooltip from "../ui/Tooltip.svelte";
 
@@ -94,7 +95,7 @@ render properly without an extra space in between. -->
 			{:else}
 				<img
 					class="-my-2 inline-block align-middle"
-					src={fragment.images.dark.animated["2"]}
+					src={fragment.images.dark.animated[2]}
 					alt="{fragment.prefix} {fragment.bits}"
 					width="32"
 					height="32"
@@ -106,29 +107,7 @@ render properly without an extra space in between. -->
 			{#if fragment.marked}
 				<mark class="wrap-anywhere">{fragment.name}</mark>
 			{:else}
-				<Tooltip triggerClass="-my-2 align-middle inline-block" side="top" sideOffset={4}>
-					{#snippet trigger()}
-						<img
-							class="object-contain"
-							src={fragment.url}
-							alt={fragment.name}
-							width={fragment.width}
-							height={fragment.height}
-						/>
-					{/snippet}
-
-					<div class="flex flex-col items-center">
-						<img
-							class="mb-1"
-							src={fragment.url}
-							alt={fragment.name}
-							width={fragment.width * 2}
-							height={fragment.height * 2}
-						/>
-
-						{fragment.name}
-					</div>
-				</Tooltip>
+				<Emote emote={fragment} />
 			{/if}
 		{:else}
 			<svelte:element this={fragment.marked ? "mark" : "span"} class="wrap-anywhere">

@@ -9,9 +9,9 @@ use crate::providers::{bttv, ffz, seventv};
 pub struct Emote {
     pub id: String,
     pub name: String,
-    pub url: String,
     pub width: u32,
     pub height: u32,
+    pub srcset: Vec<String>,
 }
 
 pub type EmoteMap = HashMap<String, Emote>;
