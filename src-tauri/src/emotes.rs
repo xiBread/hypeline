@@ -12,6 +12,7 @@ pub struct Emote {
     pub width: u32,
     pub height: u32,
     pub srcset: Vec<String>,
+    pub zero_width: bool,
 }
 
 pub type EmoteMap = HashMap<String, Emote>;

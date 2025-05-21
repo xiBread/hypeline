@@ -53,6 +53,7 @@ impl From<&ApiEmote> for Emote {
                 .iter()
                 .map(|(density, url)| format!("{url} {density}x"))
                 .collect(),
+            zero_width: false,
         }
     }
 }

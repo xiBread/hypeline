@@ -36,6 +36,7 @@ impl From<ApiEmote> for Emote {
             width: value.width.unwrap_or(28),
             height: value.height.unwrap_or(28),
             srcset: vec![candidate(1), candidate(2), candidate(3)],
+            zero_width: false,
         }
     }
 }

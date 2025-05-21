@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
-import type { Emote } from "$lib/channel.svelte";
 import { settings } from "$lib/settings";
 import { app } from "$lib/state.svelte";
+import type { Emote } from "$lib/tauri";
 import type { Badge, BadgeSet } from "$lib/twitch/api";
 import { User } from "$lib/user";
 

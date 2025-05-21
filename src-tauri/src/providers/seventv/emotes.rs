@@ -33,6 +33,7 @@ pub struct ApiEmote {
 
 pub struct EmoteData {
     pub host: EmoteHost,
+    pub flags: u32,
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -87,6 +88,7 @@ impl From<ApiEmote> for Emote {
             width: width / 2,
             height: height / 2,
             srcset,
+            zero_width: value.data.flags & 256 == 256,
         }
     }
 }

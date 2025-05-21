@@ -1,6 +1,13 @@
-import type { Emote } from "./channel.svelte";
 import type { EmoteSet } from "./seventv";
 import type { BadgeSet, Cheermote, User as HelixUser, Stream } from "./twitch/api";
+
+export interface Emote {
+	name: string;
+	width: number;
+	height: number;
+	srcset: string[];
+	zero_width: boolean;
+}
 
 export interface UserEmote {
 	set_id: string;

@@ -107,7 +107,7 @@ render properly without an extra space in between. -->
 			{#if fragment.marked}
 				<mark class="wrap-anywhere">{fragment.name}</mark>
 			{:else}
-				<Emote emote={fragment} />
+				<Emote emote={fragment} overlays={fragment.overlays} />
 			{/if}
 		{:else}
 			<svelte:element this={fragment.marked ? "mark" : "span"} class="wrap-anywhere">

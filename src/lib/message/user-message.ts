@@ -1,5 +1,5 @@
-import type { Emote } from "$lib/channel.svelte";
 import { app } from "$lib/state.svelte";
+import type { Emote } from "$lib/tauri";
 import type { CheermoteTier } from "$lib/twitch/api";
 import type { AutoModMetadata, StructuredMessage } from "$lib/twitch/eventsub";
 import type { Badge, BasicUser, PrivmsgMessage, Range, UserNoticeMessage } from "$lib/twitch/irc";
@@ -12,7 +12,7 @@ export type Fragment =
 	| { type: "text"; value: string; marked?: boolean }
 	| ({ type: "mention"; marked?: boolean } & PartialUser)
 	| { type: "url"; text: string; url: URL; marked?: boolean }
-	| ({ type: "emote"; marked?: boolean } & Emote)
+	| ({ type: "emote"; marked?: boolean; overlays: Emote[] } & Emote)
 	| ({ type: "cheermote"; prefix: string; bits: number; marked?: boolean } & CheermoteTier);
 
 const URL_RE =
@@ -303,7 +303,9 @@ export class UserMessage extends Message {
 						(density) =>
 							`${baseUrl}/${segment.data.id}/default/dark/${density}.0 ${density}x`,
 					),
+					zero_width: false,
 					marked,
+					overlays: [],
 				});
 			} else if (segment.type === "mention") {
 				const mention = segment.data.username;
@@ -335,7 +337,7 @@ export class UserMessage extends Message {
 		}
 
 		const fragments: Fragment[] = [];
-		let lastFrag: Extract<Fragment, { type: "text" }> | null = null;
+		let lastFrag: Fragment | null = null;
 
 		for (const frag of output) {
 			if (frag.type === "text") {
@@ -395,6 +397,7 @@ export class UserMessage extends Message {
 		};
 
 		let chunkPos = 0;
+		let lastFrag: Extract<Fragment, { type: "emote" }> | null = null;
 
 		for (const token of chunk.split(/(\s+)/)) {
 			if (/\s+/.test(token)) {
@@ -417,7 +420,12 @@ export class UserMessage extends Message {
 
 					const marked = this.#isRangeMarked(start, end, isCharMarked);
 
-					fragments.push({ type: "emote", ...emote, marked });
+					if (emote.zero_width && lastFrag) {
+						lastFrag.overlays.push(emote);
+					} else {
+						lastFrag = { type: "emote", ...emote, marked, overlays: [] };
+						fragments.push(lastFrag);
+					}
 				} else {
 					if (buffer.length === 0) {
 						wordStart = chunkPos;

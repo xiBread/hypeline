@@ -1,14 +1,33 @@
 <script lang="ts">
-	import type { Emote } from "$lib/channel.svelte";
+	import type { Emote } from "$lib/tauri";
 	import Tooltip from "./ui/Tooltip.svelte";
 
-	const { emote }: { emote: Emote } = $props();
+	interface Props {
+		emote: Emote;
+		overlays: Emote[];
+	}
+
+	const { emote, overlays }: Props = $props();
 	const srcset = emote.srcset.join(", ");
 </script>
 
-<Tooltip triggerClass="-my-2 inline-block align-middle" side="top" sideOffset={4}>
+<Tooltip triggerClass="-my-2 inline-grid align-middle" side="top" sideOffset={4}>
 	{#snippet trigger()}
-		<img class="object-contain" {srcset} alt={emote.name} decoding="async" />
+		<img
+			class="col-start-1 row-start-1 object-contain"
+			{srcset}
+			alt={emote.name}
+			decoding="async"
+		/>
+
+		{#each overlays as overlay}
+			<img
+				class="col-start-1 row-start-1 object-contain"
+				srcset={overlay.srcset.join(", ")}
+				alt={overlay.name}
+				decoding="async"
+			/>
+		{/each}
 	{/snippet}
 
 	<div class="flex flex-col items-center">

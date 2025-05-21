@@ -1,4 +1,4 @@
-import type { Emote } from "$lib/channel.svelte";
+import type { Emote } from "$lib/tauri";
 import type {
 	AutoModMessageStatus,
 	AutoModTermsMetadata,
