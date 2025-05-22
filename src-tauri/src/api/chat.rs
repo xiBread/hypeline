@@ -187,7 +187,7 @@ pub async fn send_message(
     reply_id: Option<String>,
 ) -> Result<(), Error> {
     let state = state.lock().await;
-    let token = get_access_token(&state).await?;
+    let token = get_access_token(&state)?;
 
     let user_id = token.user_id.clone();
 
@@ -238,7 +238,7 @@ pub async fn fetch_global_badges(
     state: State<'_, Mutex<AppState>>,
 ) -> Result<Vec<BadgeSet>, Error> {
     let state = state.lock().await;
-    let token = get_access_token(&state).await?;
+    let token = get_access_token(&state)?;
 
     let badges = state
         .helix

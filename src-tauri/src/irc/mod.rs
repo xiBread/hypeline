@@ -27,7 +27,7 @@ pub async fn connect_irc(
     channel: Channel<ServerMessage>,
 ) -> Result<(), AppError> {
     let mut guard = state.lock().await;
-    let token = get_access_token(&guard).await?;
+    let token = get_access_token(&guard)?;
     let login = token.login.to_string();
 
     let config = ClientConfig::new(

@@ -19,7 +19,7 @@ pub async fn connect_eventsub(
     channel: Channel<NotificationPayload>,
 ) -> Result<(), Error> {
     let mut guard = state.lock().await;
-    let token = get_access_token(&guard).await?.clone();
+    let token = get_access_token(&guard)?.clone();
     let helix = Arc::new(guard.helix.clone());
 
     if let Some(client) = &guard.eventsub {

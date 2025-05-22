@@ -22,7 +22,7 @@ pub async fn get_stream(
     id: String,
 ) -> Result<Option<Stream>, Error> {
     let state = state.lock().await;
-    let token = get_access_token(&state).await?;
+    let token = get_access_token(&state)?;
 
     let mut streams: Vec<Stream> = state
         .helix
@@ -50,7 +50,7 @@ pub async fn get_followed_channels(
     state: State<'_, Mutex<AppState>>,
 ) -> Result<Vec<FullChannel>, Error> {
     let guard = state.lock().await;
-    let token = get_access_token(&guard).await;
+    let token = get_access_token(&guard);
 
     let token = match token {
         Ok(token) => token,

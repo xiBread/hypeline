@@ -17,7 +17,7 @@ pub struct Response<T> {
     pub data: T,
 }
 
-pub async fn get_access_token<'a>(state: &'a AppState) -> Result<&'a UserToken, Error> {
+pub fn get_access_token<'a>(state: &'a AppState) -> Result<&'a UserToken, Error> {
     state
         .token
         .as_ref()

@@ -13,7 +13,7 @@ pub async fn delete_message(
     message_id: String,
 ) -> Result<(), Error> {
     let state = state.lock().await;
-    let token = get_access_token(&state).await?;
+    let token = get_access_token(&state)?;
 
     state
         .helix
@@ -30,7 +30,7 @@ pub async fn update_held_message(
     allow: bool,
 ) -> Result<(), Error> {
     let state = state.lock().await;
-    let token = get_access_token(&state).await?;
+    let token = get_access_token(&state)?;
 
     let request = manage_held_automod_messages::ManageHeldAutoModMessagesRequest::new();
     let body = manage_held_automod_messages::ManageHeldAutoModMessagesBody::new(
