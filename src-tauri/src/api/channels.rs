@@ -30,13 +30,7 @@ pub async fn get_stream(
         .try_collect()
         .await?;
 
-    let stream = if streams.is_empty() {
-        None
-    } else {
-        streams.pop()
-    };
-
-    Ok(stream)
+    Ok(streams.pop())
 }
 
 #[derive(Serialize)]
