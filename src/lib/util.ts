@@ -84,6 +84,8 @@ export function extractEmotes(fragments: Fragment[]): Emote[] {
 const colorCache = new Map<string, string>();
 
 export function makeReadable(foreground: string) {
+	if (foreground === "inherit") return foreground;
+
 	const background = getComputedStyle(document.body).backgroundColor;
 	const key = `${foreground}:${background}`;
 
