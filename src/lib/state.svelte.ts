@@ -1,6 +1,7 @@
 import { SvelteMap } from "svelte/reactivity";
-import type { Channel, Emote } from "./channel.svelte";
+import type { Channel } from "./channel.svelte";
 import type { Paint } from "./seventv";
+import type { Emote } from "./tauri";
 import type { Badge } from "./twitch/api";
 import type { User } from "./user";
 
