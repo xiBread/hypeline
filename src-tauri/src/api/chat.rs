@@ -34,6 +34,7 @@ pub struct JoinedChannel {
 pub async fn join(
     state: State<'_, Mutex<AppState>>,
     login: String,
+    is_mod: bool,
 ) -> Result<JoinedChannel, Error> {
     let (helix, token, irc, eventsub, seventv, stv_id) = {
         let state = state.lock().await;
@@ -108,26 +109,30 @@ pub async fn join(
         async_runtime::spawn(async move {
             use EventType as Ev;
 
-            eventsub
-                .subscribe_all(
-                    login.as_str(),
-                    &[
-                        (Ev::AutomodMessageHold, &ch_with_mod_cond),
-                        (Ev::AutomodMessageUpdate, &ch_with_mod_cond),
-                        (Ev::ChannelChatUserMessageHold, &ch_with_user_cond),
-                        (Ev::ChannelChatUserMessageUpdate, &ch_with_user_cond),
-                        (Ev::ChannelModerate, &ch_with_mod_cond),
-                        (Ev::ChannelSubscriptionEnd, &ch_cond),
-                        (Ev::ChannelSuspiciousUserMessage, &ch_with_mod_cond),
-                        (Ev::ChannelSuspiciousUserUpdate, &ch_with_mod_cond),
-                        (Ev::ChannelUnbanRequestCreate, &ch_with_mod_cond),
-                        (Ev::ChannelUnbanRequestResolve, &ch_with_mod_cond),
-                        (Ev::ChannelWarningAcknowledge, &ch_with_mod_cond),
-                        (Ev::StreamOffline, &ch_cond),
-                        (Ev::StreamOnline, &ch_cond),
-                    ],
-                )
-                .await
+            let mut events = vec![
+                (Ev::ChannelChatUserMessageHold, &ch_with_user_cond),
+                (Ev::ChannelChatUserMessageUpdate, &ch_with_user_cond),
+                (Ev::ChannelSubscriptionEnd, &ch_cond),
+                (Ev::StreamOffline, &ch_cond),
+                (Ev::StreamOnline, &ch_cond),
+            ];
+
+            if is_mod {
+                let mod_events = vec![
+                    (Ev::AutomodMessageHold, &ch_with_mod_cond),
+                    (Ev::AutomodMessageUpdate, &ch_with_mod_cond),
+                    (Ev::ChannelModerate, &ch_with_mod_cond),
+                    (Ev::ChannelSuspiciousUserMessage, &ch_with_mod_cond),
+                    (Ev::ChannelSuspiciousUserUpdate, &ch_with_mod_cond),
+                    (Ev::ChannelUnbanRequestCreate, &ch_with_mod_cond),
+                    (Ev::ChannelUnbanRequestResolve, &ch_with_mod_cond),
+                    (Ev::ChannelWarningAcknowledge, &ch_with_mod_cond),
+                ];
+
+                events.extend(mod_events)
+            }
+
+            eventsub.subscribe_all(login.as_str(), events).await
         });
     }
 

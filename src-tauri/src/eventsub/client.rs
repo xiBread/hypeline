@@ -311,7 +311,7 @@ impl EventSubClient {
     pub async fn subscribe_all(
         &self,
         channel: &str,
-        subscriptions: &[(EventType, &serde_json::Value)],
+        subscriptions: Vec<(EventType, &serde_json::Value)>,
     ) -> Result<(), Error> {
         let futures = subscriptions
             .iter()
