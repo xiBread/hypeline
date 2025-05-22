@@ -1,7 +1,7 @@
 use anyhow::anyhow;
 use serde::Serialize;
 use serde_json::json;
-use tauri::State;
+use tauri::{async_runtime, State};
 use tokio::sync::Mutex;
 use twitch_api::eventsub::EventType;
 use twitch_api::helix::bits::{Cheermote, GetCheermotesRequest};
@@ -88,42 +88,47 @@ pub async fn join(
 
     let login = user.data.login.clone();
 
-    let channel_cond = json!({
-        "broadcaster_user_id": broadcaster_id
-    });
-
-    let channel_with_user_cond = json!({
-        "broadcaster_user_id": broadcaster_id,
-        "user_id": token.user_id
-    });
-
-    let channel_with_mod_cond = json!({
-        "broadcaster_user_id": broadcaster_id,
-        "moderator_user_id": token.user_id
-    });
-
     if let Some(eventsub) = eventsub {
-        #[rustfmt::skip]
-        eventsub
-            .subscribe_all(
-                login.as_str(),
-                &[
-					(EventType::AutomodMessageHold, &channel_with_mod_cond),
-					(EventType::AutomodMessageUpdate, &channel_with_mod_cond),
-					(EventType::ChannelChatUserMessageHold, &channel_with_user_cond),
-					(EventType::ChannelChatUserMessageUpdate, &channel_with_user_cond),
-                    (EventType::ChannelModerate, &channel_with_mod_cond),
-                    (EventType::ChannelSubscriptionEnd, &channel_cond),
-					(EventType::ChannelSuspiciousUserMessage, &channel_with_mod_cond),
-					(EventType::ChannelSuspiciousUserUpdate, &channel_with_mod_cond),
-                    (EventType::ChannelUnbanRequestCreate, &channel_with_mod_cond),
-                    (EventType::ChannelUnbanRequestResolve, &channel_with_mod_cond),
-                    (EventType::ChannelWarningAcknowledge, &channel_with_mod_cond),
-                    (EventType::StreamOffline, &channel_cond),
-                    (EventType::StreamOnline, &channel_cond),
-                ],
-            )
-            .await?;
+        let login = login.clone();
+
+        let ch_cond = json!({
+            "broadcaster_user_id": broadcaster_id
+        });
+
+        let ch_with_user_cond = json!({
+            "broadcaster_user_id": broadcaster_id,
+            "user_id": token.user_id
+        });
+
+        let ch_with_mod_cond = json!({
+            "broadcaster_user_id": broadcaster_id,
+            "moderator_user_id": token.user_id
+        });
+
+        async_runtime::spawn(async move {
+            use EventType as Ev;
+
+            eventsub
+                .subscribe_all(
+                    login.as_str(),
+                    &[
+                        (Ev::AutomodMessageHold, &ch_with_mod_cond),
+                        (Ev::AutomodMessageUpdate, &ch_with_mod_cond),
+                        (Ev::ChannelChatUserMessageHold, &ch_with_user_cond),
+                        (Ev::ChannelChatUserMessageUpdate, &ch_with_user_cond),
+                        (Ev::ChannelModerate, &ch_with_mod_cond),
+                        (Ev::ChannelSubscriptionEnd, &ch_cond),
+                        (Ev::ChannelSuspiciousUserMessage, &ch_with_mod_cond),
+                        (Ev::ChannelSuspiciousUserUpdate, &ch_with_mod_cond),
+                        (Ev::ChannelUnbanRequestCreate, &ch_with_mod_cond),
+                        (Ev::ChannelUnbanRequestResolve, &ch_with_mod_cond),
+                        (Ev::ChannelWarningAcknowledge, &ch_with_mod_cond),
+                        (Ev::StreamOffline, &ch_cond),
+                        (Ev::StreamOnline, &ch_cond),
+                    ],
+                )
+                .await
+        });
     }
 
     if let Some(seventv) = seventv {
