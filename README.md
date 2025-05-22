@@ -1,7 +1,17 @@
-# Tauri + SvelteKit + TypeScript
+<h1 align="center">Hypeline</h1>
 
-This template should help get you started developing with Tauri, SvelteKit and TypeScript in Vite.
+<p align="center">A sleek, batteries included chat client for Twitch.</p>
 
-## Recommended IDE Setup
+![Preview](.github/assets/preview.png)
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer).
+> [!IMPORTANT]
+> Hypeline is still under heavy development and currently has no public releases. If you want to test out the application early, you'll have to build from source.
+
+## Building
+
+1. Clone the repository
+2. Make sure the [prerequisites](https://v2.tauri.app/start/prerequisites/) are satisfied
+3. Build with `pnpm tauri build`
+
+> [!WARNING]
+> Linux has not been tested.
