@@ -5,7 +5,7 @@ use tauri::{async_runtime, State};
 use tokio::sync::Mutex;
 use twitch_api::eventsub::EventType;
 use twitch_api::helix::bits::{Cheermote, GetCheermotesRequest};
-use twitch_api::helix::chat::{get_global_chat_badges, BadgeSet};
+use twitch_api::helix::chat::{get_channel_chat_badges, get_global_chat_badges, BadgeSet};
 use twitch_api::helix::streams::Stream;
 use twitch_api::twitch_oauth2::UserToken;
 use twitch_api::HelixClient;
@@ -16,7 +16,6 @@ use super::users::{get_user_from_login, User};
 use crate::emotes::{fetch_user_emotes, Emote, EmoteMap};
 use crate::error::Error;
 use crate::providers::seventv::{fetch_active_emote_set, send_presence, EmoteSet};
-use crate::providers::twitch::fetch_channel_badges;
 use crate::AppState;
 
 #[derive(Serialize)]
@@ -189,6 +188,7 @@ pub async fn leave(state: State<'_, Mutex<AppState>>, channel: String) -> Result
     Ok(())
 }
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn send_message(
     state: State<'_, Mutex<AppState>>,
@@ -196,6 +196,8 @@ pub async fn send_message(
     broadcaster_id: String,
     reply_id: Option<String>,
 ) -> Result<(), Error> {
+    tracing::info!("Sending message");
+
     let state = state.lock().await;
     let token = get_access_token(&state)?;
 
@@ -222,6 +224,8 @@ pub async fn send_message(
     };
 
     if sent {
+        tracing::info!("Message sent");
+
         if let Some(ref id) = state.seventv_id {
             send_presence(id, &broadcaster_id).await;
         }
@@ -243,10 +247,13 @@ pub async fn get_cheermotes(
     }
 }
 
+#[tracing::instrument(skip_all)]
 #[tauri::command]
 pub async fn fetch_global_badges(
     state: State<'_, Mutex<AppState>>,
 ) -> Result<Vec<BadgeSet>, Error> {
+    tracing::info!("Fetching global badges");
+
     let state = state.lock().await;
     let token = get_access_token(&state)?;
 
@@ -258,6 +265,34 @@ pub async fn fetch_global_badges(
         )
         .await?
         .data;
+
+    tracing::info!("Fetched {} global badge sets", badges.len());
+
+    Ok(badges)
+}
+
+#[tracing::instrument(skip(helix, token))]
+pub async fn fetch_channel_badges(
+    helix: &HelixClient<'static, reqwest::Client>,
+    token: &UserToken,
+    channel: String,
+) -> Result<Vec<BadgeSet>, Error> {
+    tracing::info!("Fetching channel badges");
+
+    let Some(user) = helix.get_user_from_login(&channel, token).await? else {
+        tracing::error!("User not found");
+        return Err(Error::Generic(anyhow!("User not found")));
+    };
+
+    let badges = helix
+        .req_get(
+            get_channel_chat_badges::GetChannelChatBadgesRequest::broadcaster_id(&user.id),
+            token,
+        )
+        .await?
+        .data;
+
+    tracing::info!("Fetched {} badge sets", badges.len());
 
     Ok(badges)
 }

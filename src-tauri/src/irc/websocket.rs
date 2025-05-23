@@ -28,8 +28,20 @@ impl std::fmt::Debug for WsTransport {
 }
 
 impl WsTransport {
+    #[tracing::instrument(name = "irc_ws_connect")]
     pub async fn new() -> Result<WsTransport, Error> {
-        let (ws_stream, _) = connect_async(TWITCH_IRC_WS_URI).await?;
+        tracing::info!("Connecting to IRC at {TWITCH_IRC_WS_URI}");
+
+        let ws_stream = match connect_async(TWITCH_IRC_WS_URI).await {
+            Ok((stream, _)) => stream,
+            Err(e) => {
+                tracing::error!("Failed to connect to IRC: {e}");
+                return Err(e);
+            }
+        };
+
+        tracing::info!("Connected to IRC");
+
         let (write_half, read_half) = ws_stream.split();
 
         let message_stream = read_half

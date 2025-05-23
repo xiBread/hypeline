@@ -94,6 +94,13 @@ pub fn run() {
                     None
                 };
 
+                if let Some(ref token) = access_token {
+                    tracing::debug!(
+                        "Using access token from storage: {}",
+                        token.access_token.as_str()
+                    );
+                }
+
                 state.token = access_token;
             });
 

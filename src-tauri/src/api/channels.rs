@@ -125,12 +125,14 @@ pub async fn get_followed_channels(
 pub async fn run_following_update_loop(app: AppHandle) -> Result<(), Error> {
     async_runtime::spawn(async move {
         loop {
+            sleep(Duration::from_mins(5)).await;
+
+            tracing::info!("Updating followed channels");
+
             let state = app.state::<Mutex<AppState>>();
             let channels = get_followed_channels(state).await.unwrap_or_default();
 
             app.emit("followedchannels", &channels).unwrap();
-
-            sleep(Duration::from_mins(5)).await;
         }
     });
 

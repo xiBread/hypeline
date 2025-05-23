@@ -9,6 +9,7 @@ use serde_json::json;
 use tokio::sync::{mpsc, Mutex};
 use tokio_tungstenite::connect_async;
 use tokio_tungstenite::tungstenite::Message;
+use tracing::Instrument;
 
 use crate::error::Error;
 
@@ -44,6 +45,7 @@ impl SeventTvClient {
         (receiver, client)
     }
 
+    #[tracing::instrument(name = "7tv_connect", skip_all)]
     pub async fn connect(self: Arc<Self>) -> Result<(), Error> {
         let this = Arc::clone(&self);
 
@@ -57,10 +59,17 @@ impl SeventTvClient {
 
         tokio::spawn(async move {
             loop {
+				tracing::info!("Connecting to 7TV Event API");
+
                 let mut stream = match connect_async(SEVENTV_WS_URI).await {
                     Ok((stream, _)) => stream,
-                    Err(e) => return Err::<(), _>(Error::WebSocket(e)),
+                    Err(e) => {
+						tracing::error!("Failed to connect to 7TV Event API: {e}");
+						return Err::<(), _>(Error::WebSocket(e))
+					},
                 };
+
+				tracing::info!("Connected to 7TV Event API");
 
                 self.connected.store(true, Ordering::Relaxed);
 
@@ -70,7 +79,7 @@ impl SeventTvClient {
                     tokio::select! {
                         Some(data) = message_rx.recv() => {
                             if let Err(e) = stream.send(data).await {
-                                eprintln!("Error sending message: {e}");
+                                tracing::error!("Error sending message: {e}");
                                 break 'recv;
                             }
                         }
@@ -93,7 +102,7 @@ impl SeventTvClient {
                     }
                 }
             }
-        });
+        }.in_current_span());
 
         Ok(())
     }
@@ -102,6 +111,7 @@ impl SeventTvClient {
         self.connected.load(Ordering::Relaxed)
     }
 
+    #[tracing::instrument(name = "7tv_subscribe", skip(self))]
     pub async fn subscribe(&self, event: &str, condition: &serde_json::Value) {
         let payload = json!({
             "op": 35,
@@ -118,6 +128,8 @@ impl SeventTvClient {
         {
             let mut subscriptions = self.subscriptions.lock().await;
             subscriptions.insert(event.to_string(), condition.clone());
+
+            tracing::trace!("Subscription created");
         }
     }
 

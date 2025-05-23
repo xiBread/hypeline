@@ -30,4 +30,8 @@ pub async fn set_access_token(state: State<'_, Mutex<AppState>>, token: String) 
     state.token = UserToken::from_token(&state.helix, AccessToken::from(token))
         .await
         .ok();
+
+    if let Some(ref token) = state.token {
+        tracing::debug!("Set access token to {}", token.access_token.as_str());
+    }
 }

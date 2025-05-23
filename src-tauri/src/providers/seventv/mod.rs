@@ -51,8 +51,11 @@ pub async fn connect_seventv(
     Ok(())
 }
 
+#[tracing::instrument]
 pub async fn send_presence(user_id: &str, channel_id: &str) {
-    let _ = HTTP
+    tracing::debug!("Sending presence to 7TV");
+
+    let response = HTTP
         .post(format!("https://7tv.io/v3/users/{user_id}/presences"))
         .json(&json!({
             "kind": 1,
@@ -65,4 +68,21 @@ pub async fn send_presence(user_id: &str, channel_id: &str) {
         }))
         .send()
         .await;
+
+    match response {
+        Ok(resp) => {
+            if resp.status().is_success() {
+                tracing::debug!("Presence sent successfully");
+            } else {
+                tracing::error!(
+                    "Failed to send presence: {} {}",
+                    resp.status(),
+                    resp.text().await.unwrap_or_default()
+                );
+            }
+        }
+        Err(err) => {
+            tracing::error!("Error sending presence: {}", err);
+        }
+    }
 }
