@@ -40,6 +40,8 @@ thiserror = "2.0.12"
 tokio = { version = "1.44.2", features = ["macros"] }
 tokio-tungstenite = { version = "0.26.2", features = ["rustls-tls-native-roots"] }
 twitch_api = { version = "0.7.2", features = ["client", "helix", "eventsub", "reqwest"] }
+tracing = "0.1.41"
+tracing-subscriber = "0.3.19"
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-single-instance = "2"
