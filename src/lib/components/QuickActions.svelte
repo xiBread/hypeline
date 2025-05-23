@@ -25,6 +25,16 @@
 			messageId: message.id,
 		});
 	}
+
+	async function ban(duration?: number) {
+		if (!app.user || !app.joined) return;
+
+		await invoke("ban", {
+			broadcasterId: app.joined.user.id,
+			userId: message.viewer.id,
+			duration,
+		});
+	}
 </script>
 
 <Toolbar.Root class={cn("bg-muted flex items-center gap-x-1 rounded-sm border p-0.5", className)}>
@@ -51,11 +61,27 @@
 		<Separator.Root class="bg-border h-4 w-px" orientation="vertical" />
 
 		<Toolbar.Button
-			class="hover:bg-muted-foreground/50 flex items-center justify-center rounded-[4px] p-1"
+			class="hover:bg-muted-foreground/50 flex items-center justify-center rounded-[4px] p-1 text-blue-400"
 			title="Delete message"
 			onclick={deleteMessage}
 		>
 			<span class="iconify lucide--trash size-4"></span>
+		</Toolbar.Button>
+
+		<Toolbar.Button
+			class="hover:bg-muted-foreground/50 flex items-center justify-center rounded-[4px] p-1 text-yellow-400"
+			title="Timeout {message.viewer.displayName} for 10 minutes"
+			onclick={() => ban(600)}
+		>
+			<span class="iconify lucide--clock-2 size-4"></span>
+		</Toolbar.Button>
+
+		<Toolbar.Button
+			class="hover:bg-muted-foreground/50 text-destructive flex items-center justify-center rounded-[4px] p-1"
+			title="Ban {message.viewer.displayName}"
+			onclick={() => ban()}
+		>
+			<span class="iconify lucide--ban size-4"></span>
 		</Toolbar.Button>
 	{/if}
 </Toolbar.Root>
