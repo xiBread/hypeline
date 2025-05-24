@@ -79,6 +79,7 @@
 
 				<button
 					class="dark:hover:bg-input/50 dark:bg-input/30 border-input flex size-9 items-center justify-center rounded-md border bg-transparent"
+					title="Reset to default"
 					type="button"
 					aria-label="Reset to default"
 					onclick={() => reset(highlight.value)}

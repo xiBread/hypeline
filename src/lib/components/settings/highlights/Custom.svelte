@@ -45,6 +45,7 @@
 							"border-input flex size-9 items-center justify-center justify-self-center rounded-md border bg-transparent",
 							"dark:hover:bg-input/50 dark:bg-input/30  data-[state=on]:dark:bg-input",
 						]}
+						title="Match as regular expression"
 						aria-label="Match as regular expression"
 						bind:pressed={highlight.regex}
 					>
@@ -56,6 +57,7 @@
 							"border-input flex size-9 items-center justify-center justify-self-center rounded-md border bg-transparent",
 							"data-[state=on]:dark:bg-input dark:hover:bg-input/50 dark:bg-input/30 ",
 						]}
+						title="Match whole word"
 						aria-label="Match whole word"
 						bind:pressed={highlight.wholeWord}
 					>
@@ -67,7 +69,8 @@
 							"border-input flex size-9 items-center justify-center justify-self-center rounded-md border bg-transparent",
 							"data-[state=on]:dark:bg-input dark:hover:bg-input/50 dark:bg-input/30",
 						]}
-						aria-label="Match case insensitive"
+						title="Match case"
+						aria-label="Match case"
 						bind:pressed={highlight.matchCase}
 					>
 						<span class="iconify lucide--case-sensitive"></span>
@@ -118,6 +121,7 @@
 
 					<button
 						class="dark:hover:bg-input/50 dark:bg-input/30 border-input flex size-9 items-center justify-center rounded-md border bg-transparent"
+						title="Delete"
 						type="button"
 						aria-label="Delete trigger"
 						onclick={() => settings.state.highlights.custom.splice(i, 1)}
