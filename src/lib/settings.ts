@@ -19,7 +19,8 @@ export interface HighlightTypeSettings {
 export interface CustomHighlightTypeSettings extends HighlightTypeSettings {
 	pattern: string;
 	regex: boolean;
-	ignoreCase: boolean;
+	wholeWord: boolean;
+	matchCase: boolean;
 }
 
 export interface HighlightSettings extends Record<HighlightType, HighlightTypeSettings> {

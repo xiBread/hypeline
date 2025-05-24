@@ -6,7 +6,7 @@
 	import TitleBar from "../TitleBar.svelte";
 	import Appearance from "./appearance/Appearance.svelte";
 	import Chat from "./chat/Chat.svelte";
-	import Highlights from "./Highlights.svelte";
+	import Highlights from "./highlights/Highlights.svelte";
 
 	let { open = $bindable(false) } = $props();
 
