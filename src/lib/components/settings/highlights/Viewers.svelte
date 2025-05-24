@@ -27,9 +27,6 @@
 
 	<div class="overflow-x-auto">
 		<div class="grid min-w-max grid-cols-[repeat(4,auto)] items-center gap-x-3 gap-y-4">
-			<span class="col-start-2 text-sm font-medium">Color</span>
-			<span class="text-sm font-medium">Style</span>
-
 			{#each highlights as highlight}
 				{@const hlType = settings.state.highlights[highlight.value]}
 
@@ -39,7 +36,7 @@
 
 				<Popover.Root>
 					<Popover.Trigger
-						class="border-input size-9 shrink-0 rounded-md border bg-(--highlight)"
+						class="border-input size-9 shrink-0 justify-self-center rounded-md border bg-(--highlight)"
 						--highlight={hlType.color}
 					/>
 

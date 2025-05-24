@@ -34,12 +34,16 @@
 		<div class="overflow-x-auto">
 			<div class="grid min-w-max grid-cols-[repeat(7,auto)] gap-x-3 gap-y-4">
 				{#each settings.state.highlights.custom as highlight, i}
-					<Input class="col-start-1" type="text" bind:value={highlight.pattern} />
+					<Input
+						class="col-start-1 focus-visible:ring-0"
+						type="text"
+						bind:value={highlight.pattern}
+					/>
 
 					<Toggle.Root
 						class={[
-							"dark:hover:bg-input/50 dark:bg-input/30 border-input flex size-9 items-center justify-center rounded-md border bg-transparent",
-							"data-[state=on]:dark:bg-input",
+							"border-input flex size-9 items-center justify-center justify-self-center rounded-md border bg-transparent",
+							"dark:hover:bg-input/50 dark:bg-input/30  data-[state=on]:dark:bg-input",
 						]}
 						aria-label="Match as regular expression"
 						bind:pressed={highlight.regex}
@@ -49,8 +53,8 @@
 
 					<Toggle.Root
 						class={[
-							"dark:hover:bg-input/50 dark:bg-input/30 border-input flex size-9 items-center justify-center rounded-md border bg-transparent",
-							"data-[state=on]:dark:bg-input",
+							"border-input flex size-9 items-center justify-center justify-self-center rounded-md border bg-transparent",
+							"data-[state=on]:dark:bg-input dark:hover:bg-input/50 dark:bg-input/30 ",
 						]}
 						aria-label="Match whole word"
 						bind:pressed={highlight.wholeWord}
@@ -60,8 +64,8 @@
 
 					<Toggle.Root
 						class={[
-							"dark:hover:bg-input/50 dark:bg-input/30 border-input flex size-9 items-center justify-center rounded-md border bg-transparent",
-							"data-[state=on]:dark:bg-input",
+							"border-input flex size-9 items-center justify-center justify-self-center rounded-md border bg-transparent",
+							"data-[state=on]:dark:bg-input dark:hover:bg-input/50 dark:bg-input/30",
 						]}
 						aria-label="Match case insensitive"
 						bind:pressed={highlight.matchCase}
@@ -71,7 +75,7 @@
 
 					<Popover.Root>
 						<Popover.Trigger
-							class="border-input size-9 shrink-0 rounded-md border bg-(--highlight)"
+							class="border-input size-9 shrink-0 justify-self-center rounded-md border bg-(--highlight)"
 							--highlight={highlight.color}
 						/>
 
