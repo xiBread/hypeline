@@ -10,10 +10,9 @@ export const ssr = false;
 
 export async function load() {
 	await settings.start();
+	if (!settings.state.user) return;
 
-	if (settings.state.user) {
-		app.user = await User.from(settings.state.user.id);
-	}
+	app.user = await User.from(settings.state.user.id);
 
 	if (!app.globalEmotes.size) {
 		const emotes = await invoke<Emote[]>("fetch_global_emotes");
