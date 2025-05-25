@@ -19,7 +19,15 @@
 </script>
 
 <div>
-	<h2 class="mb-2">Custom</h2>
+	<hgroup class="mb-4">
+		<h2 class="mb-2">Custom</h2>
+
+		<!-- TODO: temporary description, link to docs when site is up -->
+		<p class="text-muted-foreground text-sm">
+			Custom highlight triggers can use regular expressions, be matched as whole words, and be
+			case sensitive.
+		</p>
+	</hgroup>
 
 	<div>
 		<button
