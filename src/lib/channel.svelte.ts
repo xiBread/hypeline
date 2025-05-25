@@ -3,6 +3,7 @@ import { SvelteMap } from "svelte/reactivity";
 import { replyTarget } from "./components/ChatInput.svelte";
 import type { Message } from "./message";
 import type { EmoteSet } from "./seventv";
+import { app } from "./state.svelte";
 import type { Emote, JoinedChannel } from "./tauri";
 import type { Badge, BadgeSet, Cheermote, Stream } from "./twitch/api";
 import { User } from "./user";
@@ -39,7 +40,10 @@ export class Channel {
 	}
 
 	public static async join(login: string) {
-		const joined = await invoke<JoinedChannel>("join", { login });
+		const joined = await invoke<JoinedChannel>("join", {
+			login,
+			isMod: app.user?.moderating.has(login) ?? false,
+		});
 
 		const user = new User(joined.user);
 

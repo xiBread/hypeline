@@ -43,3 +43,29 @@ pub async fn update_held_message(
 
     Ok(())
 }
+
+#[tauri::command]
+pub async fn ban(
+    state: State<'_, Mutex<AppState>>,
+    broadcaster_id: String,
+    user_id: String,
+    duration: Option<u32>,
+    reason: Option<String>,
+) -> Result<(), Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state)?;
+
+    state
+        .helix
+        .ban_user(
+            user_id,
+            reason.unwrap_or_default().as_str(),
+            duration,
+            broadcaster_id,
+            &token.user_id,
+            token,
+        )
+        .await?;
+
+    Ok(())
+}

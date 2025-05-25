@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { settings } from "$lib/settings";
 	import Switch from "../../ui/Switch.svelte";
-	import Highlights from "./Highlights.svelte";
+	import Group from "../Group.svelte";
 	import Messages from "./Messages.svelte";
 </script>
 
@@ -9,9 +9,7 @@
 	<h1>Chat</h1>
 
 	<div class="divide-border divide-y *:py-6 *:first:pt-0 *:last:pb-0">
-		<div class="space-y-6">
-			<h2>Usernames</h2>
-
+		<Group title="Usernames">
 			<Switch bind:checked={settings.state.localizedNames}>
 				<span class="font-medium">Display localized names</span>
 
@@ -32,14 +30,13 @@
 			<Switch bind:checked={settings.state.readableColors}>
 				<span class="font-medium">Readable name colors</span>
 
-				<!-- todo: mention not applied to 7tv paints when added -->
 				{#snippet description()}
-					Lightens or darkens the color of usernames based on the current theme.
+					Lightens or darkens the color of usernames based on the current theme. This does
+					not apply to 7TV paints.
 				{/snippet}
 			</Switch>
-		</div>
+		</Group>
 
-		<Highlights />
 		<Messages />
 	</div>
 </div>

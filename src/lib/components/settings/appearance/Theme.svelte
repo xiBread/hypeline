@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Label, RadioGroup } from "bits-ui";
 	import { setMode, userPrefersMode } from "mode-watcher";
+	import Group from "../Group.svelte";
 
 	const themes = [
 		{ value: "light", class: "bg-white" },
@@ -9,9 +10,7 @@
 	];
 </script>
 
-<div>
-	<h2 class="mb-2">Theme</h2>
-
+<Group title="Theme">
 	<RadioGroup.Root
 		class="flex items-center gap-6"
 		bind:value={() => userPrefersMode.current, (value) => setMode(value)}
@@ -38,4 +37,4 @@
 			</Label.Root>
 		{/each}
 	</RadioGroup.Root>
-</div>
+</Group>
