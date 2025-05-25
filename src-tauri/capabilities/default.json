@@ -12,9 +12,9 @@
 		"core:window:allow-toggle-maximize",
 		"core:window:allow-close",
 		"core:window:allow-start-dragging",
+		"core:webview:allow-create-webview-window",
 		"opener:default",
 		"notification:default",
-		"log:default",
 		"os:default"
 	]
 }

@@ -8,7 +8,7 @@ use providers::seventv::SeventTvClient;
 use reqwest::header::HeaderMap;
 use tauri::async_runtime::{self, Mutex};
 use tauri::ipc::Invoke;
-use tauri::Manager;
+use tauri::{AppHandle, Manager, WebviewWindowBuilder};
 use tauri_plugin_svelte::ManagerExt;
 use twitch_api::twitch_oauth2::{AccessToken, UserToken};
 use twitch_api::HelixClient;
@@ -115,8 +115,23 @@ pub fn run() {
         .expect("error while running tauri application");
 }
 
+#[tauri::command]
+fn popout_settings(app_handle: AppHandle) {
+    let config = app_handle.config();
+
+    let Some(settings) = config.app.windows.get(1) else {
+        return;
+    };
+
+    WebviewWindowBuilder::from_config(&app_handle, &settings)
+        .unwrap()
+        .build()
+        .unwrap();
+}
+
 fn get_handler() -> impl Fn(Invoke) -> bool {
     tauri::generate_handler![
+        popout_settings,
         api::channels::get_stream,
         api::channels::get_followed_channels,
         api::channels::run_following_update_loop,
