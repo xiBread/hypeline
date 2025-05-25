@@ -12,10 +12,16 @@
 
 <script lang="ts">
 	import { onMount } from "svelte";
-	import type { HTMLInputAttributes } from "svelte/elements";
+	import type {
+		FormEventHandler,
+		HTMLInputAttributes,
+		KeyboardEventHandler,
+	} from "svelte/elements";
 	import { app } from "$lib/state.svelte";
 	import EmotePicker from "./EmotePicker.svelte";
 	import Message from "./message/Message.svelte";
+	import Suggestions from "./Suggestions.svelte";
+	import type { Suggestion } from "./Suggestions.svelte";
 	import Input from "./ui/Input.svelte";
 
 	const { class: className, ...rest }: HTMLInputAttributes = $props();
@@ -25,15 +31,124 @@
 
 	let emotePickerOpen = $state(false);
 	let historyCursor = $state(-1);
+	let value = $state("");
+
+	let suggestions = $state<Suggestion[]>([]);
+	let showSuggestions = $derived(suggestions.length > 0);
+
+	let currentQuery = "";
+	let trigger: string | null = null;
+	let triggerPosition = -1;
 
 	onMount(() => {
 		input.value = chatInput;
 	});
 
-	async function send(event: KeyboardEvent) {
+	function applySuggestion(suggestion: Suggestion) {
+		const left = value.slice(0, triggerPosition);
+		const right = value.slice(triggerPosition + 1 + currentQuery.length);
+
+		value = left + suggestion.display + " " + right;
+
+		suggestions = [];
+		trigger = null;
+		currentQuery = "";
+
+		if (input.value) {
+			input.value.focus();
+
+			setTimeout(() => {
+				const newCursorPos = triggerPosition + suggestion.display.length + 1;
+				input.value?.setSelectionRange(newCursorPos, newCursorPos);
+			}, 0);
+		}
+	}
+
+	const filter: FormEventHandler<HTMLInputElement> = (event) => {
 		if (!app.joined) return;
 
-		const input = event.currentTarget as HTMLInputElement;
+		const text = event.currentTarget.value;
+
+		if (!text) {
+			suggestions = [];
+			return;
+		}
+
+		const cursor = event.currentTarget.selectionStart ?? text.length;
+		const left = text.slice(0, cursor);
+
+		const lastSpaceIndex = left.lastIndexOf(" ");
+		const currentSegment = left.slice(lastSpaceIndex + 1);
+
+		let potentialTrigger = null;
+		let query = "";
+		let foundTriggerPos = -1;
+
+		const atIndex = currentSegment.lastIndexOf("@");
+		const colonIndex = currentSegment.lastIndexOf(":");
+
+		if (atIndex !== -1 && (colonIndex === -1 || atIndex > colonIndex)) {
+			if (cursor - (lastSpaceIndex + 1 + atIndex) > 0) {
+				query = currentSegment.slice(atIndex + 1);
+
+				if (!query.includes(" ")) {
+					potentialTrigger = "@";
+					foundTriggerPos = lastSpaceIndex + 1 + atIndex;
+				}
+			}
+		} else if (colonIndex !== -1) {
+			if (cursor - (lastSpaceIndex + 1 + colonIndex) > 0) {
+				query = currentSegment.slice(colonIndex + 1);
+
+				if (!query.includes(" ")) {
+					potentialTrigger = ":";
+					foundTriggerPos = lastSpaceIndex + 1 + colonIndex;
+				}
+			}
+		}
+
+		if (potentialTrigger && query.length > 0) {
+			const filtered: Suggestion[] = [];
+
+			trigger = potentialTrigger;
+			triggerPosition = foundTriggerPos;
+			currentQuery = query.toLowerCase();
+
+			if (trigger === ":") {
+				for (const [name, emote] of app.joined.emotes) {
+					if (name.toLowerCase().includes(currentQuery) && filtered.length < 25) {
+						filtered.push({
+							type: "emote",
+							value: name,
+							display: name,
+							imageUrl: emote.srcset[1].split(" ")[0],
+						});
+					}
+				}
+			} else if (trigger === "@") {
+				for (const [username, viewer] of app.joined.viewers) {
+					if (username.includes(currentQuery) && filtered.length < 25) {
+						filtered.push({
+							type: "user",
+							value: username,
+							display: viewer.displayName,
+						});
+					}
+				}
+			}
+
+			suggestions = filtered;
+		} else {
+			trigger = null;
+			triggerPosition = -1;
+			currentQuery = "";
+		}
+	};
+
+	const send: KeyboardEventHandler<HTMLInputElement> = async (event) => {
+		if (!app.joined) return;
+
+		const input = event.currentTarget;
 
 		if (event.key === "Escape" && replyTarget.value) {
 			replyTarget.value = null;
@@ -77,10 +192,11 @@
 			historyCursor = -1;
 			replyTarget.value = null;
 		}
-	}
+	};
 </script>
 
-<EmotePicker input={chatInput} {anchor} bind:open={emotePickerOpen} />
+<Suggestions anchor={chatInput} open={showSuggestions} {suggestions} onselect={applySuggestion} />
+<EmotePicker {anchor} input={chatInput} bind:open={emotePickerOpen} />
 
 {#if replyTarget.value}
 	<div
@@ -118,9 +234,11 @@
 		autocorrect="off"
 		maxlength={500}
 		placeholder="Send a message"
+		oninput={filter}
 		onkeydown={send}
 		{...rest}
 		bind:ref={chatInput}
+		bind:value
 	/>
 
 	<div class="absolute inset-y-0 end-0 flex p-1">
