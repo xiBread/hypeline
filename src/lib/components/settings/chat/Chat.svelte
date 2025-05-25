@@ -31,9 +31,9 @@
 			<Switch bind:checked={settings.state.readableColors}>
 				<span class="font-medium">Readable name colors</span>
 
-				<!-- todo: mention not applied to 7tv paints when added -->
 				{#snippet description()}
-					Lightens or darkens the color of usernames based on the current theme.
+					Lightens or darkens the color of usernames based on the current theme. This does
+					not apply to 7TV paints.
 				{/snippet}
 			</Switch>
 		</div>
