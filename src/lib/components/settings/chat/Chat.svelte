@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { settings } from "$lib/settings";
 	import Switch from "../../ui/Switch.svelte";
+	import Group from "../Group.svelte";
 	import Messages from "./Messages.svelte";
 </script>
 
@@ -8,9 +9,7 @@
 	<h1>Chat</h1>
 
 	<div class="divide-border divide-y *:py-6 *:first:pt-0 *:last:pb-0">
-		<div class="space-y-6">
-			<h2>Usernames</h2>
-
+		<Group title="Usernames">
 			<Switch bind:checked={settings.state.localizedNames}>
 				<span class="font-medium">Display localized names</span>
 
@@ -36,7 +35,7 @@
 					not apply to 7TV paints.
 				{/snippet}
 			</Switch>
-		</div>
+		</Group>
 
 		<Messages />
 	</div>

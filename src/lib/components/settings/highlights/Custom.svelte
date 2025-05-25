@@ -5,6 +5,7 @@
 	import ColorPicker from "../../ui/ColorPicker.svelte";
 	import Input from "../../ui/Input.svelte";
 	import * as Select from "../../ui/select";
+	import Group from "../Group.svelte";
 	import { styles } from ".";
 
 	const defaultCustom: CustomHighlightTypeSettings = {
@@ -18,16 +19,12 @@
 	};
 </script>
 
-<div>
-	<hgroup class="mb-4">
-		<h2 class="mb-2">Custom</h2>
-
-		<!-- TODO: temporary description, link to docs when site is up -->
-		<p class="text-muted-foreground text-sm">
-			Custom highlight triggers can use regular expressions, be matched as whole words, and be
-			case sensitive.
-		</p>
-	</hgroup>
+<Group title="Custom">
+	<!-- TODO: temporary description, link to docs when site is up -->
+	{#snippet description()}
+		Custom highlight triggers can use regular expressions, be matched as whole words, and be
+		case sensitive.
+	{/snippet}
 
 	<div>
 		<button
@@ -51,7 +48,7 @@
 					<Toggle.Root
 						class={[
 							"border-input flex size-9 items-center justify-center justify-self-center rounded-md border bg-transparent",
-							"dark:hover:bg-input/50 dark:bg-input/30  data-[state=on]:dark:bg-input",
+							"data-[state=on]:dark:bg-input dark:hover:bg-input/50 dark:bg-input/30",
 						]}
 						title="Match as regular expression"
 						aria-label="Match as regular expression"
@@ -63,7 +60,7 @@
 					<Toggle.Root
 						class={[
 							"border-input flex size-9 items-center justify-center justify-self-center rounded-md border bg-transparent",
-							"data-[state=on]:dark:bg-input dark:hover:bg-input/50 dark:bg-input/30 ",
+							"data-[state=on]:dark:bg-input dark:hover:bg-input/50 dark:bg-input/30",
 						]}
 						title="Match whole word"
 						aria-label="Match whole word"
@@ -140,4 +137,4 @@
 			</div>
 		</div>
 	</div>
-</div>
+</Group>

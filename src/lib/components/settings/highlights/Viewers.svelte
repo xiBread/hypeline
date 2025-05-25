@@ -4,6 +4,7 @@
 	import { defaultHighlightTypes, settings } from "$lib/settings";
 	import type { HighlightType } from "$lib/settings";
 	import * as Select from "../../ui/select";
+	import Group from "../Group.svelte";
 	import { styles } from ".";
 
 	const highlights = [
@@ -22,9 +23,7 @@
 	}
 </script>
 
-<div>
-	<h2 class="mb-2">Viewer Types</h2>
-
+<Group title="Viewers">
 	<div class="overflow-x-auto">
 		<div class="grid min-w-max grid-cols-[repeat(4,auto)] items-center gap-x-3 gap-y-4">
 			{#each highlights as highlight}
@@ -89,4 +88,4 @@
 			{/each}
 		</div>
 	</div>
-</div>
+</Group>
