@@ -54,6 +54,12 @@
 	}
 </script>
 
+<svelte:window
+	onresize={() => {
+		if (!scrollingPaused) scrollToEnd();
+	}}
+/>
+
 <div class="relative h-full">
 	{#if scrollingPaused}
 		<button
