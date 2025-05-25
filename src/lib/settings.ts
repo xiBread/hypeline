@@ -16,8 +16,16 @@ export interface HighlightTypeSettings {
 	style: "default" | "compact" | "background";
 }
 
+export interface CustomHighlightTypeSettings extends HighlightTypeSettings {
+	pattern: string;
+	regex: boolean;
+	wholeWord: boolean;
+	matchCase: boolean;
+}
+
 export interface HighlightSettings extends Record<HighlightType, HighlightTypeSettings> {
 	enabled: boolean;
+	custom: CustomHighlightTypeSettings[];
 }
 
 export interface MessageHistorySettings {
@@ -67,6 +75,7 @@ export const settings = new RuneStore<Settings>("settings", {
 	readableColors: true,
 	highlights: {
 		enabled: true,
+		custom: [],
 		...defaultHighlightTypes,
 	},
 	history: {

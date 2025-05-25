@@ -11,7 +11,7 @@
 
 	let { class: className, value = $bindable(), ...rest }: Props = $props();
 
-	const color = $state(chroma(value ?? "#FFF"));
+	const color = $state(chroma(value ?? "#FFFFFF"));
 	const hsv = color.hsv();
 
 	let h = $state(hsv[0] || 0);

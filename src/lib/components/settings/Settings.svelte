@@ -6,6 +6,7 @@
 	import TitleBar from "../TitleBar.svelte";
 	import Appearance from "./appearance/Appearance.svelte";
 	import Chat from "./chat/Chat.svelte";
+	import Highlights from "./highlights/Highlights.svelte";
 
 	let { open = $bindable(false) } = $props();
 
@@ -19,6 +20,11 @@
 			name: "Chat",
 			icon: "lucide--message-square",
 			component: Chat,
+		},
+		{
+			name: "Highlights",
+			icon: "lucide--highlighter",
+			component: Highlights,
 		},
 	];
 
