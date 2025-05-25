@@ -101,13 +101,7 @@
 						class="text-muted-foreground group hover:text-foreground absolute top-4 right-4 flex flex-col items-center"
 						onclick={() => (open = false)}
 					>
-						<div
-							class="group-hover:border-foreground border-muted-foreground flex size-8 items-center justify-center rounded-full border-2 transition-colors duration-100"
-						>
-							<span class="iconify lucide--x size-4"></span>
-						</div>
-
-						<span class="mt-1 text-xs transition-colors duration-100">ESC</span>
+						<span class="iconify lucide--x size-6"></span>
 					</Dialog.Close>
 
 					{#each categories as category (category.name)}
