@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { Label, Switch } from "bits-ui";
 	import type { Snippet } from "svelte";
-	import { cn } from "$lib/util";
 
 	interface Props {
 		children?: Snippet;
@@ -13,8 +12,8 @@
 	let { children, description, class: className, checked = $bindable(false) }: Props = $props();
 </script>
 
-<div>
-	<Label.Root class={cn("flex items-center justify-between hover:cursor-pointer", className)}>
+<div class={className}>
+	<Label.Root class="flex items-center justify-between hover:cursor-pointer">
 		{@render children?.()}
 
 		<Switch.Root

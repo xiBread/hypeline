@@ -1,61 +1,40 @@
 <script lang="ts">
 	import type { Snippet } from "svelte";
-	import { settings } from "$lib/settings";
-	import type { HighlightType } from "$lib/settings";
+	import type { HighlightTypeSettings, HighlightType } from "$lib/settings";
 
 	interface Props {
 		children: Snippet;
-		type: HighlightType;
+		type: HighlightType | "custom";
+		highlight: HighlightTypeSettings;
 		info?: string;
 	}
 
-	const { children, type, info }: Props = $props();
+	const { children, type, highlight, info }: Props = $props();
 
-	const highlights = {
-		mention: {
-			icon: "lucide--at-sign",
-			label: "Mention",
-		},
-		new: {
-			icon: "lucide--sparkles",
-			label: "First Time Chat",
-		},
-		returning: {
-			icon: "lucide--repeat",
-			label: "Returning Chatter",
-		},
-		suspicious: {
-			icon: "lucide--shield-alert",
-			label: "Suspicious User",
-		},
-		broadcaster: {
-			icon: "lucide--video",
-			label: "Broadcaster",
-		},
-		moderator: {
-			icon: "lucide--sword -scale-x-100",
-			label: "Moderator",
-		},
-		subscriber: {
-			icon: "lucide--star",
-			label: "Subscriber",
-		},
-		vip: {
-			icon: "lucide--gem",
-			label: "VIP",
-		},
+	const decorations = {
+		mention: { icon: "lucide--at-sign", label: "Mention" },
+		new: { icon: "lucide--sparkles", label: "First Time Chat" },
+		returning: { icon: "lucide--repeat", label: "Returning Chatter" },
+		suspicious: { icon: "lucide--shield-alert", label: "Suspicious User" },
+		broadcaster: { icon: "lucide--video", label: "Broadcaster" },
+		moderator: { icon: "lucide--sword -scale-x-100", label: "Moderator" },
+		subscriber: { icon: "lucide--star", label: "Subscriber" },
+		vip: { icon: "lucide--gem", label: "VIP" },
+		custom: { icon: "lucide--highlighter", label: "Custom" },
 	};
 
-	const highlight = $derived(highlights[type]);
-	const hlType = $derived(settings.state.highlights[type]);
+	const decoration = $derived(decorations[type]);
 </script>
 
-{#if hlType.style !== "background"}
-	<div class="m-1 box-border overflow-hidden rounded-md border" style:border-color={hlType.color}>
-		{#if hlType.style === "default"}
+{#if highlight.style !== "background"}
+	<div
+		class="m-1 box-border overflow-hidden rounded-md border"
+		style:border-color={highlight.color}
+	>
+		{#if highlight.style === "default"}
 			<div class="bg-muted flex items-center px-2.5 py-1.5 text-xs font-medium">
-				<span class="{highlight.icon} iconify mr-2 size-4"></span>
-				{highlight.label}
+				<span class="{decoration.icon} iconify mr-2 size-4"></span>
+				{decoration.label}
 
 				{#if info}
 					({info})
@@ -66,7 +45,7 @@
 		{@render children()}
 	</div>
 {:else}
-	<div class="bg-(--highlight)/30" style:--highlight={hlType.color}>
+	<div class="bg-(--highlight)/30" style:--highlight={highlight.color}>
 		{@render children()}
 	</div>
 {/if}
