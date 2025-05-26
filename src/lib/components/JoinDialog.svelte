@@ -1,8 +1,33 @@
 <script lang="ts">
 	import { Dialog } from "bits-ui";
+	import { Channel } from "$lib/channel.svelte";
+	import { settings } from "$lib/settings";
+	import { app } from "$lib/state.svelte";
 	import Input from "./ui/Input.svelte";
 
 	let { open = $bindable(false) } = $props();
+
+	async function join(event: SubmitEvent) {
+		event.preventDefault();
+
+		const form = event.currentTarget as HTMLFormElement;
+		const input = form.elements.namedItem("name") as HTMLInputElement;
+
+		try {
+			await app.joined?.leave();
+			const channel = await Channel.join(input.value);
+
+			app.ephemeral.add(channel);
+			app.setJoined(channel);
+
+			settings.state.lastJoined = `ephemeral:${channel.user.username}`;
+		} catch (err) {
+			app.setJoined(null);
+			settings.state.lastJoined = null;
+		} finally {
+			open = false;
+		}
+	}
 </script>
 
 <Dialog.Root bind:open>
@@ -23,16 +48,21 @@
 				</p>
 			</div>
 
-			<div>
-				<label class="mb-1.5 block text-sm font-medium" for="name">Channel name</label>
-				<Input id="name" type="text" />
-			</div>
+			<form class="space-y-4" onsubmit={join}>
+				<div>
+					<label class="mb-1.5 block text-sm font-medium" for="name">Channel name</label>
+					<Input id="name" type="text" autocapitalize="off" autocorrect="off" />
+				</div>
 
-			<div class="flex justify-end">
-				<button class="bg-twitch rounded-md px-3.5 py-2 text-sm font-medium text-white">
-					Join
-				</button>
-			</div>
+				<div class="flex justify-end">
+					<button
+						class="bg-twitch rounded-md px-3.5 py-2 text-sm font-medium text-white"
+						type="submit"
+					>
+						Join
+					</button>
+				</div>
+			</form>
 		</Dialog.Content>
 	</Dialog.Portal>
 </Dialog.Root>

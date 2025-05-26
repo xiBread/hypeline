@@ -14,7 +14,8 @@ class AppState {
 	 * A set of user-joined channels that only exist during the current
 	 * application session.
 	 */
-	public readonly ephemeral = new SvelteSet<string>();
+	public readonly ephemeral = new SvelteSet<Channel>();
+
 	public readonly globalEmotes = new SvelteMap<string, Emote>();
 	public readonly globalBadges = new SvelteMap<string, Record<string, Badge>>();
 	public readonly badges = new SvelteMap<string, Badge>();
@@ -31,7 +32,7 @@ class AppState {
 		return this.#joined;
 	}
 
-	public setActive(channel: Channel) {
+	public setJoined(channel: Channel | null) {
 		this.#joined = channel;
 		return this;
 	}

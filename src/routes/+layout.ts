@@ -14,6 +14,10 @@ export async function load() {
 
 	app.user = await User.from(settings.state.user.id);
 
+	if (settings.state.lastJoined?.startsWith("ephemeral:")) {
+		settings.state.lastJoined = null;
+	}
+
 	if (!app.globalEmotes.size) {
 		const emotes = await invoke<Emote[]>("fetch_global_emotes");
 

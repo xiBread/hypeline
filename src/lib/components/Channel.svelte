@@ -35,8 +35,8 @@
 	});
 
 	async function join() {
-		const channel = await Channel.join(username);
-		app.setActive(channel);
+		const channel = await Channel.join(username.replace(/^ephemeral:/, ""));
+		app.setJoined(channel);
 
 		await invoke("fetch_recent_messages", {
 			channel: channel.user.username,

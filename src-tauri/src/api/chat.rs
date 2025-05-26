@@ -58,9 +58,10 @@ pub async fn join(
         )
     };
 
-    let user = get_user_from_login(state.clone(), login)
-        .await?
-        .expect("user not found");
+    let user = match get_user_from_login(state.clone(), login).await? {
+        Some(user) => user,
+        None => return Err(Error::Generic(anyhow!("User not found"))),
+    };
 
     let broadcaster_id = user.data.id.as_str();
     let login = user.data.login.to_string();
