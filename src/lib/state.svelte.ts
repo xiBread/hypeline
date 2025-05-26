@@ -26,7 +26,7 @@ class AppState {
 		return this.#joined;
 	}
 
-	public setActive(channel: Channel) {
+	public setActive(channel: Channel | null) {
 		this.#joined = channel;
 		return this;
 	}
