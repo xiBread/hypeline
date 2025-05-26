@@ -2,13 +2,13 @@
 	import { Dialog, Separator, Tabs } from "bits-ui";
 	import { tick } from "svelte";
 	import { goto } from "$app/navigation";
+	import { info } from "$lib/log";
 	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
 	import TitleBar from "../TitleBar.svelte";
 	import Appearance from "./appearance/Appearance.svelte";
 	import Chat from "./chat/Chat.svelte";
 	import Highlights from "./highlights/Highlights.svelte";
-	import { info } from "$lib/log";
 
 	let { open = $bindable(false) } = $props();
 
