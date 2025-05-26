@@ -3,6 +3,7 @@
 	import { tick } from "svelte";
 	import { goto } from "$app/navigation";
 	import { settings } from "$lib/settings";
+	import { app } from "$lib/state.svelte";
 	import TitleBar from "../TitleBar.svelte";
 	import Appearance from "./appearance/Appearance.svelte";
 	import Chat from "./chat/Chat.svelte";
@@ -36,6 +37,8 @@
 
 	async function logOut() {
 		settings.state.user = null;
+		settings.state.lastJoined = null;
+		app.setActive(null);
 
 		await tick();
 		await settings.saveNow();
