@@ -38,7 +38,7 @@
 	async function logOut() {
 		settings.state.user = null;
 		settings.state.lastJoined = null;
-		app.setActive(null);
+		app.setJoined(null);
 
 		await tick();
 		await settings.saveNow();
