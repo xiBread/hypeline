@@ -18,6 +18,7 @@ mod emotes;
 mod error;
 mod eventsub;
 mod irc;
+mod log;
 mod providers;
 mod server;
 
@@ -128,9 +129,10 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         api::users::get_user_from_login,
         api::users::get_user_emotes,
         api::users::get_moderated_channels,
-        irc::connect_irc,
         emotes::fetch_global_emotes,
         eventsub::connect_eventsub,
+        irc::connect_irc,
+        log::log,
         providers::fetch_recent_messages,
         providers::seventv::connect_seventv,
         server::start_server

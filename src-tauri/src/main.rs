@@ -14,7 +14,7 @@ fn main() {
     let timer = OffsetTime::new(time_offset, time_format);
 
     tracing_subscriber::fmt()
-        .with_env_filter(EnvFilter::new("hypeline_lib=debug"))
+        .with_env_filter(EnvFilter::new("hypeline_lib=debug,webview=debug"))
         .with_ansi(true)
         .with_timer(timer)
         .init();

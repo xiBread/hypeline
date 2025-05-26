@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import { info } from "$lib/log";
 import { settings } from "$lib/settings";
 import { app } from "$lib/state.svelte";
 import type { Emote } from "$lib/tauri";
@@ -10,6 +11,8 @@ export const ssr = false;
 
 export async function load() {
 	await settings.start();
+	info("Settings synced");
+
 	if (!settings.state.user) return;
 
 	app.user = await User.from(settings.state.user.id);
