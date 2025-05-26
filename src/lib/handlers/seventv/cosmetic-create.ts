@@ -1,3 +1,4 @@
+import { debug } from "$lib/log";
 import { app } from "$lib/state.svelte";
 import { defineHandler } from "../helper";
 
@@ -25,6 +26,7 @@ export default defineHandler({
 				image_url_4x: "",
 			});
 
+			debug(`Created badge ${cosmetic.id} (${cosmetic.data.name})`);
 			return;
 		}
 
@@ -72,5 +74,7 @@ export default defineHandler({
 		].join(" ");
 
 		app.paints.set(cosmetic.id, { name: cosmetic.data.name, css });
+
+		debug(`Created paint ${cosmetic.id} (${cosmetic.data.name})`);
 	},
 });

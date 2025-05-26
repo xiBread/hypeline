@@ -123,6 +123,8 @@ pub async fn get_followed_channels(
 
 #[tauri::command]
 pub async fn run_following_update_loop(app: AppHandle) -> Result<(), Error> {
+    tracing::info!("Started followed channels update loop");
+
     async_runtime::spawn(async move {
         loop {
             sleep(Duration::from_mins(5)).await;

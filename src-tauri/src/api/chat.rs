@@ -29,6 +29,7 @@ pub struct JoinedChannel {
     badges: Vec<BadgeSet>,
 }
 
+#[tracing::instrument(skip(state, is_mod))]
 #[tauri::command]
 pub async fn join(
     state: State<'_, Mutex<AppState>>,
@@ -37,13 +38,10 @@ pub async fn join(
 ) -> Result<JoinedChannel, Error> {
     let (helix, token, irc, eventsub, seventv, stv_id) = {
         let state = state.lock().await;
-
-        let token = state
-            .token
-            .as_ref()
-            .ok_or_else(|| Error::Generic(anyhow!("Access token not set")))?;
+        let token = get_access_token(&state)?;
 
         let Some(irc) = state.irc.clone() else {
+            tracing::error!("No IRC connection");
             return Err(Error::Generic(anyhow!("No IRC connection")));
         };
 
@@ -224,7 +222,7 @@ pub async fn send_message(
     };
 
     if sent {
-        tracing::info!("Message sent");
+        tracing::debug!("Message sent");
 
         if let Some(ref id) = state.seventv_id {
             send_presence(id, &broadcaster_id).await;

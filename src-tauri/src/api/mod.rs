@@ -18,10 +18,10 @@ pub struct Response<T> {
 }
 
 pub fn get_access_token<'a>(state: &'a AppState) -> Result<&'a UserToken, Error> {
-    state
-        .token
-        .as_ref()
-        .ok_or_else(|| Error::Generic(anyhow!("Access token not set")))
+    state.token.as_ref().ok_or_else(|| {
+        tracing::error!("Attempted to retrieve access token but no token is set");
+        Error::Generic(anyhow!("Access token not set"))
+    })
 }
 
 pub async fn set_access_token(state: State<'_, Mutex<AppState>>, token: String) {

@@ -5,6 +5,7 @@ import type { DispatchPayload } from "$lib/seventv";
 import { app } from "$lib/state.svelte";
 import type { NotificationPayload } from "./eventsub";
 import type { IrcMessage } from "./irc";
+import { info } from "$lib/log";
 
 export const SCOPES = [
 	// Channel
@@ -77,6 +78,8 @@ export async function connect() {
 	await invoke("connect_irc", { channel: ircChannel });
 	await invoke("connect_eventsub", { channel: eventsubChannel });
 	await invoke("connect_seventv", { channel: seventvChannel });
+
+	info("All connections established");
 }
 
 async function handle(key: string, payload: any) {

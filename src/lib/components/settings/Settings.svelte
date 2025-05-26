@@ -7,6 +7,7 @@
 	import Appearance from "./appearance/Appearance.svelte";
 	import Chat from "./chat/Chat.svelte";
 	import Highlights from "./highlights/Highlights.svelte";
+	import { info } from "$lib/log";
 
 	let { open = $bindable(false) } = $props();
 
@@ -40,6 +41,7 @@
 		await tick();
 		await settings.saveNow();
 
+		info("User logged out");
 		await goto("/auth/login");
 	}
 </script>

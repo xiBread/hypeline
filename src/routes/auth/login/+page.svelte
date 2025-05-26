@@ -10,6 +10,7 @@
 	import { app } from "$lib/state.svelte";
 	import { SCOPES } from "$lib/twitch";
 	import { User } from "$lib/user";
+	import { info } from "$lib/log";
 
 	const params = {
 		client_id: PUBLIC_TWITCH_CLIENT_ID,
@@ -27,11 +28,14 @@
 	let unlisten: UnlistenFn | undefined;
 
 	onMount(async () => {
+		info("Authenticating user");
 		await invoke("start_server");
 
 		unlisten = await listen<string>("accesstoken", async (event) => {
 			app.user = await User.from(null);
 			settings.state.user = { id: app.user.id, token: event.payload };
+
+			info(`User authenticated, storing token: ${event.payload}`);
 
 			await tick();
 			await settings.save();
