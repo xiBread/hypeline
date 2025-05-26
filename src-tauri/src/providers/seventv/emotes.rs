@@ -88,7 +88,7 @@ impl From<ApiEmote> for Emote {
             width: width / 2,
             height: height / 2,
             srcset,
-            zero_width: value.data.flags & 256 == 256,
+            zero_width: (value.data.flags & 256) == 256,
         }
     }
 }
