@@ -8,6 +8,7 @@ export interface EmoteHost {
 }
 
 export interface EmoteData {
+	flags: number;
 	host: EmoteHost;
 }
 
