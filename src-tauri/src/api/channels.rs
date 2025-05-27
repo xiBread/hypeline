@@ -130,7 +130,7 @@ pub async fn run_following_update_loop(app: AppHandle) -> Result<(), Error> {
 
             app.emit("followedchannels", &channels).unwrap();
 
-            sleep(Duration::from_mins(5)).await;
+            sleep(Duration::from_secs(5 * 60)).await;
         }
     });
 

@@ -20,12 +20,13 @@
 
 	let list = $state<VList<any>>();
 	let scrollingPaused = $state(false);
+	let countSnapshot = $state(0);
 
 	const newMessageCount = $derived.by(() => {
-		if (!list || !app.joined) return 0;
+		if (!list || !app.joined) return "0";
 
-		const total = app.joined.messages.length - list.findEndIndex();
-		return total > 99 ? "99+" : total;
+		const total = app.joined.messages.length - countSnapshot;
+		return total > 99 ? "99+" : Math.max(total, 0).toString();
 	});
 
 	$effect(() => {
@@ -43,18 +44,34 @@
 	function handleScroll(offset: number) {
 		if (!list) return;
 
-		scrollingPaused = offset < list.getScrollSize() - list.getViewportSize() - TOLERANCE;
+		const atBottom = offset >= list.getScrollSize() - list.getViewportSize() - TOLERANCE;
+
+		if (!atBottom && !scrollingPaused) {
+			countSnapshot = app.joined?.messages.length ?? 0;
+		}
+
+		scrollingPaused = !atBottom;
 	}
 </script>
+
+<svelte:window
+	onresize={() => {
+		if (!scrollingPaused) scrollToEnd();
+	}}
+/>
 
 <div class="relative h-full">
 	{#if scrollingPaused}
 		<button
-			class="bg-muted/50 absolute bottom-0 z-10 flex h-10 w-full items-center justify-center text-sm font-medium backdrop-blur-xs"
+			class="bg-twitch absolute top-0 z-10 flex w-full items-center justify-center rounded-b-md border px-2 py-1 text-xs font-medium"
 			type="button"
 			onclick={scrollToEnd}
 		>
-			Scrolling paused ({newMessageCount} new messages)
+			Scrolling paused
+
+			{#if newMessageCount !== "0"}
+				({newMessageCount} new messages)
+			{/if}
 		</button>
 	{/if}
 
