@@ -28,10 +28,10 @@ impl<'de> Deserialize<'de> for LogLevel {
 }
 
 #[tauri::command]
-pub fn log(level: LogLevel, message: String, location: Option<&str>) {
+pub fn log(level: LogLevel, message: String) {
     macro_rules! emit {
 		($level:expr) => {
-			tracing::event!(target: "webview", $level, location, %message)
+			tracing::event!(target: "webview", $level, %message)
 		};
 	}
 
