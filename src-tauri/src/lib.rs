@@ -1,4 +1,4 @@
-#![feature(duration_constructors, try_blocks)]
+#![feature(try_blocks)]
 
 use std::sync::{Arc, LazyLock};
 
