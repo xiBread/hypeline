@@ -201,7 +201,7 @@ pub async fn send_message(
 
     let user_id = token.user_id.clone();
 
-    let sent = if let Some(reply_id) = reply_id {
+    let response = if let Some(reply_id) = reply_id {
         state
             .helix
             .send_chat_message_reply(
@@ -212,36 +212,51 @@ pub async fn send_message(
                 token,
             )
             .await
-            .is_ok_and(|resp| resp.is_sent)
     } else {
         state
             .helix
             .send_chat_message(&broadcaster_id, &user_id, content.as_str(), token)
             .await
-            .is_ok_and(|resp| resp.is_sent)
     };
 
-    if sent {
-        tracing::debug!("Message sent");
+    match response {
+        Ok(response) if response.is_sent => {
+            tracing::debug!("Message sent");
 
-        if let Some(ref id) = state.seventv_id {
-            send_presence(id, &broadcaster_id).await;
+            if let Some(ref id) = state.seventv_id {
+                send_presence(id, &broadcaster_id).await;
+            }
+        }
+        Ok(response) => {
+            tracing::debug!(?response.drop_reason, "Message dropped");
+        }
+        Err(err) => {
+            tracing::error!(%err, "Failed to send message");
         }
     }
 
     Ok(())
 }
 
+#[tracing::instrument(skip(helix, token))]
 pub async fn get_cheermotes(
     helix: &HelixClient<'static, reqwest::Client>,
     token: &UserToken,
     broadcaster_id: String,
 ) -> Result<Vec<Cheermote>, Error> {
+    tracing::info!("Fetching cheermotes");
+
     let request = GetCheermotesRequest::broadcaster_id(broadcaster_id);
 
     match helix.req_get(request, token).await {
-        Ok(response) => Ok(response.data),
-        Err(_) => Ok(vec![]),
+        Ok(response) => {
+            tracing::info!("Fetched {} cheermotes", response.data.len());
+            Ok(response.data)
+        }
+        Err(err) => {
+            tracing::error!(%err, "Failed to fetch cheermotes");
+            Ok(vec![])
+        }
     }
 }
 
@@ -255,18 +270,23 @@ pub async fn fetch_global_badges(
     let state = state.lock().await;
     let token = get_access_token(&state)?;
 
-    let badges = state
+    match state
         .helix
         .req_get(
             get_global_chat_badges::GetGlobalChatBadgesRequest::new(),
             token,
         )
-        .await?
-        .data;
-
-    tracing::info!("Fetched {} global badge sets", badges.len());
-
-    Ok(badges)
+        .await
+    {
+        Ok(response) => {
+            tracing::info!("Fetched {} global badge sets", response.data.len());
+            Ok(response.data)
+        }
+        Err(err) => {
+            tracing::error!(%err, "Failed to fetch global badges");
+            Ok(vec![])
+        }
+    }
 }
 
 #[tracing::instrument(skip(helix, token))]
@@ -279,18 +299,23 @@ pub async fn fetch_channel_badges(
 
     let Some(user) = helix.get_user_from_login(&channel, token).await? else {
         tracing::error!("User not found");
-        return Err(Error::Generic(anyhow!("User not found")));
+        return Ok(vec![]);
     };
 
-    let badges = helix
+    match helix
         .req_get(
             get_channel_chat_badges::GetChannelChatBadgesRequest::broadcaster_id(&user.id),
             token,
         )
-        .await?
-        .data;
-
-    tracing::info!("Fetched {} badge sets", badges.len());
-
-    Ok(badges)
+        .await
+    {
+        Ok(response) => {
+            tracing::info!("Fetched {} badge sets", response.data.len());
+            Ok(response.data)
+        }
+        Err(err) => {
+            tracing::error!(%err, "Failed to fetch channel badges");
+            Ok(vec![])
+        }
+    }
 }

@@ -2,7 +2,7 @@
 	import { Dialog, Separator, Tabs } from "bits-ui";
 	import { tick } from "svelte";
 	import { goto } from "$app/navigation";
-	import { info } from "$lib/log";
+	import { info, log } from "$lib/log";
 	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
 	import TitleBar from "../TitleBar.svelte";
@@ -31,9 +31,11 @@
 	];
 
 	$effect(() => {
-		void open;
-
-		settings.saveNow();
+		if (!open) {
+			settings.saveNow().then(() => {
+				log.info("Settings saved");
+			});
+		}
 	});
 
 	async function logOut() {

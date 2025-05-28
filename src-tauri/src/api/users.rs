@@ -28,7 +28,7 @@ pub struct User {
     pub color: Option<String>,
 }
 
-#[tracing::instrument(skip_all)]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_user_from_id(
     state: State<'_, Mutex<AppState>>,
@@ -59,7 +59,7 @@ pub async fn get_user_from_id(
         .and_then(|u| Some(u["user"]["id"].as_str()?.to_string()));
 
     let Some(user) = helix_user else {
-        tracing::debug!("User not found: {id}");
+        tracing::debug!("User not found");
         return Ok(None);
     };
 
@@ -68,7 +68,7 @@ pub async fn get_user_from_id(
     Ok(Some(User { data: user, color }))
 }
 
-#[tracing::instrument(skip_all)]
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn get_user_from_login(
     state: State<'_, Mutex<AppState>>,
@@ -83,7 +83,7 @@ pub async fn get_user_from_login(
     let helix_user = state.helix.get_user_from_login(&login, token).await?;
 
     let Some(user) = helix_user else {
-        tracing::debug!("User not found: {login}");
+        tracing::debug!("User not found");
         return Ok(None);
     };
 

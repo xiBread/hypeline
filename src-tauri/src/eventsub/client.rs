@@ -198,7 +198,7 @@ impl EventSubClient {
                                 }
                             }
                             Message::Close(Some(frame)) => {
-                                tracing::warn!("EventSub connection closed {frame:?}");
+                                tracing::warn!(%frame, "EventSub connection closed");
                                 break;
                             }
                             Message::Close(None) => {
