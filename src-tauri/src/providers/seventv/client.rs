@@ -63,9 +63,9 @@ impl SeventTvClient {
 
                 let mut stream = match connect_async(SEVENTV_WS_URI).await {
                     Ok((stream, _)) => stream,
-                    Err(e) => {
-						tracing::error!("Failed to connect to 7TV Event API: {e}");
-						return Err::<(), _>(Error::WebSocket(e))
+                    Err(err) => {
+						tracing::error!(%err, "Failed to connect to 7TV Event API");
+						return Err::<(), _>(Error::WebSocket(err))
 					},
                 };
 

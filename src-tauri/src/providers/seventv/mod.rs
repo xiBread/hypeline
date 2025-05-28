@@ -82,7 +82,7 @@ pub async fn send_presence(user_id: &str, channel_id: &str) {
             }
         }
         Err(err) => {
-            tracing::error!("Error sending presence: {}", err);
+            tracing::error!(%err, "Error sending presence");
         }
     }
 }

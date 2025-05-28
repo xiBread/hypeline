@@ -97,8 +97,8 @@ pub fn run() {
 
                 if let Some(ref token) = access_token {
                     tracing::debug!(
-                        "Using access token from storage: {}",
-                        token.access_token.as_str()
+                        token = token.access_token.as_str(),
+                        "Using access token from storage",
                     );
                 }
 

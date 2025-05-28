@@ -34,9 +34,9 @@ impl WsTransport {
 
         let ws_stream = match connect_async(TWITCH_IRC_WS_URI).await {
             Ok((stream, _)) => stream,
-            Err(e) => {
-                tracing::error!("Failed to connect to IRC: {e}");
-                return Err(e);
+            Err(err) => {
+                tracing::error!(%err, "Failed to connect to IRC");
+                return Err(err);
             }
         };
 
