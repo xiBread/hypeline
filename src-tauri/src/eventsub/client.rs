@@ -299,7 +299,7 @@ impl EventSubClient {
         self.connected.store(value, Ordering::Relaxed);
     }
 
-    #[tracing::instrument(name = "eventsub_subscribe", skip(self))]
+    #[tracing::instrument(name = "eventsub_subscribe", skip(self, condition), fields(%condition))]
     pub async fn subscribe(
         &self,
         username: &str,

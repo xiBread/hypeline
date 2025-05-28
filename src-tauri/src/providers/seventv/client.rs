@@ -111,7 +111,7 @@ impl SeventTvClient {
         self.connected.load(Ordering::Relaxed)
     }
 
-    #[tracing::instrument(name = "7tv_subscribe", skip(self))]
+    #[tracing::instrument(name = "7tv_subscribe", skip(self, condition), fields(%condition))]
     pub async fn subscribe(&self, event: &str, condition: &serde_json::Value) {
         let payload = json!({
             "op": 35,
