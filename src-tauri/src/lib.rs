@@ -79,6 +79,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_os::init())
         .setup(|app| {
+            let log_guard = log::init_tracing(app);
             let app_handle = app.handle();
 
             async_runtime::block_on(async {
@@ -106,6 +107,8 @@ pub fn run() {
             });
 
             app.manage(Mutex::new(state));
+            app.manage(log_guard);
+
             Ok(())
         })
         .invoke_handler(get_handler())
