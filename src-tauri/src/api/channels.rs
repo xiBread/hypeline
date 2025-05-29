@@ -1,11 +1,9 @@
 use std::collections::HashMap;
-use std::time::Duration;
 
 use futures::TryStreamExt;
 use serde::Serialize;
-use tauri::async_runtime::{self, Mutex};
-use tauri::{AppHandle, Emitter, Manager, State};
-use tokio::time::sleep;
+use tauri::async_runtime::Mutex;
+use tauri::State;
 use tokio::try_join;
 use twitch_api::helix::channels::FollowedBroadcaster;
 use twitch_api::helix::streams::Stream;
@@ -21,16 +19,26 @@ pub async fn get_stream(
     state: State<'_, Mutex<AppState>>,
     id: String,
 ) -> Result<Option<Stream>, Error> {
+    let mut streams = get_streams(state, vec![id]).await?;
+
+    Ok(streams.pop())
+}
+
+#[tauri::command]
+pub async fn get_streams(
+    state: State<'_, Mutex<AppState>>,
+    ids: Vec<String>,
+) -> Result<Vec<Stream>, Error> {
     let state = state.lock().await;
     let token = get_access_token(&state)?;
 
-    let mut streams: Vec<Stream> = state
+    let streams = state
         .helix
-        .get_streams_from_ids(&[&id][..].into(), token)
+        .get_streams_from_ids(&ids.into(), token)
         .try_collect()
         .await?;
 
-    Ok(streams.pop())
+    Ok(streams)
 }
 
 #[derive(Serialize)]
@@ -119,24 +127,4 @@ pub async fn get_followed_channels(
         .collect();
 
     Ok(followed)
-}
-
-#[tauri::command]
-pub async fn run_following_update_loop(app: AppHandle) -> Result<(), Error> {
-    tracing::info!("Started followed channels update loop");
-
-    async_runtime::spawn(async move {
-        loop {
-            sleep(Duration::from_secs(5 * 60)).await;
-
-            tracing::info!("Updating followed channels");
-
-            let state = app.state::<Mutex<AppState>>();
-            let channels = get_followed_channels(state).await.unwrap_or_default();
-
-            app.emit("followedchannels", &channels).unwrap();
-        }
-    });
-
-    Ok(())
 }

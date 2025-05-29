@@ -1,8 +1,9 @@
 import { invoke } from "@tauri-apps/api/core";
+import { Channel } from "$lib/channel.svelte";
 import { log } from "$lib/log";
 import { settings } from "$lib/settings";
 import { app } from "$lib/state.svelte";
-import type { Emote } from "$lib/tauri";
+import type { Emote, FullChannel } from "$lib/tauri";
 import type { Badge, BadgeSet } from "$lib/twitch/api";
 import { User } from "$lib/user";
 
@@ -19,6 +20,17 @@ export async function load() {
 
 	if (settings.state.lastJoined?.startsWith("ephemeral:")) {
 		settings.state.lastJoined = null;
+	}
+
+	if (!app.channels.length) {
+		const channels = await invoke<FullChannel[]>("get_followed_channels");
+
+		for (const channel of channels) {
+			const user = new User(channel.user);
+			const chan = new Channel(user, channel.stream);
+
+			app.channels.push(chan);
+		}
 	}
 
 	if (!app.globalEmotes.size) {

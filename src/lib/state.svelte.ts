@@ -1,4 +1,4 @@
-import { SvelteMap, SvelteSet } from "svelte/reactivity";
+import { SvelteMap } from "svelte/reactivity";
 import type { Channel } from "./channel.svelte";
 import type { Paint } from "./seventv";
 import type { Emote } from "./tauri";
@@ -9,12 +9,7 @@ class AppState {
 	#joined = $state<Channel | null>(null);
 
 	public user?: User;
-
-	/**
-	 * A set of user-joined channels that only exist during the current
-	 * application session.
-	 */
-	public readonly ephemeral = new SvelteSet<Channel>();
+	public channels = $state<Channel[]>([]);
 
 	public readonly globalEmotes = new SvelteMap<string, Emote>();
 	public readonly globalBadges = new SvelteMap<string, Record<string, Badge>>();
