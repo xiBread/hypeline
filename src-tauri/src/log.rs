@@ -3,6 +3,7 @@ use tauri::{App, Manager};
 use time::macros::format_description;
 use time::UtcOffset;
 use tracing_appender::non_blocking::WorkerGuard;
+use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::fmt::time::OffsetTime;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
@@ -25,7 +26,14 @@ pub fn init_tracing(app: &App) -> WorkerGuard {
         let _ = std::fs::create_dir_all(&path);
     }
 
-    let appender = tracing_appender::rolling::daily(path, "hypeline.log");
+    let appender = RollingFileAppender::builder()
+        .rotation(Rotation::DAILY)
+        .filename_prefix("hypeline")
+        .filename_suffix("log")
+        .max_log_files(10)
+        .build(path)
+        .expect("failed to create rolling file appender");
+
     let (writer, guard) = tracing_appender::non_blocking(appender);
 
     let file_layer = fmt::layer()
