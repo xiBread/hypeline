@@ -6,7 +6,6 @@
 	import { flip } from "svelte/animate";
 	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
-	import type { FullChannel } from "$lib/tauri";
 	import type { Stream } from "$lib/twitch/api";
 	import { User } from "$lib/user";
 	import Tooltip from "./ui/Tooltip.svelte";
@@ -29,12 +28,12 @@
 	});
 
 	onMount(async () => {
-		await invoke("run_following_update_loop");
+		await invoke("run_stream_update_loop", { ids: app.channels.map((c) => c.user.id) });
 
-		unlisten = await listen<FullChannel[]>("followedchannels", (event) => {
-			for (const channel of event.payload) {
-				const chan = app.channels.find((f) => f.user.id === channel.user.data.id);
-				chan?.setStream(channel.stream);
+		unlisten = await listen<Stream[]>("streams", (event) => {
+			for (const stream of event.payload) {
+				const chan = app.channels.find((c) => c.user.id === stream.user_id);
+				chan?.setStream(stream);
 			}
 		});
 	});

@@ -21,16 +21,26 @@ pub async fn get_stream(
     state: State<'_, Mutex<AppState>>,
     id: String,
 ) -> Result<Option<Stream>, Error> {
+    let mut streams = get_streams(state, &vec![id]).await?;
+
+    Ok(streams.pop())
+}
+
+#[tauri::command]
+pub async fn get_streams(
+    state: State<'_, Mutex<AppState>>,
+    ids: &Vec<String>,
+) -> Result<Vec<Stream>, Error> {
     let state = state.lock().await;
     let token = get_access_token(&state)?;
 
-    let mut streams: Vec<Stream> = state
+    let streams = state
         .helix
-        .get_streams_from_ids(&[&id][..].into(), token)
+        .get_streams_from_ids(&ids.into(), token)
         .try_collect()
         .await?;
 
-    Ok(streams.pop())
+    Ok(streams)
 }
 
 #[derive(Serialize)]
@@ -122,19 +132,19 @@ pub async fn get_followed_channels(
 }
 
 #[tauri::command]
-pub async fn run_following_update_loop(app: AppHandle) -> Result<(), Error> {
-    tracing::info!("Started followed channels update loop");
+pub async fn run_stream_update_loop(app: AppHandle, ids: Vec<String>) -> Result<(), Error> {
+    tracing::info!("Started stream update loop");
 
     async_runtime::spawn(async move {
         loop {
             sleep(Duration::from_secs(5 * 60)).await;
 
-            tracing::info!("Updating followed channels");
+            tracing::info!("Updating streams");
 
             let state = app.state::<Mutex<AppState>>();
-            let channels = get_followed_channels(state).await.unwrap_or_default();
+            let channels = get_streams(state, &ids).await.unwrap_or_default();
 
-            app.emit("followedchannels", &channels).unwrap();
+            app.emit("streams", &channels).unwrap();
         }
     });
 
