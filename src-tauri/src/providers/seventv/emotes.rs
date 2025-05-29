@@ -18,6 +18,8 @@ pub struct User {
 pub struct EmoteSet {
     pub id: String,
     pub name: String,
+
+    #[serde(default)]
     pub emotes: Vec<ApiEmote>,
 }
 
