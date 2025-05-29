@@ -18,6 +18,8 @@ pub struct User {
 pub struct EmoteSet {
     pub id: String,
     pub name: String,
+
+    #[serde(default)]
     pub emotes: Vec<ApiEmote>,
 }
 
@@ -88,7 +90,7 @@ impl From<ApiEmote> for Emote {
             width: width / 2,
             height: height / 2,
             srcset,
-            zero_width: value.data.flags & 256 == 256,
+            zero_width: (value.data.flags & 256) == 256,
         }
     }
 }

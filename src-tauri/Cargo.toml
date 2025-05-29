@@ -20,7 +20,6 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 tauri = { version = "2", features = [] }
-tauri-plugin-log = "2"
 tauri-plugin-notification = "2"
 tauri-plugin-opener = "2"
 tauri-plugin-os = "2"
@@ -31,15 +30,18 @@ either = "1.15.0"
 enum_dispatch = "0.3.13"
 futures = "0.3.31"
 httparse = "1.10.1"
-log = "0.4.27"
 regex = "1.11.1"
 reqwest = { version = "0.12.15", features = ["json"] }
 rustls = { version = "0.23.25", features = ["ring"] }
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = "1.0.140"
 thiserror = "2.0.12"
+time = { version = "0.3", features = ["formatting", "local-offset"] }
 tokio = { version = "1.44.2", features = ["macros"] }
 tokio-tungstenite = { version = "0.26.2", features = ["rustls-tls-native-roots"] }
+tracing = "0.1.41"
+tracing-appender = "0.2"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter", "time"] }
 twitch_api = { version = "0.7.2", features = ["client", "helix", "eventsub", "reqwest"] }
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]

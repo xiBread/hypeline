@@ -14,7 +14,21 @@
 	let quickActionsOpen = $state(false);
 
 	const highlights = $derived(settings.state.highlights);
+	const customMatched = $derived(
+		highlights.custom.find((hl) => {
+			if (!hl.pattern.trim()) return false;
 
+			let pattern = hl.regex ? hl.pattern : RegExp.escape(hl.pattern);
+
+			if (hl.wholeWord) {
+				pattern = `\\b${pattern}\\b`;
+			}
+
+			return new RegExp(pattern, hl.matchCase ? "g" : "gi").test(message.text);
+		}),
+	);
+
+	const isSelf = message.viewer.id === app.user?.id;
 	const hasMention = message.text.toLowerCase().includes(`@${app.user?.username}`);
 
 	if (hasMention) {
@@ -64,10 +78,18 @@
 		<div class="bg-muted/50 my-0.5 border-l-4 p-2" style:border-color={app.joined?.user.color}>
 			<Message {message} />
 		</div>
-	{:else if hlType && highlights.enabled && highlights[hlType].enabled}
-		<Highlight type={hlType} {info}>
-			{@render innerMessage(highlights[hlType].style !== "background")}
-		</Highlight>
+	{:else if highlights.enabled}
+		{#if hlType && highlights[hlType].enabled}
+			<Highlight type={hlType} {info} highlight={highlights[hlType]}>
+				{@render innerMessage(highlights[hlType].style !== "background")}
+			</Highlight>
+		{:else if customMatched?.enabled && !isSelf}
+			<Highlight type="custom" highlight={customMatched}>
+				{@render innerMessage(customMatched.style !== "background")}
+			</Highlight>
+		{:else}
+			{@render innerMessage(false)}
+		{/if}
 	{:else}
 		{@render innerMessage(false)}
 	{/if}

@@ -41,6 +41,16 @@ pub async fn connect_irc(
 
     async_runtime::spawn(async move {
         while let Some(message) = incoming.recv().await {
+            match message {
+                ServerMessage::Join(ref join) => {
+                    tracing::info!("Joined {}", join.channel_login);
+                }
+                ServerMessage::Part(ref part) => {
+                    tracing::info!("Parted {}", part.channel_login);
+                }
+                _ => (),
+            }
+
             channel.send(message).unwrap();
         }
     });

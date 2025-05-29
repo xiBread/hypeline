@@ -35,15 +35,25 @@
 	});
 
 	async function join() {
-		const channel = await Channel.join(username);
-		app.setActive(channel);
+		try {
+			const channel = await Channel.join(username.replace(/^ephemeral:/, ""));
+			app.setJoined(channel);
 
-		await invoke("fetch_recent_messages", {
-			channel: channel.user.username,
-			historyLimit: settings.state.history.enabled ? settings.state.history.limit : 0,
-		});
+			if (username.startsWith("ephemeral:")) {
+				channel.setEphemeral();
+				app.channels.push(channel);
+			}
 
-		channel.addEmotes(app.globalEmotes);
+			await invoke("fetch_recent_messages", {
+				channel: channel.user.username,
+				historyLimit: settings.state.history.enabled ? settings.state.history.limit : 0,
+			});
+
+			channel.addEmotes(app.globalEmotes);
+		} catch (err) {
+			app.setJoined(null);
+			settings.state.lastJoined = null;
+		}
 	}
 </script>
 

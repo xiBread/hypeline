@@ -35,7 +35,7 @@
 				<Sidebar />
 			{/if}
 
-			<main class="grow rounded-tl-lg border-t border-l">
+			<main class={["grow", settings.state.user && "rounded-tl-lg border-t border-l"]}>
 				{@render children()}
 			</main>
 		</div>

@@ -19,6 +19,11 @@ export class Channel {
 	public readonly viewers = new SvelteMap<string, Viewer>();
 
 	/**
+	 * Whether the channel is ephemeral.
+	 */
+	public ephemeral = false;
+
+	/**
 	 * The active 7TV emote set for the channel if any.
 	 */
 	public emoteSet = $state<EmoteSet>();
@@ -153,6 +158,11 @@ export class Channel {
 
 	public setStream(stream: Stream | null) {
 		this.#stream = stream;
+		return this;
+	}
+
+	public setEphemeral() {
+		this.ephemeral = true;
 		return this;
 	}
 }

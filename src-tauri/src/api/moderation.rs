@@ -6,6 +6,7 @@ use super::get_access_token;
 use crate::error::Error;
 use crate::AppState;
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn delete_message(
     state: State<'_, Mutex<AppState>>,
@@ -20,9 +21,12 @@ pub async fn delete_message(
         .delete_chat_message(broadcaster_id, &token.user_id, message_id, token)
         .await?;
 
+    tracing::debug!("Deleted message");
+
     Ok(())
 }
 
+#[tracing::instrument(skip(state))]
 #[tauri::command]
 pub async fn update_held_message(
     state: State<'_, Mutex<AppState>>,
@@ -40,6 +44,41 @@ pub async fn update_held_message(
     );
 
     state.helix.req_post(request, body, token).await?;
+
+    tracing::debug!("Updated held message");
+
+    Ok(())
+}
+
+#[tracing::instrument(skip(state))]
+#[tauri::command]
+pub async fn ban(
+    state: State<'_, Mutex<AppState>>,
+    broadcaster_id: String,
+    user_id: String,
+    duration: Option<u32>,
+    reason: Option<String>,
+) -> Result<(), Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state)?;
+
+    state
+        .helix
+        .ban_user(
+            user_id,
+            reason.unwrap_or_default().as_str(),
+            duration,
+            broadcaster_id,
+            &token.user_id,
+            token,
+        )
+        .await?;
+
+    if duration.is_some() {
+        tracing::debug!("Timed out user");
+    } else {
+        tracing::debug!("Banned user");
+    }
 
     Ok(())
 }

@@ -1,41 +1,41 @@
 import { invoke } from "@tauri-apps/api/core";
 import { SystemMessage } from "$lib/message";
+import type { Emote } from "$lib/seventv";
 import type { UserWithColor } from "$lib/tauri";
 import { Viewer } from "$lib/viewer.svelte";
 import { defineHandler } from "../helper";
-import type { Emote, HostFile } from "$lib/seventv";
-
-const FORMAT_PRIORITY: Record<string, number> = {
-	webp: 1,
-	png: 2,
-	gif: 3,
-};
 
 function reparse(emote: Emote) {
-	const files = emote.data.host.files.filter((f) => f.name.startsWith("4x"));
-	if (!files.length) return;
+	let width = 28;
+	let height = 28;
+	const srcset: string[] = [];
 
-	let bestPriority: number | undefined;
-	let bestFile: HostFile | undefined;
+	for (const format of ["webp", "png", "gif"]) {
+		const matchedFiles = emote.data.host.files.filter(
+			(file) => file.format.toLowerCase() === format,
+		);
 
-	for (const file of files) {
-		const priority = FORMAT_PRIORITY[file.format.toLowerCase()];
-		if (!priority) continue;
+		if (matchedFiles.length) {
+			matchedFiles.sort((a, b) => a.width - b.width);
 
-		if (bestPriority === undefined || priority < bestPriority) {
-			bestPriority = priority;
-			bestFile = file;
+			for (const file of matchedFiles) {
+				width = file.width;
+				height = file.height;
+
+				srcset.push(`https:${emote.data.host.url}/${file.name} ${file.name[0]}x`);
+			}
+
+			break;
 		}
 	}
-
-	if (!bestFile) return;
 
 	return {
 		id: emote.id,
 		name: emote.name,
-		url: `https://${emote.data.host.url}/${bestFile.name}`,
-		width: bestFile.width / 4,
-		height: bestFile.height / 4,
+		width: width / 2,
+		height: height / 2,
+		srcset,
+		zero_width: (emote.data.flags & 256) === 256,
 	};
 }
 
@@ -56,7 +56,6 @@ export default defineHandler({
 
 		for (const change of data.pushed ?? []) {
 			const emote = reparse(change.value);
-			if (!emote) continue;
 
 			message.setContext({
 				type: "emoteSetUpdate",
