@@ -36,6 +36,8 @@ pub async fn join(
     login: String,
     is_mod: bool,
 ) -> Result<JoinedChannel, Error> {
+    tracing::info!("Joining {login}");
+
     let (helix, token, irc, eventsub, seventv, stv_id) = {
         let state = state.lock().await;
         let token = get_access_token(&state)?;
@@ -170,6 +172,8 @@ pub async fn join(
 
 #[tauri::command]
 pub async fn leave(state: State<'_, Mutex<AppState>>, channel: String) -> Result<(), Error> {
+    tracing::info!("Leaving {channel}");
+
     let state = state.lock().await;
 
     if let Some(ref eventsub) = state.eventsub {
