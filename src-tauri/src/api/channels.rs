@@ -123,14 +123,18 @@ pub async fn get_followed_channels(
 
 #[tauri::command]
 pub async fn run_following_update_loop(app: AppHandle) -> Result<(), Error> {
+    tracing::info!("Started followed channels update loop");
+
     async_runtime::spawn(async move {
         loop {
+            sleep(Duration::from_secs(5 * 60)).await;
+
+            tracing::info!("Updating followed channels");
+
             let state = app.state::<Mutex<AppState>>();
             let channels = get_followed_channels(state).await.unwrap_or_default();
 
             app.emit("followedchannels", &channels).unwrap();
-
-            sleep(Duration::from_mins(5)).await;
         }
     });
 

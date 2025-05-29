@@ -6,6 +6,7 @@
 	import { onDestroy, onMount, tick } from "svelte";
 	import { goto } from "$app/navigation";
 	import { PUBLIC_TWITCH_CLIENT_ID, PUBLIC_TWITCH_REDIRECT_URL } from "$env/static/public";
+	import { log } from "$lib/log";
 	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
 	import { SCOPES } from "$lib/twitch";
@@ -27,11 +28,14 @@
 	let unlisten: UnlistenFn | undefined;
 
 	onMount(async () => {
+		log.info("Authenticating user");
 		await invoke("start_server");
 
 		unlisten = await listen<string>("accesstoken", async (event) => {
 			app.user = await User.from(null);
 			settings.state.user = { id: app.user.id, token: event.payload };
+
+			log.info("User authenticated");
 
 			await tick();
 			await settings.save();

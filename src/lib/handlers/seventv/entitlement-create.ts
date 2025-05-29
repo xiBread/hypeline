@@ -1,4 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
+import { log } from "$lib/log";
 import { app } from "$lib/state.svelte";
 import type { UserWithColor } from "$lib/tauri";
 import { Viewer } from "$lib/viewer.svelte";
@@ -30,6 +31,8 @@ export default defineHandler({
 
 		switch (data.kind) {
 			case "BADGE": {
+				log.debug(`Assigned badge ${data.ref_id} to ${viewer.username}`);
+
 				viewer.badge = app.badges.get(data.ref_id);
 				app.u2b.set(viewer.username, viewer.badge);
 
@@ -37,13 +40,13 @@ export default defineHandler({
 			}
 
 			case "PAINT": {
+				log.debug(`Assigned paint ${data.ref_id} to ${viewer.username}`);
+
 				viewer.paint = app.paints.get(data.ref_id);
 				app.u2p.set(viewer.username, viewer.paint);
 
 				break;
 			}
 		}
-
-		// console.log(viewer)
 	},
 });
