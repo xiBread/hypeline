@@ -62,10 +62,20 @@
 	{@render channelIcon(app.user, null)}
 {/if}
 
+{#if app.ephemeral.size}
+	<div class="bg-border h-px" role="separator"></div>
+
+	{#each app.ephemeral as channel (channel.user.id)}
+		<div class="flex" animate:flip={{ duration: 500 }}>
+			{@render channelIcon(channel.user, channel.stream)}
+		</div>
+	{/each}
+{/if}
+
 <div class="bg-border h-px" role="separator"></div>
 
 {#each sorted as channel (channel.user.id)}
-	<div animate:flip={{ duration: 500 }}>
+	<div class="flex" animate:flip={{ duration: 500 }}>
 		{@render channelIcon(channel.user, channel.stream)}
 	</div>
 {/each}
