@@ -4,7 +4,6 @@
 	import type { UnlistenFn } from "@tauri-apps/api/event";
 	import { onDestroy, onMount } from "svelte";
 	import { flip } from "svelte/animate";
-	import { Channel } from "$lib/channel.svelte";
 	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
 	import type { FullChannel } from "$lib/tauri";
@@ -14,9 +13,8 @@
 
 	let unlisten: UnlistenFn | undefined;
 
-	let followed = $state<Channel[]>([]);
-	const sorted = $derived(
-		followed.toSorted((a, b) => {
+	const groups = $derived.by(() => {
+		const sorted = app.channels.toSorted((a, b) => {
 			if (a.stream && b.stream) {
 				return b.stream.viewer_count - a.stream.viewer_count;
 			}
@@ -25,59 +23,40 @@
 			if (!a.stream && b.stream) return 1;
 
 			return a.user.username.localeCompare(b.user.username);
-		}),
-	);
+		});
+
+		return Object.groupBy(sorted, (channel) => (channel.ephemeral ? "a" : "b"));
+	});
 
 	onMount(async () => {
-		followed = await fetchFollowed();
 		await invoke("run_following_update_loop");
 
 		unlisten = await listen<FullChannel[]>("followedchannels", (event) => {
 			for (const channel of event.payload) {
-				const chan = followed.find((f) => f.user.id === channel.user.data.id);
+				const chan = app.channels.find((f) => f.user.id === channel.user.data.id);
 				chan?.setStream(channel.stream);
 			}
 		});
 	});
 
 	onDestroy(() => unlisten?.());
-
-	async function fetchFollowed() {
-		const channels = await invoke<FullChannel[]>("get_followed_channels");
-		const followed = [];
-
-		for (const channel of channels) {
-			const user = new User(channel.user);
-			const chan = new Channel(user, channel.stream);
-
-			followed.push(chan);
-		}
-
-		return followed;
-	}
 </script>
 
-<!-- todo: include stream with user -->
+<!-- TODO: include stream with user -->
 {#if app.user}
 	{@render channelIcon(app.user, null)}
 {/if}
 
-{#if app.ephemeral.size}
+{#each Object.entries(groups)
+	.sort((a, b) => a[0].localeCompare(b[0]))
+	.map((e) => e[1]) as channels}
 	<div class="bg-border h-px" role="separator"></div>
 
-	{#each app.ephemeral as channel (channel.user.id)}
+	{#each channels as channel (channel.user.id)}
 		<div class="flex" animate:flip={{ duration: 500 }}>
 			{@render channelIcon(channel.user, channel.stream)}
 		</div>
 	{/each}
-{/if}
-
-<div class="bg-border h-px" role="separator"></div>
-
-{#each sorted as channel (channel.user.id)}
-	<div class="flex" animate:flip={{ duration: 500 }}>
-		{@render channelIcon(channel.user, channel.stream)}
-	</div>
 {/each}
 
 {#snippet channelIcon(user: User, stream: Stream | null)}

@@ -40,7 +40,8 @@
 			app.setJoined(channel);
 
 			if (username.startsWith("ephemeral:")) {
-				app.ephemeral.add(channel);
+				channel.setEphemeral();
+				app.channels.push(channel);
 			}
 
 			await invoke("fetch_recent_messages", {
