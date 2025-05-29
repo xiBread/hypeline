@@ -1,16 +1,13 @@
 <script lang="ts">
 	import { invoke } from "@tauri-apps/api/core";
-	import { listen } from "@tauri-apps/api/event";
-	import type { UnlistenFn } from "@tauri-apps/api/event";
-	import { onDestroy, onMount } from "svelte";
+	import { onMount } from "svelte";
 	import { flip } from "svelte/animate";
+	import { log } from "$lib/log";
 	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
 	import type { Stream } from "$lib/twitch/api";
 	import { User } from "$lib/user";
 	import Tooltip from "./ui/Tooltip.svelte";
-
-	let unlisten: UnlistenFn | undefined;
 
 	const groups = $derived.by(() => {
 		const sorted = app.channels.toSorted((a, b) => {
@@ -27,18 +24,25 @@
 		return Object.groupBy(sorted, (channel) => (channel.ephemeral ? "a" : "b"));
 	});
 
-	onMount(async () => {
-		await invoke("run_stream_update_loop", { ids: app.channels.map((c) => c.user.id) });
+	onMount(() => {
+		const interval = setInterval(
+			async () => {
+				log.info("Updating streams");
 
-		unlisten = await listen<Stream[]>("streams", (event) => {
-			for (const stream of event.payload) {
-				const chan = app.channels.find((c) => c.user.id === stream.user_id);
-				chan?.setStream(stream);
-			}
-		});
+				const streams = await invoke<Stream[]>("get_streams", {
+					ids: app.channels.map((c) => c.user.id),
+				});
+
+				for (const stream of streams) {
+					const chan = app.channels.find((c) => c.user.id === stream.user_id);
+					chan?.setStream(stream);
+				}
+			},
+			5 * 60 * 1000,
+		);
+
+		return () => clearInterval(interval);
 	});
-
-	onDestroy(() => unlisten?.());
 </script>
 
 <!-- TODO: include stream with user -->

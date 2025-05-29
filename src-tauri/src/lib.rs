@@ -119,8 +119,8 @@ pub fn run() {
 fn get_handler() -> impl Fn(Invoke) -> bool {
     tauri::generate_handler![
         api::channels::get_stream,
+        api::channels::get_streams,
         api::channels::get_followed_channels,
-        api::channels::run_stream_update_loop,
         api::chat::join,
         api::chat::leave,
         api::chat::send_message,
