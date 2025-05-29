@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { Dialog } from "bits-ui";
-	import { Channel } from "$lib/channel.svelte";
 	import { settings } from "$lib/settings";
-	import { app } from "$lib/state.svelte";
 	import Input from "./ui/Input.svelte";
 
 	let { open = $bindable(false) } = $props();
@@ -13,20 +11,8 @@
 		const form = event.currentTarget as HTMLFormElement;
 		const input = form.elements.namedItem("name") as HTMLInputElement;
 
-		try {
-			await app.joined?.leave();
-			const channel = await Channel.join(input.value);
-
-			app.ephemeral.add(channel);
-			app.setJoined(channel);
-
-			settings.state.lastJoined = `ephemeral:${channel.user.username}`;
-		} catch (err) {
-			app.setJoined(null);
-			settings.state.lastJoined = null;
-		} finally {
-			open = false;
-		}
+		settings.state.lastJoined = `ephemeral:${input.value}`;
+		open = false;
 	}
 </script>
 
