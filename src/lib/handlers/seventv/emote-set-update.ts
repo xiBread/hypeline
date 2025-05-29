@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { SystemMessage } from "$lib/message";
-import type { Emote, HostFile } from "$lib/seventv";
+import type { Emote } from "$lib/seventv";
 import type { UserWithColor } from "$lib/tauri";
 import { Viewer } from "$lib/viewer.svelte";
 import { defineHandler } from "../helper";
@@ -56,7 +56,6 @@ export default defineHandler({
 
 		for (const change of data.pushed ?? []) {
 			const emote = reparse(change.value);
-			if (!emote) continue;
 
 			message.setContext({
 				type: "emoteSetUpdate",

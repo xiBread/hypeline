@@ -11,6 +11,7 @@ use serde_json::json;
 use tokio::sync::{mpsc, Mutex};
 use tokio_tungstenite::connect_async;
 use tokio_tungstenite::tungstenite::Message;
+use tracing::Instrument;
 use twitch_api::eventsub::{EventSubSubscription, EventType};
 use twitch_api::twitch_oauth2::{TwitchToken, UserToken};
 use twitch_api::HelixClient;
@@ -155,59 +156,74 @@ impl EventSubClient {
         (receiver, client)
     }
 
+    #[tracing::instrument(name = "eventsub_connect", skip_all)]
     pub async fn connect(self: Arc<Self>) -> Result<(), Error> {
         let this = Arc::clone(&self);
 
-        tokio::spawn(async move {
-            let mut ws_uri = TWITCH_EVENTSUB_WS_URI.to_string();
+        tokio::spawn(
+            async move {
+                let mut ws_uri = TWITCH_EVENTSUB_WS_URI.to_string();
+                tracing::info!("Connecting to EventSub at {ws_uri}");
 
-            loop {
-                let mut stream = match connect_async(&ws_uri).await {
-                    Ok((stream, _)) => stream,
-                    Err(e) => return Err::<(), _>(Error::WebSocket(e)),
-                };
-
-                self.set_connected(true);
-
-                let mut reconnect_url: Option<String> = None;
-
-                while let Some(Ok(message)) = stream.next().await {
-                    let this = Arc::clone(&this);
-
-                    match message {
-                        Message::Ping(data) => {
-                            stream.send(Message::Pong(data)).await?;
+                loop {
+                    let mut stream = match connect_async(&ws_uri).await {
+                        Ok((stream, _)) => stream,
+                        Err(e) => {
+                            tracing::error!("Failed to connect to EventSub: {e}");
+                            return Err::<(), _>(Error::WebSocket(e));
                         }
-                        Message::Text(data) => {
-                            if let Ok(msg) = serde_json::from_str(data.as_str()) {
-                                match this.handle_message(msg).await? {
-                                    Some(url) => {
-                                        reconnect_url = Some(url);
-                                        break;
+                    };
+
+                    tracing::info!("Connected to EventSub");
+                    self.set_connected(true);
+
+                    let mut reconnect_url: Option<String> = None;
+
+                    while let Some(Ok(message)) = stream.next().await {
+                        let this = Arc::clone(&this);
+
+                        match message {
+                            Message::Ping(data) => {
+                                stream.send(Message::Pong(data)).await?;
+                            }
+                            Message::Text(data) => {
+                                if let Ok(msg) = serde_json::from_str(data.as_str()) {
+                                    match this.handle_message(msg).await? {
+                                        Some(url) => {
+                                            reconnect_url = Some(url);
+                                            break;
+                                        }
+                                        None => continue,
                                     }
-                                    None => continue,
                                 }
                             }
+                            Message::Close(Some(frame)) => {
+                                tracing::warn!(%frame, "EventSub connection closed");
+                                break;
+                            }
+                            Message::Close(None) => {
+                                tracing::warn!("EventSub connection closed");
+                                break;
+                            }
+                            _ => (),
                         }
-                        Message::Close(_) => {
-                            break;
-                        }
-                        _ => (),
+                    }
+
+                    self.set_connected(false);
+                    *self.session_id.lock().await = None;
+
+                    if let Some(url) = reconnect_url {
+                        ws_uri = url;
                     }
                 }
-
-                self.set_connected(false);
-                *self.session_id.lock().await = None;
-
-                if let Some(url) = reconnect_url {
-                    ws_uri = url;
-                }
             }
-        });
+            .in_current_span(),
+        );
 
         Ok(())
     }
 
+    #[tracing::instrument(skip_all)]
     async fn handle_message(
         self: Arc<Self>,
         msg: WebSocketMessage,
@@ -216,6 +232,7 @@ impl EventSubClient {
 
         match msg {
             Ws::Welcome(payload) => {
+                tracing::debug!("Set EventSub session id to {}", payload.session.id);
                 *self.session_id.lock().await = Some(payload.session.id);
 
                 if self
@@ -223,7 +240,7 @@ impl EventSubClient {
                     .compare_exchange(true, false, Ordering::Relaxed, Ordering::Relaxed)
                     .is_err()
                 {
-                    println!("initial subscribe");
+                    tracing::info!("Initial connection to EventSub established");
 
                     self.subscribe(
                         self.token.login.as_str(),
@@ -231,12 +248,22 @@ impl EventSubClient {
                         json!({ "user_id": self.token.user_id }),
                     )
                     .await?;
+                } else {
+                    tracing::info!("Reconnected to EventSub");
                 }
             }
             Ws::Notification(payload) => {
+                tracing::trace!(
+                    "Received {} event: {}",
+                    payload.subscription.kind,
+                    payload.event
+                );
+
                 self.sender.send(payload).unwrap();
             }
             Ws::Reconnect(payload) => {
+                tracing::warn!("Reconnect requested for {}", payload.session.id);
+
                 let url = payload
                     .session
                     .reconnect_url
@@ -247,6 +274,12 @@ impl EventSubClient {
                 return Ok(Some(url));
             }
             Ws::Revocation(payload) => {
+                tracing::warn!(
+                    "Revocation requested for {} ({})",
+                    payload.subscription.kind,
+                    payload.subscription.id
+                );
+
                 self.subscriptions
                     .lock()
                     .await
@@ -266,9 +299,10 @@ impl EventSubClient {
         self.connected.store(value, Ordering::Relaxed);
     }
 
+    #[tracing::instrument(name = "eventsub_subscribe", skip(self, condition), fields(%condition))]
     pub async fn subscribe(
         &self,
-        channel: &str,
+        username: &str,
         event: EventType,
         condition: serde_json::Value,
     ) -> Result<(), Error> {
@@ -303,7 +337,9 @@ impl EventSubClient {
         self.subscriptions
             .lock()
             .await
-            .insert(format!("{channel}:{event}"), response.data.0.id.take());
+            .insert(format!("{username}:{event}"), response.data.0.id.take());
+
+        tracing::trace!("Subscription created");
 
         Ok(())
     }

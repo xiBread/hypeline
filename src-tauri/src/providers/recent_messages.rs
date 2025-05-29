@@ -1,5 +1,6 @@
 use serde::Deserialize;
 use tauri::{async_runtime, AppHandle, Emitter};
+use tracing::Instrument;
 
 use crate::error::Error;
 use crate::irc::message::{IrcMessage, ServerMessage};
@@ -11,10 +12,12 @@ struct RecentMessages {
     messages: Vec<String>,
 }
 
+#[tracing::instrument(skip(app_handle))]
 #[tauri::command]
 pub async fn fetch_recent_messages(app_handle: AppHandle, channel: String, history_limit: u32) {
     // Return early as to not trigger wakeups
     if history_limit == 0 {
+        tracing::debug!("History limit is 0, skipping request");
         return;
     }
 
@@ -28,6 +31,8 @@ pub async fn fetch_recent_messages(app_handle: AppHandle, channel: String, histo
             .json()
             .await?;
 
+		tracing::info!("Fetched {} recent messages", response.messages.len());
+
         let server_messages: Vec<_> = response
             .messages
             .into_iter()
@@ -36,5 +41,5 @@ pub async fn fetch_recent_messages(app_handle: AppHandle, channel: String, histo
 
         app_handle.emit("recentmessages", server_messages).unwrap();
         Ok::<_, Error>(())
-    });
+    }.in_current_span());
 }

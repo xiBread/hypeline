@@ -1,5 +1,6 @@
 import { Channel, invoke } from "@tauri-apps/api/core";
 import { handlers } from "$lib/handlers";
+import { log } from "$lib/log";
 import { settings } from "$lib/settings";
 import type { DispatchPayload } from "$lib/seventv";
 import { app } from "$lib/state.svelte";
@@ -77,6 +78,8 @@ export async function connect() {
 	await invoke("connect_irc", { channel: ircChannel });
 	await invoke("connect_eventsub", { channel: eventsubChannel });
 	await invoke("connect_seventv", { channel: seventvChannel });
+
+	log.info("All connections established");
 }
 
 async function handle(key: string, payload: any) {

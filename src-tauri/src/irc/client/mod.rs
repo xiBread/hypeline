@@ -47,12 +47,16 @@ impl IrcClient {
     }
 
     pub fn join(&self, channel_login: String) {
+        tracing::info!("Joining {}", channel_login);
+
         self.client_loop_tx
             .send(ClientLoopCommand::Join { channel_login })
             .unwrap();
     }
 
     pub fn part(&self, channel_login: String) {
+        tracing::info!("Parting {}", channel_login);
+
         self.client_loop_tx
             .send(ClientLoopCommand::Part { channel_login })
             .unwrap();
