@@ -46,12 +46,19 @@
 	});
 
 	function applySuggestion(suggestion: Suggestion) {
+		let replaceLength = currentQuery.length;
+
+		if (trigger === "@" || trigger === ":") {
+			replaceLength++;
+		}
+
 		const left = value.slice(0, triggerPosition);
-		const right = value.slice(triggerPosition + 1 + currentQuery.length);
+		const right = value.slice(triggerPosition + replaceLength);
 
 		value = `${left + suggestion.display} ${right}`;
 
 		suggestions = [];
+		suggestionIdx = 0;
 		trigger = null;
 		currentQuery = "";
 
@@ -108,6 +115,13 @@
 			}
 		}
 
+		if (trigger === "tab" && !potentialTrigger) {
+			suggestions = [];
+			trigger = null;
+			currentQuery = "";
+			triggerPosition = -1;
+		}
+
 		if (potentialTrigger && query.length > 0) {
 			const filtered: Suggestion[] = [];
 
@@ -139,7 +153,7 @@
 			}
 
 			suggestions = filtered;
-		} else {
+		} else if (trigger !== "tab") {
 			trigger = null;
 			triggerPosition = -1;
 			currentQuery = "";
@@ -152,10 +166,41 @@
 		const input = event.currentTarget;
 
 		if (event.key === "Tab") {
-			event.preventDefault();
-
 			if (showSuggestions) {
+				event.preventDefault();
 				applySuggestion(suggestions[suggestionIdx]);
+			} else {
+				const cursor = input.selectionStart ?? value.length;
+				const left = value.slice(0, cursor);
+
+				const lastSpaceIndex = left.lastIndexOf(" ");
+				const currentSegment = left.slice(lastSpaceIndex + 1);
+
+				if (currentSegment && !currentSegment.includes(" ")) {
+					const query = currentSegment.toLowerCase();
+					const filtered: Suggestion[] = [];
+
+					for (const [name, emote] of app.joined.emotes) {
+						if (name.toLowerCase().startsWith(query) && filtered.length < 25) {
+							filtered.push({
+								type: "emote",
+								value: name,
+								display: name,
+								imageUrl: emote.srcset[1].split(" ")[0],
+							});
+						}
+					}
+
+					if (filtered.length > 0) {
+						event.preventDefault();
+
+						suggestions = filtered;
+						suggestionIdx = 0;
+						trigger = "tab";
+						triggerPosition = lastSpaceIndex + 1;
+						currentQuery = currentSegment;
+					}
+				}
 			}
 		} else if (event.key === "Escape" && replyTarget.value) {
 			replyTarget.value = null;
