@@ -48,6 +48,7 @@
 						"flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm outline-none hover:cursor-pointer",
 						"data-current:bg-accent data-current:text-accent-foreground",
 					]}
+					title={suggestion.display}
 					value={suggestion.value}
 					data-current={index === i ? true : null}
 					onmouseenter={() => (index = i)}
@@ -61,7 +62,7 @@
 						/>
 					{/if}
 
-					<span>{suggestion.display}</span>
+					<span class="overflow-x-hidden overflow-ellipsis">{suggestion.display}</span>
 				</Combobox.Item>
 			{/each}
 		</Combobox.Content>
