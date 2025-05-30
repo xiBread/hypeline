@@ -13,11 +13,18 @@
 	interface Props {
 		anchor: HTMLElement | null;
 		open: boolean;
+		index: number;
 		suggestions: Suggestion[];
 		onselect: (suggestion: Suggestion) => void;
 	}
 
-	let { anchor, open = $bindable(), suggestions, onselect }: Props = $props();
+	let { anchor, open = $bindable(), index, suggestions, onselect }: Props = $props();
+
+	let items = $state<(HTMLDivElement | null)[]>(Array.from({ length: 25 }, () => null));
+
+	$effect(() => {
+		items[index]?.scrollIntoView({ block: "nearest" });
+	});
 </script>
 
 <Combobox.Root
@@ -35,14 +42,16 @@
 			side="top"
 			sideOffset={8}
 		>
-			{#each suggestions as suggestion (suggestion.value)}
+			{#each suggestions as suggestion, i (suggestion.value)}
 				<Combobox.Item
 					class={[
-						"flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm outline-none",
-						"focus-visible:bg-accent focus-visible:text-accent-foreground",
-						"data-highlighted:bg-accent data-highlighted:text-accent-foreground",
+						"flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm outline-none hover:cursor-pointer",
+						"data-current:bg-accent data-current:text-accent-foreground",
 					]}
 					value={suggestion.value}
+					data-current={index === i ? true : null}
+					onmouseenter={() => (index = i)}
+					bind:ref={items[i]}
 				>
 					{#if suggestion.imageUrl}
 						<img
