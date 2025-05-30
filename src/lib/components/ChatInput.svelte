@@ -116,7 +116,7 @@
 
 			if (viewer) {
 				results.push({
-					type: "emote",
+					type: "user",
 					value: viewer.username,
 					display: viewer.displayName,
 				});
