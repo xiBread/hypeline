@@ -11,6 +11,7 @@
 </script>
 
 <script lang="ts">
+	import Fuzzy from "@leeoniya/ufuzzy";
 	import { onMount } from "svelte";
 	import type {
 		FormEventHandler,
@@ -25,6 +26,8 @@
 	import Input from "./ui/Input.svelte";
 
 	const { class: className, ...rest }: HTMLInputAttributes = $props();
+
+	const fuzzy = new Fuzzy();
 
 	let chatInput = $state<HTMLInputElement | null>(null);
 	let anchor = $state<HTMLElement>();
@@ -70,6 +73,57 @@
 				input.value?.setSelectionRange(newCursorPos, newCursorPos);
 			}, 0);
 		}
+	}
+
+	function searchEmotes(query: string) {
+		const results: Suggestion[] = [];
+		if (!app.joined) return results;
+
+		const keys = app.joined.emotes.keys().toArray();
+		const [, info, order] = fuzzy.search(keys, query);
+
+		for (const i of order ?? []) {
+			if (!info || results.length >= 25) break;
+
+			const name = keys[info.idx[order[i]]];
+			const emote = app.joined.emotes.get(name);
+
+			if (emote) {
+				results.push({
+					type: "emote",
+					value: name,
+					display: name,
+					imageUrl: emote.srcset[1].split(" ")[0],
+				});
+			}
+		}
+
+		return results;
+	}
+
+	function searchViewers(query: string) {
+		const results: Suggestion[] = [];
+		if (!app.joined) return results;
+
+		const keys = app.joined.viewers.keys().toArray();
+		const [, info, order] = fuzzy.search(keys, query);
+
+		for (const i of order ?? []) {
+			if (!info || results.length >= 25) break;
+
+			const name = keys[info.idx[order[i]]];
+			const viewer = app.joined.viewers.get(name);
+
+			if (viewer) {
+				results.push({
+					type: "emote",
+					value: viewer.username,
+					display: viewer.displayName,
+				});
+			}
+		}
+
+		return results;
 	}
 
 	const filter: FormEventHandler<HTMLInputElement> = (event) => {
@@ -127,29 +181,12 @@
 
 			trigger = potentialTrigger;
 			triggerPosition = foundTriggerPos;
-			currentQuery = query.toLowerCase();
+			currentQuery = query;
 
 			if (trigger === ":") {
-				for (const [name, emote] of app.joined.emotes) {
-					if (name.toLowerCase().includes(currentQuery) && filtered.length < 25) {
-						filtered.push({
-							type: "emote",
-							value: name,
-							display: name,
-							imageUrl: emote.srcset[1].split(" ")[0],
-						});
-					}
-				}
+				filtered.push(...searchEmotes(currentSegment));
 			} else if (trigger === "@") {
-				for (const [username, viewer] of app.joined.viewers) {
-					if (username.includes(currentQuery) && filtered.length < 25) {
-						filtered.push({
-							type: "user",
-							value: username,
-							display: viewer.displayName,
-						});
-					}
-				}
+				filtered.push(...searchViewers(currentSegment));
 			}
 
 			suggestions = filtered;
@@ -177,21 +214,9 @@
 				const currentSegment = left.slice(lastSpaceIndex + 1);
 
 				if (currentSegment && !currentSegment.includes(" ")) {
-					const query = currentSegment.toLowerCase();
-					const filtered: Suggestion[] = [];
+					const filtered = searchEmotes(currentSegment);
 
-					for (const [name, emote] of app.joined.emotes) {
-						if (name.toLowerCase().startsWith(query) && filtered.length < 25) {
-							filtered.push({
-								type: "emote",
-								value: name,
-								display: name,
-								imageUrl: emote.srcset[1].split(" ")[0],
-							});
-						}
-					}
-
-					if (filtered.length > 0) {
+					if (filtered.length) {
 						event.preventDefault();
 
 						suggestions = filtered;

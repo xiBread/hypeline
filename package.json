@@ -23,6 +23,7 @@
 		]
 	},
 	"dependencies": {
+		"@leeoniya/ufuzzy": "^1.0.18",
 		"@tailwindcss/vite": "^4.1.8",
 		"@tauri-apps/api": "^2.5.0",
 		"@tauri-apps/plugin-notification": "~2.2.2",
