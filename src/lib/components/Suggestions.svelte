@@ -1,10 +1,20 @@
 <script lang="ts" module>
-	export interface Suggestion {
-		type: "emote" | "user";
+	interface BaseSuggestion {
 		value: string;
 		display: string;
-		imageUrl?: string;
 	}
+
+	interface EmoteSuggestion extends BaseSuggestion {
+		type: "emote";
+		imageUrl: string;
+	}
+
+	interface UserSuggestion extends BaseSuggestion {
+		type: "user";
+		style: string;
+	}
+
+	export type Suggestion = EmoteSuggestion | UserSuggestion;
 </script>
 
 <script lang="ts">
@@ -20,7 +30,7 @@
 
 	let { anchor, open = $bindable(), index, suggestions, onselect }: Props = $props();
 
-	let items = $state<(HTMLDivElement | null)[]>(Array.from({ length: 25 }, () => null));
+	const items = $state<(HTMLDivElement | null)[]>(Array.from({ length: 25 }, () => null));
 
 	$effect(() => {
 		items[index]?.scrollIntoView({ block: "nearest" });
@@ -54,15 +64,21 @@
 					onmouseenter={() => (index = i)}
 					bind:ref={items[i]}
 				>
-					{#if suggestion.imageUrl}
+					{#if suggestion.type === "emote"}
 						<img
 							class="size-8 object-contain"
 							src={suggestion.imageUrl}
 							alt={suggestion.display}
 						/>
-					{/if}
 
-					<span class="overflow-x-hidden overflow-ellipsis">{suggestion.display}</span>
+						<span class="overflow-x-hidden overflow-ellipsis">
+							{suggestion.display}
+						</span>
+					{:else}
+						<span class="font-semibold" style={suggestion.style}>
+							{suggestion.display}
+						</span>
+					{/if}
 				</Combobox.Item>
 			{/each}
 		</Combobox.Content>

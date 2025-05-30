@@ -119,6 +119,7 @@
 					type: "user",
 					value: viewer.username,
 					display: viewer.displayName,
+					style: viewer.style,
 				});
 			}
 		}
@@ -227,7 +228,7 @@
 					}
 				}
 			}
-		} else if (event.key === "Escape" && replyTarget.value) {
+		} else if (event.key === "Escape") {
 			replyTarget.value = null;
 		} else if (event.key === "ArrowUp") {
 			if (showSuggestions) {
