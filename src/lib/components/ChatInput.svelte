@@ -143,6 +143,11 @@
 		const lastSpaceIndex = left.lastIndexOf(" ");
 		const currentSegment = left.slice(lastSpaceIndex + 1);
 
+		if (!currentSegment) {
+			suggestions = [];
+			return;
+		}
+
 		let potentialTrigger = null;
 		let query = "";
 		let foundTriggerPos = -1;
