@@ -11,76 +11,296 @@
 </script>
 
 <script lang="ts">
+	import Fuzzy from "@leeoniya/ufuzzy";
 	import { onMount } from "svelte";
-	import type { HTMLInputAttributes } from "svelte/elements";
+	import type {
+		FormEventHandler,
+		HTMLInputAttributes,
+		KeyboardEventHandler,
+	} from "svelte/elements";
 	import { app } from "$lib/state.svelte";
 	import EmotePicker from "./EmotePicker.svelte";
 	import Message from "./message/Message.svelte";
+	import Suggestions from "./Suggestions.svelte";
+	import type { Suggestion } from "./Suggestions.svelte";
 	import Input from "./ui/Input.svelte";
 
 	const { class: className, ...rest }: HTMLInputAttributes = $props();
+
+	const fuzzy = new Fuzzy();
 
 	let chatInput = $state<HTMLInputElement | null>(null);
 	let anchor = $state<HTMLElement>();
 
 	let emotePickerOpen = $state(false);
-	let historyCursor = $state(-1);
+	let historyIdx = $state(-1);
+	let value = $state("");
+
+	let suggestions = $state<Suggestion[]>([]);
+	let suggestionIdx = $state(0);
+	const showSuggestions = $derived(suggestions.length > 0);
+
+	let currentQuery = "";
+	let trigger: string | null = null;
+	let triggerPosition = -1;
 
 	onMount(() => {
 		input.value = chatInput;
 	});
 
-	async function send(event: KeyboardEvent) {
-		if (!app.joined) return;
+	function applySuggestion(suggestion: Suggestion) {
+		let replaceLength = currentQuery.length;
 
-		const input = event.currentTarget as HTMLInputElement;
+		if (trigger === "@" || trigger === ":") {
+			replaceLength++;
+		}
 
-		if (event.key === "Escape" && replyTarget.value) {
-			replyTarget.value = null;
-		} else if (event.key === "ArrowUp") {
-			if (!app.joined.history.length) return;
+		const left = value.slice(0, triggerPosition);
+		const right = value.slice(triggerPosition + replaceLength);
 
-			if (historyCursor === -1) {
-				historyCursor = app.joined.history.length - 1;
-			} else if (historyCursor > 0) {
-				historyCursor--;
-			}
+		value = `${left + suggestion.display} ${right}`;
 
-			input.value = app.joined.history[historyCursor];
+		suggestions = [];
+		suggestionIdx = 0;
+		trigger = null;
+		currentQuery = "";
+
+		if (input.value) {
+			input.value.focus();
 
 			setTimeout(() => {
-				input.setSelectionRange(input.value.length, input.value.length);
+				const newCursorPos = triggerPosition + suggestion.display.length + 1;
+				input.value?.setSelectionRange(newCursorPos, newCursorPos);
 			}, 0);
-		} else if (event.key === "ArrowDown") {
-			if (historyCursor === -1) return;
+		}
+	}
 
-			if (historyCursor < app.joined.history.length - 1) {
-				historyCursor++;
-				input.value = app.joined.history[historyCursor];
-			} else {
-				historyCursor = -1;
-				input.value = "";
+	function searchEmotes(query: string) {
+		const results: Suggestion[] = [];
+		if (!app.joined) return results;
+
+		const keys = app.joined.emotes.keys().toArray();
+		const [, info, order] = fuzzy.search(keys, query);
+
+		for (const i of order ?? []) {
+			if (!info || results.length >= 25) break;
+
+			const name = keys[info.idx[order[i]]];
+			const emote = app.joined.emotes.get(name);
+
+			if (emote) {
+				results.push({
+					type: "emote",
+					value: name,
+					display: name,
+					imageUrl: emote.srcset[1].split(" ")[0],
+				});
+			}
+		}
+
+		return results;
+	}
+
+	function searchViewers(query: string) {
+		const results: Suggestion[] = [];
+		if (!app.joined) return results;
+
+		const keys = app.joined.viewers.keys().toArray();
+		const [, info, order] = fuzzy.search(keys, query);
+
+		for (const i of order ?? []) {
+			if (!info || results.length >= 25) break;
+
+			const name = keys[info.idx[order[i]]];
+			const viewer = app.joined.viewers.get(name);
+
+			if (viewer) {
+				results.push({
+					type: "user",
+					value: viewer.username,
+					display: viewer.displayName,
+					style: viewer.style,
+				});
+			}
+		}
+
+		return results;
+	}
+
+	const filter: FormEventHandler<HTMLInputElement> = (event) => {
+		if (!app.joined) return;
+
+		const text = event.currentTarget.value;
+
+		if (!text) {
+			suggestions = [];
+			return;
+		}
+
+		const cursor = event.currentTarget.selectionStart ?? text.length;
+		const left = text.slice(0, cursor);
+
+		const lastSpaceIndex = left.lastIndexOf(" ");
+		const currentSegment = left.slice(lastSpaceIndex + 1);
+
+		if (!currentSegment) {
+			suggestions = [];
+			return;
+		}
+
+		let potentialTrigger = null;
+		let query = "";
+		let foundTriggerPos = -1;
+
+		const atIndex = currentSegment.lastIndexOf("@");
+		const colonIndex = currentSegment.lastIndexOf(":");
+
+		if (atIndex !== -1 && (colonIndex === -1 || atIndex > colonIndex)) {
+			if (cursor - (lastSpaceIndex + 1 + atIndex) > 0) {
+				query = currentSegment.slice(atIndex + 1);
+
+				if (!query.includes(" ")) {
+					potentialTrigger = "@";
+					foundTriggerPos = lastSpaceIndex + 1 + atIndex + 1;
+				}
+			}
+		} else if (colonIndex !== -1) {
+			if (cursor - (lastSpaceIndex + 1 + colonIndex) > 0) {
+				query = currentSegment.slice(colonIndex + 1);
+
+				if (!query.includes(" ")) {
+					potentialTrigger = ":";
+					foundTriggerPos = lastSpaceIndex + 1 + colonIndex;
+				}
+			}
+		}
+
+		if (trigger === "tab" && !potentialTrigger) {
+			suggestions = [];
+			trigger = null;
+			currentQuery = "";
+			triggerPosition = -1;
+		}
+
+		if (potentialTrigger && query.length > 0) {
+			const filtered: Suggestion[] = [];
+
+			trigger = potentialTrigger;
+			triggerPosition = foundTriggerPos;
+			currentQuery = query;
+
+			if (trigger === ":") {
+				filtered.push(...searchEmotes(currentSegment));
+			} else if (trigger === "@") {
+				filtered.push(...searchViewers(currentSegment));
 			}
 
-			input.setSelectionRange(input.value.length, input.value.length);
+			suggestions = filtered;
+		} else if (trigger !== "tab") {
+			trigger = null;
+			triggerPosition = -1;
+			currentQuery = "";
+		}
+	};
+
+	const send: KeyboardEventHandler<HTMLInputElement> = async (event) => {
+		if (!app.joined) return;
+
+		const input = event.currentTarget;
+
+		if (event.key === "Tab") {
+			if (showSuggestions) {
+				event.preventDefault();
+				applySuggestion(suggestions[suggestionIdx]);
+			} else {
+				const cursor = input.selectionStart ?? value.length;
+				const left = value.slice(0, cursor);
+
+				const lastSpaceIndex = left.lastIndexOf(" ");
+				const currentSegment = left.slice(lastSpaceIndex + 1);
+
+				if (currentSegment && !currentSegment.includes(" ")) {
+					const filtered = searchEmotes(currentSegment);
+
+					if (filtered.length) {
+						event.preventDefault();
+
+						suggestions = filtered;
+						suggestionIdx = 0;
+						trigger = "tab";
+						triggerPosition = lastSpaceIndex + 1;
+						currentQuery = currentSegment;
+					}
+				}
+			}
+		} else if (event.key === "Escape") {
+			replyTarget.value = null;
+		} else if (event.key === "ArrowUp") {
+			if (showSuggestions) {
+				event.preventDefault();
+				suggestionIdx = (suggestionIdx - 1 + suggestions.length) % suggestions.length;
+			} else {
+				if (!app.joined.history.length) return;
+
+				if (historyIdx === -1) {
+					historyIdx = app.joined.history.length - 1;
+				} else if (historyIdx > 0) {
+					historyIdx--;
+				}
+
+				input.value = app.joined.history[historyIdx];
+
+				setTimeout(() => {
+					input.setSelectionRange(input.value.length, input.value.length);
+				}, 0);
+			}
+		} else if (event.key === "ArrowDown") {
+			if (showSuggestions) {
+				event.preventDefault();
+				suggestionIdx = (suggestionIdx + 1) % suggestions.length;
+			} else {
+				if (historyIdx === -1) return;
+
+				if (historyIdx < app.joined.history.length - 1) {
+					historyIdx++;
+					input.value = app.joined.history[historyIdx];
+				} else {
+					historyIdx = -1;
+					input.value = "";
+				}
+
+				input.setSelectionRange(input.value.length, input.value.length);
+			}
 		} else if (event.key === "Enter") {
 			event.preventDefault();
 
-			const message = input.value.trim();
+			if (showSuggestions) {
+				applySuggestion(suggestions[suggestionIdx]);
+			} else {
+				const message = input.value.trim();
 
-			if (!message) return;
-			if (!event.ctrlKey) input.value = "";
+				if (!message) return;
+				if (!event.ctrlKey) input.value = "";
 
-			app.joined.history.push(message);
-			await app.joined.send(message);
+				app.joined.history.push(message);
+				await app.joined.send(message);
 
-			historyCursor = -1;
-			replyTarget.value = null;
+				historyIdx = -1;
+				replyTarget.value = null;
+			}
 		}
-	}
+	};
 </script>
 
-<EmotePicker input={chatInput} {anchor} bind:open={emotePickerOpen} />
+<Suggestions
+	anchor={chatInput}
+	open={showSuggestions}
+	index={suggestionIdx}
+	{suggestions}
+	onselect={applySuggestion}
+/>
+
+<EmotePicker {anchor} input={chatInput} bind:open={emotePickerOpen} />
 
 {#if replyTarget.value}
 	<div
@@ -118,9 +338,11 @@
 		autocorrect="off"
 		maxlength={500}
 		placeholder="Send a message"
+		oninput={filter}
 		onkeydown={send}
 		{...rest}
 		bind:ref={chatInput}
+		bind:value
 	/>
 
 	<div class="absolute inset-y-0 end-0 flex p-1">
