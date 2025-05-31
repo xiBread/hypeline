@@ -161,7 +161,7 @@
 
 				if (!query.includes(" ")) {
 					potentialTrigger = "@";
-					foundTriggerPos = lastSpaceIndex + 1 + atIndex;
+					foundTriggerPos = lastSpaceIndex + 1 + atIndex + 1;
 				}
 			}
 		} else if (colonIndex !== -1) {
