@@ -1,6 +1,6 @@
 use std::collections::{HashSet, VecDeque};
 use std::sync::Arc;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 
 use tokio::sync::oneshot;
 
@@ -50,6 +50,33 @@ impl PoolConnection {
     pub fn channels_limit_not_reached(&self) -> bool {
         let configured_limit = self.config.max_channels_per_connection;
         self.wanted_channels.len() < configured_limit
+    }
+
+    pub fn not_busy(&self) -> bool {
+        let time_per_message = Duration::from_millis(150);
+        let max_waiting_per_connection = self.config.max_waiting_messages_per_connection;
+
+        let mut messages_waiting = self.message_send_times.len();
+
+        let current_time = Instant::now();
+        let last_message_finished = None;
+
+        for send_time in self.message_send_times.iter() {
+            let start_time = match last_message_finished {
+                Some(last_message_finished) => send_time.max(last_message_finished),
+                None => send_time,
+            };
+
+            let finish_time = *start_time + time_per_message;
+
+            if finish_time < current_time {
+                messages_waiting -= 1;
+            } else {
+                break;
+            }
+        }
+
+        messages_waiting < max_waiting_per_connection
     }
 }
 

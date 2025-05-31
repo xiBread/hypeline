@@ -50,6 +50,10 @@ export type AutoModMessageUpdate = (AutoModAutomated | AutoModBlockedTerm) &
 		status: AutoModMessageStatus;
 	};
 
+export interface ChannelChatMessage extends WithBroadcaster, Prefix<WithBasicUser, "chatter_"> {
+	message_id: string;
+}
+
 export interface ChannelChatUserMessageHold extends WithBasicUser, WithBroadcaster {
 	message_id: string;
 	message: StructuredMessage;
@@ -291,6 +295,7 @@ export interface StreamOnline extends WithBroadcaster {
 export interface SubscriptionEventMap {
 	"automod.message.hold": AutoModMessageHold;
 	"automod.message.update": AutoModMessageUpdate;
+	"channel.chat.message": ChannelChatMessage;
 	"channel.chat.user_message_hold": ChannelChatUserMessageHold;
 	"channel.chat.user_message_update": ChannelChatUserMessageUpdate;
 	"channel.moderate": ChannelModerate;

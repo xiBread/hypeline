@@ -151,6 +151,7 @@ export class Channel {
 	public async send(message: string) {
 		await invoke("send_message", {
 			content: message,
+			broadcaster: this.user.username,
 			broadcasterId: this.user.id,
 			replyId: replyTarget.value?.id ?? null,
 		});

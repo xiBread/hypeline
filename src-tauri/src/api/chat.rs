@@ -110,6 +110,7 @@ pub async fn join(
             use EventType as Ev;
 
             let mut events = vec![
+                (Ev::ChannelChatMessage, &ch_with_user_cond),
                 (Ev::ChannelChatUserMessageHold, &ch_with_user_cond),
                 (Ev::ChannelChatUserMessageUpdate, &ch_with_user_cond),
                 (Ev::ChannelSubscriptionEnd, &ch_cond),
@@ -196,44 +197,25 @@ pub async fn leave(state: State<'_, Mutex<AppState>>, channel: String) -> Result
 pub async fn send_message(
     state: State<'_, Mutex<AppState>>,
     content: String,
+    broadcaster: String,
     broadcaster_id: String,
     reply_id: Option<String>,
 ) -> Result<(), Error> {
     tracing::info!("Sending message");
 
     let state = state.lock().await;
-    let token = get_access_token(&state)?;
 
-    let user_id = token.user_id.clone();
-
-    let response = if let Some(reply_id) = reply_id {
-        state
-            .helix
-            .send_chat_message_reply(
-                &broadcaster_id,
-                &user_id,
-                &reply_id,
-                content.as_str(),
-                token,
-            )
-            .await
-    } else {
-        state
-            .helix
-            .send_chat_message(&broadcaster_id, &user_id, content.as_str(), token)
-            .await
+    let Some(ref irc) = state.irc else {
+        return Err(Error::Generic(anyhow!("No IRC connection")));
     };
 
-    match response {
-        Ok(response) if response.is_sent => {
+    match irc.send(&broadcaster, content, reply_id).await {
+        Ok(_) => {
             tracing::debug!("Message sent");
 
             if let Some(ref id) = state.seventv_id {
                 send_presence(id, &broadcaster_id).await;
             }
-        }
-        Ok(response) => {
-            tracing::debug!(?response.drop_reason, "Message dropped");
         }
         Err(err) => {
             tracing::error!(%err, "Failed to send message");

@@ -12,6 +12,7 @@ import usernotice from "./irc/usernotice";
 //
 import automodMessageHold from "./eventsub/automod-message-hold";
 import automodMessageUpdate from "./eventsub/automod-message-update";
+import channelChatMessage from "./eventsub/channel-chat-message";
 import channelChatUserMessageHold from "./eventsub/channel-chat-user-message-hold";
 import channelChatUserMessageUpdate from "./eventsub/channel-chat-user-message-update";
 import channelModerate from "./eventsub/channel-moderate";
@@ -44,6 +45,7 @@ register(usernotice);
 
 register(automodMessageHold);
 register(automodMessageUpdate);
+register(channelChatMessage);
 register(channelChatUserMessageHold);
 register(channelChatUserMessageUpdate);
 register(channelModerate);

@@ -7,7 +7,8 @@ use super::pool_connection::PoolConnection;
 use crate::irc;
 use crate::irc::connection::event_loop::ConnectionLoopCommand;
 use crate::irc::connection::{Connection, ConnectionIncomingMessage};
-use crate::irc::message::{JoinMessage, PartMessage, ServerMessage};
+use crate::irc::error::Error;
+use crate::irc::message::{IrcMessage, JoinMessage, PartMessage, ServerMessage};
 use crate::irc::ClientConfig;
 
 #[derive(Debug)]
@@ -20,6 +21,10 @@ pub(crate) enum ClientLoopCommand {
     },
     Part {
         channel_login: String,
+    },
+    SendMessage {
+        message: IrcMessage,
+        return_sender: oneshot::Sender<Result<(), Error>>,
     },
     IncomingMessage {
         source_connection_id: usize,
@@ -75,6 +80,10 @@ impl ClientLoopWorker {
             }
             ClientLoopCommand::Join { channel_login } => self.join(channel_login),
             ClientLoopCommand::Part { channel_login } => self.part(channel_login),
+            ClientLoopCommand::SendMessage {
+                message,
+                return_sender,
+            } => self.send_message(message, return_sender),
             ClientLoopCommand::IncomingMessage {
                 source_connection_id,
                 message,
@@ -200,6 +209,32 @@ impl ClientLoopWorker {
 
         pool_connection.register_sent_message();
         pool_connection.wanted_channels.remove(&channel_login);
+
+        self.connections.push_back(pool_connection);
+    }
+
+    fn send_message(
+        &mut self,
+        message: IrcMessage,
+        return_sender: oneshot::Sender<Result<(), Error>>,
+    ) {
+        let mut pool_connection = self
+            .connections
+            .iter()
+            .position(|conn| conn.not_busy())
+            .map(|pos| self.connections.remove(pos).unwrap())
+            .unwrap_or_else(|| self.make_new_connection());
+
+        pool_connection.register_sent_message();
+
+        pool_connection
+            .connection
+            .connection_loop_tx
+            .send(ConnectionLoopCommand::SendMessage(
+                message,
+                Some(return_sender),
+            ))
+            .unwrap();
 
         self.connections.push_back(pool_connection);
     }
