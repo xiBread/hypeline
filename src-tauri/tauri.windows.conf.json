@@ -3,6 +3,10 @@
 		"windows": [
 			{
 				"decorations": false
+			},
+			{
+				"label": "settings",
+				"decorations": false
 			}
 		]
 	}
