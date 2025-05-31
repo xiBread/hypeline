@@ -71,11 +71,11 @@
 			if (!message) return;
 			if (!event.ctrlKey) input.value = "";
 
+			replyTarget.value = null;
+			historyCursor = -1;
+
 			app.joined.history.push(message);
 			await app.joined.send(message);
-
-			historyCursor = -1;
-			replyTarget.value = null;
 		}
 	}
 </script>
