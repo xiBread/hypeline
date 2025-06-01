@@ -74,6 +74,10 @@ export class UserMessage extends Message {
 			is_returning_chatter: false,
 			reply: null,
 			sender,
+			source_only: null,
+			source_badges: null,
+			source_badge_info: null,
+			source_channel_id: null,
 			server_timestamp: Date.now(),
 		});
 	}

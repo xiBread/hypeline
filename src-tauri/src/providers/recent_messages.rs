@@ -36,7 +36,23 @@ pub async fn fetch_recent_messages(app_handle: AppHandle, channel: String, histo
         let server_messages: Vec<_> = response
             .messages
             .into_iter()
-            .filter_map(|m| ServerMessage::try_from(IrcMessage::parse(&m).ok()?).ok())
+            .filter_map(|msg| {
+				let irc_message = match IrcMessage::parse(&msg) {
+					Ok(msg) => msg,
+					Err(err) => {
+						tracing::warn!(%err, "Failed to parse IRC message");
+						return None;
+					}
+				};
+
+				match ServerMessage::try_from(irc_message) {
+					Ok(server_msg) => Some(server_msg),
+					Err(err) => {
+						tracing::warn!(%err, "Failed to convert to ServerMessage");
+						None
+					}
+				}
+			})
             .collect();
 
         app_handle.emit("recentmessages", server_messages).unwrap();

@@ -16,11 +16,13 @@ use message::ServerMessage;
 use tauri::ipc::Channel;
 use tauri::{async_runtime, State};
 use tokio::sync::Mutex;
+use tracing::Instrument;
 
 use crate::api::get_access_token;
 use crate::error::Error as AppError;
 use crate::AppState;
 
+#[tracing::instrument(skip_all)]
 #[tauri::command]
 pub async fn connect_irc(
     state: State<'_, Mutex<AppState>>,
@@ -39,21 +41,26 @@ pub async fn connect_irc(
 
     let (mut incoming, client) = IrcClient::new(config);
 
-    async_runtime::spawn(async move {
-        while let Some(message) = incoming.recv().await {
-            match message {
-                ServerMessage::Join(ref join) => {
-                    tracing::info!("Joined {}", join.channel_login);
-                }
-                ServerMessage::Part(ref part) => {
-                    tracing::info!("Parted {}", part.channel_login);
-                }
-                _ => (),
-            }
+    async_runtime::spawn(
+        async move {
+            while let Some(message) = incoming.recv().await {
+                tracing::trace!(?message, "{} received", message.source().command);
 
-            channel.send(message).unwrap();
+                match message {
+                    ServerMessage::Join(ref join) => {
+                        tracing::info!("Joined {}", join.channel_login);
+                    }
+                    ServerMessage::Part(ref part) => {
+                        tracing::info!("Parted {}", part.channel_login);
+                    }
+                    _ => (),
+                }
+
+                channel.send(message).unwrap();
+            }
         }
-    });
+        .in_current_span(),
+    );
 
     client.connect().await;
     guard.irc = Some(client);
