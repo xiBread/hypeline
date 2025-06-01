@@ -10,7 +10,7 @@
 	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
 	import { SCOPES } from "$lib/twitch";
-	import { User } from "$lib/user";
+	import { User } from "$lib/user.svelte";
 
 	const params = {
 		client_id: PUBLIC_TWITCH_CLIENT_ID,

@@ -16,8 +16,8 @@
 	<Timestamp date={message.timestamp} />
 
 	<p class="inline">
-		<span class="font-semibold" style:color={message.viewer.color}>
-			{message.viewer.displayName}
+		<span class="font-semibold" style:color={message.author.color}>
+			{message.author.displayName}
 		</span>
 
 		is raiding with {raid.viewer_count}

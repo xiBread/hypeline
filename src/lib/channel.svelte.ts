@@ -6,8 +6,7 @@ import type { EmoteSet } from "./seventv";
 import { app } from "./state.svelte";
 import type { Emote, JoinedChannel } from "./tauri";
 import type { Badge, BadgeSet, Cheermote, Stream } from "./twitch/api";
-import { User } from "./user";
-import { Viewer } from "./viewer.svelte";
+import { User } from "./user.svelte";
 
 export class Channel {
 	#lastRecentAt: number | null = null;
@@ -16,7 +15,7 @@ export class Channel {
 	public readonly badges = new SvelteMap<string, Record<string, Badge>>();
 	public readonly emotes = new SvelteMap<string, Emote>();
 	public readonly cheermotes = $state<Cheermote[]>([]);
-	public readonly viewers = new SvelteMap<string, Viewer>();
+	public readonly viewers = new SvelteMap<string, User>();
 
 	/**
 	 * Whether the channel is ephemeral.
@@ -58,12 +57,10 @@ export class Channel {
 			.addCheermotes(joined.cheermotes)
 			.setStream(joined.stream);
 
+		channel.user.isBroadcaster = true;
 		channel.emoteSet = joined.emote_set ?? undefined;
 
-		const viewer = new Viewer(user);
-		viewer.isBroadcaster = true;
-
-		channel.viewers.set(user.username, viewer);
+		channel.viewers.set(user.username, channel.user);
 
 		return channel;
 	}
@@ -134,7 +131,7 @@ export class Channel {
 	public clearMessages(id?: string) {
 		if (id) {
 			for (const message of this.messages) {
-				if (message.isUser() && message.viewer.id === id) {
+				if (message.isUser() && message.author.id === id) {
 					message.setDeleted();
 				}
 			}

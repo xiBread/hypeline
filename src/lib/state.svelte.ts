@@ -3,13 +3,15 @@ import type { Channel } from "./channel.svelte";
 import type { Paint } from "./seventv";
 import type { Emote } from "./tauri";
 import type { Badge } from "./twitch/api";
-import type { User } from "./user";
+import type { User } from "./user.svelte";
 
 class AppState {
 	#joined = $state<Channel | null>(null);
 
 	public user?: User;
 	public channels = $state<Channel[]>([]);
+
+	public readonly users = new SvelteMap<string, User>();
 
 	public readonly globalEmotes = new SvelteMap<string, Emote>();
 	public readonly globalBadges = new SvelteMap<string, Record<string, Badge>>();

@@ -1,8 +1,6 @@
-import { invoke } from "@tauri-apps/api/core";
 import { SystemMessage } from "$lib/message";
 import type { Emote } from "$lib/seventv";
-import type { UserWithColor } from "$lib/tauri";
-import { Viewer } from "$lib/viewer.svelte";
+import { User } from "$lib/user.svelte";
 import { defineHandler } from "../helper";
 
 function reparse(emote: Emote) {
@@ -47,10 +45,13 @@ export default defineHandler({
 		const twitch = data.actor.connections.find((c) => c.platform === "TWITCH");
 		if (!twitch) return;
 
-		const user = await invoke<UserWithColor | null>("get_user_from_id", { id: twitch.id });
-		if (!user) return;
+		const user = await User.from(twitch.id);
+		let actor = channel.viewers.get(user.username);
 
-		const actor = Viewer.fromTwitch(user);
+		if (!actor) {
+			actor = user;
+			channel.viewers.set(user.username, actor);
+		}
 
 		const message = new SystemMessage();
 

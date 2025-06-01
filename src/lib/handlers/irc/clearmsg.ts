@@ -20,7 +20,7 @@ export default defineHandler({
 				sysmsg.setContext({
 					type: "delete",
 					text: data.message_text,
-					user: message.viewer,
+					user: message.author,
 				}),
 			);
 		}

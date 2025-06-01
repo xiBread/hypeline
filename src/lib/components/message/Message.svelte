@@ -24,8 +24,8 @@
 		}
 	}
 
-	if (message.viewer.badge) {
-		badges.push(message.viewer.badge);
+	if (message.author.badge) {
+		badges.push(message.author.badge);
 	}
 
 	async function openUrl(url: URL) {
@@ -53,13 +53,13 @@
 
 <!-- Formatting is ugly here, but it needs to be in order for the colon to
 render properly without an extra space in between. -->
-<span class="font-semibold break-words" style={message.viewer.style}>
-	{message.viewer.displayName}
+<span class="font-semibold break-words" style={message.author.style}>
+	{message.author.displayName}
 </span>{#if !message.isAction}:{/if}
 
 <p
 	class={["inline", message.isAction && "italic"]}
-	style:color={message.isAction ? message.viewer.color : null}
+	style:color={message.isAction ? message.author.color : null}
 >
 	{#each fragments as fragment, i}
 		{#if fragment.type === "mention"}

@@ -3,9 +3,9 @@ import type { Emote } from "$lib/tauri";
 import type { CheermoteTier } from "$lib/twitch/api";
 import type { AutoModMetadata, StructuredMessage } from "$lib/twitch/eventsub";
 import type { Badge, BasicUser, PrivmsgMessage, Range, UserNoticeMessage } from "$lib/twitch/irc";
-import type { PartialUser } from "$lib/user";
+import { User } from "$lib/user.svelte";
+import type { PartialUser } from "$lib/user.svelte";
 import { extractEmotes } from "$lib/util";
-import { Viewer } from "$lib/viewer.svelte";
 import { Message } from ".";
 
 export type Fragment =
@@ -98,7 +98,7 @@ export class UserMessage extends Message {
 		return (
 			app.user.moderating.has(app.joined.user.username) &&
 			diff <= 6 * 60 * 60 * 1000 &&
-			(app.user.id === this.viewer.id || !(this.viewer.isBroadcaster || this.viewer.isMod))
+			(app.user.id === this.author.id || !(this.author.isBroadcaster || this.author.isMod))
 		);
 	}
 
@@ -159,14 +159,14 @@ export class UserMessage extends Message {
 		return "reply" in this.data ? this.data.reply : null;
 	}
 
-	public get viewer() {
-		let viewer = app.joined?.viewers.get(this.data.sender.login);
+	public get author() {
+		let user = app.joined?.viewers.get(this.data.sender.login);
 
-		if (!viewer) {
-			viewer = Viewer.from(this.data.sender, this.data.name_color);
+		if (!user) {
+			user = User.fromBare(this.data.sender, this.data.name_color);
 		}
 
-		return viewer;
+		return user;
 	}
 
 	public addAutoModMetadata(metadata: AutoModMetadata) {
@@ -309,14 +309,14 @@ export class UserMessage extends Message {
 				});
 			} else if (segment.type === "mention") {
 				const mention = segment.data.username;
-				const viewer = app.joined?.viewers.get(mention.toLowerCase());
+				const user = app.joined?.viewers.get(mention.toLowerCase());
 
 				output.push({
 					type: "mention",
-					id: viewer?.id ?? "0",
-					color: viewer?.color ?? "inherit",
-					username: viewer?.username ?? mention.toLowerCase(),
-					displayName: viewer?.displayName ?? mention,
+					id: user?.id ?? "0",
+					color: user?.color ?? "inherit",
+					username: user?.username ?? mention.toLowerCase(),
+					displayName: user?.displayName ?? mention,
 					marked,
 				});
 			} else if (segment.type === "url") {

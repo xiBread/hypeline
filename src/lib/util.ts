@@ -4,7 +4,7 @@ import type { ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { Fragment } from "./twitch/eventsub";
 import type { Emote } from "./twitch/irc";
-import type { PartialUser } from "./user";
+import type { PartialUser } from "./user.svelte";
 
 export type Nullable<T> = { [K in keyof T]: T[K] | null };
 
