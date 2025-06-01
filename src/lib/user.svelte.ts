@@ -189,6 +189,10 @@ export class User implements PartialUser {
 	}
 
 	public get displayName() {
+		if (settings.state.localizedNames && this.localizedName) {
+			return `${this.localizedName} (${this.username})`;
+		}
+
 		return this.#data.display_name;
 	}
 
