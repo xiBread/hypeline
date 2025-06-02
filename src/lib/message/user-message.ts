@@ -41,7 +41,7 @@ export class UserMessage extends Message {
 		let user = app.joined?.viewers.get(this.data.sender.login);
 
 		if (!user) {
-			user = User.fromPartial(this.data.sender, this.data.name_color);
+			user = User.fromBare(this.data.sender, this.data.name_color);
 		}
 
 		this.#author = user;
