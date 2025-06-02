@@ -32,10 +32,19 @@ interface TextSegment extends Range {
  * checked to differentiate the two.
  */
 export class UserMessage extends Message {
+	#author: User;
 	#autoMod: AutoModMetadata | null = null;
 
 	public constructor(public readonly data: PrivmsgMessage | UserNoticeMessage) {
 		super(data);
+
+		let user = app.joined?.viewers.get(this.data.sender.login);
+
+		if (!user) {
+			user = User.fromPartial(this.data.sender, this.data.name_color);
+		}
+
+		this.#author = user;
 	}
 
 	public static from(message: StructuredMessage, sender: BasicUser) {
@@ -159,14 +168,11 @@ export class UserMessage extends Message {
 		return "reply" in this.data ? this.data.reply : null;
 	}
 
+	/**
+	 * The user who sent the message.
+	 */
 	public get author() {
-		let user = app.joined?.viewers.get(this.data.sender.login);
-
-		if (!user) {
-			user = User.fromBare(this.data.sender, this.data.name_color);
-		}
-
-		return user;
+		return this.#author;
 	}
 
 	public addAutoModMetadata(metadata: AutoModMetadata) {
