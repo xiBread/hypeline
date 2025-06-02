@@ -82,9 +82,9 @@ export class User implements PartialUser {
 	public paint = $state<Paint>();
 
 	/**
-	 * A set of channel usernames that the user is a moderator in. This will
-	 * always include the user's own username, and will only include other
-	 * channels for the current user.
+	 * A set of channel ids that the user is a moderator in. This will
+	 * always include the user's own id, and will only include other ids for
+	 * the current user.
 	 */
 	public readonly moderating = new SvelteSet<string>();
 
@@ -92,10 +92,13 @@ export class User implements PartialUser {
 		this.#data = data.data;
 		this.#color = data.color;
 
-		this.moderating.add(this.username);
+		this.moderating.add(this.id);
 	}
 
 	public static async from(id: string | null = null) {
+		const cached = app.joined?.viewers.get(id ?? "");
+		if (cached) return cached;
+
 		const data = await invoke<UserWithColor>("get_user_from_id", { id });
 		const user = new User(data);
 
@@ -104,16 +107,16 @@ export class User implements PartialUser {
 			channels.forEach((name) => user.moderating.add(name));
 		}
 
-		if (!app.joined?.viewers.has(user.username)) {
-			app.joined?.viewers.set(user.username, user);
+		if (!cached) {
+			app.joined?.viewers.set(user.id, user);
 		}
 
 		return user;
 	}
 
 	public static fromBare(data: BasicUser, color?: string) {
-		const stored = app.joined?.viewers.get(data.login);
-		if (stored) return stored;
+		const cached = app.joined?.viewers.get(data.id);
+		if (cached) return cached;
 
 		const user = new User({
 			data: {
@@ -130,13 +133,17 @@ export class User implements PartialUser {
 			color: color ?? null,
 		});
 
-		app.joined?.viewers.set(user.username, user);
+		app.joined?.viewers.set(user.id, user);
 
 		return user;
 	}
 
 	public static fromBasic(data: WithBasicUser) {
-		return this.fromBare({ id: data.user_id, login: data.user_login, name: data.user_name });
+		return this.fromBare({
+			id: data.user_id,
+			login: data.user_login,
+			name: data.user_name,
+		});
 	}
 
 	public static fromModerator(data: WithModerator) {

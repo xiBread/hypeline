@@ -98,7 +98,7 @@
 {#snippet innerMessage(bordered: boolean)}
 	<div class={["not-group-aria-disabled:hover:bg-muted/50 py-2", bordered ? "px-1.5" : "px-3"]}>
 		{#if message.reply}
-			{@const user = app.joined?.viewers.get(message.reply.parent.user.login)}
+			{@const user = app.joined?.viewers.get(message.reply.parent.user.id)}
 
 			<div class="mb-1 flex items-center gap-2">
 				<div

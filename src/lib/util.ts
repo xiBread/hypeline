@@ -117,3 +117,9 @@ export function makeReadable(foreground: string) {
 
 	return adjusted;
 }
+
+export function find<K, V>(map: Map<K, V>, predicate: (value: V) => unknown): V | undefined {
+	for (const [, value] of map) {
+		if (predicate(value)) return value;
+	}
+}

@@ -5,7 +5,7 @@ import type { AutoModMetadata, StructuredMessage } from "$lib/twitch/eventsub";
 import type { Badge, BasicUser, PrivmsgMessage, Range, UserNoticeMessage } from "$lib/twitch/irc";
 import { User } from "$lib/user.svelte";
 import type { PartialUser } from "$lib/user.svelte";
-import { extractEmotes } from "$lib/util";
+import { extractEmotes, find } from "$lib/util";
 import { Message } from ".";
 
 export type Fragment =
@@ -38,7 +38,7 @@ export class UserMessage extends Message {
 	public constructor(public readonly data: PrivmsgMessage | UserNoticeMessage) {
 		super(data);
 
-		let user = app.joined?.viewers.get(this.data.sender.login);
+		let user = app.joined?.viewers.get(this.data.sender.id);
 
 		if (!user) {
 			user = User.fromBare(this.data.sender, this.data.name_color);
@@ -315,7 +315,10 @@ export class UserMessage extends Message {
 				});
 			} else if (segment.type === "mention") {
 				const mention = segment.data.username;
-				const user = app.joined?.viewers.get(mention.toLowerCase());
+
+				const user = app.joined
+					? find(app.joined.viewers, (user) => user.username === mention.toLowerCase())
+					: null;
 
 				output.push({
 					type: "mention",

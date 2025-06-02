@@ -45,14 +45,7 @@ export default defineHandler({
 		const twitch = data.actor.connections.find((c) => c.platform === "TWITCH");
 		if (!twitch) return;
 
-		const user = await User.from(twitch.id);
-		let actor = channel.viewers.get(user.username);
-
-		if (!actor) {
-			actor = user;
-			channel.viewers.set(user.username, actor);
-		}
-
+		const actor = await User.from(twitch.id);
 		const message = new SystemMessage();
 
 		for (const change of data.pushed ?? []) {

@@ -41,6 +41,9 @@ export class Channel {
 		stream: Stream | null = null,
 	) {
 		this.#stream = stream;
+
+		this.user.isBroadcaster = true;
+		this.viewers.set(user.id, user);
 	}
 
 	public static async join(login: string) {
@@ -57,10 +60,7 @@ export class Channel {
 			.addCheermotes(joined.cheermotes)
 			.setStream(joined.stream);
 
-		channel.user.isBroadcaster = true;
 		channel.emoteSet = joined.emote_set ?? undefined;
-
-		channel.viewers.set(user.username, channel.user);
 
 		return channel;
 	}
