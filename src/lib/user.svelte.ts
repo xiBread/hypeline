@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { SvelteSet } from "svelte/reactivity";
+import { SvelteMap } from "svelte/reactivity";
 import { settings } from "./settings";
 import type { Paint } from "./seventv";
 import { app } from "./state.svelte";
@@ -82,29 +82,29 @@ export class User implements PartialUser {
 	public paint = $state<Paint>();
 
 	/**
-	 * A set of channel ids that the user is a moderator in. This will
+	 * A map of channel ids to usernames that the user is a moderator in. This will
 	 * always include the user's own id, and will only include other ids for
 	 * the current user.
 	 */
-	public readonly moderating = new SvelteSet<string>();
+	public readonly moderating = new SvelteMap<string, string>();
 
 	public constructor(data: UserWithColor) {
 		this.#data = data.data;
 		this.#color = data.color;
 
-		this.moderating.add(this.id);
+		this.moderating.set(this.id, this.username);
 	}
 
-	public static async from(id: string | null = null) {
-		const cached = app.joined?.viewers.get(id ?? "");
+	public static async from(id: string) {
+		const cached = app.joined?.viewers.get(id);
 		if (cached) return cached;
 
 		const data = await invoke<UserWithColor>("get_user_from_id", { id });
 		const user = new User(data);
 
-		if (!id) {
-			const channels = await invoke<string[]>("get_moderated_channels");
-			channels.forEach((name) => user.moderating.add(name));
+		if (id === settings.state.user?.id) {
+			const channels = await invoke<[string, string][]>("get_moderated_channels");
+			channels.forEach(([id, name]) => user.moderating.set(id, name));
 		}
 
 		if (!cached) {

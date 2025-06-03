@@ -12,6 +12,11 @@
 	import { SCOPES } from "$lib/twitch";
 	import { User } from "$lib/user.svelte";
 
+	interface TokenInfo {
+		user_id: string;
+		access_token: string;
+	}
+
 	const params = {
 		client_id: PUBLIC_TWITCH_CLIENT_ID,
 		redirect_uri: PUBLIC_TWITCH_REDIRECT_URL,
@@ -31,11 +36,15 @@
 		log.info("Authenticating user");
 		await invoke("start_server");
 
-		unlisten = await listen<string>("accesstoken", async (event) => {
-			app.user = await User.from(null);
-			settings.state.user = { id: app.user.id, token: event.payload };
-
+		unlisten = await listen<TokenInfo>("tokeninfo", async (event) => {
 			log.info("User authenticated");
+
+			settings.state.user = {
+				id: event.payload.user_id,
+				token: event.payload.access_token,
+			};
+
+			app.user = await User.from(event.payload.user_id);
 
 			await tick();
 			await settings.save();

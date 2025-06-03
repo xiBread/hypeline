@@ -118,8 +118,11 @@ export function makeReadable(foreground: string) {
 	return adjusted;
 }
 
-export function find<K, V>(map: Map<K, V>, predicate: (value: V) => unknown): V | undefined {
-	for (const [, value] of map) {
+export function find<V>(
+	collection: { values: () => Iterable<V> },
+	predicate: (value: V) => unknown,
+): V | undefined {
+	for (const value of collection.values()) {
 		if (predicate(value)) return value;
 	}
 }

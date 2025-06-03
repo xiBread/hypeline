@@ -7,6 +7,7 @@ import { app } from "./state.svelte";
 import type { Emote, JoinedChannel } from "./tauri";
 import type { Badge, BadgeSet, Cheermote, Stream } from "./twitch/api";
 import { User } from "./user.svelte";
+import { find } from "./util";
 
 export class Channel {
 	#lastRecentAt: number | null = null;
@@ -49,7 +50,7 @@ export class Channel {
 	public static async join(login: string) {
 		const joined = await invoke<JoinedChannel>("join", {
 			login,
-			isMod: app.user?.moderating.has(login) ?? false,
+			isMod: app.user ? !!find(app.user.moderating, (name) => name === login) : false,
 		});
 
 		const user = new User(joined.user);
