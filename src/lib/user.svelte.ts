@@ -107,9 +107,7 @@ export class User implements PartialUser {
 			channels.forEach(([id, name]) => user.moderating.set(id, name));
 		}
 
-		if (!cached) {
-			app.joined?.viewers.set(user.id, user);
-		}
+		app.joined?.viewers.set(user.id, user);
 
 		return user;
 	}
