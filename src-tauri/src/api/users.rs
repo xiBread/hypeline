@@ -32,7 +32,7 @@ pub struct User {
 #[tauri::command]
 pub async fn get_user_from_id(
     state: State<'_, Mutex<AppState>>,
-    id: Option<String>,
+    id: String,
 ) -> Result<Option<User>, Error> {
     tracing::debug!("Fetching user by id");
 
@@ -42,19 +42,14 @@ pub async fn get_user_from_id(
         return Ok(None);
     };
 
-    let user_id = id
-        .as_ref()
-        .unwrap_or(&token.user_id.to_string())
-        .to_string();
-
     let (helix_user, color_user) = tokio::try_join!(
-        state.helix.get_user_from_id(&user_id, token),
-        state.helix.get_user_chat_color(&user_id, token),
+        state.helix.get_user_from_id(&id, token),
+        state.helix.get_user_chat_color(&id, token),
     )?;
 
-    if id.is_none() {
+    if id == token.user_id.to_string() {
         let stv_user = HTTP
-            .get(format!("https://7tv.io/v3/users/twitch/{user_id}"))
+            .get(format!("https://7tv.io/v3/users/twitch/{id}"))
             .send()
             .await?
             .json::<serde_json::Value>()
