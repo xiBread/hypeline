@@ -16,10 +16,6 @@ export default defineHandler({
 		message.author.badge = app.u2b.get(message.author.id);
 		message.author.paint = app.u2p.get(message.author.id);
 
-		if (!channel.viewers.has(message.author.id)) {
-			channel.viewers.set(message.author.id, message.author);
-		}
-
 		channel.addMessage(message);
 	},
 });
