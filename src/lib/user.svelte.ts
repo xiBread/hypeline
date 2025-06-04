@@ -21,6 +21,8 @@ export interface PartialUser {
 	displayName: string;
 }
 
+const requests = new Map<string, Promise<User>>();
+
 export class User implements PartialUser {
 	readonly #data: HelixUser;
 	#color: string | null = null;
@@ -99,17 +101,29 @@ export class User implements PartialUser {
 		const cached = app.joined?.viewers.get(id);
 		if (cached) return cached;
 
-		const data = await invoke<UserWithColor>("get_user_from_id", { id });
-		const user = new User(data);
+		const inProgress = requests.get(id);
+		if (inProgress) return await inProgress;
 
-		if (id === settings.state.user?.id) {
-			const channels = await invoke<[string, string][]>("get_moderated_channels");
-			channels.forEach(([id, name]) => user.moderating.set(id, name));
-		}
+		const request = (async () => {
+			try {
+				const data = await invoke<UserWithColor>("get_user_from_id", { id });
+				const user = new User(data);
 
-		app.joined?.viewers.set(user.id, user);
+				if (id === settings.state.user?.id) {
+					const channels = await invoke<[string, string][]>("get_moderated_channels");
+					channels.forEach(([id, name]) => user.moderating.set(id, name));
+				}
 
-		return user;
+				app.joined?.viewers.set(user.id, user);
+
+				return user;
+			} finally {
+				requests.delete(id);
+			}
+		})();
+
+		requests.set(id, request);
+		return await request;
 	}
 
 	public static fromBare(data: BasicUser, color?: string) {
