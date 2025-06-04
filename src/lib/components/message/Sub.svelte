@@ -82,8 +82,8 @@
 				{#if sub.is_sender_anonymous}
 					<span class="font-semibold">An Anonymous Viewer</span>
 				{:else}
-					<span class="font-semibold" style:color={message.viewer.color}>
-						{message.viewer.displayName}
+					<span class="font-semibold" style:color={message.author.color}>
+						{message.author.displayName}
 					</span>
 				{/if}
 
