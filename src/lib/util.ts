@@ -4,7 +4,7 @@ import type { ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { Fragment } from "./twitch/eventsub";
 import type { Emote } from "./twitch/irc";
-import type { PartialUser } from "./user";
+import type { PartialUser } from "./user.svelte";
 
 export type Nullable<T> = { [K in keyof T]: T[K] | null };
 
@@ -116,4 +116,13 @@ export function makeReadable(foreground: string) {
 	colorCache.set(key, adjusted);
 
 	return adjusted;
+}
+
+export function find<V>(
+	collection: { values: () => Iterable<V> },
+	predicate: (value: V) => unknown,
+): V | undefined {
+	for (const value of collection.values()) {
+		if (predicate(value)) return value;
+	}
 }

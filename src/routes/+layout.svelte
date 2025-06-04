@@ -10,7 +10,7 @@
 	const { children } = $props();
 
 	const titleBar = $derived({
-		icon: app.joined?.user.profilePictureUrl ?? "/favicon.png",
+		icon: app.joined?.user.avatarUrl ?? "/favicon.png",
 		title: app.joined?.user.displayName ?? "Hypeline",
 	});
 </script>

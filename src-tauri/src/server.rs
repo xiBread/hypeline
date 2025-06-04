@@ -119,7 +119,8 @@ async fn handle_url(app_handle: AppHandle, mut url: String) {
     };
 
     let state = app_handle.state::<Mutex<AppState>>();
-    set_access_token(state, token.clone()).await;
 
-    app_handle.emit("accesstoken", token).unwrap();
+    if let Some(token_info) = set_access_token(state, token.clone()).await {
+        app_handle.emit("tokeninfo", token_info).unwrap();
+    }
 }

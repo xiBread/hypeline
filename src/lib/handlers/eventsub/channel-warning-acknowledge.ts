@@ -1,5 +1,5 @@
 import { SystemMessage } from "$lib/message";
-import { Viewer } from "$lib/viewer.svelte";
+import { User } from "$lib/user.svelte";
 import { defineHandler } from "../helper";
 
 export default defineHandler({
@@ -10,7 +10,7 @@ export default defineHandler({
 		channel.addMessage(
 			message.setContext({
 				type: "warnAck",
-				user: Viewer.fromBasic(data),
+				user: User.fromBasic(data),
 			}),
 		);
 	},

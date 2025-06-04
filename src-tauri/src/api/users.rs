@@ -32,35 +32,43 @@ pub struct User {
 #[tauri::command]
 pub async fn get_user_from_id(
     state: State<'_, Mutex<AppState>>,
-    id: Option<String>,
+    id: String,
 ) -> Result<Option<User>, Error> {
+    tracing::debug!("Fetching user by id");
+
     let mut state = state.lock().await;
 
     let Some(ref token) = state.token else {
         return Ok(None);
     };
 
-    let id = id.unwrap_or_else(|| token.user_id.to_string());
-
     let (helix_user, color_user) = tokio::try_join!(
         state.helix.get_user_from_id(&id, token),
         state.helix.get_user_chat_color(&id, token),
     )?;
 
-    let stv_user = HTTP
-        .get(format!("https://7tv.io/v3/users/twitch/{id}"))
-        .send()
-        .await?
-        .json::<serde_json::Value>()
-        .await;
+    if id == token.user_id.to_string() {
+        let stv_user = HTTP
+            .get(format!("https://7tv.io/v3/users/twitch/{id}"))
+            .send()
+            .await?
+            .json::<serde_json::Value>()
+            .await;
 
-    state.seventv_id = stv_user
-        .ok()
-        .and_then(|u| Some(u["user"]["id"].as_str()?.to_string()));
+        state.seventv_id = stv_user
+            .ok()
+            .and_then(|u| Some(u["user"]["id"].as_str()?.to_string()));
+    }
 
-    let Some(user) = helix_user else {
-        tracing::debug!("User not found");
-        return Ok(None);
+    let user = match helix_user {
+        Some(user) => {
+            tracing::debug!("Fetched user");
+            user
+        }
+        None => {
+            tracing::debug!("User not found");
+            return Ok(None);
+        }
     };
 
     let color = color_user.and_then(|u| u.color.map(|c| c.into()));
@@ -166,7 +174,7 @@ pub async fn get_user_emotes(state: State<'_, Mutex<AppState>>) -> Result<Vec<Us
 #[tauri::command]
 pub async fn get_moderated_channels(
     state: State<'_, Mutex<AppState>>,
-) -> Result<Vec<String>, Error> {
+) -> Result<Vec<(String, String)>, Error> {
     let state = state.lock().await;
 
     let Some(token) = state.token.as_ref() else {
@@ -179,10 +187,15 @@ pub async fn get_moderated_channels(
         .try_collect()
         .await?;
 
-    let ids = channels
+    let pairs = channels
         .into_iter()
-        .map(|ch| ch.broadcaster_login.to_string())
+        .map(|ch| {
+            (
+                ch.broadcaster_id.to_string(),
+                ch.broadcaster_login.to_string(),
+            )
+        })
         .collect();
 
-    Ok(ids)
+    Ok(pairs)
 }
