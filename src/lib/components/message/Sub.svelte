@@ -35,11 +35,7 @@
 
 	function giftMessage(sub: SubGiftEvent) {
 		const tier = `Tier ${sub.sub_plan[0]}`;
-		const gifter = sub.is_sender_anonymous
-			? "An anonymous viewer"
-			: colorizeName(message.viewer);
-
-		let msg = `${gifter} gifted `;
+		let msg = `Gifted `;
 
 		if (sub.num_gifted_months > 1) {
 			msg += `${sub.num_gifted_months} months of a ${tier} sub `;
@@ -60,11 +56,12 @@
 
 <div class="bg-muted/50 my-0.5 border-l-4 p-2" style:border-color={app.joined?.user.color}>
 	<div class="flex gap-1">
-		{#if sub.type === "sub_or_resub"}
-			<span class="iconify lucide--star mt-px size-4"></span>
-		{:else}
-			<span class="iconify lucide--gift mt-px size-4"></span>
-		{/if}
+		<span
+			class={[
+				"iconify mt-px size-4 shrink-0",
+				sub.type === "sub_or_resub" ? "lucide--star" : "lucide--gift",
+			]}
+		></span>
 
 		{#if sub.type === "sub_or_resub"}
 			<div class="flex flex-col gap-0.5">
@@ -81,7 +78,17 @@
 				subs to the channel.
 			</p>
 		{:else}
-			<p>{@html giftMessage(sub)}</p>
+			<div class="flex flex-col gap-0.5">
+				{#if sub.is_sender_anonymous}
+					<span class="font-semibold">An Anonymous Viewer</span>
+				{:else}
+					<span class="font-semibold" style:color={message.viewer.color}>
+						{message.viewer.displayName}
+					</span>
+				{/if}
+
+				<p>{@html giftMessage(sub)}</p>
+			</div>
 		{/if}
 	</div>
 
