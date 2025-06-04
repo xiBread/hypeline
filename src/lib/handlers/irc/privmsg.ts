@@ -1,10 +1,11 @@
 import { UserMessage } from "$lib/message";
 import { app } from "$lib/state.svelte";
+import { User } from "$lib/user.svelte";
 import { defineHandler } from "../helper";
 
 export default defineHandler({
 	name: "privmsg",
-	handle(data, channel) {
+	async handle(data, channel) {
 		const message = new UserMessage(data);
 
 		message.author.isBroadcaster = message.badges.some((b) => b.name === "broadcaster");
@@ -15,6 +16,15 @@ export default defineHandler({
 
 		message.author.badge = app.u2b.get(message.author.id);
 		message.author.paint = app.u2p.get(message.author.id);
+
+		if (message.source && message.source.id !== data.channel_id) {
+			const source = channel.viewers.get(message.source.id);
+
+			if (!source?.avatarUrl) {
+				const user = await User.from(message.source.id);
+				channel.viewers.set(user.id, user);
+			}
+		}
 
 		if (!channel.viewers.has(message.author.id)) {
 			channel.viewers.set(message.author.id, message.author);

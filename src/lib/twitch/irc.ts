@@ -155,6 +155,10 @@ export interface PrivmsgMessage extends BaseUserMessage {
 	is_mod: boolean;
 	is_subscriber: boolean;
 	bits: number | null;
+	source_only: boolean | null;
+	source_badges: Badge[] | null;
+	source_badge_info: Badge[] | null;
+	source_channel_id: string | null;
 }
 
 export interface SubGiftPromo {

@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { SvelteMap } from "svelte/reactivity";
 import { replyTarget } from "./components/ChatInput.svelte";
+import { log } from "./log";
 import type { Message } from "./message";
 import type { EmoteSet } from "./seventv";
 import { app } from "./state.svelte";
@@ -111,6 +112,10 @@ export class Channel {
 
 	public addMessage(message: Message) {
 		if (this.messages.some((m) => m.id === message.id)) {
+			log.debug(
+				`Message with id ${message.id} already exists in ${this.user.username}, skipping`,
+			);
+
 			return this;
 		}
 

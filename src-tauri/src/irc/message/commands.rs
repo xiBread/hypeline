@@ -349,6 +349,10 @@ pub struct PrivmsgMessage {
     pub deleted: bool,
     pub is_recent: bool,
     pub server_timestamp: u64,
+    pub source_only: Option<bool>,
+    pub source_badges: Option<Vec<Badge>>,
+    pub source_badge_info: Option<Vec<Badge>>,
+    pub source_channel_id: Option<String>,
     pub source: IrcMessage,
 }
 
@@ -384,8 +388,8 @@ impl TryFrom<IrcMessage> for PrivmsgMessage {
             message_text: message_text.to_owned(),
             reply: source.try_get_optional_reply()?,
             is_action,
-            is_first_msg: source.try_get_bool("first-msg")?,
-            is_returning_chatter: source.try_get_bool("returning-chatter")?,
+            is_first_msg: source.try_get_bool("first-msg").unwrap_or_default(),
+            is_returning_chatter: source.try_get_bool("returning-chatter").unwrap_or_default(),
             is_highlighted: msg_id
                 .map(|id| id == "highlighted-message")
                 .unwrap_or_default(),
@@ -397,6 +401,13 @@ impl TryFrom<IrcMessage> for PrivmsgMessage {
             is_recent: source
                 .try_get_optional_bool("historical")?
                 .unwrap_or_default(),
+            source_only: source.try_get_bool("source-only").ok(),
+            source_badges: source.try_get_badges("source-badges").ok(),
+            source_badge_info: source.try_get_badges("source-badge-info").ok(),
+            source_channel_id: source
+                .try_get_nonempty_tag_value("source-room-id")
+                .ok()
+                .map(|s| s.to_owned()),
             source,
         })
     }

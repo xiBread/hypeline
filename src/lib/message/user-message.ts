@@ -23,6 +23,11 @@ interface TextSegment extends Range {
 	data: Record<string, any>;
 }
 
+export interface MessageSource {
+	id: string;
+	badges: Badge[];
+}
+
 /**
  * User messages are either messages received by `PRIVMSG` commands or
  * notifications received by `USERNOTICE` commands.
@@ -74,6 +79,10 @@ export class UserMessage extends Message {
 			is_returning_chatter: false,
 			reply: null,
 			sender,
+			source_only: null,
+			source_badges: null,
+			source_badge_info: null,
+			source_channel_id: null,
 			server_timestamp: Date.now(),
 		});
 	}
@@ -112,6 +121,13 @@ export class UserMessage extends Message {
 	}
 
 	/**
+	 * The user who sent the message.
+	 */
+	public get author() {
+		return this.#author;
+	}
+
+	/**
 	 * The AutoMod metadata attached to the message if it was caught by AutoMod.
 	 */
 	public get autoMod() {
@@ -121,14 +137,14 @@ export class UserMessage extends Message {
 	/**
 	 * The badges sent with the message.
 	 */
-	public get badges(): Badge[] {
+	public get badges() {
 		return this.data.badges;
 	}
 
 	/**
 	 * The amount of bits sent with the message if it was a cheer.
 	 */
-	public get bits(): number {
+	public get bits() {
 		return "bits" in this.data ? (this.data.bits ?? 0) : 0;
 	}
 
@@ -169,10 +185,18 @@ export class UserMessage extends Message {
 	}
 
 	/**
-	 * The user who sent the message.
+	 * The source metadata for the message if it was sent during a shared chat
+	 * session.
 	 */
-	public get author() {
-		return this.#author;
+	public get source(): MessageSource | null {
+		if ("source_channel_id" in this.data && this.data.source_channel_id) {
+			return {
+				id: this.data.source_channel_id,
+				badges: this.data.source_badges ?? [],
+			};
+		}
+
+		return null;
 	}
 
 	public addAutoModMetadata(metadata: AutoModMetadata) {
