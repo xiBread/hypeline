@@ -178,6 +178,9 @@ export class User implements PartialUser {
 		return this.#data.id;
 	}
 
+	/**
+	 * The date the user's account was created.
+	 */
 	public get createdAt() {
 		return new Date(this.#data.created_at);
 	}
@@ -207,6 +210,14 @@ export class User implements PartialUser {
 		return this.#data.login;
 	}
 
+	/**
+	 * The display name of the user. The capitalization may differ from the
+	 * username.
+	 *
+	 * If the user has a localized name and localized names are enabled in
+	 * settings, this will be the localized name followed by the username in
+	 * parentheses.
+	 */
 	public get displayName() {
 		if (settings.state.localizedNames && this.localizedName) {
 			return `${this.localizedName} (${this.username})`;
@@ -215,6 +226,10 @@ export class User implements PartialUser {
 		return this.#data.display_name;
 	}
 
+	/**
+	 * The localized display name of the user if they have their Twitch
+	 * language set to Chinese, Japanese, or Korean.
+	 */
 	public get localizedName() {
 		return this.#data.login !== this.#data.display_name.toLowerCase()
 			? this.#data.display_name

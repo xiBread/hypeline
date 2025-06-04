@@ -11,8 +11,6 @@ class AppState {
 	public user?: User;
 	public channels = $state<Channel[]>([]);
 
-	public readonly users = new SvelteMap<string, User>();
-
 	public readonly globalEmotes = new SvelteMap<string, Emote>();
 	public readonly globalBadges = new SvelteMap<string, Record<string, Badge>>();
 	public readonly badges = new SvelteMap<string, Badge>();
