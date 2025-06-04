@@ -138,7 +138,7 @@
 
 	<img
 		class="-my-2 inline-block"
-		src={ctx.emote.srcset.join(", ")}
+		srcset={ctx.emote.srcset.join(", ")}
 		alt={ctx.emote.name}
 		width={ctx.emote.width}
 		height={ctx.emote.height}
