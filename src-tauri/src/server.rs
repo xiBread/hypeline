@@ -5,6 +5,7 @@ use tauri::{AppHandle, Emitter, Manager, Url};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
 use tokio::sync::Mutex;
+use tracing::Instrument;
 
 use crate::api::set_access_token;
 use crate::error::Error;
@@ -12,33 +13,52 @@ use crate::AppState;
 
 const ADDR: &str = "127.0.0.1:55331";
 
+#[tracing::instrument(skip_all)]
 #[tauri::command]
 pub async fn start_server(app_handle: AppHandle) -> Result<(), Error> {
+    tracing::info!("Starting temporary server");
+
     let listener = TcpListener::bind(ADDR).await?;
+    tracing::info!("Server listening on {ADDR}");
+
     let should_break = Arc::new(AtomicBool::default());
 
-    tokio::spawn(async move {
-        while !should_break.load(Ordering::SeqCst) {
-            let (stream, _) = listener.accept().await?;
+    tokio::spawn(
+        async move {
+            while !should_break.load(Ordering::SeqCst) {
+                let (stream, _) = listener.accept().await?;
 
-            let task_should_break = should_break.clone();
-            let app_handle = app_handle.clone();
+                let task_should_break = should_break.clone();
+                let app_handle = app_handle.clone();
 
-            tokio::spawn(async move {
-                if let Some(url) = handle_connection(stream).await {
-                    if !url.is_empty()
-                        && task_should_break
-                            .compare_exchange(false, true, Ordering::Relaxed, Ordering::Relaxed)
-                            .is_ok()
-                    {
-                        handle_url(app_handle, url).await;
+                tokio::spawn(
+                    async move {
+                        if let Some(url) = handle_connection(stream).await {
+                            tracing::info!("Url received");
+
+                            if !url.is_empty()
+                                && task_should_break
+                                    .compare_exchange(
+                                        false,
+                                        true,
+                                        Ordering::Relaxed,
+                                        Ordering::Relaxed,
+                                    )
+                                    .is_ok()
+                            {
+                                handle_url(app_handle, url).await;
+                            }
+                        }
                     }
-                }
-            });
-        }
+                    .in_current_span(),
+                );
+            }
 
-        Ok::<_, Error>(())
-    });
+            tracing::info!("Server stopped");
+            Ok::<_, Error>(())
+        }
+        .in_current_span(),
+    );
 
     Ok(())
 }
@@ -46,7 +66,8 @@ pub async fn start_server(app_handle: AppHandle) -> Result<(), Error> {
 async fn handle_connection(mut stream: TcpStream) -> Option<String> {
     let mut buffer = [0; 4096];
 
-    if stream.read(&mut buffer).await.is_err() {
+    if let Err(err) = stream.read(&mut buffer).await {
+        tracing::error!(%err, "Failed to read from stream");
         return None;
     }
 
@@ -101,11 +122,14 @@ async fn handle_connection(mut stream: TcpStream) -> Option<String> {
     None
 }
 
-async fn handle_url(app_handle: AppHandle, mut url: String) {
-    url = url.replace("#", "?");
-
-    let Ok(url) = Url::parse(&url) else {
-        return;
+#[tracing::instrument(skip_all)]
+async fn handle_url(app_handle: AppHandle, url: String) {
+    let url = match Url::parse(&url.replace("#", "?")) {
+        Ok(parsed) => parsed,
+        Err(err) => {
+            tracing::error!(%err, "Failed to parse url");
+            return;
+        }
     };
 
     let Some(token) = url.query_pairs().find_map(|(k, v)| {
