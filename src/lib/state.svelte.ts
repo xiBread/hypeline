@@ -8,15 +8,33 @@ import type { User } from "./user.svelte";
 class AppState {
 	#joined = $state<Channel | null>(null);
 
+	/**
+	 * The currently authenticated user.
+	 */
 	public user?: User;
 	public channels = $state<Channel[]>([]);
 
+	/**
+	 * Global emotes from Twitch, 7TV, BTTV, and FFZ.
+	 */
 	public readonly globalEmotes = new SvelteMap<string, Emote>();
+
+	/**
+	 * Global badges from Twitch.
+	 */
 	public readonly globalBadges = new SvelteMap<string, Record<string, Badge>>();
+
+	/**
+	 * Provider-specific badges.
+	 */
 	public readonly badges = new SvelteMap<string, Badge>();
+
+	/**
+	 * 7TV paints.
+	 */
 	public readonly paints = new SvelteMap<string, Paint>();
 
-	// Associating a (u)sername to a 7TV (b)adge or (p)aint.
+	// Associates a (u)ser id to a 7TV (b)adge or (p)aint.
 	public readonly u2b = new Map<string, Badge | undefined>();
 	public readonly u2p = new Map<string, Paint | undefined>();
 

@@ -25,23 +25,21 @@ export default defineHandler({
 		channel.clearMessages(target.id);
 
 		if (data.action.type === "ban") {
-			channel.addMessage(
-				message.setContext({
-					type: "banStatus",
-					banned: true,
-					reason: null,
-					user: target,
-				}),
-			);
+			message.setContext({
+				type: "banStatus",
+				banned: true,
+				reason: null,
+				user: target,
+			});
 		} else {
-			channel.addMessage(
-				message.setContext({
-					type: "timeout",
-					seconds: data.action.duration.secs,
-					reason: null,
-					user: target,
-				}),
-			);
+			message.setContext({
+				type: "timeout",
+				seconds: data.action.duration.secs,
+				reason: null,
+				user: target,
+			});
 		}
+
+		channel.addMessage(message);
 	},
 });

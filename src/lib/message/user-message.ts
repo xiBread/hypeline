@@ -26,10 +26,6 @@ interface TextSegment extends Range {
 /**
  * User messages are either messages received by `PRIVMSG` commands or
  * notifications received by `USERNOTICE` commands.
- *
- * In either case, both share enough common data that they can be categorized
- * as "user" messages. The {@linkcode UserMessage.event event} property can be
- * checked to differentiate the two.
  */
 export class UserMessage extends Message {
 	#author: User;
