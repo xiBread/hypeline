@@ -1,5 +1,5 @@
 import { SystemMessage } from "$lib/message";
-import { Viewer } from "$lib/viewer.svelte";
+import { User } from "$lib/user.svelte";
 import { defineHandler } from "../helper";
 
 export default defineHandler({
@@ -11,7 +11,7 @@ export default defineHandler({
 			message.setContext({
 				type: "unbanRequest",
 				request: data,
-				user: Viewer.fromBasic(data),
+				user: User.fromBasic(data),
 			}),
 		);
 	},

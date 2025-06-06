@@ -18,6 +18,7 @@ mod emotes;
 mod error;
 mod eventsub;
 mod irc;
+mod log;
 mod providers;
 mod server;
 
@@ -74,20 +75,11 @@ pub fn run() {
     builder
         .plugin(tauri_plugin_svelte::init())
         .plugin(tauri_plugin_window_state::Builder::new().build())
-        .plugin(
-            tauri_plugin_log::Builder::new()
-                .level_for("hyper_util", log::LevelFilter::Off)
-                .level_for("rustls", log::LevelFilter::Off)
-                .level_for("tao", log::LevelFilter::Off)
-                .level_for("tokio_tungstenite", log::LevelFilter::Off)
-                .level_for("tracing", log::LevelFilter::Off)
-                .level_for("tungstenite", log::LevelFilter::Off)
-                .build(),
-        )
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_os::init())
         .setup(|app| {
+            let log_guard = log::init_tracing(app);
             let app_handle = app.handle();
 
             async_runtime::block_on(async {
@@ -104,10 +96,19 @@ pub fn run() {
                     None
                 };
 
+                if let Some(ref token) = access_token {
+                    tracing::debug!(
+                        token = token.access_token.as_str(),
+                        "Using access token from storage",
+                    );
+                }
+
                 state.token = access_token;
             });
 
             app.manage(Mutex::new(state));
+            app.manage(log_guard);
+
             Ok(())
         })
         .invoke_handler(get_handler())
@@ -133,8 +134,8 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
     tauri::generate_handler![
         popout_settings,
         api::channels::get_stream,
+        api::channels::get_streams,
         api::channels::get_followed_channels,
-        api::channels::run_following_update_loop,
         api::chat::join,
         api::chat::leave,
         api::chat::send_message,
@@ -146,9 +147,10 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         api::users::get_user_from_login,
         api::users::get_user_emotes,
         api::users::get_moderated_channels,
-        irc::connect_irc,
         emotes::fetch_global_emotes,
         eventsub::connect_eventsub,
+        irc::connect_irc,
+        log::log,
         providers::fetch_recent_messages,
         providers::seventv::connect_seventv,
         server::start_server

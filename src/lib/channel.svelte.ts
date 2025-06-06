@@ -6,8 +6,8 @@ import type { EmoteSet } from "./seventv";
 import { app } from "./state.svelte";
 import type { Emote, JoinedChannel } from "./tauri";
 import type { Badge, BadgeSet, Cheermote, Stream } from "./twitch/api";
-import { User } from "./user";
-import { Viewer } from "./viewer.svelte";
+import { User } from "./user.svelte";
+import { find } from "./util";
 
 export class Channel {
 	#lastRecentAt: number | null = null;
@@ -16,7 +16,12 @@ export class Channel {
 	public readonly badges = new SvelteMap<string, Record<string, Badge>>();
 	public readonly emotes = new SvelteMap<string, Emote>();
 	public readonly cheermotes = $state<Cheermote[]>([]);
-	public readonly viewers = new SvelteMap<string, Viewer>();
+	public readonly viewers = new SvelteMap<string, User>();
+
+	/**
+	 * Whether the channel is ephemeral.
+	 */
+	public ephemeral = false;
 
 	/**
 	 * The active 7TV emote set for the channel if any.
@@ -37,12 +42,15 @@ export class Channel {
 		stream: Stream | null = null,
 	) {
 		this.#stream = stream;
+
+		this.user.isBroadcaster = true;
+		this.viewers.set(user.id, user);
 	}
 
 	public static async join(login: string) {
 		const joined = await invoke<JoinedChannel>("join", {
 			login,
-			isMod: app.user?.moderating.has(login) ?? false,
+			isMod: app.user ? !!find(app.user.moderating, (name) => name === login) : false,
 		});
 
 		const user = new User(joined.user);
@@ -54,11 +62,6 @@ export class Channel {
 			.setStream(joined.stream);
 
 		channel.emoteSet = joined.emote_set ?? undefined;
-
-		const viewer = new Viewer(user);
-		viewer.isBroadcaster = true;
-
-		channel.viewers.set(user.username, viewer);
 
 		return channel;
 	}
@@ -129,7 +132,7 @@ export class Channel {
 	public clearMessages(id?: string) {
 		if (id) {
 			for (const message of this.messages) {
-				if (message.isUser() && message.viewer.id === id) {
+				if (message.isUser() && message.author.id === id) {
 					message.setDeleted();
 				}
 			}
@@ -153,6 +156,11 @@ export class Channel {
 
 	public setStream(stream: Stream | null) {
 		this.#stream = stream;
+		return this;
+	}
+
+	public setEphemeral() {
+		this.ephemeral = true;
 		return this;
 	}
 }

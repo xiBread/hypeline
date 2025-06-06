@@ -1,11 +1,9 @@
 use std::collections::HashMap;
-use std::time::Duration;
 
 use futures::TryStreamExt;
 use serde::Serialize;
-use tauri::async_runtime::{self, Mutex};
-use tauri::{AppHandle, Emitter, Manager, State};
-use tokio::time::sleep;
+use tauri::async_runtime::Mutex;
+use tauri::State;
 use tokio::try_join;
 use twitch_api::helix::channels::FollowedBroadcaster;
 use twitch_api::helix::streams::Stream;
@@ -21,16 +19,26 @@ pub async fn get_stream(
     state: State<'_, Mutex<AppState>>,
     id: String,
 ) -> Result<Option<Stream>, Error> {
+    let mut streams = get_streams(state, vec![id]).await?;
+
+    Ok(streams.pop())
+}
+
+#[tauri::command]
+pub async fn get_streams(
+    state: State<'_, Mutex<AppState>>,
+    ids: Vec<String>,
+) -> Result<Vec<Stream>, Error> {
     let state = state.lock().await;
     let token = get_access_token(&state)?;
 
-    let mut streams: Vec<Stream> = state
+    let streams = state
         .helix
-        .get_streams_from_ids(&[&id][..].into(), token)
+        .get_streams_from_ids(&ids.into(), token)
         .try_collect()
         .await?;
 
-    Ok(streams.pop())
+    Ok(streams)
 }
 
 #[derive(Serialize)]
@@ -39,10 +47,13 @@ pub struct FullChannel {
     stream: Option<Stream>,
 }
 
+#[tracing::instrument(skip_all)]
 #[tauri::command]
 pub async fn get_followed_channels(
     state: State<'_, Mutex<AppState>>,
 ) -> Result<Vec<FullChannel>, Error> {
+    tracing::info!("Fetching followed channels");
+
     let guard = state.lock().await;
     let token = get_access_token(&guard);
 
@@ -59,6 +70,7 @@ pub async fn get_followed_channels(
         .unwrap_or_default();
 
     if channels.is_empty() {
+        tracing::info!("No followed channels found");
         return Ok(vec![]);
     }
 
@@ -95,7 +107,7 @@ pub async fn get_followed_channels(
         .map(|u| (u.user_id.clone(), u.color.map(|c| c.to_string())))
         .collect();
 
-    let followed = channels
+    let followed: Vec<_> = channels
         .iter()
         .filter_map(|channel| {
             let user_data = user_map.get(&channel.broadcaster_id);
@@ -118,21 +130,6 @@ pub async fn get_followed_channels(
         })
         .collect();
 
+    tracing::info!("Fetched {} followed channels", followed.len());
     Ok(followed)
-}
-
-#[tauri::command]
-pub async fn run_following_update_loop(app: AppHandle) -> Result<(), Error> {
-    async_runtime::spawn(async move {
-        loop {
-            let state = app.state::<Mutex<AppState>>();
-            let channels = get_followed_channels(state).await.unwrap_or_default();
-
-            app.emit("followedchannels", &channels).unwrap();
-
-            sleep(Duration::from_secs(5 * 60)).await;
-        }
-    });
-
-    Ok(())
 }

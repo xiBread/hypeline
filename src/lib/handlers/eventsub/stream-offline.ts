@@ -1,5 +1,5 @@
 import { SystemMessage } from "$lib/message";
-import { Viewer } from "$lib/viewer.svelte";
+import { User } from "$lib/user.svelte";
 import { defineHandler } from "../helper";
 
 export default defineHandler({
@@ -12,7 +12,7 @@ export default defineHandler({
 			message.setContext({
 				type: "streamStatus",
 				online: false,
-				broadcaster: Viewer.fromBroadcaster(data),
+				broadcaster: User.fromBroadcaster(data),
 			}),
 		);
 	},

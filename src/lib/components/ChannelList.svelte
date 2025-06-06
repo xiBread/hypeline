@@ -1,22 +1,16 @@
 <script lang="ts">
 	import { invoke } from "@tauri-apps/api/core";
-	import { listen } from "@tauri-apps/api/event";
-	import type { UnlistenFn } from "@tauri-apps/api/event";
-	import { onDestroy, onMount } from "svelte";
+	import { onMount } from "svelte";
 	import { flip } from "svelte/animate";
-	import { Channel } from "$lib/channel.svelte";
+	import { log } from "$lib/log";
 	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
-	import type { FullChannel } from "$lib/tauri";
 	import type { Stream } from "$lib/twitch/api";
-	import { User } from "$lib/user";
+	import { User } from "$lib/user.svelte";
 	import Tooltip from "./ui/Tooltip.svelte";
 
-	let unlisten: UnlistenFn | undefined;
-
-	let followed = $state<Channel[]>([]);
-	const sorted = $derived(
-		followed.toSorted((a, b) => {
+	const groups = $derived.by(() => {
+		const sorted = app.channels.toSorted((a, b) => {
 			if (a.stream && b.stream) {
 				return b.stream.viewer_count - a.stream.viewer_count;
 			}
@@ -25,49 +19,47 @@
 			if (!a.stream && b.stream) return 1;
 
 			return a.user.username.localeCompare(b.user.username);
-		}),
-	);
-
-	onMount(async () => {
-		followed = await fetchFollowed();
-		await invoke("run_following_update_loop");
-
-		unlisten = await listen<FullChannel[]>("followedchannels", (event) => {
-			for (const channel of event.payload) {
-				const chan = followed.find((f) => f.user.id === channel.user.data.id);
-				chan?.setStream(channel.stream);
-			}
 		});
+
+		return Object.groupBy(sorted, (channel) => (channel.ephemeral ? "a" : "b"));
 	});
 
-	onDestroy(() => unlisten?.());
+	onMount(() => {
+		const interval = setInterval(
+			async () => {
+				log.info("Updating streams");
 
-	async function fetchFollowed() {
-		const channels = await invoke<FullChannel[]>("get_followed_channels");
-		const followed = [];
+				const streams = await invoke<Stream[]>("get_streams", {
+					ids: app.channels.map((c) => c.user.id),
+				});
 
-		for (const channel of channels) {
-			const user = new User(channel.user);
-			const chan = new Channel(user, channel.stream);
+				for (const stream of streams) {
+					const chan = app.channels.find((c) => c.user.id === stream.user_id);
+					chan?.setStream(stream);
+				}
+			},
+			5 * 60 * 1000,
+		);
 
-			followed.push(chan);
-		}
-
-		return followed;
-	}
+		return () => clearInterval(interval);
+	});
 </script>
 
-<!-- todo: include stream with user -->
+<!-- TODO: include stream with user -->
 {#if app.user}
 	{@render channelIcon(app.user, null)}
 {/if}
 
-<div class="bg-border h-px" role="separator"></div>
+{#each Object.entries(groups)
+	.sort((a, b) => a[0].localeCompare(b[0]))
+	.map((e) => e[1]) as channels}
+	<div class="bg-border h-px" role="separator"></div>
 
-{#each sorted as channel (channel.user.id)}
-	<div animate:flip={{ duration: 500 }}>
-		{@render channelIcon(channel.user, channel.stream)}
-	</div>
+	{#each channels as channel (channel.user.id)}
+		<div class="flex" animate:flip={{ duration: 500 }}>
+			{@render channelIcon(channel.user, channel.stream)}
+		</div>
+	{/each}
 {/each}
 
 {#snippet channelIcon(user: User, stream: Stream | null)}
@@ -82,7 +74,7 @@
 			>
 				<img
 					class={["object-cover", !stream && "grayscale"]}
-					src={user.profilePictureUrl}
+					src={user.avatarUrl}
 					alt={user.displayName}
 					width="300"
 					height="300"
