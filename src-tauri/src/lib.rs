@@ -117,7 +117,7 @@ pub fn run() {
 }
 
 #[tauri::command]
-fn popout_settings(app_handle: AppHandle) {
+async fn popout_settings(app_handle: AppHandle) {
     let config = app_handle.config();
 
     let Some(settings) = config.app.windows.get(1) else {
