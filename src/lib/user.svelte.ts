@@ -59,6 +59,11 @@ export class User implements PartialUser {
 	public isReturning = $state(false);
 
 	/**
+	 * Whether the user is banned in the channel.
+	 */
+	public banned = $state(false);
+
+	/**
 	 * Whether the user's messages are being monitored. This is mutually
 	 * exclusive with `restricted`.
 	 */

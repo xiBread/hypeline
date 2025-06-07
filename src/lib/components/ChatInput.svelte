@@ -149,10 +149,11 @@
 			className,
 		]}
 		type="text"
+		disabled={app.user?.banned}
 		autocapitalize="off"
 		autocorrect="off"
 		maxlength={500}
-		placeholder="Send a message"
+		placeholder={app.user?.banned ? "You are banned from chat" : "Send a message"}
 		oninput={() => completer?.search()}
 		onkeydown={send}
 		onmousedown={() => completer?.reset()}
@@ -162,8 +163,9 @@
 
 	<div class="absolute inset-y-0 end-0 flex p-1">
 		<button
-			class="text-muted-foreground hover:text-foreground flex size-10 items-center justify-center rounded-sm transition-colors duration-150"
+			class="text-muted-foreground not-disabled:hover:text-foreground flex size-10 items-center justify-center rounded-sm transition-colors duration-150 disabled:cursor-not-allowed"
 			type="button"
+			disabled={app.user?.banned}
 			onclick={() => (emotePickerOpen = !emotePickerOpen)}
 			aria-label="Open emote picker"
 			bind:this={anchor}
