@@ -47,10 +47,13 @@ pub struct FullChannel {
     stream: Option<Stream>,
 }
 
+#[tracing::instrument(skip_all)]
 #[tauri::command]
 pub async fn get_followed_channels(
     state: State<'_, Mutex<AppState>>,
 ) -> Result<Vec<FullChannel>, Error> {
+    tracing::info!("Fetching followed channels");
+
     let guard = state.lock().await;
     let token = get_access_token(&guard);
 
@@ -67,6 +70,7 @@ pub async fn get_followed_channels(
         .unwrap_or_default();
 
     if channels.is_empty() {
+        tracing::info!("No followed channels found");
         return Ok(vec![]);
     }
 
@@ -103,7 +107,7 @@ pub async fn get_followed_channels(
         .map(|u| (u.user_id.clone(), u.color.map(|c| c.to_string())))
         .collect();
 
-    let followed = channels
+    let followed: Vec<_> = channels
         .iter()
         .filter_map(|channel| {
             let user_data = user_map.get(&channel.broadcaster_id);
@@ -126,5 +130,6 @@ pub async fn get_followed_channels(
         })
         .collect();
 
+    tracing::info!("Fetched {} followed channels", followed.len());
     Ok(followed)
 }

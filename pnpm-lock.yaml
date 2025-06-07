@@ -111,6 +111,9 @@ importers:
       vite:
         specifier: ^6.3.5
         version: 6.3.5(jiti@2.4.2)(lightningcss@1.30.1)(yaml@2.8.0)
+      vite-plugin-devtools-json:
+        specifier: ^0.1.0
+        version: 0.1.0(vite@6.3.5(jiti@2.4.2)(lightningcss@1.30.1)(yaml@2.8.0))
 
 packages:
 
@@ -2542,6 +2545,10 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
+  uuid@11.1.0:
+    resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
+    hasBin: true
+
   virtua@0.41.2:
     resolution: {integrity: sha512-48jgdeXKagXEVxalTFf1bJe/5JZq41QG9LcwDweFJwOZgOvIgoHhBR+IMZPOVd0AjtwvLOaS3O7MYNdti9c4VQ==}
     peerDependencies:
@@ -2566,6 +2573,11 @@ packages:
     resolution: {integrity: sha512-V+IxPAE2FvXpTCHXyNem0M+gWm6J7eRyWPR6vYoG/Gl+IscNOjXzztUhimQgTxaAoUoj40Qqimaa0NLIOOAH4w==}
     engines: {node: ^18.0.0 || ^20.0.0 || >=22.0.0}
     hasBin: true
+
+  vite-plugin-devtools-json@0.1.0:
+    resolution: {integrity: sha512-KvdgPBUAAhwnpOgXmJhs6KI4/IPn6xUppLGm20D0Uvp/doZ9TpTYYfzSHX0TgvdsSlTAwzZfzDse+ujGskp68g==}
+    peerDependencies:
+      vite: ^2.7.0 || ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0
 
   vite@6.3.5:
     resolution: {integrity: sha512-cZn6NDFE7wdTpINgs++ZJ4N49W2vRp8LCKrn3Ob1kYNtOo21vfDoaV5GzBfLU4MovSAB8uNRm4jgzVQZ+mBzPQ==}
@@ -5232,6 +5244,8 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
+  uuid@11.1.0: {}
+
   virtua@0.41.2(svelte@5.33.6):
     optionalDependencies:
       svelte: 5.33.6
@@ -5257,6 +5271,11 @@ snapshots:
       - tsx
       - yaml
     optional: true
+
+  vite-plugin-devtools-json@0.1.0(vite@6.3.5(jiti@2.4.2)(lightningcss@1.30.1)(yaml@2.8.0)):
+    dependencies:
+      uuid: 11.1.0
+      vite: 6.3.5(jiti@2.4.2)(lightningcss@1.30.1)(yaml@2.8.0)
 
   vite@6.3.5(jiti@2.4.2)(lightningcss@1.30.1)(yaml@2.8.0):
     dependencies:

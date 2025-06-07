@@ -44,7 +44,7 @@ pub async fn connect_irc(
     async_runtime::spawn(
         async move {
             while let Some(message) = incoming.recv().await {
-                tracing::trace!(?message, "{} received", message.source().command);
+                tracing::trace!(?message, "Received {} message", message.source().command);
 
                 match message {
                     ServerMessage::Join(ref join) => {

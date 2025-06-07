@@ -26,10 +26,6 @@ export default defineHandler({
 			}
 		}
 
-		if (!channel.viewers.has(message.author.id)) {
-			channel.viewers.set(message.author.id, message.author);
-		}
-
 		channel.addMessage(message);
 	},
 });

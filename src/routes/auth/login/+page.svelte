@@ -4,7 +4,7 @@
 	import type { UnlistenFn } from "@tauri-apps/api/event";
 	import { openUrl } from "@tauri-apps/plugin-opener";
 	import { onDestroy, onMount, tick } from "svelte";
-	import { goto } from "$app/navigation";
+	import { goto, invalidateAll } from "$app/navigation";
 	import { PUBLIC_TWITCH_CLIENT_ID, PUBLIC_TWITCH_REDIRECT_URL } from "$env/static/public";
 	import { log } from "$lib/log";
 	import { settings } from "$lib/settings";
@@ -49,6 +49,7 @@
 			await tick();
 			await settings.save();
 
+			await invalidateAll();
 			await goto("/");
 		});
 	});
