@@ -1,6 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
 import { SvelteMap } from "svelte/reactivity";
-import { replyTarget } from "./components/ChatInput.svelte";
 import type { Message } from "./message";
 import type { EmoteSet } from "./seventv";
 import { app } from "./state.svelte";
@@ -146,11 +145,11 @@ export class Channel {
 		}
 	}
 
-	public async send(message: string) {
+	public async send(message: string, replyId?: string) {
 		await invoke("send_message", {
 			content: message,
 			broadcasterId: this.user.id,
-			replyId: replyTarget.value?.id ?? null,
+			replyId: replyId ?? null,
 		});
 	}
 
