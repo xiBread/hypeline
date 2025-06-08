@@ -15,8 +15,8 @@
 
 	if (message.source) {
 		const user =
-			message.source.id !== app.joined?.user.id
-				? app.joined?.viewers.get(message.source.id)
+			message.source.channel_id !== app.joined?.user.id
+				? app.joined?.viewers.get(message.source.channel_id)
 				: app.joined?.user;
 
 		if (user) {

@@ -40,3 +40,12 @@ pub struct Reply {
     pub parent: ReplyParent,
     pub thread: ReplyThread,
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Source {
+    pub message_id: String,
+    pub event_id: Option<String>,
+    pub channel_id: String,
+    pub badges: Vec<Badge>,
+    pub badge_info: Vec<Badge>,
+}

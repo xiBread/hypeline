@@ -17,11 +17,11 @@ export default defineHandler({
 		message.author.badge = app.u2b.get(message.author.id);
 		message.author.paint = app.u2p.get(message.author.id);
 
-		if (message.source && message.source.id !== data.channel_id) {
-			const source = channel.viewers.get(message.source.id);
+		if (message.source && message.source.channel_id !== data.channel_id) {
+			const source = channel.viewers.get(message.source.channel_id);
 
 			if (!source?.avatarUrl) {
-				const user = await User.from(message.source.id);
+				const user = await User.from(message.source.channel_id);
 				channel.viewers.set(user.id, user);
 			}
 		}

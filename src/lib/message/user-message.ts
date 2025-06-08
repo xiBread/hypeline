@@ -2,7 +2,14 @@ import { app } from "$lib/state.svelte";
 import type { Emote } from "$lib/tauri";
 import type { CheermoteTier } from "$lib/twitch/api";
 import type { AutoModMetadata, StructuredMessage } from "$lib/twitch/eventsub";
-import type { Badge, BasicUser, PrivmsgMessage, Range, UserNoticeMessage } from "$lib/twitch/irc";
+import type {
+	Badge,
+	BasicUser,
+	PrivmsgMessage,
+	Range,
+	Source,
+	UserNoticeMessage,
+} from "$lib/twitch/irc";
 import { User } from "$lib/user.svelte";
 import type { PartialUser } from "$lib/user.svelte";
 import { extractEmotes, find } from "$lib/util";
@@ -76,9 +83,7 @@ export class UserMessage extends Message {
 			reply: null,
 			sender,
 			source_only: null,
-			source_badges: null,
-			source_badge_info: null,
-			source_channel_id: null,
+			source: null,
 			server_timestamp: Date.now(),
 		});
 	}
@@ -184,15 +189,8 @@ export class UserMessage extends Message {
 	 * The source metadata for the message if it was sent during a shared chat
 	 * session.
 	 */
-	public get source(): MessageSource | null {
-		if ("source_channel_id" in this.data && this.data.source_channel_id) {
-			return {
-				id: this.data.source_channel_id,
-				badges: this.data.source_badges ?? [],
-			};
-		}
-
-		return null;
+	public get source(): Source | null {
+		return this.data.source;
 	}
 
 	public addAutoModMetadata(metadata: AutoModMetadata) {

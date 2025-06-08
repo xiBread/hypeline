@@ -126,6 +126,8 @@ export interface BaseUserMessage {
 	deleted: boolean;
 	is_recent: boolean;
 	server_timestamp: number;
+	source_only: boolean | null;
+	source: Source | null;
 }
 
 export interface ReplyParent {
@@ -144,6 +146,14 @@ export interface Reply {
 	thread: ReplyThread;
 }
 
+export interface Source {
+	message_id: string;
+	event_id: string | null;
+	channel_id: string;
+	badges: Badge[];
+	badge_info: Badge[];
+}
+
 export interface PrivmsgMessage extends BaseUserMessage {
 	type: "privmsg";
 	message_text: string;
@@ -155,10 +165,6 @@ export interface PrivmsgMessage extends BaseUserMessage {
 	is_mod: boolean;
 	is_subscriber: boolean;
 	bits: number | null;
-	source_only: boolean | null;
-	source_badges: Badge[] | null;
-	source_badge_info: Badge[] | null;
-	source_channel_id: string | null;
 }
 
 export interface SubGiftPromo {
