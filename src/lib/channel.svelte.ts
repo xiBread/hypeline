@@ -1,6 +1,10 @@
 import { invoke } from "@tauri-apps/api/core";
 import { SvelteMap } from "svelte/reactivity";
+import { PUBLIC_TWITCH_CLIENT_ID } from "$env/static/public";
+import { log } from "./log";
+import { SystemMessage } from "./message";
 import type { Message } from "./message";
+import { settings } from "./settings";
 import type { EmoteSet } from "./seventv";
 import { app } from "./state.svelte";
 import type { Emote, JoinedChannel } from "./tauri";
@@ -146,11 +150,43 @@ export class Channel {
 	}
 
 	public async send(message: string, replyId?: string) {
-		await invoke("send_message", {
-			content: message,
-			broadcasterId: this.user.id,
-			replyId: replyId ?? null,
+		if (!app.user) return;
+		const user = this.viewers.get(app.user.id) ?? app.user;
+
+		log.info(`Sending message in ${this.user.username} (${this.user.id})`);
+
+		const response = await fetch("https://api.twitch.tv/helix/chat/messages", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"Client-ID": PUBLIC_TWITCH_CLIENT_ID,
+				Authorization: `Bearer ${settings.state.user?.token}`,
+			},
+			body: JSON.stringify({
+				broadcaster_id: this.user.id,
+				sender_id: user.id,
+				reply_parent_message_id: replyId,
+				message,
+			}),
 		});
+
+		const body = await response.json();
+		const sysmsg = new SystemMessage();
+
+		if (body.status === 429) {
+			log.warn(`Rate limit exceeded: ${body.message}`);
+			this.addMessage(sysmsg.setText(body.message));
+		} else if (response.ok) {
+			if (body.data[0].is_sent) {
+				log.info("Message sent");
+				await invoke("send_presence", { channelId: this.user.id });
+			} else {
+				const reason = body.data[0].drop_reason;
+
+				log.warn(`Message dropped: ${reason}`);
+				this.addMessage(sysmsg.setText(reason));
+			}
+		}
 	}
 
 	public setStream(stream: Stream | null) {
