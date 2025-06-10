@@ -157,6 +157,17 @@ export interface PrivmsgMessage extends BaseUserMessage {
 	bits: number | null;
 }
 
+export interface RoomStateMessage {
+	type: "roomstate";
+	channel_login: string;
+	channel_id: string;
+	emote_only: boolean | null;
+	followers_only: number | null;
+	unique_mode: boolean | null;
+	slow_mode: number | null;
+	subscribers_only: boolean | null;
+}
+
 export interface SubGiftPromo {
 	total_gifts: number;
 	promo_name: string;
@@ -260,6 +271,7 @@ export type IrcMessage =
 	| NoticeMessage
 	| PartMessage
 	| PrivmsgMessage
+	| RoomStateMessage
 	| UserNoticeMessage;
 
 export type IrcMessageMap = {

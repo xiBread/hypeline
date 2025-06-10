@@ -436,17 +436,11 @@ pub struct RoomStateMessage {
     pub channel_login: String,
     pub channel_id: String,
     pub emote_only: Option<bool>,
-    pub followers_only: Option<FollowersOnlyMode>,
-    pub r9k: Option<bool>,
-    pub slow_mode: Option<Duration>,
+    pub followers_only: Option<i64>,
+    pub unique_mode: Option<bool>,
+    pub slow_mode: Option<u64>,
     pub subscribers_only: Option<bool>,
     pub source: IrcMessage,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-pub enum FollowersOnlyMode {
-    Disabled,
-    Enabled(Duration),
 }
 
 impl TryFrom<IrcMessage> for RoomStateMessage {
@@ -461,16 +455,9 @@ impl TryFrom<IrcMessage> for RoomStateMessage {
             channel_login: source.try_get_channel_login()?.to_owned(),
             channel_id: source.try_get_nonempty_tag_value("room-id")?.to_owned(),
             emote_only: source.try_get_optional_bool("emote-only")?,
-            followers_only: source
-                .try_get_optional_number::<i64>("followers-only")?
-                .map(|n| match n {
-                    n if n >= 0 => FollowersOnlyMode::Enabled(Duration::from_secs((n * 60) as u64)),
-                    _ => FollowersOnlyMode::Disabled,
-                }),
-            r9k: source.try_get_optional_bool("r9k")?,
-            slow_mode: source
-                .try_get_optional_number::<u64>("slow")?
-                .map(Duration::from_secs),
+            followers_only: source.try_get_optional_number::<i64>("followers-only")?,
+            unique_mode: source.try_get_optional_bool("r9k")?,
+            slow_mode: source.try_get_optional_number::<u64>("slow")?,
             subscribers_only: source.try_get_optional_bool("subs-only")?,
             source,
         })
