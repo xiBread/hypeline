@@ -181,7 +181,7 @@ export class Channel {
 				log.info("Message sent");
 				await invoke("send_presence", { channelId: this.user.id });
 			} else {
-				const reason = body.data[0].drop_reason;
+				const reason = body.data[0].drop_reason.message;
 
 				log.warn(`Message dropped: ${reason}`);
 				this.addMessage(sysmsg.setText(reason));
