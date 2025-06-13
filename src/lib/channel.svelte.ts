@@ -12,9 +12,17 @@ import type { Badge, BadgeSet, Cheermote, Stream } from "./twitch/api";
 import { User } from "./user.svelte";
 import { find } from "./util";
 
+const RATE_LIMIT_WINDOW = 30 * 1000;
+const RATE_LIMIT_GRACE = 1000;
+
 export class Channel {
-	#lastRecentAt: number | null = null;
 	#stream = $state<Stream | null>(null);
+	#lastRecentAt: number | null = null;
+
+	#lastMessage: number[] = [];
+	#lastMessageElevated: number[] = [];
+	#lastHitSpdAt: number;
+	#lastHitAmtAt: number;
 
 	public readonly badges = new SvelteMap<string, Record<string, Badge>>();
 	public readonly emotes = new SvelteMap<string, Emote>();
@@ -48,6 +56,11 @@ export class Channel {
 
 		this.user.isBroadcaster = true;
 		this.viewers.set(user.id, user);
+
+		const now = performance.now();
+
+		this.#lastHitSpdAt = now - RATE_LIMIT_WINDOW * 2;
+		this.#lastHitAmtAt = now - RATE_LIMIT_WINDOW * 2;
 	}
 
 	public static async join(login: string) {
@@ -153,6 +166,9 @@ export class Channel {
 		if (!app.user) return;
 		const user = this.viewers.get(app.user.id) ?? app.user;
 
+		const rateLimited = this.#checkRateLimit(user.isBroadcaster || user.isMod || user.isVip);
+		if (rateLimited) return;
+
 		log.info(`Sending message in ${this.user.username} (${this.user.id})`);
 
 		const response = await fetch("https://api.twitch.tv/helix/chat/messages", {
@@ -197,5 +213,38 @@ export class Channel {
 	public setEphemeral() {
 		this.ephemeral = true;
 		return this;
+	}
+
+	#checkRateLimit(elevated: boolean) {
+		const now = performance.now();
+
+		const queue = elevated ? this.#lastMessageElevated : this.#lastMessage;
+		const maxMsgCount = elevated ? 99 : 19;
+		const minMsgOffset = elevated ? 100 : 1100;
+
+		const last = queue.at(-1);
+
+		if (last && last + minMsgOffset > now) {
+			if (this.#lastHitSpdAt + RATE_LIMIT_WINDOW < now) {
+				this.#lastHitSpdAt = now;
+			}
+
+			return true;
+		}
+
+		while (queue.length && queue[0] + RATE_LIMIT_WINDOW + RATE_LIMIT_GRACE < now) {
+			queue.shift();
+		}
+
+		if (queue.length >= maxMsgCount) {
+			if (this.#lastHitAmtAt + RATE_LIMIT_WINDOW < now) {
+				this.#lastHitAmtAt = now;
+			}
+
+			return true;
+		}
+
+		queue.push(now);
+		return false;
 	}
 }
