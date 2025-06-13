@@ -1,6 +1,8 @@
 declare global {
 	namespace App {
-		// interface PageData {}
+		interface PageData {
+			detached?: boolean;
+		}
 	}
 
 	interface RegExpConstructor {
