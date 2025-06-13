@@ -5,7 +5,7 @@ import { settings } from "$lib/settings";
 import { app } from "$lib/state.svelte";
 import type { Emote, FullChannel } from "$lib/tauri";
 import type { Badge, BadgeSet } from "$lib/twitch/api";
-import { User } from "$lib/user";
+import { User } from "$lib/user.svelte";
 
 export const prerender = true;
 export const ssr = false;

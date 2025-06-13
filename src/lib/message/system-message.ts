@@ -6,7 +6,7 @@ import type {
 	ChannelUnbanRequestResolve,
 	WarnMetadata,
 } from "$lib/twitch/eventsub";
-import type { Viewer } from "$lib/viewer.svelte";
+import type { User } from "$lib/user.svelte";
 import { Message } from "./message.svelte";
 
 export interface SystemMessageData {
@@ -18,28 +18,28 @@ export interface SystemMessageData {
 export interface AutoModContext {
 	type: "autoMod";
 	status: AutoModMessageStatus;
-	user: Viewer;
-	moderator: Viewer;
+	user: User;
+	moderator: User;
 }
 
 export interface BanStatusContext {
 	type: "banStatus";
 	banned: boolean;
 	reason: string | null;
-	user: Viewer;
-	moderator?: Viewer;
+	user: User;
+	moderator?: User;
 }
 
 export interface ClearContext {
 	type: "clear";
-	moderator?: Viewer;
+	moderator?: User;
 }
 
 export interface DeleteContext {
 	type: "delete";
 	text: string;
-	user: Viewer;
-	moderator?: Viewer;
+	user: User;
+	moderator?: User;
 }
 
 export interface EmoteSetUpdateContext {
@@ -47,12 +47,12 @@ export interface EmoteSetUpdateContext {
 	action: "added" | "removed" | "renamed";
 	oldName?: string;
 	emote: Emote;
-	actor: Viewer;
+	actor: User;
 }
 
 export interface JoinContext {
 	type: "join";
-	channel: Viewer;
+	channel: User;
 }
 
 export interface ModeContext {
@@ -60,68 +60,68 @@ export interface ModeContext {
 	mode: string;
 	enabled: boolean;
 	seconds: number;
-	moderator: Viewer;
+	moderator: User;
 }
 
 export interface RoleStatusContext {
 	type: "roleStatus";
 	role: string;
 	added: boolean;
-	user: Viewer;
-	broadcaster: Viewer;
+	user: User;
+	broadcaster: User;
 }
 
 export interface StreamStatusContext {
 	type: "streamStatus";
 	online: boolean;
-	broadcaster: Viewer;
+	broadcaster: User;
 }
 
 export interface SuspicionStatusContext {
 	type: "suspicionStatus";
 	active: boolean;
 	previous: "monitoring" | "restricting" | null;
-	user: Viewer;
-	moderator: Viewer;
+	user: User;
+	moderator: User;
 }
 
 export interface TermContext {
 	type: "term";
 	data: AutoModTermsMetadata;
-	moderator: Viewer;
+	moderator: User;
 }
 
 export interface TimeoutContext {
 	type: "timeout";
 	seconds: number;
 	reason: string | null;
-	user: Viewer;
-	moderator?: Viewer;
+	user: User;
+	moderator?: User;
 }
 
 export interface UnbanRequestContext {
 	type: "unbanRequest";
 	request: ChannelUnbanRequestCreate | ChannelUnbanRequestResolve;
-	user: Viewer;
-	moderator?: Viewer;
+	user: User;
+	moderator?: User;
 }
 
 export interface UntimeoutContext {
 	type: "untimeout";
-	user: Viewer;
-	moderator: Viewer;
+	user: User;
+	moderator: User;
 }
 
 export interface WarnContext {
 	type: "warn";
 	warning: WarnMetadata;
-	user: Viewer;
-	moderator: Viewer;
+	user: User;
+	moderator: User;
 }
 
 export interface WarnAckContext {
 	type: "warnAck";
-	user: Viewer;
+	user: User;
 }
 
 export type SystemMessageContext =
@@ -162,7 +162,7 @@ export class SystemMessage extends Message {
 		super(prepared, true);
 	}
 
-	public static joined(channel: Viewer) {
+	public static joined(channel: User) {
 		const message = new SystemMessage();
 		return message.setContext({ type: "join", channel });
 	}

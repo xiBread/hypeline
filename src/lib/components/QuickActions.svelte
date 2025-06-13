@@ -31,7 +31,7 @@
 
 		await invoke("ban", {
 			broadcasterId: app.joined.user.id,
-			userId: message.viewer.id,
+			userId: message.author.id,
 			duration,
 		});
 	}
@@ -48,7 +48,7 @@
 
 	<Toolbar.Button
 		class="hover:bg-muted-foreground/50 flex items-center justify-center rounded-[4px] p-1"
-		title="Reply to {message.viewer.displayName}"
+		title="Reply to {message.author.displayName}"
 		onclick={() => {
 			replyTarget.value = message;
 			input.value?.focus();
@@ -70,7 +70,7 @@
 
 		<Toolbar.Button
 			class="hover:bg-muted-foreground/50 flex items-center justify-center rounded-[4px] p-1 text-yellow-400"
-			title="Timeout {message.viewer.displayName} for 10 minutes"
+			title="Timeout {message.author.displayName} for 10 minutes"
 			onclick={() => ban(600)}
 		>
 			<span class="iconify lucide--clock-2 size-4"></span>
@@ -78,7 +78,7 @@
 
 		<Toolbar.Button
 			class="hover:bg-muted-foreground/50 text-destructive flex items-center justify-center rounded-[4px] p-1"
-			title="Ban {message.viewer.displayName}"
+			title="Ban {message.author.displayName}"
 			onclick={() => ban()}
 		>
 			<span class="iconify lucide--ban size-4"></span>

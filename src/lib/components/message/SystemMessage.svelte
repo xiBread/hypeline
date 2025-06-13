@@ -17,6 +17,7 @@
 		WarnContext,
 	} from "$lib/message";
 	import { colorizeName, formatDuration } from "$lib/util";
+	import Emote from "../Emote.svelte";
 	import Timestamp from "../Timestamp.svelte";
 
 	interface Props {
@@ -136,13 +137,7 @@
 		<span class="text-foreground font-medium">{ctx.emote.name}</span>
 	{/if}
 
-	<img
-		class="-my-2 inline-block"
-		src={ctx.emote.url}
-		alt={ctx.emote.name}
-		width={ctx.emote.width}
-		height={ctx.emote.height}
-	/>
+	<Emote emote={ctx.emote} />
 {/snippet}
 
 {#snippet mode(ctx: ModeContext)}

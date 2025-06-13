@@ -28,33 +28,33 @@
 		}),
 	);
 
-	const isSelf = message.viewer.id === app.user?.id;
+	const isSelf = message.author.id === app.user?.id;
 	const hasMention = message.text.toLowerCase().includes(`@${app.user?.username}`);
 
 	if (hasMention) {
 		hlType = "mention";
 	} else if (message.isFirst) {
 		hlType = "new";
-	} else if (message.viewer.isReturning) {
+	} else if (message.author.isReturning) {
 		hlType = "returning";
-	} else if (message.viewer.isBroadcaster) {
+	} else if (message.author.isBroadcaster) {
 		hlType = "broadcaster";
-	} else if (message.viewer.isMod) {
+	} else if (message.author.isMod) {
 		hlType = "moderator";
-	} else if (message.viewer.isSuspicious) {
+	} else if (message.author.isSuspicious) {
 		hlType = "suspicious";
-	} else if (message.viewer.isVip) {
+	} else if (message.author.isVip) {
 		hlType = "vip";
-	} else if (message.viewer.isSub) {
+	} else if (message.author.isSub) {
 		hlType = "subscriber";
 	}
 
-	const likelihood = message.viewer.banEvasion;
+	const likelihood = message.author.banEvasion;
 
-	if (message.viewer.isSuspicious) {
-		if (message.viewer.monitored) {
+	if (message.author.isSuspicious) {
+		if (message.author.monitored) {
 			info = "Montioring";
-		} else if (message.viewer.restricted) {
+		} else if (message.author.restricted) {
 			info = "Restricted";
 		} else if (likelihood !== "unknown") {
 			const status = likelihood[0].toUpperCase() + likelihood.slice(1);
@@ -98,7 +98,7 @@
 {#snippet innerMessage(bordered: boolean)}
 	<div class={["not-group-aria-disabled:hover:bg-muted/50 py-2", bordered ? "px-1.5" : "px-3"]}>
 		{#if message.reply}
-			{@const viewer = app.joined?.viewers.get(message.reply.parent.user.login)}
+			{@const user = app.joined?.viewers.get(message.reply.parent.user.id)}
 
 			<div class="mb-1 flex items-center gap-2">
 				<div
@@ -106,7 +106,7 @@
 				></div>
 
 				<div class="line-clamp-1 text-xs">
-					<span style={settings.state.coloredMentions ? viewer?.style : null}
+					<span style={settings.state.coloredMentions ? user?.style : null}
 						>@{message.reply.parent.user.name}</span
 					>:
 					<p class="text-muted-foreground inline">

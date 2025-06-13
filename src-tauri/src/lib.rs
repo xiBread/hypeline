@@ -123,7 +123,6 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         api::channels::get_followed_channels,
         api::chat::join,
         api::chat::leave,
-        api::chat::send_message,
         api::chat::fetch_global_badges,
         api::moderation::delete_message,
         api::moderation::update_held_message,
@@ -138,6 +137,7 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         log::log,
         providers::fetch_recent_messages,
         providers::seventv::connect_seventv,
+        providers::seventv::send_presence,
         server::start_server
     ]
 }

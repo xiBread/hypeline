@@ -1,4 +1,4 @@
-import { SystemMessage, UserMessage } from "$lib/message";
+import { SystemMessage } from "$lib/message";
 import { defineHandler } from "../helper";
 
 export default defineHandler({

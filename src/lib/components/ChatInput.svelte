@@ -282,11 +282,12 @@
 				if (!message) return;
 				if (!event.ctrlKey) input.value = "";
 
-				app.joined.history.push(message);
-				await app.joined.send(message);
-
-				historyIdx = -1;
+				const replyId = replyTarget.value?.id;
 				replyTarget.value = null;
+				historyIdx = -1;
+
+				app.joined.history.push(message);
+				await app.joined.send(message, replyId);
 			}
 		}
 	};

@@ -4,10 +4,10 @@
 
 	interface Props {
 		emote: Emote;
-		overlays: Emote[];
+		overlays?: Emote[];
 	}
 
-	const { emote, overlays }: Props = $props();
+	const { emote, overlays = [] }: Props = $props();
 	const srcset = emote.srcset.join(", ");
 </script>
 
@@ -22,7 +22,7 @@
 
 		{#each overlays as overlay}
 			<img
-				class="col-start-1 row-start-1 object-contain"
+				class="col-start-1 row-start-1 m-auto object-contain"
 				srcset={overlay.srcset.join(", ")}
 				alt={overlay.name}
 				decoding="async"

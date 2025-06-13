@@ -1,5 +1,5 @@
 import { SystemMessage } from "$lib/message";
-import { Viewer } from "$lib/viewer.svelte";
+import { User } from "$lib/user.svelte";
 import { defineHandler } from "../helper";
 
 export default defineHandler({
@@ -14,8 +14,8 @@ export default defineHandler({
 			sysmsg.setContext({
 				type: "autoMod",
 				status: data.status,
-				user: Viewer.fromBasic(data),
-				moderator: Viewer.fromMod(data),
+				user: User.fromBasic(data),
+				moderator: User.fromModerator(data),
 			}),
 		);
 	},

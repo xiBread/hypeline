@@ -6,7 +6,7 @@
 	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
 	import type { Stream } from "$lib/twitch/api";
-	import { User } from "$lib/user";
+	import { User } from "$lib/user.svelte";
 	import Tooltip from "./ui/Tooltip.svelte";
 
 	const groups = $derived.by(() => {
@@ -33,9 +33,9 @@
 					ids: app.channels.map((c) => c.user.id),
 				});
 
-				for (const stream of streams) {
-					const chan = app.channels.find((c) => c.user.id === stream.user_id);
-					chan?.setStream(stream);
+				for (const channel of app.channels) {
+					const stream = streams.find((s) => s.user_id === channel.user.id);
+					channel.setStream(stream ?? null);
 				}
 			},
 			5 * 60 * 1000,
@@ -74,7 +74,7 @@
 			>
 				<img
 					class={["object-cover", !stream && "grayscale"]}
-					src={user.profilePictureUrl}
+					src={user.avatarUrl}
 					alt={user.displayName}
 					width="300"
 					height="300"

@@ -4,13 +4,18 @@
 	import type { UnlistenFn } from "@tauri-apps/api/event";
 	import { openUrl } from "@tauri-apps/plugin-opener";
 	import { onDestroy, onMount, tick } from "svelte";
-	import { goto } from "$app/navigation";
+	import { goto, invalidateAll } from "$app/navigation";
 	import { PUBLIC_TWITCH_CLIENT_ID, PUBLIC_TWITCH_REDIRECT_URL } from "$env/static/public";
 	import { log } from "$lib/log";
 	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
 	import { SCOPES } from "$lib/twitch";
-	import { User } from "$lib/user";
+	import { User } from "$lib/user.svelte";
+
+	interface TokenInfo {
+		user_id: string;
+		access_token: string;
+	}
 
 	const params = {
 		client_id: PUBLIC_TWITCH_CLIENT_ID,
@@ -31,15 +36,20 @@
 		log.info("Authenticating user");
 		await invoke("start_server");
 
-		unlisten = await listen<string>("accesstoken", async (event) => {
-			app.user = await User.from(null);
-			settings.state.user = { id: app.user.id, token: event.payload };
-
+		unlisten = await listen<TokenInfo>("tokeninfo", async (event) => {
 			log.info("User authenticated");
+
+			settings.state.user = {
+				id: event.payload.user_id,
+				token: event.payload.access_token,
+			};
+
+			app.user = await User.from(event.payload.user_id);
 
 			await tick();
 			await settings.save();
 
+			await invalidateAll();
 			await goto("/");
 		});
 	});

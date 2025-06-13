@@ -1,5 +1,5 @@
 use anyhow::anyhow;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use tauri::async_runtime::Mutex;
 use tauri::State;
 use twitch_api::twitch_oauth2::{AccessToken, UserToken};
@@ -24,7 +24,16 @@ pub fn get_access_token<'a>(state: &'a AppState) -> Result<&'a UserToken, Error>
     })
 }
 
-pub async fn set_access_token(state: State<'_, Mutex<AppState>>, token: String) {
+#[derive(Clone, Serialize)]
+pub struct TokenInfo {
+    user_id: String,
+    access_token: String,
+}
+
+pub async fn set_access_token(
+    state: State<'_, Mutex<AppState>>,
+    token: String,
+) -> Option<TokenInfo> {
     let mut state = state.lock().await;
 
     state.token = UserToken::from_token(&state.helix, AccessToken::from(token))
@@ -32,6 +41,14 @@ pub async fn set_access_token(state: State<'_, Mutex<AppState>>, token: String) 
         .ok();
 
     if let Some(ref token) = state.token {
-        tracing::debug!("Set access token to {}", token.access_token.as_str());
+        let raw_token = token.access_token.as_str();
+        tracing::debug!("Set access token to {}", raw_token);
+
+        Some(TokenInfo {
+            user_id: token.user_id.to_string(),
+            access_token: raw_token.to_string(),
+        })
+    } else {
+        None
     }
 }
