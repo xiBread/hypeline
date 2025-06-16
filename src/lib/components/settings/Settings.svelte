@@ -3,7 +3,7 @@
 	import { Dialog, Separator, Tabs } from "bits-ui";
 	import { tick } from "svelte";
 	import { goto } from "$app/navigation";
-	import { info, log } from "$lib/log";
+	import { log } from "$lib/log";
 	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
 	import TitleBar from "../TitleBar.svelte";
@@ -39,9 +39,13 @@
 		}
 	});
 
-	async function popout() {
+	async function detach() {
+		log.info("Detaching settings");
+
 		open = false;
-		await invoke("popout_settings");
+		await invoke("detach_settings");
+
+		log.info("Settings detached");
 	}
 
 	async function logOut() {
@@ -52,7 +56,7 @@
 		await tick();
 		await settings.saveNow();
 
-		info("User logged out");
+		log.info("User logged out");
 		await goto("/auth/login");
 	}
 </script>
@@ -96,7 +100,7 @@
 						<button
 							class="hover:bg-muted hover:text-foreground text-muted-foreground flex w-full items-center gap-2 rounded-sm px-2.5 py-1.5 transition-colors duration-100"
 							type="button"
-							onclick={popout}
+							onclick={detach}
 						>
 							<span class="iconify lucide--external-link size-4"></span>
 							<span class="text-sm">Popout settings</span>

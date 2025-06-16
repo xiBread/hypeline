@@ -117,7 +117,7 @@ pub fn run() {
 }
 
 #[tauri::command]
-async fn popout_settings(app_handle: AppHandle) {
+async fn detach_settings(app_handle: AppHandle) {
     let config = app_handle.config();
 
     let Some(settings) = config.app.windows.get(1) else {
@@ -132,7 +132,7 @@ async fn popout_settings(app_handle: AppHandle) {
 
 fn get_handler() -> impl Fn(Invoke) -> bool {
     tauri::generate_handler![
-        popout_settings,
+        detach_settings,
         api::channels::get_stream,
         api::channels::get_streams,
         api::channels::get_followed_channels,
