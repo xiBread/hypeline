@@ -40,8 +40,6 @@
 	});
 
 	async function popout() {
-		if (detached) return;
-
 		open = false;
 		await invoke("popout_settings");
 	}
