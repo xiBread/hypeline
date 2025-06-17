@@ -8,7 +8,7 @@ use providers::seventv::SeventTvClient;
 use reqwest::header::HeaderMap;
 use tauri::async_runtime::{self, Mutex};
 use tauri::ipc::Invoke;
-use tauri::{AppHandle, Manager, WebviewWindowBuilder};
+use tauri::{AppHandle, Manager, WebviewWindowBuilder, WindowEvent};
 use tauri_plugin_svelte::ManagerExt;
 use twitch_api::twitch_oauth2::{AccessToken, UserToken};
 use twitch_api::HelixClient;
@@ -110,6 +110,17 @@ pub fn run() {
             app.manage(log_guard);
 
             Ok(())
+        })
+        .on_window_event(|window, event| {
+            if let WindowEvent::CloseRequested { .. } = event {
+                if window.label() == "main" {
+                    for (label, win) in window.app_handle().webview_windows() {
+                        let _ = win
+                            .close()
+                            .expect(&format!("failed to close window {label}"));
+                    }
+                }
+            }
         })
         .invoke_handler(get_handler())
         .run(tauri::generate_context!())
