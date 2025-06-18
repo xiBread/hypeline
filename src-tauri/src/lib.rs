@@ -114,10 +114,10 @@ pub fn run() {
         .on_window_event(|window, event| {
             if let WindowEvent::CloseRequested { .. } = event {
                 if window.label() == "main" {
-                    for (label, win) in window.app_handle().webview_windows() {
-                        let _ = win
+                    if let Some(settings_win) = window.app_handle().get_webview_window("settings") {
+                        settings_win
                             .close()
-                            .expect(&format!("failed to close window {label}"));
+                            .expect("failed to close settings window");
                     }
                 }
             }
