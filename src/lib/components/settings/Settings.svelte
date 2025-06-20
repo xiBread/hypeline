@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { getVersion } from "@tauri-apps/api/app";
 	import { invoke } from "@tauri-apps/api/core";
 	import { appLogDir } from "@tauri-apps/api/path";
 	import { openPath } from "@tauri-apps/plugin-opener";
+	import * as os from "@tauri-apps/plugin-os";
 	import { Dialog, Separator, Tabs } from "bits-ui";
 	import { tick } from "svelte";
 	import { goto } from "$app/navigation";
@@ -50,6 +52,16 @@
 
 	async function openLogDir() {
 		await openPath(await appLogDir());
+	}
+
+	async function copyDebugInfo() {
+		const appVersion = await getVersion();
+
+		// TODO: add commit hash
+		const appInfo = `Hypeline v${appVersion}`;
+		const osInfo = `${os.platform()} ${os.arch()} (${os.version()})`;
+
+		await navigator.clipboard.writeText(`${appInfo}\n${osInfo}`);
 	}
 
 	async function logOut() {
@@ -108,6 +120,11 @@
 						<button class="settings-btn" type="button" onclick={openLogDir}>
 							<span class="iconify lucide--folder-open size-4"></span>
 							<span class="text-sm">Open logs</span>
+						</button>
+
+						<button class="settings-btn" type="button" onclick={copyDebugInfo}>
+							<span class="iconify lucide--clipboard size-4"></span>
+							<span class="text-sm">Copy debug info</span>
 						</button>
 					</div>
 
