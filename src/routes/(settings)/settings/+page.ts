@@ -1,5 +1,3 @@
 export function load() {
-	return {
-		detached: true,
-	};
+	return { detached: true };
 }

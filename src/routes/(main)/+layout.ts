@@ -1,18 +1,13 @@
 import { invoke } from "@tauri-apps/api/core";
 import { Channel } from "$lib/channel.svelte";
-import { log } from "$lib/log";
 import { settings } from "$lib/settings";
 import { app } from "$lib/state.svelte";
 import type { Emote, FullChannel } from "$lib/tauri";
 import type { Badge, BadgeSet } from "$lib/twitch/api";
 import { User } from "$lib/user.svelte";
 
-export const prerender = true;
-export const ssr = false;
-
-export async function load() {
-	await settings.start();
-	log.info("Settings synced");
+export async function load({ parent }) {
+	await parent();
 
 	if (!settings.state.user) return;
 
