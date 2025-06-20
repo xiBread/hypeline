@@ -16,6 +16,14 @@
 		"core:webview:allow-create-webview-window",
 		"opener:default",
 		"notification:default",
-		"os:default"
+		"os:default",
+		{
+			"identifier": "opener:allow-open-path",
+			"allow": [
+				{
+					"path": "$APPLOG"
+				}
+			]
+		}
 	]
 }

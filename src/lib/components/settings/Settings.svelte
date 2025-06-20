@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { invoke } from "@tauri-apps/api/core";
+	import { appLogDir } from "@tauri-apps/api/path";
+	import { openPath } from "@tauri-apps/plugin-opener";
 	import { Dialog, Separator, Tabs } from "bits-ui";
 	import { tick } from "svelte";
 	import { goto } from "$app/navigation";
@@ -40,12 +42,14 @@
 	});
 
 	async function detach() {
-		log.info("Detaching settings");
-
 		open = false;
 		await invoke("detach_settings");
 
 		log.info("Settings detached");
+	}
+
+	async function openLogDir() {
+		await openPath(await appLogDir());
 	}
 
 	async function logOut() {
@@ -82,11 +86,7 @@
 					<Tabs.List class="space-y-1">
 						{#each categories as category (category.name)}
 							<Tabs.Trigger
-								class={[
-									"text-muted-foreground flex w-full items-center gap-2 rounded-sm px-2.5 py-1.5 transition-colors duration-100",
-									"hover:bg-muted hover:text-foreground",
-									"data-[state=active]:bg-muted data-[state=active]:text-foreground",
-								]}
+								class="settings-btn data-[state=active]:bg-muted data-[state=active]:text-foreground"
 								value={category.name}
 							>
 								<span class="iconify size-4 {category.icon}"></span>
@@ -97,19 +97,24 @@
 
 					<Separator.Root class="bg-border my-1 h-px w-full" />
 
-					{#if !detached}
-						<button
-							class="hover:bg-muted hover:text-foreground text-muted-foreground flex w-full items-center gap-2 rounded-sm px-2.5 py-1.5 transition-colors duration-100"
-							type="button"
-							onclick={detach}
-						>
-							<span class="iconify lucide--external-link size-4"></span>
-							<span class="text-sm">Popout settings</span>
+					<div class="space-y-1">
+						{#if !detached}
+							<button class="settings-btn" type="button" onclick={detach}>
+								<span class="iconify lucide--external-link size-4"></span>
+								<span class="text-sm">Popout settings</span>
+							</button>
+						{/if}
+
+						<button class="settings-btn" type="button" onclick={openLogDir}>
+							<span class="iconify lucide--folder-open size-4"></span>
+							<span class="text-sm">Open logs</span>
 						</button>
-					{/if}
+					</div>
+
+					<Separator.Root class="bg-border my-1 h-px w-full" />
 
 					<button
-						class="text-destructive hover:bg-muted flex w-full items-center gap-2 rounded-sm px-2.5 py-1.5 transition-colors duration-100"
+						class="settings-btn text-destructive! hover:text-destructive hover:bg-destructive/10!"
 						type="button"
 						onclick={logOut}
 					>
@@ -140,3 +145,25 @@
 		</Dialog.Content>
 	</Dialog.Portal>
 </Dialog.Root>
+
+<style>
+	@reference "../../../app.css";
+
+	:global(.settings-btn) {
+		color: var(--color-muted-foreground);
+		width: 100%;
+		display: flex;
+		align-items: center;
+		column-gap: --spacing(2);
+		border-radius: var(--radius-sm);
+		padding: --spacing(1.5) --spacing(2.5);
+		transition-property: color, background-color;
+		transition-duration: 100ms;
+		transition-timing-function: var(--default-transition-timing-function);
+
+		&:hover {
+			color: var(--color-foreground);
+			background-color: var(--color-muted);
+		}
+	}
+</style>
