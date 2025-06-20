@@ -2,6 +2,7 @@
 	import { getVersion } from "@tauri-apps/api/app";
 	import { invoke } from "@tauri-apps/api/core";
 	import { appLogDir } from "@tauri-apps/api/path";
+	import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 	import { openPath } from "@tauri-apps/plugin-opener";
 	import * as os from "@tauri-apps/plugin-os";
 	import { Dialog, Separator, Tabs } from "bits-ui";
@@ -61,7 +62,7 @@
 		const appInfo = `Hypeline v${appVersion}`;
 		const osInfo = `${os.platform()} ${os.arch()} (${os.version()})`;
 
-		await navigator.clipboard.writeText(`${appInfo}\n${osInfo}`);
+		await writeText(`${appInfo}\n${osInfo}`);
 	}
 
 	async function logOut() {
