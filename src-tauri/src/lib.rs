@@ -8,7 +8,7 @@ use providers::seventv::SeventTvClient;
 use reqwest::header::HeaderMap;
 use tauri::async_runtime::{self, Mutex};
 use tauri::ipc::Invoke;
-use tauri::Manager;
+use tauri::{AppHandle, Manager, WebviewWindowBuilder, WindowEvent};
 use tauri_plugin_svelte::ManagerExt;
 use twitch_api::twitch_oauth2::{AccessToken, UserToken};
 use twitch_api::HelixClient;
@@ -111,13 +111,50 @@ pub fn run() {
 
             Ok(())
         })
+        .on_window_event(|window, event| {
+            if let WindowEvent::CloseRequested { .. } = event {
+                let app_handle = window.app_handle();
+
+                match window.label() {
+                    "main" => {
+                        if let Some(settings_win) =
+                            window.app_handle().get_webview_window("settings")
+                        {
+                            settings_win
+                                .close()
+                                .expect("failed to close settings window");
+                        }
+                    }
+                    "settings" => {
+                        app_handle
+                            .svelte()
+                            .save("settings")
+                            .expect("failed to save settings while closing window");
+                    }
+                    _ => (),
+                }
+            }
+        })
         .invoke_handler(get_handler())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
 
+#[tauri::command]
+async fn detach_settings(app_handle: AppHandle) {
+    let config = app_handle.config();
+
+    if let Some(settings) = config.app.windows.get(1) {
+        WebviewWindowBuilder::from_config(&app_handle, &settings)
+            .unwrap()
+            .build()
+            .unwrap();
+    };
+}
+
 fn get_handler() -> impl Fn(Invoke) -> bool {
     tauri::generate_handler![
+        detach_settings,
         api::channels::get_stream,
         api::channels::get_streams,
         api::channels::get_followed_channels,

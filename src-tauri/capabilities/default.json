@@ -12,6 +12,8 @@
 		"core:window:allow-toggle-maximize",
 		"core:window:allow-close",
 		"core:window:allow-start-dragging",
+		"core:window:allow-set-focus",
+		"core:webview:allow-create-webview-window",
 		"opener:default",
 		"notification:default",
 		"os:default"
