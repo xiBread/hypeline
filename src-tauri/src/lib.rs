@@ -144,14 +144,12 @@ pub fn run() {
 async fn detach_settings(app_handle: AppHandle) {
     let config = app_handle.config();
 
-    let Some(settings) = config.app.windows.get(1) else {
-        return;
+    if let Some(settings) = config.app.windows.get(1) {
+        WebviewWindowBuilder::from_config(&app_handle, &settings)
+            .unwrap()
+            .build()
+            .unwrap();
     };
-
-    WebviewWindowBuilder::from_config(&app_handle, &settings)
-        .unwrap()
-        .build()
-        .unwrap();
 }
 
 fn get_handler() -> impl Fn(Invoke) -> bool {
