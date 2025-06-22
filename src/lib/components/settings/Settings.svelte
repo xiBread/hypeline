@@ -58,7 +58,6 @@
 	async function copyDebugInfo() {
 		const appVersion = await getVersion();
 
-		// TODO: add commit hash
 		const appInfo = `Hypeline v${appVersion}`;
 		const osInfo = `${os.platform()} ${os.arch()} (${os.version()})`;
 
