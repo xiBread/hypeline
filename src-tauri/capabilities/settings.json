@@ -17,6 +17,7 @@
 					"path": "$APPLOG"
 				}
 			]
-		}
+		},
+		"clipboard-manager:allow-write-text"
 	]
 }

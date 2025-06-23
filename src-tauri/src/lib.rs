@@ -73,6 +73,7 @@ pub fn run() {
     }
 
     builder
+        .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_svelte::init())
         .plugin(tauri_plugin_window_state::Builder::new().build())
         .plugin(tauri_plugin_notification::init())

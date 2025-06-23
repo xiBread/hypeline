@@ -1,8 +1,11 @@
 <script lang="ts">
+	import { getVersion } from "@tauri-apps/api/app";
 	import { invoke } from "@tauri-apps/api/core";
 	import { appLogDir } from "@tauri-apps/api/path";
+	import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 	import { openPath } from "@tauri-apps/plugin-opener";
-	import { Dialog, Separator, Tabs } from "bits-ui";
+	import * as os from "@tauri-apps/plugin-os";
+	import { Dialog, Popover, Separator, Tabs } from "bits-ui";
 	import { tick } from "svelte";
 	import { goto } from "$app/navigation";
 	import { log } from "$lib/log";
@@ -14,6 +17,8 @@
 	import Highlights from "./highlights/Highlights.svelte";
 
 	let { open = $bindable(false), detached = false } = $props();
+
+	let copied = $state(false);
 
 	const categories = [
 		{
@@ -50,6 +55,20 @@
 
 	async function openLogDir() {
 		await openPath(await appLogDir());
+	}
+
+	async function copyDebugInfo() {
+		const appVersion = await getVersion();
+
+		const appInfo = `Hypeline v${appVersion}`;
+		const osInfo = `${os.platform()} ${os.arch()} (${os.version()})`;
+
+		await writeText(`${appInfo}\n${osInfo}`);
+		copied = true;
+
+		setTimeout(() => {
+			copied = false;
+		}, 2000);
 	}
 
 	async function logOut() {
@@ -109,6 +128,24 @@
 							<span class="iconify lucide--folder-open size-4"></span>
 							<span class="text-sm">Open logs</span>
 						</button>
+
+						<Popover.Root bind:open={() => copied, () => {}}>
+							<Popover.Trigger
+								class="settings-btn"
+								type="button"
+								onclick={copyDebugInfo}
+							>
+								<span class="iconify lucide--clipboard size-4"></span>
+								<span class="text-sm">Copy debug info</span>
+							</Popover.Trigger>
+
+							<Popover.Content
+								class="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=top]:slide-in-from-bottom-2 z-50 origin-(--bits-popover-content-transform-origin) rounded-md border bg-green-600 px-2 py-1 text-sm font-medium shadow-md outline-hidden"
+								side="top"
+							>
+								Copied!
+							</Popover.Content>
+						</Popover.Root>
 					</div>
 
 					<Separator.Root class="bg-border my-1 h-px w-full" />
