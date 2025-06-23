@@ -46,7 +46,9 @@
 
 			await invoke("fetch_recent_messages", {
 				channel: channel.user.username,
-				historyLimit: settings.state.history.enabled ? settings.state.history.limit : 0,
+				historyLimit: settings.state.chat.history.enabled
+					? settings.state.chat.history.limit
+					: 0,
 			});
 
 			channel.addEmotes(app.globalEmotes);

@@ -106,7 +106,7 @@
 				></div>
 
 				<div class="line-clamp-1 text-xs">
-					<span style={settings.state.coloredMentions ? user?.style : null}
+					<span style={settings.state.chat.coloredMentions ? user?.style : null}
 						>@{message.reply.parent.user.name}</span
 					>:
 					<p class="text-muted-foreground inline">

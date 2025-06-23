@@ -69,7 +69,7 @@ render properly without an extra space in between. -->
 					class="font-semibold break-words"
 					style:color={fragment.marked
 						? null
-						: settings.state.coloredMentions
+						: settings.state.chat.coloredMentions
 							? fragment.color
 							: "inherit"}
 				>

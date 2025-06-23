@@ -10,7 +10,7 @@
 
 	<div class="divide-border divide-y *:py-6 *:first:pt-0 *:last:pb-0">
 		<Group title="Usernames">
-			<Switch bind:checked={settings.state.localizedNames}>
+			<Switch bind:checked={settings.state.chat.localizedNames}>
 				<span class="font-medium">Display localized names</span>
 
 				{#snippet description()}
@@ -19,7 +19,7 @@
 				{/snippet}
 			</Switch>
 
-			<Switch bind:checked={settings.state.coloredMentions}>
+			<Switch bind:checked={settings.state.chat.coloredMentions}>
 				<span class="font-medium">Colored mentions</span>
 
 				{#snippet description()}
@@ -27,7 +27,7 @@
 				{/snippet}
 			</Switch>
 
-			<Switch bind:checked={settings.state.readableColors}>
+			<Switch bind:checked={settings.state.chat.readableColors}>
 				<span class="font-medium">Readable name colors</span>
 
 				{#snippet description()}
