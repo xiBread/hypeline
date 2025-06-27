@@ -11,7 +11,7 @@
 </script>
 
 <script lang="ts">
-	import Fuzzy from "@leeoniya/ufuzzy";
+	import Fuse from "fuse.js";
 	import { onMount } from "svelte";
 	import type {
 		FormEventHandler,
@@ -27,7 +27,15 @@
 
 	const { class: className, ...rest }: HTMLInputAttributes = $props();
 
-	const fuzzy = new Fuzzy();
+	const emoteFuse = new Fuse(app.joined?.emotes.values().toArray() ?? [], {
+		isCaseSensitive: true,
+		keys: ["name"],
+	});
+
+	const userFuse = new Fuse(app.joined?.viewers.values().toArray() ?? [], {
+		isCaseSensitive: true,
+		keys: ["username", "displayName"],
+	});
 
 	let chatInput = $state<HTMLInputElement | null>(null);
 	let anchor = $state<HTMLElement>();
@@ -79,23 +87,15 @@
 		const results: Suggestion[] = [];
 		if (!app.joined) return results;
 
-		const keys = app.joined.emotes.keys().toArray();
-		const [, info, order] = fuzzy.search(keys, query);
+		const hits = emoteFuse.search(query, { limit: 25 });
 
-		for (const i of order ?? []) {
-			if (!info || results.length >= 25) break;
-
-			const name = keys[info.idx[order[i]]];
-			const emote = app.joined.emotes.get(name);
-
-			if (emote) {
-				results.push({
-					type: "emote",
-					value: name,
-					display: name,
-					imageUrl: emote.srcset[1].split(" ")[0],
-				});
-			}
+		for (const hit of hits) {
+			results.push({
+				type: "emote",
+				value: hit.item.name,
+				display: hit.item.name,
+				imageUrl: hit.item.srcset[1].split(" ")[0],
+			});
 		}
 
 		return results;
@@ -105,23 +105,15 @@
 		const results: Suggestion[] = [];
 		if (!app.joined) return results;
 
-		const keys = app.joined.viewers.keys().toArray();
-		const [, info, order] = fuzzy.search(keys, query);
+		const hits = userFuse.search(query, { limit: 25 });
 
-		for (const i of order ?? []) {
-			if (!info || results.length >= 25) break;
-
-			const name = keys[info.idx[order[i]]];
-			const viewer = app.joined.viewers.get(name);
-
-			if (viewer) {
-				results.push({
-					type: "user",
-					value: viewer.username,
-					display: viewer.displayName,
-					style: viewer.style,
-				});
-			}
+		for (const hit of hits) {
+			results.push({
+				type: "user",
+				value: hit.item.username,
+				display: hit.item.displayName,
+				style: hit.item.style,
+			});
 		}
 
 		return results;
