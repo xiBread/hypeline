@@ -55,11 +55,13 @@
 		emoteFuse = new Fuse(app.joined.emotes.values().toArray(), {
 			isCaseSensitive: true,
 			keys: ["name"],
+			threshold: 0.5,
 		});
 
 		userFuse = new Fuse(app.joined.viewers.values().toArray(), {
 			isCaseSensitive: true,
 			keys: ["username", "displayName"],
+			threshold: 0.5,
 		});
 	});
 
