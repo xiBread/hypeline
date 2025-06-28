@@ -64,16 +64,14 @@
 	});
 
 	function applySuggestion(suggestion: Suggestion) {
-		let replaceLength = query.length;
+		let end = value.lastIndexOf(query);
 
-		if (query.startsWith(":")) {
-			replaceLength++;
+		if (query.startsWith("@")) {
+			end++;
 		}
 
-		const end = value.lastIndexOf(query);
-
 		const left = value.slice(0, end);
-		const right = value.slice(end + replaceLength);
+		const right = value.slice(end + query.length);
 
 		value = `${left + suggestion.display} ${right}`;
 
