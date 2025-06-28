@@ -6,7 +6,7 @@ export default defineHandler({
 		if (data.followers_only === -1) {
 			channel.followerOnly = false;
 		} else {
-			channel.followerOnly = !!data.followers_only;
+			channel.followerOnly = data.followers_only ?? false;
 		}
 
 		channel.emoteOnly = !!data.emote_only;

@@ -65,7 +65,7 @@ export class Channel {
 	/**
 	 * Whether the channel is in follower-only mode.
 	 */
-	public followerOnly = $state(false);
+	public followerOnly = $state<number | boolean>(false);
 
 	/**
 	 * Whether the channel is in subscriber-only mode.
