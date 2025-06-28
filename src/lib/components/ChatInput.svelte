@@ -129,15 +129,9 @@
 		if (!app.joined) return;
 
 		const text = event.currentTarget.value;
-
-		if (!text) {
-			suggestions = [];
-			return;
-		}
-
 		const cursor = event.currentTarget.selectionStart ?? text.length;
-		const left = text.slice(0, cursor);
 
+		const left = text.slice(0, cursor);
 		const lastWord = left.split(" ").pop();
 
 		if (!lastWord) {
@@ -180,6 +174,8 @@
 						suggestions = filtered;
 						suggestionIdx = 0;
 						query = lastWord;
+
+						applySuggestion(suggestions[suggestionIdx]);
 					}
 				}
 			}
