@@ -19,6 +19,8 @@
 		KeyboardEventHandler,
 	} from "svelte/elements";
 	import { app } from "$lib/state.svelte";
+	import type { Emote } from "$lib/tauri";
+	import type { User } from "$lib/user.svelte";
 	import EmotePicker from "./EmotePicker.svelte";
 	import Message from "./message/Message.svelte";
 	import Suggestions from "./Suggestions.svelte";
@@ -26,16 +28,6 @@
 	import Input from "./ui/Input.svelte";
 
 	const { class: className, ...rest }: HTMLInputAttributes = $props();
-
-	const emoteFuse = new Fuse(app.joined?.emotes.values().toArray() ?? [], {
-		isCaseSensitive: true,
-		keys: ["name"],
-	});
-
-	const userFuse = new Fuse(app.joined?.viewers.values().toArray() ?? [], {
-		isCaseSensitive: true,
-		keys: ["username", "displayName"],
-	});
 
 	let chatInput = $state<HTMLInputElement | null>(null);
 	let anchor = $state<HTMLElement>();
@@ -52,8 +44,25 @@
 	let trigger: string | null = null;
 	let triggerPosition = -1;
 
+	let emoteFuse: Fuse<Emote>;
+	let userFuse: Fuse<User>;
+
 	onMount(() => {
 		input.value = chatInput;
+	});
+
+	$effect(() => {
+		if (!app.joined) return;
+
+		emoteFuse = new Fuse(app.joined.emotes.values().toArray(), {
+			isCaseSensitive: true,
+			keys: ["name"],
+		});
+
+		userFuse = new Fuse(app.joined.viewers.values().toArray(), {
+			isCaseSensitive: true,
+			keys: ["username", "displayName"],
+		});
 	});
 
 	function applySuggestion(suggestion: Suggestion) {
