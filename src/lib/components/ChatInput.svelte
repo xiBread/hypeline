@@ -40,9 +40,7 @@
 	let suggestionIdx = $state(0);
 	const showSuggestions = $derived(suggestions.length > 0);
 
-	let currentQuery = "";
-	let trigger: string | null = null;
-	let triggerPosition = -1;
+	let query = "";
 
 	let emoteFuse: Fuse<Emote>;
 	let userFuse: Fuse<User>;
@@ -66,28 +64,29 @@
 	});
 
 	function applySuggestion(suggestion: Suggestion) {
-		let replaceLength = currentQuery.length;
+		let replaceLength = query.length;
 
-		if (trigger === "@" || trigger === ":") {
+		if (query.startsWith(":")) {
 			replaceLength++;
 		}
 
-		const left = value.slice(0, triggerPosition);
-		const right = value.slice(triggerPosition + replaceLength);
+		const end = value.lastIndexOf(query);
+
+		const left = value.slice(0, end);
+		const right = value.slice(end + replaceLength);
 
 		value = `${left + suggestion.display} ${right}`;
 
 		suggestions = [];
 		suggestionIdx = 0;
-		trigger = null;
-		currentQuery = "";
+		query = "";
 
 		if (input.value) {
 			input.value.focus();
 
 			setTimeout(() => {
-				const newCursorPos = triggerPosition + suggestion.display.length + 1;
-				input.value?.setSelectionRange(newCursorPos, newCursorPos);
+				const endPos = end + suggestion.display.length + 1;
+				input.value?.setSelectionRange(endPos, endPos);
 			}, 0);
 		}
 	}
@@ -141,66 +140,21 @@
 		const cursor = event.currentTarget.selectionStart ?? text.length;
 		const left = text.slice(0, cursor);
 
-		const lastSpaceIndex = left.lastIndexOf(" ");
-		const currentSegment = left.slice(lastSpaceIndex + 1);
+		const lastWord = left.split(" ").pop();
 
-		if (!currentSegment) {
+		if (!lastWord) {
 			suggestions = [];
 			return;
 		}
 
-		let potentialTrigger = null;
-		let query = "";
-		let foundTriggerPos = -1;
-
-		const atIndex = currentSegment.lastIndexOf("@");
-		const colonIndex = currentSegment.lastIndexOf(":");
-
-		if (atIndex !== -1 && (colonIndex === -1 || atIndex > colonIndex)) {
-			if (cursor - (lastSpaceIndex + 1 + atIndex) > 0) {
-				query = currentSegment.slice(atIndex + 1);
-
-				if (!query.includes(" ")) {
-					potentialTrigger = "@";
-					foundTriggerPos = lastSpaceIndex + 1 + atIndex + 1;
-				}
-			}
-		} else if (colonIndex !== -1) {
-			if (cursor - (lastSpaceIndex + 1 + colonIndex) > 0) {
-				query = currentSegment.slice(colonIndex + 1);
-
-				if (!query.includes(" ")) {
-					potentialTrigger = ":";
-					foundTriggerPos = lastSpaceIndex + 1 + colonIndex;
-				}
-			}
-		}
-
-		if (trigger === "tab" && !potentialTrigger) {
+		if (lastWord.startsWith("@")) {
+			query = lastWord;
+			suggestions = searchViewers(query.slice(1));
+		} else if (lastWord.startsWith(":")) {
+			query = lastWord;
+			suggestions = searchEmotes(query.slice(1));
+		} else {
 			suggestions = [];
-			trigger = null;
-			currentQuery = "";
-			triggerPosition = -1;
-		}
-
-		if (potentialTrigger && query.length > 0) {
-			const filtered: Suggestion[] = [];
-
-			trigger = potentialTrigger;
-			triggerPosition = foundTriggerPos;
-			currentQuery = query;
-
-			if (trigger === ":") {
-				filtered.push(...searchEmotes(currentSegment));
-			} else if (trigger === "@") {
-				filtered.push(...searchViewers(currentSegment));
-			}
-
-			suggestions = filtered;
-		} else if (trigger !== "tab") {
-			trigger = null;
-			triggerPosition = -1;
-			currentQuery = "";
 		}
 	};
 
@@ -217,20 +171,17 @@
 				const cursor = input.selectionStart ?? value.length;
 				const left = value.slice(0, cursor);
 
-				const lastSpaceIndex = left.lastIndexOf(" ");
-				const currentSegment = left.slice(lastSpaceIndex + 1);
+				const lastWord = left.split(" ").pop();
 
-				if (currentSegment && !currentSegment.includes(" ")) {
-					const filtered = searchEmotes(currentSegment);
+				if (lastWord) {
+					const filtered = searchEmotes(lastWord);
 
 					if (filtered.length) {
 						event.preventDefault();
 
 						suggestions = filtered;
 						suggestionIdx = 0;
-						trigger = "tab";
-						triggerPosition = lastSpaceIndex + 1;
-						currentQuery = currentSegment;
+						query = lastWord;
 					}
 				}
 			}
