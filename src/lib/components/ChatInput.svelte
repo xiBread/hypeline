@@ -11,20 +11,13 @@
 </script>
 
 <script lang="ts">
-	import Fuse from "fuse.js";
 	import { onMount } from "svelte";
-	import type {
-		FormEventHandler,
-		HTMLInputAttributes,
-		KeyboardEventHandler,
-	} from "svelte/elements";
+	import type { HTMLInputAttributes, KeyboardEventHandler } from "svelte/elements";
+	import { Completer } from "$lib/completer.svelte";
 	import { app } from "$lib/state.svelte";
-	import type { Emote } from "$lib/tauri";
-	import type { User } from "$lib/user.svelte";
 	import EmotePicker from "./EmotePicker.svelte";
 	import Message from "./message/Message.svelte";
 	import Suggestions from "./Suggestions.svelte";
-	import type { Suggestion } from "./Suggestions.svelte";
 	import Input from "./ui/Input.svelte";
 
 	const { class: className, ...rest }: HTMLInputAttributes = $props();
@@ -34,159 +27,42 @@
 
 	let emotePickerOpen = $state(false);
 	let historyIdx = $state(-1);
-	let value = $state("");
 
-	let suggestions = $state<Suggestion[]>([]);
-	let suggestionIdx = $state(0);
-	const showSuggestions = $derived(suggestions.length > 0);
+	let completer = $state<Completer>();
 
-	let query = "";
-
-	let emoteFuse: Fuse<Emote>;
-	let userFuse: Fuse<User>;
+	const showSuggestions = $derived(!!completer?.suggestions.length);
 
 	onMount(() => {
 		input.value = chatInput;
 	});
 
 	$effect(() => {
-		if (!app.joined) return;
+		if (!app.joined || !input.value || completer) return;
 
-		emoteFuse = new Fuse(app.joined.emotes.values().toArray(), {
-			isCaseSensitive: true,
-			keys: ["name"],
-			threshold: 0.5,
-		});
-
-		userFuse = new Fuse(app.joined.viewers.values().toArray(), {
-			isCaseSensitive: true,
-			keys: ["username", "displayName"],
-			threshold: 0.5,
+		completer = new Completer(input.value, {
+			emotes: app.joined.emotes.values().toArray(),
+			viewers: app.joined.viewers.values().toArray(),
 		});
 	});
 
-	function applySuggestion(suggestion: Suggestion) {
-		let end = value.lastIndexOf(query);
-
-		if (query.startsWith("@")) {
-			end++;
-		}
-
-		const left = value.slice(0, end);
-		const right = value.slice(end + query.length);
-
-		value = `${left + suggestion.display} ${right}`;
-
-		suggestions = [];
-		suggestionIdx = 0;
-		query = "";
-
-		if (input.value) {
-			input.value.focus();
-
-			setTimeout(() => {
-				const endPos = end + suggestion.display.length + 1;
-				input.value?.setSelectionRange(endPos, endPos);
-			}, 0);
-		}
-	}
-
-	function searchEmotes(query: string) {
-		const results: Suggestion[] = [];
-		if (!app.joined) return results;
-
-		const hits = emoteFuse.search(query, { limit: 25 });
-
-		for (const hit of hits) {
-			results.push({
-				type: "emote",
-				value: hit.item.name,
-				display: hit.item.name,
-				imageUrl: hit.item.srcset[1].split(" ")[0],
-			});
-		}
-
-		return results;
-	}
-
-	function searchViewers(query: string) {
-		const results: Suggestion[] = [];
-		if (!app.joined) return results;
-
-		const hits = userFuse.search(query, { limit: 25 });
-
-		for (const hit of hits) {
-			results.push({
-				type: "user",
-				value: hit.item.username,
-				display: hit.item.displayName,
-				style: hit.item.style,
-			});
-		}
-
-		return results;
-	}
-
-	const filter: FormEventHandler<HTMLInputElement> = (event) => {
-		if (!app.joined) return;
-
-		const text = event.currentTarget.value;
-		const cursor = event.currentTarget.selectionStart ?? text.length;
-
-		const left = text.slice(0, cursor);
-		const lastWord = left.split(" ").pop();
-
-		if (!lastWord) {
-			suggestions = [];
-			return;
-		}
-
-		if (lastWord.startsWith("@")) {
-			query = lastWord;
-			suggestions = searchViewers(query.slice(1));
-		} else if (lastWord.startsWith(":")) {
-			query = lastWord;
-			suggestions = searchEmotes(query.slice(1));
-		} else {
-			suggestions = [];
-		}
-	};
-
 	const send: KeyboardEventHandler<HTMLInputElement> = async (event) => {
-		if (!app.joined) return;
+		if (!app.joined || !completer) return;
 
 		const input = event.currentTarget;
 
 		if (event.key === "Tab") {
 			if (showSuggestions) {
 				event.preventDefault();
-				applySuggestion(suggestions[suggestionIdx]);
+				completer.complete();
 			} else {
-				const cursor = input.selectionStart ?? value.length;
-				const left = value.slice(0, cursor);
-
-				const lastWord = left.split(" ").pop();
-
-				if (lastWord) {
-					const filtered = searchEmotes(lastWord);
-
-					if (filtered.length) {
-						event.preventDefault();
-
-						suggestions = filtered;
-						suggestionIdx = 0;
-						query = lastWord;
-
-						applySuggestion(suggestions[suggestionIdx]);
-					}
-				}
+				// TODO
 			}
 		} else if (event.key === "Escape") {
 			replyTarget.value = null;
 		} else if (event.key === "ArrowUp") {
 			if (showSuggestions) {
 				event.preventDefault();
-				suggestionIdx = (suggestionIdx - 1 + suggestions.length) % suggestions.length;
+				completer.prev();
 			} else {
 				if (!app.joined.history.length) return;
 
@@ -205,7 +81,7 @@
 		} else if (event.key === "ArrowDown") {
 			if (showSuggestions) {
 				event.preventDefault();
-				suggestionIdx = (suggestionIdx + 1) % suggestions.length;
+				completer.next();
 			} else {
 				if (historyIdx === -1) return;
 
@@ -223,7 +99,7 @@
 			event.preventDefault();
 
 			if (showSuggestions) {
-				applySuggestion(suggestions[suggestionIdx]);
+				completer.complete();
 			} else {
 				const message = input.value.trim();
 
@@ -244,9 +120,9 @@
 <Suggestions
 	anchor={chatInput}
 	open={showSuggestions}
-	index={suggestionIdx}
-	{suggestions}
-	onselect={applySuggestion}
+	index={completer?.current ?? 0}
+	suggestions={completer?.suggestions ?? []}
+	onselect={() => completer?.complete()}
 />
 
 <EmotePicker {anchor} input={chatInput} bind:open={emotePickerOpen} />
@@ -287,11 +163,10 @@
 		autocorrect="off"
 		maxlength={500}
 		placeholder="Send a message"
-		oninput={filter}
+		oninput={(event) => completer?.search(event)}
 		onkeydown={send}
 		{...rest}
 		bind:ref={chatInput}
-		bind:value
 	/>
 
 	<div class="absolute inset-y-0 end-0 flex p-1">
