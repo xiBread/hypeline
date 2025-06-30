@@ -30,7 +30,7 @@
 
 	let completer = $state<Completer>();
 
-	const showSuggestions = $derived(!!completer?.suggestions.length);
+	const showSuggestions = $derived(!!completer?.suggestions.length && completer.prefixed);
 
 	onMount(() => {
 		input.value = chatInput;
@@ -51,11 +51,24 @@
 		const input = event.currentTarget;
 
 		if (event.key === "Tab") {
-			if (showSuggestions) {
-				event.preventDefault();
+			event.preventDefault();
+
+			if (completer.prefixed && completer.suggestions.length) {
 				completer.complete();
+			} else if (completer.suggestions.length) {
+				if (event.shiftKey) {
+					completer.prev();
+				} else {
+					completer.next();
+				}
+
+				completer.complete(false);
 			} else {
-				// TODO
+				completer.search(event, true);
+
+				if (completer.suggestions.length) {
+					completer.complete(false);
+				}
 			}
 		} else if (event.key === "Escape") {
 			replyTarget.value = null;

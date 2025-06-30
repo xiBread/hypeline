@@ -17,6 +17,7 @@ export class Completer {
 	#userFuse: Fuse<User>;
 
 	public query = "";
+	public prefixed = false;
 
 	public current = $state(0);
 	public suggestions = $state<Suggestion[]>([]);
@@ -48,18 +49,22 @@ export class Completer {
 		this.input.value = `${left + suggestion.display} ${right}`;
 		this.input.focus();
 
-		this.query = "";
-		this.suggestions = [];
-
 		setTimeout(() => {
 			const endPos = end + suggestion.display.length + 1;
 			this.input.setSelectionRange(endPos, endPos);
 		}, 0);
 
-		if (reset) this.current = 0;
+		if (reset) {
+			this.prefixed = false;
+			this.query = "";
+			this.suggestions = [];
+			this.current = 0;
+		} else {
+			this.query = suggestion.display;
+		}
 	}
 
-	public search(event: { currentTarget: HTMLInputElement }) {
+	public search(event: { currentTarget: HTMLInputElement }, tab = false) {
 		const text = event.currentTarget.value;
 		const cursor = event.currentTarget.selectionStart ?? text.length;
 
@@ -74,11 +79,13 @@ export class Completer {
 		this.query = lastWord;
 
 		if (this.query.startsWith("@")) {
-			this.#searchViewers();
+			this.prefixed = true;
+			this.suggestions = this.#searchViewers();
 		} else if (this.query.startsWith(":")) {
-			this.#searchEmotes();
-		} else {
-			// TODO
+			this.prefixed = true;
+			this.suggestions = this.#searchEmotes();
+		} else if (tab) {
+			this.suggestions = [...this.#searchEmotes(), ...this.#searchViewers()];
 		}
 	}
 
@@ -93,8 +100,8 @@ export class Completer {
 	#searchEmotes() {
 		const results = this.#emoteFuse.search(this.query.slice(1), { limit: 25 });
 
-		this.suggestions = results.map(({ item }) => ({
-			type: "emote",
+		return results.map(({ item }) => ({
+			type: "emote" as const,
 			value: item.name,
 			display: item.name,
 			imageUrl: item.srcset[1].split(" ")[0],
@@ -104,8 +111,8 @@ export class Completer {
 	#searchViewers() {
 		const results = this.#userFuse.search(this.query.slice(1), { limit: 25 });
 
-		this.suggestions = results.map(({ item }) => ({
-			type: "user",
+		return results.map(({ item }) => ({
+			type: "user" as const,
 			value: item.username,
 			display: item.displayName,
 			style: item.style,
