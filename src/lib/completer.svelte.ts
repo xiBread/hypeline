@@ -3,8 +3,6 @@ import type { Suggestion } from "./components/Suggestions.svelte";
 import type { Emote } from "./tauri";
 import type { User } from "./user.svelte";
 
-type CompletionType = "emote" | "viewer" | "any";
-
 interface CompleterSource {
 	emotes: Emote[];
 	viewers: User[];
@@ -18,7 +16,6 @@ export class Completer {
 	#emoteFuse: Fuse<Emote>;
 	#userFuse: Fuse<User>;
 
-	public type: CompletionType = "any";
 	public query = "";
 
 	public current = $state(0);
@@ -75,22 +72,13 @@ export class Completer {
 		}
 
 		this.query = lastWord;
-		this.narrow();
 
-		if (this.type === "viewer") {
-			this.#searchViewers();
-		} else if (this.type === "emote") {
-			this.#searchEmotes();
-		}
-	}
-
-	public narrow() {
 		if (this.query.startsWith("@")) {
-			this.type = "viewer";
+			this.#searchViewers();
 		} else if (this.query.startsWith(":")) {
-			this.type = "emote";
+			this.#searchEmotes();
 		} else {
-			this.type = "any";
+			// TODO
 		}
 	}
 
