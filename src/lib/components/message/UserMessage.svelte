@@ -83,7 +83,7 @@
 	onmouseleave={() => (quickActionsOpen = false)}
 	aria-disabled={message.deleted}
 >
-	{#if quickActionsOpen && !message.deleted}
+	{#if quickActionsOpen && !message.deleted && !app.user?.banned}
 		<QuickActions class="absolute top-0 right-2 -translate-y-1/2" {message} />
 	{/if}
 
