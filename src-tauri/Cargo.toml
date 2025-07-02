@@ -31,6 +31,7 @@ either = "1.15.0"
 enum_dispatch = "0.3.13"
 futures = "0.3.31"
 httparse = "1.10.1"
+mimalloc = "0.1"
 regex = "1.11.1"
 reqwest = { version = "0.12.15", features = ["json"] }
 rustls = { version = "0.23.25", features = ["ring"] }
