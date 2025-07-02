@@ -8,7 +8,7 @@ pub use client::SeventTvClient;
 pub use emotes::*;
 use serde_json::json;
 use tauri::ipc::Channel;
-use tauri::{async_runtime, AppHandle, Manager, State};
+use tauri::{AppHandle, Manager, State, async_runtime};
 use tokio::sync::Mutex;
 
 use crate::error::Error;
@@ -22,10 +22,10 @@ pub async fn connect_seventv(
 ) -> Result<(), Error> {
     let mut state = state.lock().await;
 
-    if let Some(client) = &state.seventv {
-        if client.connected() {
-            return Ok(());
-        }
+    if let Some(client) = &state.seventv
+        && client.connected()
+    {
+        return Ok(());
     }
 
     let (mut incoming, client) = SeventTvClient::new();

@@ -2,9 +2,9 @@ use std::collections::HashSet;
 use std::str::FromStr;
 use std::time::Duration;
 
+use ServerMessageParseError::*;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
-use ServerMessageParseError::*;
 
 use super::prefix::IrcPrefix;
 use super::{AsRawIrc, Badge, BasicUser, Emote, IrcMessage, Reply, ReplyParent, ReplyThread};
@@ -667,9 +667,7 @@ impl TryFrom<IrcMessage> for UserNoticeMessage {
                 sender_total_gifts: if sender.login != "twitch" {
                     Some(source.try_get_number("msg-param-sender-count")?)
                 } else {
-                    source
-                        .try_get_number("msg-param-sender-count")
-                        .map_or_else(|_| None, |v| Some(v))
+                    source.try_get_number("msg-param-sender-count").ok()
                 },
                 sub_plan: source
                     .try_get_nonempty_tag_value("msg-param-sub-plan")?
