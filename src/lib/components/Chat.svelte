@@ -83,6 +83,28 @@
 		bind:this={list}
 	>
 		{#snippet children(message: Message, i)}
+			{@const prev = app.joined?.messages.at(i - 1)}
+			{@const isNewDay = prev?.timestamp.getDate() !== message.timestamp.getDate()}
+
+			{#if isNewDay}
+				<div class="relative px-3.5">
+					<Separator.Root class="bg-muted my-4 h-px w-full rounded-full" />
+
+					<div
+						class="bg-background absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-2 text-xs font-semibold uppercase"
+					>
+						<time
+							class="text-muted-foreground/90"
+							datetime={message.timestamp.toISOString()}
+						>
+							{message.timestamp.toLocaleDateString(navigator.languages, {
+								dateStyle: "long",
+							})}
+						</time>
+					</div>
+				</div>
+			{/if}
+
 			{#if !message.isUser()}
 				{/* @ts-expect-error */ null}
 				<SystemMessage {message} context={message.context} />

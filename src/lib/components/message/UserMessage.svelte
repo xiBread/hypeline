@@ -3,6 +3,7 @@
 	import { settings } from "$lib/settings";
 	import type { HighlightType } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
+	import type { User } from "$lib/user.svelte";
 	import QuickActions from "../QuickActions.svelte";
 	import Highlight from "./Highlight.svelte";
 	import Message from "./Message.svelte";
@@ -14,6 +15,7 @@
 	let quickActionsOpen = $state(false);
 
 	const highlights = $derived(settings.state.highlights);
+
 	const customMatched = $derived(
 		highlights.custom.find((hl) => {
 			if (!hl.pattern.trim()) return false;
@@ -61,6 +63,17 @@
 			info = `${status} Ban Evader`;
 		}
 	}
+
+	function getMentionStyle(user?: User) {
+		switch (settings.state.chat.mentionStyle) {
+			case "none":
+				return null;
+			case "colored":
+				return `color: ${user?.color}`;
+			case "painted":
+				return user?.style;
+		}
+	}
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -106,9 +119,10 @@
 				></div>
 
 				<div class="line-clamp-1 text-xs">
-					<span style={settings.state.coloredMentions ? user?.style : null}
-						>@{message.reply.parent.user.name}</span
-					>:
+					<span style={getMentionStyle(user)}>
+						@{message.reply.parent.user.name}
+					</span>:
+
 					<p class="text-muted-foreground inline">
 						{message.reply.parent.message_text}
 					</p>

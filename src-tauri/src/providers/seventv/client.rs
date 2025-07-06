@@ -1,12 +1,12 @@
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 use anyhow::anyhow;
 use futures::{SinkExt, StreamExt};
 use serde::Deserialize;
 use serde_json::json;
-use tokio::sync::{mpsc, Mutex};
+use tokio::sync::{Mutex, mpsc};
 use tokio_tungstenite::connect_async;
 use tokio_tungstenite::tungstenite::Message;
 use tracing::Instrument;
@@ -86,11 +86,10 @@ impl SeventTvClient {
                         Some(Ok(message)) = stream.next() => {
                             match message {
                                 Message::Text(text) => {
-                                    if let Ok(msg) = serde_json::from_str::<WebSocketMessage>(&text) {
-                                        if msg.op == 0 {
+                                    if let Ok(msg) = serde_json::from_str::<WebSocketMessage>(&text)
+                                        && msg.op == 0 {
                                             this.sender.send(msg.d).unwrap();
                                         }
-                                    }
                                 }
                                 Message::Close(_) => {
                                     this.connected.store(false, Ordering::Relaxed);

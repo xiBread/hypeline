@@ -4,10 +4,10 @@
 
 	interface Props {
 		emote: Emote;
-		overlays: Emote[];
+		overlays?: Emote[];
 	}
 
-	const { emote, overlays }: Props = $props();
+	const { emote, overlays = [] }: Props = $props();
 	const srcset = emote.srcset.join(", ");
 </script>
 

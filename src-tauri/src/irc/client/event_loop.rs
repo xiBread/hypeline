@@ -5,10 +5,10 @@ use tokio::sync::{mpsc, oneshot};
 
 use super::pool_connection::PoolConnection;
 use crate::irc;
+use crate::irc::ClientConfig;
 use crate::irc::connection::event_loop::ConnectionLoopCommand;
 use crate::irc::connection::{Connection, ConnectionIncomingMessage};
 use crate::irc::message::{JoinMessage, PartMessage, ServerMessage};
-use crate::irc::ClientConfig;
 
 #[derive(Debug)]
 pub(crate) enum ClientLoopCommand {

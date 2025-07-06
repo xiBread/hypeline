@@ -38,7 +38,7 @@ pub async fn join(
 ) -> Result<JoinedChannel, Error> {
     tracing::info!("Joining {login}");
 
-    let (helix, token, irc, eventsub, seventv, stv_id) = {
+    let (helix, token, irc, eventsub, seventv) = {
         let state = state.lock().await;
         let token = get_access_token(&state)?;
 
@@ -53,7 +53,6 @@ pub async fn join(
             irc,
             state.eventsub.clone(),
             state.seventv.clone(),
-            state.seventv_id.clone(),
         )
     };
 
@@ -153,9 +152,7 @@ pub async fn join(
         }
     }
 
-    if let Some(ref id) = stv_id {
-        send_presence(id, broadcaster_id).await;
-    }
+    send_presence(state, broadcaster_id.into()).await?;
 
     irc.join(login.to_string());
 
@@ -186,58 +183,6 @@ pub async fn leave(state: State<'_, Mutex<AppState>>, channel: String) -> Result
 
     if let Some(ref irc) = state.irc {
         irc.part(channel);
-    }
-
-    Ok(())
-}
-
-#[tracing::instrument(skip(state))]
-#[tauri::command]
-pub async fn send_message(
-    state: State<'_, Mutex<AppState>>,
-    content: String,
-    broadcaster_id: String,
-    reply_id: Option<String>,
-) -> Result<(), Error> {
-    tracing::info!("Sending message");
-
-    let state = state.lock().await;
-    let token = get_access_token(&state)?;
-
-    let user_id = token.user_id.clone();
-
-    let response = if let Some(reply_id) = reply_id {
-        state
-            .helix
-            .send_chat_message_reply(
-                &broadcaster_id,
-                &user_id,
-                &reply_id,
-                content.as_str(),
-                token,
-            )
-            .await
-    } else {
-        state
-            .helix
-            .send_chat_message(&broadcaster_id, &user_id, content.as_str(), token)
-            .await
-    };
-
-    match response {
-        Ok(response) if response.is_sent => {
-            tracing::debug!("Message sent");
-
-            if let Some(ref id) = state.seventv_id {
-                send_presence(id, &broadcaster_id).await;
-            }
-        }
-        Ok(response) => {
-            tracing::debug!(?response.drop_reason, "Message dropped");
-        }
-        Err(err) => {
-            tracing::error!(%err, "Failed to send message");
-        }
     }
 
     Ok(())

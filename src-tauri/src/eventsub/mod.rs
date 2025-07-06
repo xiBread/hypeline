@@ -8,9 +8,9 @@ use tauri::async_runtime::{self, Mutex};
 use tauri::ipc::Channel;
 use tauri::{AppHandle, Manager, State};
 
+use crate::AppState;
 use crate::api::get_access_token;
 use crate::error::Error;
-use crate::AppState;
 
 #[tauri::command]
 pub async fn connect_eventsub(
@@ -22,10 +22,10 @@ pub async fn connect_eventsub(
     let token = get_access_token(&guard)?.clone();
     let helix = Arc::new(guard.helix.clone());
 
-    if let Some(client) = &guard.eventsub {
-        if client.connected() {
-            return Ok(());
-        }
+    if let Some(client) = &guard.eventsub
+        && client.connected()
+    {
+        return Ok(());
     }
 
     let (mut incoming, client) = EventSubClient::new(helix, Arc::new(token));
@@ -35,7 +35,7 @@ pub async fn connect_eventsub(
     drop(guard);
 
     async_runtime::spawn(async move {
-        if let Err(_) = client.clone().connect().await {
+        if client.clone().connect().await.is_err() {
             let state = app_handle.state::<Mutex<AppState>>();
             let mut state = state.lock().await;
 

@@ -71,11 +71,12 @@
 			if (!message) return;
 			if (!event.ctrlKey) input.value = "";
 
+			const replyId = replyTarget.value?.id;
 			replyTarget.value = null;
 			historyCursor = -1;
 
 			app.joined.history.push(message);
-			await app.joined.send(message);
+			await app.joined.send(message, replyId);
 		}
 	}
 </script>

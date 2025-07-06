@@ -1,15 +1,14 @@
 use serde::Deserialize;
 use tauri::{App, Manager};
-use time::macros::format_description;
 use time::UtcOffset;
+use time::macros::format_description;
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_appender::rolling::{RollingFileAppender, Rotation};
 use tracing_subscriber::fmt::time::OffsetTime;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
-use tracing_subscriber::{fmt, EnvFilter, Layer};
+use tracing_subscriber::{EnvFilter, Layer, fmt};
 
-#[must_use]
 pub fn init_tracing(app: &App) -> WorkerGuard {
     let time_format = format_description!(
         "[year]-[month padding:zero]-[day padding:zero] [hour]:[minute]:[second].[subsecond digits:3]"

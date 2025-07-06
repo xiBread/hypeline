@@ -5,7 +5,7 @@ use either::Either;
 use enum_dispatch::enum_dispatch;
 use futures::{SinkExt, StreamExt};
 use tokio::sync::{mpsc, oneshot};
-use tokio::time::{interval_at, Duration, Instant};
+use tokio::time::{Duration, Instant, interval_at};
 use tokio_tungstenite::tungstenite::Error as WsError;
 
 use super::ConnectionIncomingMessage;
@@ -218,12 +218,12 @@ impl ConnectionLoopInitializingState {
         while let Some((message, reply_sender)) = messages_rx.recv().await {
             let res = transport_outgoing.send(message).await.map_err(Arc::new);
 
-            if let Err(ref err) = res {
-                if let Some(connection_loop_tx) = connection_loop_tx.upgrade() {
-                    connection_loop_tx
-                        .send(ConnectionLoopCommand::SendError(Arc::clone(err)))
-                        .ok();
-                }
+            if let Err(ref err) = res
+                && let Some(connection_loop_tx) = connection_loop_tx.upgrade()
+            {
+                connection_loop_tx
+                    .send(ConnectionLoopCommand::SendError(Arc::clone(err)))
+                    .ok();
             }
 
             if let Some(reply_sender) = reply_sender {

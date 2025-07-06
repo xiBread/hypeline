@@ -5,6 +5,7 @@
 	import { onDestroy, onMount } from "svelte";
 	import type { Snippet } from "svelte";
 	import type { HTMLButtonAttributes } from "svelte/elements";
+	import { browser } from "$app/environment";
 
 	interface Props {
 		icon: Snippet;
@@ -15,8 +16,8 @@
 
 	const { icon, title }: Props = $props();
 
-	const platformName = platform();
-	const current = window.getCurrentWindow();
+	const platformName = $derived(browser ? platform() : undefined);
+	const current = $derived(browser ? window.getCurrentWindow() : undefined);
 
 	let id: number | undefined;
 	let unlisten: UnlistenFn | undefined;
@@ -24,6 +25,8 @@
 	let maximized = $state(false);
 
 	onMount(async () => {
+		if (!current) return;
+
 		unlisten = await current.onResized(async () => {
 			maximized = await current.isMaximized();
 		});
@@ -45,17 +48,17 @@
 	{#if platformName === "windows"}
 		<div class="absolute top-0 right-0 flex">
 			{@render control("minimize", {
-				onclick: () => current.minimize(),
+				onclick: () => current?.minimize(),
 			})}
 
 			{@render control("maximize", {
-				onclick: () => current.toggleMaximize(),
+				onclick: () => current?.toggleMaximize(),
 			})}
 
 			{@render control("close", {
 				onclick: () => {
 					clearTimeout(id);
-					current.close();
+					current?.close();
 				},
 			})}
 		</div>

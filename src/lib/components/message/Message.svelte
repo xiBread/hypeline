@@ -1,6 +1,6 @@
 <script lang="ts">
-	import * as opener from "@tauri-apps/plugin-opener";
-	import type { UserMessage } from "$lib/message";
+	import { openUrl } from "@tauri-apps/plugin-opener";
+	import type { Fragment, UserMessage } from "$lib/message";
 	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
 	import type { Badge } from "$lib/twitch/api";
@@ -28,8 +28,17 @@
 		badges.push(message.author.badge);
 	}
 
-	async function openUrl(url: URL) {
-		await opener.openUrl(url.toString());
+	function getMentionStyle(fragment: Extract<Fragment, { type: "mention" }>) {
+		if (fragment.marked) return null;
+
+		switch (settings.state.chat.mentionStyle) {
+			case "none":
+				return null;
+			case "colored":
+				return `color: ${fragment.user?.color}`;
+			case "painted":
+				return fragment.user?.style;
+		}
 	}
 </script>
 
@@ -67,13 +76,9 @@ render properly without an extra space in between. -->
 				<svelte:element
 					this={fragment.marked ? "mark" : "span"}
 					class="font-semibold break-words"
-					style:color={fragment.marked
-						? null
-						: settings.state.coloredMentions
-							? fragment.color
-							: "inherit"}
+					style={getMentionStyle(fragment)}
 				>
-					@{fragment.displayName}
+					@{fragment.user?.displayName ?? fragment.fallback}
 				</svelte:element>
 			{/if}
 		{:else if fragment.type === "url"}
@@ -85,7 +90,7 @@ render properly without an extra space in between. -->
 				]}
 				role="link"
 				tabindex="-1"
-				onclick={() => openUrl(fragment.url)}
+				onclick={() => openUrl(fragment.url.toString())}
 			>
 				{fragment.text}
 			</svelte:element>

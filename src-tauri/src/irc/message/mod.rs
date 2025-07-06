@@ -185,9 +185,9 @@ impl AsRawIrc for IrcMessage {
 
         for param in self.params.iter() {
             if !param.contains(' ') && !param.is_empty() && !param.starts_with(':') {
-                write!(f, " {}", param)?;
+                write!(f, " {param}")?;
             } else {
-                write!(f, " :{}", param)?;
+                write!(f, " :{param}")?;
                 // TODO should there be a panic if this is not the last parameter?
                 break;
             }
