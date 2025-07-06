@@ -2,7 +2,7 @@
 name = "hypeline"
 version = "0.1.0"
 authors = ["xiBread <hello@oscarlv.com>"]
-edition = "2021"
+edition = "2024"
 publish = false
 
 [lib]
@@ -20,6 +20,7 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 tauri = { version = "2", features = [] }
+tauri-plugin-clipboard-manager = "2"
 tauri-plugin-notification = "2"
 tauri-plugin-opener = "2"
 tauri-plugin-os = "2"
@@ -30,6 +31,7 @@ either = "1.15.0"
 enum_dispatch = "0.3.13"
 futures = "0.3.31"
 httparse = "1.10.1"
+mimalloc = "0.1"
 regex = "1.11.1"
 reqwest = { version = "0.12.15", features = ["json"] }
 rustls = { version = "0.23.25", features = ["ring"] }

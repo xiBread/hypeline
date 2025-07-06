@@ -1,11 +1,11 @@
 use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
-use tauri::async_runtime::Mutex;
 use tauri::State;
+use tauri::async_runtime::Mutex;
 use twitch_api::twitch_oauth2::{AccessToken, UserToken};
 
-use crate::error::Error;
 use crate::AppState;
+use crate::error::Error;
 
 pub mod channels;
 pub mod chat;
@@ -17,7 +17,7 @@ pub struct Response<T> {
     pub data: T,
 }
 
-pub fn get_access_token<'a>(state: &'a AppState) -> Result<&'a UserToken, Error> {
+pub fn get_access_token(state: &AppState) -> Result<&UserToken, Error> {
     state.token.as_ref().ok_or_else(|| {
         tracing::error!("Attempted to retrieve access token but no token is set");
         Error::Generic(anyhow!("Access token not set"))

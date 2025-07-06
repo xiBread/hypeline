@@ -8,6 +8,8 @@ import type { User } from "./user.svelte";
 class AppState {
 	#joined = $state<Channel | null>(null);
 
+	public connected = $state(false);
+
 	/**
 	 * The currently authenticated user.
 	 */

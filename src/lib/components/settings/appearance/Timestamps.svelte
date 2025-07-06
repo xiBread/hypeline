@@ -11,23 +11,25 @@
 		{ name: "24-hour", value: "24" },
 		{ name: "Custom", value: "custom" },
 	];
+
+	const timestamps = $derived(settings.state.appearance.timestamps);
 </script>
 
 <Group title="Timestamps">
-	<Switch bind:checked={settings.state.timestamps.show}>
+	<Switch bind:checked={timestamps.show}>
 		<span class="font-medium">Show timestamps next to messages</span>
 	</Switch>
 
 	<Group title="Format" nested>
 		<RadioGroup.Root
 			class="group space-y-1 data-disabled:cursor-not-allowed data-disabled:opacity-50"
-			disabled={!settings.state.timestamps.show}
-			bind:value={settings.state.timestamps.format}
+			disabled={!timestamps.show}
+			bind:value={timestamps.format}
 		>
 			{#each timeFormats as format (format.value)}
 				<Label.Root
 					class="hover:bg-muted has-data-[state=checked]:bg-muted flex items-center gap-3 rounded-md px-3 py-2 transition-colors duration-100 hover:cursor-pointer aria-disabled:cursor-not-allowed"
-					aria-disabled={!settings.state.timestamps.show}
+					aria-disabled={!timestamps.show}
 				>
 					<RadioGroup.Item
 						class="data-[state=checked]:border-twitch data-[state=checked]:bg-foreground size-4 rounded-full border data-[state=checked]:border-5"
@@ -47,8 +49,8 @@
 				type="text"
 				autocapitalize="off"
 				autocomplete="off"
-				disabled={settings.state.timestamps.format !== "custom"}
-				bind:value={settings.state.timestamps.customFormat}
+				disabled={timestamps.format !== "custom"}
+				bind:value={timestamps.customFormat}
 			/>
 
 			<p class="text-muted-foreground mt-2 text-sm">

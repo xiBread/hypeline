@@ -1,5 +1,27 @@
 import { RuneStore } from "@tauri-store/svelte";
 
+export interface TimestampSettings {
+	show: boolean;
+	format: "auto" | "12" | "24" | "custom";
+	customFormat: string;
+}
+
+export interface AppearanceSettings {
+	timestamps: TimestampSettings;
+}
+
+export interface MessageHistorySettings {
+	enabled: boolean;
+	limit: number;
+}
+
+export interface ChatSettings {
+	mentionStyle: "none" | "colored" | "painted";
+	localizedNames: boolean;
+	readableColors: boolean;
+	history: MessageHistorySettings;
+}
+
 export type HighlightType =
 	| "mention"
 	| "new"
@@ -28,17 +50,6 @@ export interface HighlightSettings extends Record<HighlightType, HighlightTypeSe
 	custom: CustomHighlightTypeSettings[];
 }
 
-export interface MessageHistorySettings {
-	enabled: boolean;
-	limit: number;
-}
-
-export interface TimestampSettings {
-	show: boolean;
-	format: "auto" | "12" | "24" | "custom";
-	customFormat: string;
-}
-
 export interface Settings {
 	// Index signature needed for RuneStore
 	[key: string]: unknown;
@@ -48,12 +59,9 @@ export interface Settings {
 	lastJoined: string | null;
 
 	// User
-	coloredMentions: boolean;
-	localizedNames: boolean;
-	readableColors: boolean;
+	appearance: AppearanceSettings;
+	chat: ChatSettings;
 	highlights: HighlightSettings;
-	history: MessageHistorySettings;
-	timestamps: TimestampSettings;
 }
 
 export const defaultHighlightTypes: Record<HighlightType, HighlightTypeSettings> = {
@@ -70,21 +78,25 @@ export const defaultHighlightTypes: Record<HighlightType, HighlightTypeSettings>
 export const settings = new RuneStore<Settings>("settings", {
 	user: null,
 	lastJoined: null,
-	coloredMentions: true,
-	localizedNames: true,
-	readableColors: true,
+	appearance: {
+		timestamps: {
+			show: true,
+			format: "auto",
+			customFormat: "",
+		},
+	},
+	chat: {
+		mentionStyle: "painted",
+		localizedNames: true,
+		readableColors: true,
+		history: {
+			enabled: true,
+			limit: 250,
+		},
+	},
 	highlights: {
 		enabled: true,
 		custom: [],
 		...defaultHighlightTypes,
-	},
-	history: {
-		enabled: true,
-		limit: 250,
-	},
-	timestamps: {
-		show: true,
-		format: "auto",
-		customFormat: "",
 	},
 });

@@ -7,7 +7,7 @@
 
 <Group title="Messages">
 	<Group title="Message History" nested>
-		<Switch bind:checked={settings.state.history.enabled}>
+		<Switch bind:checked={settings.state.chat.history.enabled}>
 			<span class="text-sm font-medium">Fetch recent messages upon joining a channel</span>
 
 			{#snippet description()}
@@ -35,8 +35,8 @@
 				min={0}
 				max={800}
 				step={50}
-				disabled={!settings.state.history.enabled}
-				bind:value={settings.state.history.limit}
+				disabled={!settings.state.chat.history.enabled}
+				bind:value={settings.state.chat.history.limit}
 			>
 				<div class="bg-input relative h-1.5 w-full rounded-full hover:cursor-pointer">
 					<Slider.Range class="bg-twitch absolute h-full rounded-full" />
@@ -47,7 +47,7 @@
 					index={0}
 				>
 					<div class="mt-7 text-center text-xs font-medium">
-						{settings.state.history.limit}
+						{settings.state.chat.history.limit}
 					</div>
 				</Slider.Thumb>
 			</Slider.Root>
