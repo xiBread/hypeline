@@ -1,3 +1,4 @@
+import { app } from "$lib/state.svelte";
 import { defineHandler } from "../helper";
 
 export default defineHandler({
@@ -8,5 +9,9 @@ export default defineHandler({
 		channel.badges.clear();
 		channel.emotes.clear();
 		channel.viewers.clear();
+
+		if (app.user) {
+			app.user.banned = false;
+		}
 	},
 });
