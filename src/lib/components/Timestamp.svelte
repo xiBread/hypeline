@@ -31,7 +31,7 @@
 </script>
 
 {#if timestamps.show}
-	<time class="text-muted-foreground text-xs" datetime={date.toISOString()}>
+	<time class="text-muted-foreground text-xs tabular-nums" datetime={date.toISOString()}>
 		{formatted}
 	</time>
 {/if}
