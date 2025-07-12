@@ -1,4 +1,3 @@
-import Fuse from "fuse.js";
 import type { Suggestion } from "./components/Suggestions.svelte";
 import type { Emote } from "./tauri";
 import type { User } from "./user.svelte";
@@ -8,13 +7,15 @@ interface CompleterSource {
 	viewers: User[];
 }
 
-Fuse.config.distance = 10;
-Fuse.config.isCaseSensitive = true;
-Fuse.config.threshold = 0.5;
+interface SearchOptions<T> {
+	tab: boolean;
+	source: T[];
+	comparee: (item: T) => string;
+	map: (item: T) => Suggestion;
+}
 
 export class Completer {
-	#emoteFuse: Fuse<Emote>;
-	#userFuse: Fuse<User>;
+	#source: CompleterSource;
 
 	public query = "";
 	public prefixed = false;
@@ -26,13 +27,7 @@ export class Completer {
 		public readonly input: HTMLInputElement,
 		source: CompleterSource,
 	) {
-		this.#emoteFuse = new Fuse(source.emotes, {
-			keys: ["name"],
-		});
-
-		this.#userFuse = new Fuse(source.viewers, {
-			keys: ["username", "displayName"],
-		});
+		this.#source = source;
 	}
 
 	public complete(reset = true) {
@@ -85,7 +80,7 @@ export class Completer {
 			this.prefixed = true;
 			this.suggestions = this.#searchEmotes();
 		} else if (tab) {
-			this.suggestions = [...this.#searchEmotes(), ...this.#searchViewers()];
+			this.suggestions = [...this.#searchEmotes(true), ...this.#searchViewers(true)];
 		}
 	}
 
@@ -97,25 +92,45 @@ export class Completer {
 		this.current = (this.current - 1 + this.suggestions.length) % this.suggestions.length;
 	}
 
-	#searchEmotes() {
-		const results = this.#emoteFuse.search(this.query.slice(1), { limit: 25 });
+	#search<T>(options: SearchOptions<T>) {
+		const searchFunction = options.tab ? "startsWith" : "includes";
+		const query = options.tab ? this.query : this.query.slice(1);
 
-		return results.map(({ item }) => ({
-			type: "emote" as const,
-			value: item.name,
-			display: item.name,
-			imageUrl: item.srcset[1].split(" ")[0],
-		}));
+		if (!query) return [];
+
+		return options.source
+			.filter((item) =>
+				options.comparee(item).toLowerCase()[searchFunction](query.toLowerCase()),
+			)
+			.slice(0, 25)
+			.map(options.map);
 	}
 
-	#searchViewers() {
-		const results = this.#userFuse.search(this.query.slice(1), { limit: 25 });
+	#searchEmotes(tab = false) {
+		return this.#search<Emote>({
+			tab,
+			source: this.#source.emotes,
+			comparee: (item) => item.name,
+			map: (item) => ({
+				type: "emote" as const,
+				value: item.name,
+				display: item.name,
+				imageUrl: item.srcset[1].split(" ")[0],
+			}),
+		});
+	}
 
-		return results.map(({ item }) => ({
-			type: "user" as const,
-			value: item.username,
-			display: item.displayName,
-			style: item.style,
-		}));
+	#searchViewers(tab = false) {
+		return this.#search<User>({
+			tab,
+			source: this.#source.viewers,
+			comparee: (item) => item.username,
+			map: (item) => ({
+				type: "user" as const,
+				value: item.username,
+				display: item.displayName,
+				style: item.style,
+			}),
+		});
 	}
 }
