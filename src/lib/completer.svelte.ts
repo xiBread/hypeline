@@ -41,13 +41,11 @@ export class Completer {
 		const left = this.input.value.slice(0, end);
 		const right = this.input.value.slice(end + this.query.length);
 
-		this.input.value = `${left + suggestion.display} ${right}`;
+		this.input.value = `${left + suggestion.display} ${right.trim()}`;
 		this.input.focus();
 
-		setTimeout(() => {
-			const endPos = end + suggestion.display.length + 1;
-			this.input.setSelectionRange(endPos, endPos);
-		}, 0);
+		const endPos = end + suggestion.display.length + 1;
+		this.input.setSelectionRange(endPos, endPos);
 
 		if (reset) {
 			this.prefixed = false;
