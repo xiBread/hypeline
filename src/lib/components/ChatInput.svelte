@@ -53,6 +53,11 @@
 		if (event.key === "Tab") {
 			event.preventDefault();
 
+			// Ignore if in the middle of a word
+			if (input.value.charAt(input.selectionStart ?? 0).trim() !== "") {
+				return;
+			}
+
 			if (completer.prefixed && completer.suggestions.length) {
 				completer.complete();
 			} else if (completer.suggestions.length) {
