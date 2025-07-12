@@ -69,7 +69,7 @@
 
 				completer.complete(false);
 			} else {
-				completer.search(event, true);
+				completer.search(true);
 
 				if (completer.suggestions.length) {
 					completer.complete(false);
@@ -183,7 +183,7 @@
 		autocorrect="off"
 		maxlength={500}
 		placeholder="Send a message"
-		oninput={(event) => completer?.search(event)}
+		oninput={() => completer?.search()}
 		onkeydown={send}
 		onmousedown={() => completer?.reset()}
 		{...rest}

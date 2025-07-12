@@ -74,9 +74,9 @@ export class Completer {
 		}
 	}
 
-	public search(event: { currentTarget: HTMLInputElement }, tab = false) {
-		const text = event.currentTarget.value;
-		const cursor = event.currentTarget.selectionStart ?? text.length;
+	public search(tab = false) {
+		const text = this.input.value;
+		const cursor = this.input.selectionStart ?? text.length;
 
 		const left = text.slice(0, cursor);
 		const lastWord = left.split(" ").pop();
