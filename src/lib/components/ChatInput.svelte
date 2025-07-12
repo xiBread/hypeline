@@ -126,6 +126,8 @@
 				app.joined.history.push(message);
 				await app.joined.send(message, replyId);
 			}
+		} else if (completer.suggestions.length) {
+			completer.reset();
 		}
 	};
 </script>
@@ -178,6 +180,7 @@
 		placeholder="Send a message"
 		oninput={(event) => completer?.search(event)}
 		onkeydown={send}
+		onmousedown={() => completer?.reset()}
 		{...rest}
 		bind:ref={chatInput}
 	/>

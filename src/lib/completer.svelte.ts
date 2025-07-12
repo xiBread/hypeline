@@ -48,10 +48,7 @@ export class Completer {
 		this.input.setSelectionRange(endPos, endPos);
 
 		if (reset) {
-			this.prefixed = false;
-			this.query = "";
-			this.suggestions = [];
-			this.current = 0;
+			this.reset();
 		} else {
 			this.query = suggestion.display;
 		}
@@ -88,6 +85,13 @@ export class Completer {
 
 	public prev() {
 		this.current = (this.current - 1 + this.suggestions.length) % this.suggestions.length;
+	}
+
+	public reset() {
+		this.query = "";
+		this.prefixed = false;
+		this.suggestions = [];
+		this.current = 0;
 	}
 
 	#search<T>(options: SearchOptions<T>) {
