@@ -8,14 +8,14 @@ interface CompleterSource {
 }
 
 interface SearchOptions<T> {
-	tab: boolean;
 	source: T[];
 	comparee: (item: T) => string;
 	map: (item: T) => Suggestion;
 }
 
 export class Completer {
-	#source: CompleterSource;
+	#emoteOptions: SearchOptions<Emote>;
+	#viewerOptions: SearchOptions<User>;
 
 	public query = "";
 	public prefixed = false;
@@ -27,7 +27,27 @@ export class Completer {
 		public readonly input: HTMLInputElement,
 		source: CompleterSource,
 	) {
-		this.#source = source;
+		this.#emoteOptions = {
+			source: source.emotes,
+			comparee: (item) => item.name,
+			map: (item) => ({
+				type: "emote" as const,
+				value: item.name,
+				display: item.name,
+				imageUrl: item.srcset[1].split(" ")[0],
+			}),
+		};
+
+		this.#viewerOptions = {
+			source: source.viewers,
+			comparee: (item) => item.username,
+			map: (item) => ({
+				type: "user" as const,
+				value: item.username,
+				display: item.displayName,
+				style: item.style,
+			}),
+		};
 	}
 
 	public complete(reset = true) {
@@ -70,12 +90,15 @@ export class Completer {
 
 		if (this.query.startsWith("@")) {
 			this.prefixed = true;
-			this.suggestions = this.#searchViewers();
+			this.suggestions = this.#search(this.#viewerOptions);
 		} else if (this.query.startsWith(":")) {
 			this.prefixed = true;
-			this.suggestions = this.#searchEmotes();
+			this.suggestions = this.#search(this.#emoteOptions);
 		} else if (tab) {
-			this.suggestions = [...this.#searchEmotes(true), ...this.#searchViewers(true)];
+			this.suggestions = [
+				...this.#search(this.#emoteOptions, true),
+				...this.#search(this.#viewerOptions, true),
+			];
 		}
 	}
 
@@ -94,9 +117,9 @@ export class Completer {
 		this.current = 0;
 	}
 
-	#search<T>(options: SearchOptions<T>) {
-		const searchFunction = options.tab ? "startsWith" : "includes";
-		const query = options.tab ? this.query : this.query.slice(1);
+	#search<T>(options: SearchOptions<T>, tab = false) {
+		const searchFunction = tab ? "startsWith" : "includes";
+		const query = tab ? this.query : this.query.slice(1);
 
 		if (!query) return [];
 
@@ -106,33 +129,5 @@ export class Completer {
 			)
 			.slice(0, 25)
 			.map(options.map);
-	}
-
-	#searchEmotes(tab = false) {
-		return this.#search<Emote>({
-			tab,
-			source: this.#source.emotes,
-			comparee: (item) => item.name,
-			map: (item) => ({
-				type: "emote" as const,
-				value: item.name,
-				display: item.name,
-				imageUrl: item.srcset[1].split(" ")[0],
-			}),
-		});
-	}
-
-	#searchViewers(tab = false) {
-		return this.#search<User>({
-			tab,
-			source: this.#source.viewers,
-			comparee: (item) => item.username,
-			map: (item) => ({
-				type: "user" as const,
-				value: item.username,
-				display: item.displayName,
-				style: item.style,
-			}),
-		});
 	}
 }
