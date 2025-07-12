@@ -128,6 +128,7 @@ export class Completer {
 				options.comparee(item).toLowerCase()[searchFunction](query.toLowerCase()),
 			)
 			.slice(0, 25)
-			.map(options.map);
+			.map(options.map)
+			.sort((a, b) => a.value.localeCompare(b.value));
 	}
 }
