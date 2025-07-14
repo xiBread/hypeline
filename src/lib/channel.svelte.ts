@@ -69,9 +69,14 @@ export class Channel {
 			isMod: app.user ? !!find(app.user.moderating, (name) => name === login) : false,
 		});
 
-		const user = new User(joined.user);
+		let channel = app.channels.find((c) => c.user.username === login);
 
-		const channel = new Channel(user)
+		if (!channel) {
+			const user = new User(joined.user);
+			channel = new Channel(user);
+		}
+
+		channel = channel
 			.addBadges(joined.badges)
 			.addEmotes(joined.emotes)
 			.addCheermotes(joined.cheermotes)

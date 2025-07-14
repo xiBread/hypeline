@@ -36,7 +36,12 @@
 				<Sidebar />
 			{/if}
 
-			<main class={["grow", settings.state.user && "rounded-tl-lg border-t border-l"]}>
+			<main
+				class={[
+					"grow overflow-hidden",
+					settings.state.user && "rounded-tl-lg border-t border-l",
+				]}
+			>
 				{@render children()}
 			</main>
 		</div>

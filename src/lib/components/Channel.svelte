@@ -10,6 +10,7 @@
 	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
 	import type { IrcMessage } from "$lib/twitch/irc";
+	import StreamHeader from "./StreamHeader.svelte";
 
 	const { username }: { username: string } = $props();
 
@@ -60,6 +61,10 @@
 </script>
 
 <div class="flex h-full flex-col">
+	{#if app.joined?.stream}
+		<StreamHeader stream={app.joined.stream} />
+	{/if}
+
 	<Chat class="grow" />
 
 	<div class="p-2">
