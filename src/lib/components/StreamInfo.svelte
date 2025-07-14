@@ -28,21 +28,21 @@
 </script>
 
 <div
-	class="bg-sidebar text-muted-foreground flex items-center gap-2 overflow-hidden border-b p-2 text-xs"
+	class="bg-sidebar text-muted-foreground flex items-center justify-between overflow-hidden border-b p-2 text-xs"
 >
 	<p class="truncate" title={stream.title}>{stream.title}</p>
 
-	&bullet;
+	<div class="ml-[3ch] flex items-center gap-1">
+		<div class="flex items-center">
+			<span class="iconify lucide--users mr-1"></span>
+			<span class="font-medium">{stream.viewer_count}</span>
+		</div>
 
-	<div class="flex shrink-0 items-center">
-		<span class="iconify lucide--users mr-1"></span>
-		<span class="font-medium">{stream.viewer_count}</span>
-	</div>
+		&bullet;
 
-	&bullet;
-
-	<div class="flex shrink-0 items-center">
-		<span class="iconify lucide--clock mr-1"></span>
-		<span class="font-medium tabular-nums">{uptime}</span>
+		<div class="flex items-center">
+			<span class="iconify lucide--clock mr-1"></span>
+			<span class="font-medium tabular-nums">{uptime}</span>
+		</div>
 	</div>
 </div>
