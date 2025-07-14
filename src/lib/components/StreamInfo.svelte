@@ -11,9 +11,13 @@
 	let uptime = $state(getUptime());
 
 	onMount(() => {
-		const interval = setInterval(() => {
-			uptime = getUptime();
-		}, 1000);
+		let interval: number | undefined;
+
+		setTimeout(() => {
+			interval = setInterval(() => {
+				uptime = getUptime();
+			}, 1000);
+		}, 1000 - new Date().getMilliseconds());
 
 		return () => clearInterval(interval);
 	});
@@ -26,13 +30,17 @@
 <div
 	class="bg-sidebar text-muted-foreground flex items-center gap-2 overflow-hidden border-b p-2 text-xs"
 >
-	<p class="line-clamp-1 truncate">{stream.title}</p>
+	<p class="truncate" title={stream.title}>{stream.title}</p>
+
 	&bullet;
+
 	<div class="flex shrink-0 items-center">
 		<span class="iconify lucide--users mr-1"></span>
 		<span class="font-medium">{stream.viewer_count}</span>
 	</div>
+
 	&bullet;
+
 	<div class="flex shrink-0 items-center">
 		<span class="iconify lucide--clock mr-1"></span>
 		<span class="font-medium tabular-nums">{uptime}</span>
