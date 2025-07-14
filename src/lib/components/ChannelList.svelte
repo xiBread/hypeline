@@ -91,7 +91,7 @@
 				<p class="line-clamp-2">{stream.title}</p>
 
 				<div class="text-muted-foreground flex items-center">
-					<span class="lucide--user iconify mr-1 size-3"></span>
+					<span class="lucide--users iconify mr-1 size-3"></span>
 
 					<p class="text-xs">
 						{stream.viewer_count} viewers
