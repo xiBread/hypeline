@@ -63,7 +63,7 @@
 <div class="relative h-full">
 	{#if scrollingPaused}
 		<button
-			class="bg-twitch absolute top-0 z-10 flex w-full items-center justify-center rounded-b-md border px-2 py-1 text-xs font-medium"
+			class="bg-twitch/40 absolute bottom-0 z-10 flex w-full items-center justify-center rounded-t-md border px-2 py-1 text-xs font-medium backdrop-blur-lg"
 			type="button"
 			onclick={scrollToEnd}
 		>
