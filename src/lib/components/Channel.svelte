@@ -10,7 +10,7 @@
 	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
 	import type { IrcMessage } from "$lib/twitch/irc";
-	import StreamHeader from "./StreamHeader.svelte";
+	import StreamHeader from "./StreamInfo.svelte";
 
 	const { username }: { username: string } = $props();
 
