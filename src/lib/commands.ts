@@ -10,7 +10,7 @@ export interface Command {
 	mod?: boolean;
 }
 
-// not supported: gift, help, vote, announce, goal
+// not supported: gift, help, vote, goal
 export const COMMANDS: Command[] = [
 	{
 		name: "block",
@@ -39,6 +39,10 @@ export const COMMANDS: Command[] = [
 	{
 		name: "unban",
 		description: "Remove a permanent ban on a user",
+	},
+	{
+		name: "announce",
+		description: "Call attention to your message with a colored highlight",
 	},
 	{
 		name: "clear",
