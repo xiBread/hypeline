@@ -91,7 +91,7 @@ export class Completer {
 		const suggestion = this.suggestions[this.current];
 		let end = this.input.value.lastIndexOf(this.query);
 
-		if (this.query.startsWith("/") || this.query.startsWith("@")) {
+		if (this.query.startsWith("@")) {
 			end++;
 		}
 
