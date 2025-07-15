@@ -12,10 +12,12 @@
 
 <script lang="ts">
 	import { onMount } from "svelte";
-	import type { HTMLInputAttributes } from "svelte/elements";
+	import type { HTMLInputAttributes, KeyboardEventHandler } from "svelte/elements";
+	import { Completer } from "$lib/completer.svelte";
 	import { app } from "$lib/state.svelte";
 	import EmotePicker from "./EmotePicker.svelte";
 	import Message from "./message/Message.svelte";
+	import Suggestions from "./Suggestions.svelte";
 	import Input from "./ui/Input.svelte";
 
 	const { class: className, ...rest }: HTMLInputAttributes = $props();
@@ -24,63 +26,118 @@
 	let anchor = $state<HTMLElement>();
 
 	let emotePickerOpen = $state(false);
-	let historyCursor = $state(-1);
+	let historyIdx = $state(-1);
+
+	let completer = $state<Completer>();
+
+	const showSuggestions = $derived(!!completer?.suggestions.length && completer.prefixed);
 
 	onMount(() => {
 		input.value = chatInput;
+		completer = new Completer(input.value!);
 	});
 
-	async function send(event: KeyboardEvent) {
-		if (!app.joined) return;
+	const send: KeyboardEventHandler<HTMLInputElement> = async (event) => {
+		if (!app.joined || !completer) return;
 
-		const input = event.currentTarget as HTMLInputElement;
+		const input = event.currentTarget;
 
-		if (event.key === "Escape" && replyTarget.value) {
+		if (event.key === "Tab") {
+			event.preventDefault();
+
+			// Ignore if in the middle of a word
+			if (input.value.charAt(input.selectionStart ?? 0).trim() !== "") {
+				return;
+			}
+
+			if (completer.prefixed && completer.suggestions.length) {
+				completer.complete();
+			} else if (completer.suggestions.length) {
+				if (event.shiftKey) {
+					completer.prev();
+				} else {
+					completer.next();
+				}
+
+				completer.complete(false);
+			} else {
+				completer.search(true);
+
+				if (completer.suggestions.length) {
+					completer.complete(false);
+				}
+			}
+		} else if (event.key === "Escape") {
 			replyTarget.value = null;
 		} else if (event.key === "ArrowUp") {
-			if (!app.joined.history.length) return;
-
-			if (historyCursor === -1) {
-				historyCursor = app.joined.history.length - 1;
-			} else if (historyCursor > 0) {
-				historyCursor--;
-			}
-
-			input.value = app.joined.history[historyCursor];
-
-			setTimeout(() => {
-				input.setSelectionRange(input.value.length, input.value.length);
-			}, 0);
-		} else if (event.key === "ArrowDown") {
-			if (historyCursor === -1) return;
-
-			if (historyCursor < app.joined.history.length - 1) {
-				historyCursor++;
-				input.value = app.joined.history[historyCursor];
+			if (showSuggestions) {
+				event.preventDefault();
+				completer.prev();
 			} else {
-				historyCursor = -1;
-				input.value = "";
-			}
+				if (!app.joined.history.length) return;
 
-			input.setSelectionRange(input.value.length, input.value.length);
+				if (historyIdx === -1) {
+					historyIdx = app.joined.history.length - 1;
+				} else if (historyIdx > 0) {
+					historyIdx--;
+				}
+
+				input.value = app.joined.history[historyIdx];
+
+				setTimeout(() => {
+					input.setSelectionRange(input.value.length, input.value.length);
+				}, 0);
+			}
+		} else if (event.key === "ArrowDown") {
+			if (showSuggestions) {
+				event.preventDefault();
+				completer.next();
+			} else {
+				if (historyIdx === -1) return;
+
+				if (historyIdx < app.joined.history.length - 1) {
+					historyIdx++;
+					input.value = app.joined.history[historyIdx];
+				} else {
+					historyIdx = -1;
+					input.value = "";
+				}
+
+				input.setSelectionRange(input.value.length, input.value.length);
+			}
 		} else if (event.key === "Enter") {
 			event.preventDefault();
 
-			const message = input.value.trim();
+			if (showSuggestions) {
+				completer.complete();
+			} else {
+				const message = input.value.trim();
 
-			if (!message) return;
-			if (!event.ctrlKey) input.value = "";
+				if (!message) return;
+				if (!event.ctrlKey) input.value = "";
 
-			replyTarget.value = null;
-			historyCursor = -1;
+				const replyId = replyTarget.value?.id;
+				replyTarget.value = null;
+				historyIdx = -1;
 
-			app.joined.history.push(message);
-			await app.joined.send(message);
+				app.joined.history.push(message);
+				await app.joined.send(message, replyId);
+			}
+		} else if (completer.suggestions.length) {
+			completer.reset();
 		}
-	}
+	};
 </script>
 
-<EmotePicker input={chatInput} {anchor} bind:open={emotePickerOpen} />
+<Suggestions
+	anchor={chatInput}
+	open={showSuggestions}
+	index={completer?.current ?? 0}
+	suggestions={completer?.suggestions ?? []}
+	onselect={() => completer?.complete()}
+/>
+
+<EmotePicker {anchor} input={chatInput} bind:open={emotePickerOpen} />
 
 {#if replyTarget.value}
 	<div
@@ -118,7 +175,9 @@
 		autocorrect="off"
 		maxlength={500}
 		placeholder="Send a message"
+		oninput={() => completer?.search()}
 		onkeydown={send}
+		onmousedown={() => completer?.reset()}
 		{...rest}
 		bind:ref={chatInput}
 	/>

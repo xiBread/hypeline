@@ -1,3 +1,5 @@
+use std::time::SystemTime;
+
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
@@ -107,8 +109,16 @@ pub async fn fetch_global_emotes() -> Result<Vec<Emote>> {
 }
 
 pub async fn fetch_active_emote_set(id: &str) -> Result<Option<EmoteSet>, Error> {
+    let now = SystemTime::now();
+
+    let timestamp = now
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .expect("time went backwards")
+        .as_millis();
+
     let user: User = HTTP
-        .get(format!("{BASE_URL}/users/twitch/{id}"))
+        // Appending a timestamp parameter to bypass caching
+        .get(format!("{BASE_URL}/users/twitch/{id}?t={timestamp}"))
         .send()
         .await?
         .json()

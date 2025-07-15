@@ -3,11 +3,12 @@ mod emotes;
 
 use std::sync::Arc;
 
+use anyhow::anyhow;
 pub use client::SeventTvClient;
 pub use emotes::*;
 use serde_json::json;
 use tauri::ipc::Channel;
-use tauri::{async_runtime, AppHandle, Manager, State};
+use tauri::{AppHandle, Manager, State, async_runtime};
 use tokio::sync::Mutex;
 
 use crate::error::Error;
@@ -21,10 +22,10 @@ pub async fn connect_seventv(
 ) -> Result<(), Error> {
     let mut state = state.lock().await;
 
-    if let Some(client) = &state.seventv {
-        if client.connected() {
-            return Ok(());
-        }
+    if let Some(client) = &state.seventv
+        && client.connected()
+    {
+        return Ok(());
     }
 
     let (mut incoming, client) = SeventTvClient::new();
@@ -51,12 +52,23 @@ pub async fn connect_seventv(
     Ok(())
 }
 
-#[tracing::instrument]
-pub async fn send_presence(user_id: &str, channel_id: &str) {
+#[tracing::instrument(skip(state))]
+#[tauri::command]
+pub async fn send_presence(
+    state: State<'_, Mutex<AppState>>,
+    channel_id: String,
+) -> Result<(), Error> {
     tracing::debug!("Sending presence");
 
+    let state = state.lock().await;
+
+    let Some(ref id) = state.seventv_id else {
+        tracing::error!("Missing 7TV user id");
+        return Err(Error::Generic(anyhow!("7TV id not set")));
+    };
+
     let response = HTTP
-        .post(format!("https://7tv.io/v3/users/{user_id}/presences"))
+        .post(format!("https://7tv.io/v3/users/{id}/presences"))
         .json(&json!({
             "kind": 1,
             "passive": false,
@@ -85,4 +97,6 @@ pub async fn send_presence(user_id: &str, channel_id: &str) {
             tracing::error!(%err, "Error sending presence");
         }
     }
+
+    Ok(())
 }

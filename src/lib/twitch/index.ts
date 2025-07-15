@@ -61,7 +61,7 @@ export const SCOPES = [
 ];
 
 export async function connect() {
-	if (!settings.state.user) return;
+	if (!settings.state.user || app.connected) return;
 
 	const ircChannel = new Channel<IrcMessage>(async (message) => {
 		await handle(message.type, message);
@@ -79,6 +79,7 @@ export async function connect() {
 	await invoke("connect_eventsub", { channel: eventsubChannel });
 	await invoke("connect_seventv", { channel: seventvChannel });
 
+	app.connected = true;
 	log.info("All connections established");
 }
 

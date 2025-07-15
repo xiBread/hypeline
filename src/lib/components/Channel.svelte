@@ -10,6 +10,7 @@
 	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
 	import type { IrcMessage } from "$lib/twitch/irc";
+	import StreamHeader from "./StreamInfo.svelte";
 
 	const { username }: { username: string } = $props();
 
@@ -46,7 +47,9 @@
 
 			await invoke("fetch_recent_messages", {
 				channel: channel.user.username,
-				historyLimit: settings.state.history.enabled ? settings.state.history.limit : 0,
+				historyLimit: settings.state.chat.history.enabled
+					? settings.state.chat.history.limit
+					: 0,
 			});
 
 			channel.addEmotes(app.globalEmotes);
@@ -58,6 +61,10 @@
 </script>
 
 <div class="flex h-full flex-col">
+	{#if app.joined?.stream}
+		<StreamHeader stream={app.joined.stream} />
+	{/if}
+
 	<Chat class="grow" />
 
 	<div class="p-2">

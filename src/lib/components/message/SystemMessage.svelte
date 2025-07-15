@@ -17,6 +17,7 @@
 		WarnContext,
 	} from "$lib/message";
 	import { colorizeName, formatDuration } from "$lib/util";
+	import Emote from "../Emote.svelte";
 	import Timestamp from "../Timestamp.svelte";
 
 	interface Props {
@@ -36,6 +37,22 @@
 		monitored = ctx.user.monitored;
 		restricted = ctx.user.restricted;
 	}
+
+	const snippetMap = {
+		autoMod,
+		banStatus,
+		clear,
+		delete: deleteMsg,
+		emoteSetUpdate,
+		mode,
+		roleStatus,
+		streamStatus,
+		suspicionStatus,
+		term,
+		timeout,
+		unbanRequest,
+		warn,
+	};
 </script>
 
 <div class={["text-muted-foreground px-3 py-2", message.deleted && "opacity-30"]}>
@@ -43,40 +60,16 @@
 
 	<p class="inline">
 		{#if ctx}
-			{#if ctx.type === "autoMod"}
-				{@render autoMod(ctx)}
-			{:else if ctx.type === "banStatus"}
-				{@render banStatus(ctx)}
-			{:else if ctx.type === "clear"}
-				{@render clear(ctx)}
-			{:else if ctx.type === "delete"}
-				{@render deleteMsg(ctx)}
-			{:else if ctx.type === "emoteSetUpdate"}
-				{@render emoteSetUpdate(ctx)}
-			{:else if ctx.type === "join"}
+			{#if ctx.type === "join"}
 				Joined {@html colorizeName(ctx.channel)}
-			{:else if ctx.type === "mode"}
-				{@render mode(ctx)}
-			{:else if ctx.type === "roleStatus"}
-				{@render roleStatus(ctx)}
-			{:else if ctx.type === "streamStatus"}
-				{@render streamStatus(ctx)}
-			{:else if ctx.type === "suspicionStatus"}
-				{@render suspicionStatus(ctx)}
-			{:else if ctx.type === "term"}
-				{@render term(ctx)}
-			{:else if ctx.type === "timeout"}
-				{@render timeout(ctx)}
-			{:else if ctx.type === "unbanRequest"}
-				{@render unbanRequest(ctx)}
 			{:else if ctx.type === "untimeout"}
 				{@html colorizeName(ctx.moderator)} removed timeout on {@html colorizeName(
 					ctx.user,
 				)}.
-			{:else if ctx.type === "warn"}
-				{@render warn(ctx)}
 			{:else if ctx.type === "warnAck"}
 				{@html colorizeName(ctx.user)} acknowledged their warning.
+			{:else}
+				{@render snippetMap[ctx.type](ctx as never)}
 			{/if}
 		{:else}
 			{message.text}
@@ -136,14 +129,7 @@
 		<span class="text-foreground font-medium">{ctx.emote.name}</span>
 	{/if}
 
-	<img
-		class="-my-2 inline-block"
-		srcset={ctx.emote.srcset.join(", ")}
-		alt={ctx.emote.name}
-		width={ctx.emote.width}
-		height={ctx.emote.height}
-		decoding="async"
-	/>
+	<Emote emote={ctx.emote} />
 {/snippet}
 
 {#snippet mode(ctx: ModeContext)}

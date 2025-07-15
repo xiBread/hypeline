@@ -43,7 +43,7 @@ impl IrcPrefix {
 impl AsRawIrc for IrcPrefix {
     fn format_as_raw_irc(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         match self {
-            Self::HostOnly { host } => write!(f, "{}", host)?,
+            Self::HostOnly { host } => write!(f, "{host}")?,
             Self::Full { nick, user, host } => {
                 write!(f, "{nick}")?;
 

@@ -11,13 +11,12 @@ import type {
 	UserNoticeMessage,
 } from "$lib/twitch/irc";
 import { User } from "$lib/user.svelte";
-import type { PartialUser } from "$lib/user.svelte";
 import { extractEmotes, find } from "$lib/util";
 import { Message } from ".";
 
 export type Fragment =
 	| { type: "text"; value: string; marked?: boolean }
-	| ({ type: "mention"; marked?: boolean } & PartialUser)
+	| { type: "mention"; user?: User; fallback: string; marked?: boolean }
 	| { type: "url"; text: string; url: URL; marked?: boolean }
 	| ({ type: "emote"; marked?: boolean; overlays: Emote[] } & Emote)
 	| ({ type: "cheermote"; prefix: string; bits: number; marked?: boolean } & CheermoteTier);
@@ -336,14 +335,12 @@ export class UserMessage extends Message {
 
 				const user = app.joined
 					? find(app.joined.viewers, (user) => user.username === mention.toLowerCase())
-					: null;
+					: undefined;
 
 				output.push({
 					type: "mention",
-					id: user?.id ?? "0",
-					color: user?.color ?? "inherit",
-					username: user?.username ?? mention.toLowerCase(),
-					displayName: user?.displayName ?? mention,
+					user,
+					fallback: mention,
 					marked,
 				});
 			} else if (segment.type === "url") {

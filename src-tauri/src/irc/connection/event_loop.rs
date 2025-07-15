@@ -5,7 +5,7 @@ use either::Either;
 use enum_dispatch::enum_dispatch;
 use futures::{SinkExt, StreamExt};
 use tokio::sync::{mpsc, oneshot};
-use tokio::time::{interval_at, Duration, Instant};
+use tokio::time::{Duration, Instant, interval_at};
 use tokio_tungstenite::tungstenite::Error as WsError;
 
 use super::ConnectionIncomingMessage;
@@ -98,7 +98,7 @@ impl ConnectionLoopWorker {
             let transport = tokio::select! {
                 t_result = connect_attempt => {
                     t_result.map_err(Arc::new)
-                        .map_err(Error::ConnectError)
+                        .map_err(Error::Connect)
                 },
                 _ = timeout => {
                     Err(Error::ConnectTimeout)
@@ -192,8 +192,8 @@ impl ConnectionLoopInitializingState {
                     let do_exit = matches!(incoming_message, None | Some(Err(_)));
 
                     let incoming_message = incoming_message.map(|x| x.map_err(|e| match e {
-                        Either::Left(e) => Error::IncomingError(Arc::new(e)),
-                        Either::Right(e) => Error::IrcParseError(e)
+                        Either::Left(e) => Error::Incoming(Arc::new(e)),
+                        Either::Right(e) => Error::IrcParse(e)
                     }));
 
                     if let Some(connection_loop_tx) = connection_loop_tx.upgrade() {
@@ -218,16 +218,16 @@ impl ConnectionLoopInitializingState {
         while let Some((message, reply_sender)) = messages_rx.recv().await {
             let res = transport_outgoing.send(message).await.map_err(Arc::new);
 
-            if let Err(ref err) = res {
-                if let Some(connection_loop_tx) = connection_loop_tx.upgrade() {
-                    connection_loop_tx
-                        .send(ConnectionLoopCommand::SendError(Arc::clone(err)))
-                        .ok();
-                }
+            if let Err(ref err) = res
+                && let Some(connection_loop_tx) = connection_loop_tx.upgrade()
+            {
+                connection_loop_tx
+                    .send(ConnectionLoopCommand::SendError(Arc::clone(err)))
+                    .ok();
             }
 
             if let Some(reply_sender) = reply_sender {
-                reply_sender.send(res.map_err(Error::OutgoingError)).ok();
+                reply_sender.send(res.map_err(Error::Outgoing)).ok();
             }
         }
     }
@@ -331,7 +331,7 @@ impl ConnectionLoopStateMethods for ConnectionLoopInitializingState {
     }
 
     fn on_send_error(self, error: Arc<WsError>) -> ConnectionLoopState {
-        self.transition_to_closed(Error::OutgoingError(error))
+        self.transition_to_closed(Error::Outgoing(error))
     }
 
     fn on_incoming_message(
@@ -394,7 +394,7 @@ impl ConnectionLoopStateMethods for ConnectionLoopOpenState {
     }
 
     fn on_send_error(self, error: Arc<WsError>) -> ConnectionLoopState {
-        self.transition_to_closed(Error::OutgoingError(error))
+        self.transition_to_closed(Error::Outgoing(error))
     }
 
     fn on_incoming_message(

@@ -1,8 +1,14 @@
 <script lang="ts">
-	import { Dialog, Separator, Tabs } from "bits-ui";
+	import { getVersion } from "@tauri-apps/api/app";
+	import { invoke } from "@tauri-apps/api/core";
+	import { appLogDir } from "@tauri-apps/api/path";
+	import { writeText } from "@tauri-apps/plugin-clipboard-manager";
+	import { openPath } from "@tauri-apps/plugin-opener";
+	import * as os from "@tauri-apps/plugin-os";
+	import { Dialog, Popover, Separator, Tabs } from "bits-ui";
 	import { tick } from "svelte";
 	import { goto } from "$app/navigation";
-	import { info, log } from "$lib/log";
+	import { log } from "$lib/log";
 	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
 	import TitleBar from "../TitleBar.svelte";
@@ -10,7 +16,9 @@
 	import Chat from "./chat/Chat.svelte";
 	import Highlights from "./highlights/Highlights.svelte";
 
-	let { open = $bindable(false) } = $props();
+	let { open = $bindable(false), detached = false } = $props();
+
+	let copied = $state(false);
 
 	const categories = [
 		{
@@ -38,6 +46,31 @@
 		}
 	});
 
+	async function detach() {
+		open = false;
+		await invoke("detach_settings");
+
+		log.info("Settings detached");
+	}
+
+	async function openLogDir() {
+		await openPath(await appLogDir());
+	}
+
+	async function copyDebugInfo() {
+		const appVersion = await getVersion();
+
+		const appInfo = `Hypeline v${appVersion}`;
+		const osInfo = `${os.platform()} ${os.arch()} (${os.version()})`;
+
+		await writeText(`${appInfo}\n${osInfo}`);
+		copied = true;
+
+		setTimeout(() => {
+			copied = false;
+		}, 2000);
+	}
+
 	async function logOut() {
 		settings.state.user = null;
 		settings.state.lastJoined = null;
@@ -46,24 +79,20 @@
 		await tick();
 		await settings.saveNow();
 
-		info("User logged out");
+		log.info("User logged out");
 		await goto("/auth/login");
 	}
 </script>
-
-<svelte:document
-	onkeydown={(event) => {
-		if (event.key === "Escape") open = false;
-	}}
-/>
 
 <Dialog.Root bind:open>
 	<Dialog.Portal>
 		<Dialog.Content
 			class={[
 				"bg-background absolute inset-0 h-screen w-screen",
-				"data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+				!detached &&
+					"data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
 			]}
+			escapeKeydownBehavior={detached ? "ignore" : "close"}
 		>
 			<TitleBar title="Settings">
 				{#snippet icon()}
@@ -76,11 +105,7 @@
 					<Tabs.List class="space-y-1">
 						{#each categories as category (category.name)}
 							<Tabs.Trigger
-								class={[
-									"text-muted-foreground flex w-full items-center gap-2 rounded-sm px-2.5 py-1.5 transition-colors duration-100",
-									"hover:bg-muted hover:text-foreground",
-									"data-[state=active]:bg-muted data-[state=active]:text-foreground",
-								]}
+								class="settings-btn data-[state=active]:bg-muted data-[state=active]:text-foreground"
 								value={category.name}
 							>
 								<span class="iconify size-4 {category.icon}"></span>
@@ -91,8 +116,42 @@
 
 					<Separator.Root class="bg-border my-1 h-px w-full" />
 
+					<div class="space-y-1">
+						{#if !detached}
+							<button class="settings-btn" type="button" onclick={detach}>
+								<span class="iconify lucide--external-link size-4"></span>
+								<span class="text-sm">Popout settings</span>
+							</button>
+						{/if}
+
+						<button class="settings-btn" type="button" onclick={openLogDir}>
+							<span class="iconify lucide--folder-open size-4"></span>
+							<span class="text-sm">Open logs</span>
+						</button>
+
+						<Popover.Root bind:open={() => copied, () => {}}>
+							<Popover.Trigger
+								class="settings-btn"
+								type="button"
+								onclick={copyDebugInfo}
+							>
+								<span class="iconify lucide--clipboard size-4"></span>
+								<span class="text-sm">Copy debug info</span>
+							</Popover.Trigger>
+
+							<Popover.Content
+								class="data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=top]:slide-in-from-bottom-2 z-50 origin-(--bits-popover-content-transform-origin) rounded-md border bg-green-600 px-2 py-1 text-sm font-medium shadow-md outline-hidden"
+								side="top"
+							>
+								Copied!
+							</Popover.Content>
+						</Popover.Root>
+					</div>
+
+					<Separator.Root class="bg-border my-1 h-px w-full" />
+
 					<button
-						class="text-destructive hover:bg-muted flex w-full items-center gap-2 rounded-sm px-2.5 py-1.5 transition-colors duration-100"
+						class="settings-btn text-destructive! hover:text-destructive hover:bg-destructive/10!"
 						type="button"
 						onclick={logOut}
 					>
@@ -104,12 +163,14 @@
 				<div
 					class="relative grow overflow-y-auto rounded-tl-lg border-t border-l p-4 pb-16"
 				>
-					<Dialog.Close
-						class="text-muted-foreground group hover:text-foreground absolute top-4 right-4 flex flex-col items-center"
-						onclick={() => (open = false)}
-					>
-						<span class="iconify lucide--x size-6"></span>
-					</Dialog.Close>
+					{#if !detached}
+						<Dialog.Close
+							class="text-muted-foreground group hover:text-foreground absolute top-4 right-4 flex flex-col items-center"
+							onclick={() => (open = false)}
+						>
+							<span class="iconify lucide--x size-6"></span>
+						</Dialog.Close>
+					{/if}
 
 					{#each categories as category (category.name)}
 						<Tabs.Content value={category.name}>
@@ -121,3 +182,25 @@
 		</Dialog.Content>
 	</Dialog.Portal>
 </Dialog.Root>
+
+<style>
+	@reference "../../../app.css";
+
+	:global(.settings-btn) {
+		color: var(--color-muted-foreground);
+		width: 100%;
+		display: flex;
+		align-items: center;
+		column-gap: --spacing(2);
+		border-radius: var(--radius-sm);
+		padding: --spacing(1.5) --spacing(2.5);
+		transition-property: color, background-color;
+		transition-duration: 100ms;
+		transition-timing-function: var(--default-transition-timing-function);
+
+		&:hover {
+			color: var(--color-foreground);
+			background-color: var(--color-muted);
+		}
+	}
+</style>

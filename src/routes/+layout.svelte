@@ -2,6 +2,7 @@
 	import "../app.css";
 	import { Tooltip } from "bits-ui";
 	import { ModeWatcher } from "mode-watcher";
+	import { page } from "$app/state";
 	import Sidebar from "$lib/components/Sidebar.svelte";
 	import TitleBar from "$lib/components/TitleBar.svelte";
 	import { settings } from "$lib/settings";
@@ -31,11 +32,16 @@
 
 	<Tooltip.Provider delayDuration={100}>
 		<div class="flex grow overflow-hidden">
-			{#if settings.state.user}
+			{#if settings.state.user && !page.data.detached}
 				<Sidebar />
 			{/if}
 
-			<main class={["grow", settings.state.user && "rounded-tl-lg border-t border-l"]}>
+			<main
+				class={[
+					"grow overflow-hidden",
+					settings.state.user && "rounded-tl-lg border-t border-l",
+				]}
+			>
 				{@render children()}
 			</main>
 		</div>

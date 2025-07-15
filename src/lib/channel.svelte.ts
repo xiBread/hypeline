@@ -1,8 +1,10 @@
 import { invoke } from "@tauri-apps/api/core";
 import { SvelteMap } from "svelte/reactivity";
-import { replyTarget } from "./components/ChatInput.svelte";
+import { PUBLIC_TWITCH_CLIENT_ID } from "$env/static/public";
 import { log } from "./log";
+import { SystemMessage } from "./message";
 import type { Message } from "./message";
+import { settings } from "./settings";
 import type { EmoteSet } from "./seventv";
 import { app } from "./state.svelte";
 import type { Emote, JoinedChannel } from "./tauri";
@@ -10,9 +12,17 @@ import type { Badge, BadgeSet, Cheermote, Stream } from "./twitch/api";
 import { User } from "./user.svelte";
 import { find } from "./util";
 
+const RATE_LIMIT_WINDOW = 30 * 1000;
+const RATE_LIMIT_GRACE = 1000;
+
 export class Channel {
-	#lastRecentAt: number | null = null;
 	#stream = $state<Stream | null>(null);
+	#lastRecentAt: number | null = null;
+
+	#lastMessage: number[] = [];
+	#lastMessageElevated: number[] = [];
+	#lastHitSpdAt: number;
+	#lastHitAmtAt: number;
 
 	public readonly badges = new SvelteMap<string, Record<string, Badge>>();
 	public readonly emotes = new SvelteMap<string, Emote>();
@@ -46,6 +56,11 @@ export class Channel {
 
 		this.user.isBroadcaster = true;
 		this.viewers.set(user.id, user);
+
+		const now = performance.now();
+
+		this.#lastHitSpdAt = now - RATE_LIMIT_WINDOW * 2;
+		this.#lastHitAmtAt = now - RATE_LIMIT_WINDOW * 2;
 	}
 
 	public static async join(login: string) {
@@ -54,9 +69,14 @@ export class Channel {
 			isMod: app.user ? !!find(app.user.moderating, (name) => name === login) : false,
 		});
 
-		const user = new User(joined.user);
+		let channel = app.channels.find((c) => c.user.username === login);
 
-		const channel = new Channel(user)
+		if (!channel) {
+			const user = new User(joined.user);
+			channel = new Channel(user);
+		}
+
+		channel = channel
 			.addBadges(joined.badges)
 			.addEmotes(joined.emotes)
 			.addCheermotes(joined.cheermotes)
@@ -151,12 +171,47 @@ export class Channel {
 		}
 	}
 
-	public async send(message: string) {
-		await invoke("send_message", {
-			content: message,
-			broadcasterId: this.user.id,
-			replyId: replyTarget.value?.id ?? null,
+	public async send(message: string, replyId?: string) {
+		if (!app.user) return;
+		const user = this.viewers.get(app.user.id) ?? app.user;
+
+		const rateLimited = this.#checkRateLimit(user.isBroadcaster || user.isMod || user.isVip);
+		if (rateLimited) return;
+
+		log.info(`Sending message in ${this.user.username} (${this.user.id})`);
+
+		const response = await fetch("https://api.twitch.tv/helix/chat/messages", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"Client-ID": PUBLIC_TWITCH_CLIENT_ID,
+				Authorization: `Bearer ${settings.state.user?.token}`,
+			},
+			body: JSON.stringify({
+				broadcaster_id: this.user.id,
+				sender_id: user.id,
+				reply_parent_message_id: replyId,
+				message,
+			}),
 		});
+
+		const body = await response.json();
+		const sysmsg = new SystemMessage();
+
+		if (body.status === 429) {
+			log.warn(`Rate limit exceeded: ${body.message}`);
+			this.addMessage(sysmsg.setText(body.message));
+		} else if (response.ok) {
+			if (body.data[0].is_sent) {
+				log.info("Message sent");
+				await invoke("send_presence", { channelId: this.user.id });
+			} else {
+				const reason = body.data[0].drop_reason.message;
+
+				log.warn(`Message dropped: ${reason}`);
+				this.addMessage(sysmsg.setText(reason));
+			}
+		}
 	}
 
 	public setStream(stream: Stream | null) {
@@ -167,5 +222,38 @@ export class Channel {
 	public setEphemeral() {
 		this.ephemeral = true;
 		return this;
+	}
+
+	#checkRateLimit(elevated: boolean) {
+		const now = performance.now();
+
+		const queue = elevated ? this.#lastMessageElevated : this.#lastMessage;
+		const maxMsgCount = elevated ? 99 : 19;
+		const minMsgOffset = elevated ? 100 : 1100;
+
+		const last = queue.at(-1);
+
+		if (last && last + minMsgOffset > now) {
+			if (this.#lastHitSpdAt + RATE_LIMIT_WINDOW < now) {
+				this.#lastHitSpdAt = now;
+			}
+
+			return true;
+		}
+
+		while (queue.length && queue[0] + RATE_LIMIT_WINDOW + RATE_LIMIT_GRACE < now) {
+			queue.shift();
+		}
+
+		if (queue.length >= maxMsgCount) {
+			if (this.#lastHitAmtAt + RATE_LIMIT_WINDOW < now) {
+				this.#lastHitAmtAt = now;
+			}
+
+			return true;
+		}
+
+		queue.push(now);
+		return false;
 	}
 }
