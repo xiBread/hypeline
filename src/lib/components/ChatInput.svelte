@@ -34,15 +34,7 @@
 
 	onMount(() => {
 		input.value = chatInput;
-	});
-
-	$effect(() => {
-		if (!app.joined || !input.value || completer) return;
-
-		completer = new Completer(input.value, {
-			emotes: app.joined.emotes.values().toArray(),
-			viewers: app.joined.viewers.values().toArray(),
-		});
+		completer = new Completer(input.value!);
 	});
 
 	const send: KeyboardEventHandler<HTMLInputElement> = async (event) => {

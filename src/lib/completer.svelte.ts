@@ -1,19 +1,18 @@
 import type { Suggestion } from "./components/Suggestions.svelte";
+import { app } from "./state.svelte";
 import type { Emote } from "./tauri";
 import type { User } from "./user.svelte";
 
-interface CompleterSource {
-	emotes: Emote[];
-	viewers: User[];
-}
-
 interface SearchOptions<T> {
-	source: T[];
+	source: () => T[];
 	comparee: (item: T) => string;
 	map: (item: T) => Suggestion;
 }
 
 export class Completer {
+	#emotes = $derived(() => app.joined?.emotes.values());
+	#viewers = $derived(() => app.joined?.viewers.values());
+
 	#emoteOptions: SearchOptions<Emote>;
 	#viewerOptions: SearchOptions<User>;
 
@@ -23,12 +22,9 @@ export class Completer {
 	public current = $state(0);
 	public suggestions = $state<Suggestion[]>([]);
 
-	public constructor(
-		public readonly input: HTMLInputElement,
-		source: CompleterSource,
-	) {
+	public constructor(public readonly input: HTMLInputElement) {
 		this.#emoteOptions = {
-			source: source.emotes,
+			source: () => this.#emotes()?.toArray() ?? [],
 			comparee: (item) => item.name,
 			map: (item) => ({
 				type: "emote" as const,
@@ -39,7 +35,7 @@ export class Completer {
 		};
 
 		this.#viewerOptions = {
-			source: source.viewers,
+			source: () => this.#viewers()?.toArray() ?? [],
 			comparee: (item) => item.username,
 			map: (item) => ({
 				type: "user" as const,
@@ -123,7 +119,8 @@ export class Completer {
 
 		if (!query) return [];
 
-		return options.source
+		return options
+			.source()
 			.filter((item) =>
 				options.comparee(item).toLowerCase()[searchFunction](query.toLowerCase()),
 			)
