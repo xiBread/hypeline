@@ -2,7 +2,14 @@ import { app } from "$lib/state.svelte";
 import type { Emote } from "$lib/tauri";
 import type { CheermoteTier } from "$lib/twitch/api";
 import type { AutoModMetadata, StructuredMessage } from "$lib/twitch/eventsub";
-import type { Badge, BasicUser, PrivmsgMessage, Range, UserNoticeMessage } from "$lib/twitch/irc";
+import type {
+	Badge,
+	BasicUser,
+	PrivmsgMessage,
+	Range,
+	Source,
+	UserNoticeMessage,
+} from "$lib/twitch/irc";
 import { User } from "$lib/user.svelte";
 import { extractEmotes, find } from "$lib/util";
 import { Message } from ".";
@@ -20,6 +27,11 @@ const URL_RE =
 interface TextSegment extends Range {
 	type: "emote" | "cheermote" | "mention" | "url";
 	data: Record<string, any>;
+}
+
+export interface MessageSource {
+	id: string;
+	badges: Badge[];
 }
 
 /**
@@ -69,6 +81,8 @@ export class UserMessage extends Message {
 			is_returning_chatter: false,
 			reply: null,
 			sender,
+			source_only: null,
+			source: null,
 			server_timestamp: Date.now(),
 		});
 	}
@@ -107,6 +121,13 @@ export class UserMessage extends Message {
 	}
 
 	/**
+	 * The user who sent the message.
+	 */
+	public get author() {
+		return this.#author;
+	}
+
+	/**
 	 * The AutoMod metadata attached to the message if it was caught by AutoMod.
 	 */
 	public get autoMod() {
@@ -116,14 +137,14 @@ export class UserMessage extends Message {
 	/**
 	 * The badges sent with the message.
 	 */
-	public get badges(): Badge[] {
+	public get badges() {
 		return this.data.badges;
 	}
 
 	/**
 	 * The amount of bits sent with the message if it was a cheer.
 	 */
-	public get bits(): number {
+	public get bits() {
 		return "bits" in this.data ? (this.data.bits ?? 0) : 0;
 	}
 
@@ -164,10 +185,11 @@ export class UserMessage extends Message {
 	}
 
 	/**
-	 * The user who sent the message.
+	 * The source metadata for the message if it was sent during a shared chat
+	 * session.
 	 */
-	public get author() {
-		return this.#author;
+	public get source(): Source | null {
+		return this.data.source;
 	}
 
 	public addAutoModMetadata(metadata: AutoModMetadata) {

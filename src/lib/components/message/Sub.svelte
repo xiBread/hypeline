@@ -11,22 +11,22 @@
 	}
 
 	const { message, sub }: Props = $props();
+
+	const source = app.joined?.viewers.get(message.source?.channel_id ?? "");
 </script>
 
 <div class="bg-muted/50 my-0.5 border-l-4 p-2" style:border-color={app.joined?.user.color}>
 	<div class="flex gap-1">
 		<span
 			class={[
-				"iconify mt-px size-4 shrink-0",
+				"iconify mt-0.5 size-4 shrink-0",
 				sub.type === "sub_or_resub" ? "lucide--star" : "lucide--gift",
 			]}
 		></span>
 
 		{#if sub.type === "sub_or_resub"}
 			<div class="flex flex-col gap-0.5">
-				<span class="font-semibold" style:color={message.author.color}>
-					{message.author.displayName}
-				</span>
+				{@html colorizeName(message.author)}
 
 				<p>
 					Subscribed with
@@ -40,7 +40,11 @@
 						</a>
 					{:else}
 						<span class="font-medium">Tier {sub.sub_plan[0]}</span>
-					{/if}.
+					{/if}{#if !source}.{/if}
+
+					{#if source}
+						to {@html colorizeName(source)}.
+					{/if}
 
 					{#if sub.cumulative_months > 1}
 						They've subscribed for
@@ -60,7 +64,11 @@
 				{@html colorizeName(message.author)} is gifting
 				{singular ? "a" : sub.mass_gift_count}
 				<span class="font-medium"> Tier {sub.sub_plan[0]}</span>
-				sub{singular ? null : "s"}!
+				sub{singular ? null : "s"}{#if !source}!{/if}
+
+				{#if source}
+					to {@html colorizeName(source)}'s community!
+				{/if}
 
 				{#if sub.sender_total_gifts && sub.sender_total_gifts > sub.mass_gift_count}
 					They've gifted a total of
@@ -94,7 +102,11 @@
 						{@html colorizeName(recipient)}
 					{:else}
 						<span class="font-semibold">{sub.recipient.name}</span>
-					{/if}!
+					{/if}{#if !source}!{/if}
+
+					{#if source}
+						in {@html colorizeName(source)}'s channel.
+					{/if}
 
 					{#if sub.sender_total_months > sub.num_gifted_months}
 						They've gifted a total of

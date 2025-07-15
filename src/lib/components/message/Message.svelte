@@ -13,6 +13,24 @@
 	const fragments = message.toFragments();
 	const badges = $state<Badge[]>([]);
 
+	if (message.source) {
+		const user =
+			message.source.channel_id !== app.joined?.user.id
+				? app.joined?.viewers.get(message.source.channel_id)
+				: app.joined?.user;
+
+		if (user) {
+			badges.push({
+				id: user.id,
+				title: user.displayName,
+				description: `Shared chat from ${user.displayName}`,
+				image_url_1x: user.avatarUrl,
+				image_url_2x: user.avatarUrl,
+				image_url_4x: user.avatarUrl,
+			});
+		}
+	}
+
 	for (const badge of message.badges) {
 		const chatBadge = app.joined?.badges.get(badge.name)?.[badge.version];
 		const globalBadge = app.globalBadges.get(badge.name)?.[badge.version];

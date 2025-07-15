@@ -10,6 +10,7 @@ import type {
 	WithBasicUser,
 	WithBroadcaster,
 	WithModerator,
+	WithSourceBroadcaster,
 } from "./twitch/eventsub";
 import type { BasicUser } from "./twitch/irc";
 import { makeReadable } from "./util";
@@ -171,6 +172,14 @@ export class User implements PartialUser {
 			id: data.broadcaster_user_id,
 			login: data.broadcaster_user_login,
 			name: data.broadcaster_user_name,
+		});
+	}
+
+	public static fromSource(data: WithSourceBroadcaster) {
+		return this.fromBare({
+			id: data.source_broadcaster_user_id,
+			login: data.source_broadcaster_user_login,
+			name: data.source_broadcaster_user_name,
 		});
 	}
 

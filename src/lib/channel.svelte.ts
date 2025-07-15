@@ -132,6 +132,10 @@ export class Channel {
 
 	public addMessage(message: Message) {
 		if (this.messages.some((m) => m.id === message.id)) {
+			log.debug(
+				`Message with id ${message.id} already exists in ${this.user.username}, skipping`,
+			);
+
 			return this;
 		}
 

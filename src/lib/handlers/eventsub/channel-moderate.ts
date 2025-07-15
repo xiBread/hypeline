@@ -6,7 +6,12 @@ export default defineHandler({
 	name: "channel.moderate",
 	handle(data, channel) {
 		const message = new SystemMessage();
+
 		const moderator = User.fromModerator(data);
+		const source =
+			data.source_broadcaster_user_id === data.broadcaster_user_id
+				? undefined
+				: User.fromSource(data);
 
 		switch (data.action) {
 			case "emoteonly":
@@ -67,12 +72,16 @@ export default defineHandler({
 				break;
 			}
 
-			case "delete": {
+			case "delete":
+			case "shared_chat_delete": {
+				const metadata = data.action === "delete" ? data.delete : data.shared_chat_delete;
+
 				message.setContext({
 					type: "delete",
-					text: data.delete.message_body,
-					user: User.fromBasic(data.delete),
+					text: metadata.message_body,
+					user: User.fromBasic(metadata),
 					moderator,
+					source,
 				});
 
 				break;
@@ -97,28 +106,36 @@ export default defineHandler({
 				break;
 			}
 
-			case "timeout": {
-				channel.clearMessages(data.timeout.user_id);
+			case "timeout":
+			case "shared_chat_timeout": {
+				const timeout = data.action === "timeout" ? data.timeout : data.shared_chat_timeout;
 
-				const expiration = new Date(data.timeout.expires_at);
+				channel.clearMessages(timeout.user_id);
+
+				const expiration = new Date(timeout.expires_at);
 				const duration = expiration.getTime() - message.timestamp.getTime();
 
 				message.setContext({
 					type: "timeout",
 					seconds: Math.ceil(duration / 1000),
-					reason: data.timeout.reason,
-					user: User.fromBasic(data.timeout),
+					reason: timeout.reason,
+					user: User.fromBasic(timeout),
 					moderator,
+					source,
 				});
 
 				break;
 			}
 
-			case "untimeout": {
+			case "untimeout":
+			case "shared_chat_untimeout": {
 				message.setContext({
 					type: "untimeout",
-					user: User.fromBasic(data.untimeout),
+					user: User.fromBasic(
+						data.action === "untimeout" ? data.untimeout : data.shared_chat_untimeout,
+					),
 					moderator,
+					source,
 				});
 
 				break;
@@ -138,6 +155,26 @@ export default defineHandler({
 					reason: isBan ? data.ban.reason : null,
 					user: User.fromBasic(isBan ? data.ban : data.unban),
 					moderator,
+				});
+
+				break;
+			}
+
+			case "shared_chat_ban":
+			case "shared_chat_unban": {
+				const isBan = data.action === "shared_chat_ban";
+
+				if (isBan) {
+					channel.clearMessages(data.shared_chat_ban.user_id);
+				}
+
+				message.setContext({
+					type: "banStatus",
+					banned: isBan,
+					reason: isBan ? data.shared_chat_ban.reason : null,
+					user: User.fromBasic(isBan ? data.shared_chat_ban : data.shared_chat_unban),
+					moderator,
+					source,
 				});
 
 				break;

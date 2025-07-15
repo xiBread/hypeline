@@ -3,9 +3,11 @@ import type { BasicUser } from "./irc";
 
 export type WithBasicUser = Prefix<BasicUser, "user_">;
 
+export type WithModerator = Prefix<WithBasicUser, "moderator_">;
+
 export type WithBroadcaster = Prefix<WithBasicUser, "broadcaster_">;
 
-export type WithModerator = Prefix<WithBasicUser, "moderator_">;
+export type WithSourceBroadcaster = Prefix<WithBroadcaster, "source_">;
 
 export interface Boundary {
 	start_pos: number;
@@ -61,11 +63,11 @@ export interface ChannelChatUserMessageUpdate extends ChannelChatUserMessageHold
 	status: ChannelChatUserMessageStatus;
 }
 
-export interface BaseAction<A extends string> extends WithBroadcaster, WithModerator {
+export interface BaseAction<A extends string>
+	extends WithBroadcaster,
+		WithSourceBroadcaster,
+		WithModerator {
 	action: A;
-	source_broadcaster_user_id: string;
-	source_broadcaster_user_login: string;
-	source_broadcaster_user_name: string;
 }
 
 export interface AutoModTermsMetadata {
@@ -186,6 +188,33 @@ export interface WarnAction extends BaseAction<"warn"> {
 	warn: WarnMetadata;
 }
 
+export interface SharedChatBanAction extends BaseAction<"shared_chat_ban"> {
+	shared_chat_ban: BanMetadata;
+}
+
+export interface SharedChatDeleteAction extends BaseAction<"shared_chat_delete"> {
+	shared_chat_delete: DeleteMetadata;
+}
+
+export interface SharedChatTimeoutAction extends BaseAction<"shared_chat_timeout"> {
+	shared_chat_timeout: TimeoutMetadata;
+}
+
+export interface SharedChatUnbanAction extends BaseAction<"shared_chat_unban"> {
+	shared_chat_unban: WithBasicUser;
+}
+
+export interface SharedChatUntimeoutAction extends BaseAction<"shared_chat_untimeout"> {
+	shared_chat_untimeout: WithBasicUser;
+}
+
+export type SharedChatAction =
+	| SharedChatBanAction
+	| SharedChatDeleteAction
+	| SharedChatTimeoutAction
+	| SharedChatUnbanAction
+	| SharedChatUntimeoutAction;
+
 export type ChannelModerate =
 	| AutoModTermsAction
 	| BanAction
@@ -206,7 +235,8 @@ export type ChannelModerate =
 	| UntimeoutAction
 	| UnvipAction
 	| VipAction
-	| WarnAction;
+	| WarnAction
+	| SharedChatAction;
 
 export interface ChannelSubscriptionEnd extends WithBasicUser, WithBroadcaster {
 	tier: string;
