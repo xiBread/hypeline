@@ -4,6 +4,11 @@
 		display: string;
 	}
 
+	export interface CommandSuggestion extends BaseSuggestion {
+		type: "command";
+		description: string;
+	}
+
 	interface EmoteSuggestion extends BaseSuggestion {
 		type: "emote";
 		imageUrl: string;
@@ -14,7 +19,7 @@
 		style: string;
 	}
 
-	export type Suggestion = EmoteSuggestion | UserSuggestion;
+	export type Suggestion = CommandSuggestion | EmoteSuggestion | UserSuggestion;
 </script>
 
 <script lang="ts">
@@ -64,7 +69,19 @@
 					onmouseenter={() => (index = i)}
 					bind:ref={items[i]}
 				>
-					{#if suggestion.type === "emote"}
+					{#if suggestion.type === "command"}
+						<div class="flex w-full items-center justify-between">
+							<div class="flex flex-col">
+								<span class="font-medium">{suggestion.display}</span>
+
+								<p class="text-muted-foreground text-xs">
+									{suggestion.description}
+								</p>
+							</div>
+
+							<span class="text-muted-foreground">Placeholder</span>
+						</div>
+					{:else if suggestion.type === "emote"}
 						<img
 							class="size-8 object-contain"
 							src={suggestion.imageUrl}
