@@ -3,8 +3,8 @@ use tokio::sync::Mutex;
 use twitch_api::helix::moderation::manage_held_automod_messages;
 
 use super::get_access_token;
-use crate::error::Error;
 use crate::AppState;
+use crate::error::Error;
 
 #[tracing::instrument(skip(state))]
 #[tauri::command]
@@ -79,6 +79,26 @@ pub async fn ban(
     } else {
         tracing::debug!("Banned user");
     }
+
+    Ok(())
+}
+
+#[tracing::instrument(skip(state))]
+#[tauri::command]
+pub async fn unban(
+    state: State<'_, Mutex<AppState>>,
+    broadcaster_id: String,
+    user_id: String,
+) -> Result<(), Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state)?;
+
+    state
+        .helix
+        .unban_user(user_id, broadcaster_id, &token.user_id, token)
+        .await?;
+
+    tracing::debug!("Unbanned/untimed user");
 
     Ok(())
 }

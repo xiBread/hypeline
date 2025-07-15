@@ -192,6 +192,7 @@ export class Channel {
 			}
 
 			await command.exec(args, this, user);
+			return;
 		}
 
 		const rateLimited = this.#checkRateLimit(user.isBroadcaster || user.isMod || user.isVip);
