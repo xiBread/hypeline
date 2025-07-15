@@ -184,6 +184,7 @@ export class Channel {
 			if (!command || (command.mod && !user.isMod)) return;
 
 			await command.exec(args, this, user);
+			return;
 		}
 
 		const rateLimited = this.#checkRateLimit(elevated);
