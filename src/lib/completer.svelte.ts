@@ -1,4 +1,4 @@
-import { COMMANDS } from "./commands";
+import { commands } from "./commands";
 import type { Command } from "./commands";
 import type { Suggestion } from "./components/Suggestions.svelte";
 import { app } from "./state.svelte";
@@ -27,13 +27,15 @@ export class Completer {
 
 	public constructor(public readonly input: HTMLInputElement) {
 		this.#commandOptions = {
-			source: () => COMMANDS,
+			source: () => commands,
 			comparee: (item) => item.name,
 			map: (item) => ({
 				type: "command" as const,
 				value: item.name,
 				display: `/${item.name}`,
 				description: item.description,
+				args: item.args ?? [],
+				mod: item.mod ?? false,
 			}),
 		};
 

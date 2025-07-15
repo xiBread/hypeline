@@ -1,6 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
 import { SvelteMap } from "svelte/reactivity";
 import { PUBLIC_TWITCH_CLIENT_ID } from "$env/static/public";
+import { commands } from "./commands";
+import type { Command } from "./commands";
 import { log } from "./log";
 import { SystemMessage } from "./message";
 import type { Message } from "./message";
@@ -26,6 +28,7 @@ export class Channel {
 	#lastHitAmtAt: number;
 
 	public readonly badges = new SvelteMap<string, Record<string, Badge>>();
+	public readonly commands = new SvelteMap<string, Command>();
 	public readonly emotes = new SvelteMap<string, Emote>();
 	public readonly cheermotes = $state<Cheermote[]>([]);
 	public readonly viewers = new SvelteMap<string, User>();
@@ -79,6 +82,7 @@ export class Channel {
 
 		channel = channel
 			.addBadges(joined.badges)
+			.addCommands(commands)
 			.addEmotes(joined.emotes)
 			.addCheermotes(joined.cheermotes)
 			.setStream(joined.stream);
@@ -108,6 +112,14 @@ export class Channel {
 			}
 
 			this.badges.set(set.set_id, badges);
+		}
+
+		return this;
+	}
+
+	public addCommands(commands: Command[]) {
+		for (const command of commands) {
+			this.commands.set(command.name, command);
 		}
 
 		return this;

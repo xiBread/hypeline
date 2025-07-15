@@ -11,18 +11,21 @@ export interface Command {
 }
 
 // not supported: gift, help, vote, goal
-export const COMMANDS: Command[] = [
+export const commands: Command[] = [
 	{
 		name: "block",
 		description: "Block a user from interacting with you on Twitch",
+		args: [{ name: "username", required: true }],
 	},
 	{
 		name: "color",
 		description: "Change your username color",
+		args: [{ name: "color", required: true }],
 	},
 	{
 		name: "me",
 		description: "Express an action in the third person",
+		args: [{ name: "message", required: true }],
 	},
 	{
 		name: "mods",
@@ -35,14 +38,20 @@ export const COMMANDS: Command[] = [
 	{
 		name: "ban",
 		description: "Permanently ban a user from chat",
+		args: [
+			{ name: "username", required: true },
+			{ name: "reason", required: false },
+		],
 	},
 	{
 		name: "unban",
 		description: "Remove a permanent ban on a user",
+		args: [{ name: "username", required: true }],
 	},
 	{
 		name: "announce",
 		description: "Call attention to your message with a colored highlight",
+		args: [{ name: "message", required: true }],
 	},
 	{
 		name: "clear",
@@ -59,30 +68,37 @@ export const COMMANDS: Command[] = [
 	{
 		name: "marker",
 		description: "Add a stream marker at the current timestamp",
+		args: [{ name: "description", required: false }],
 	},
 	{
 		name: "mod",
 		description: "Grant moderator status to a user",
+		args: [{ name: "username", required: true }],
 	},
 	{
 		name: "unmod",
 		description: "Revoke moderator status from a user",
+		args: [{ name: "username", required: true }],
 	},
 	{
 		name: "monitor",
 		description: "Start monitoring a user's messages",
+		args: [{ name: "username", required: true }],
 	},
 	{
 		name: "unmonitor",
 		description: "Stop monitoring a user's messages",
+		args: [{ name: "username", required: true }],
 	},
 	{
 		name: "pin",
 		description: "Pin a message you send into chat for the channel",
+		args: [{ name: "message", required: true }],
 	},
 	{
 		name: "raid",
 		description: "Send viewers to another channel when the stream ends",
+		args: [{ name: "channel", required: true }],
 	},
 	{
 		name: "unraid",
@@ -91,10 +107,12 @@ export const COMMANDS: Command[] = [
 	{
 		name: "restrict",
 		description: "Start restricting a user's messages",
+		args: [{ name: "username", required: true }],
 	},
 	{
 		name: "unrestrict",
 		description: "Stop restricting a user's messages",
+		args: [{ name: "username", required: true }],
 	},
 	{
 		name: "shared-chat",
@@ -107,10 +125,12 @@ export const COMMANDS: Command[] = [
 	{
 		name: "shoutout",
 		description: "Highlight a channel for viewers to follow",
+		args: [{ name: "channel", required: true }],
 	},
 	{
 		name: "slow",
 		description: "Limit how frequently users can send messages",
+		args: [{ name: "duration", required: false }],
 	},
 	{
 		name: "subscriber-only",
@@ -119,10 +139,16 @@ export const COMMANDS: Command[] = [
 	{
 		name: "timeout",
 		description: "Temporarily restrict a user from sending messages",
+		args: [
+			{ name: "username", required: true },
+			{ name: "duration", required: false },
+			{ name: "reason", required: false },
+		],
 	},
 	{
 		name: "untimeout",
 		description: "Remove a timeout on a user",
+		args: [{ name: "username", required: true }],
 	},
 	{
 		name: "unqiue",
@@ -131,18 +157,25 @@ export const COMMANDS: Command[] = [
 	{
 		name: "user",
 		description: "Display profile information about a user on the channel",
+		args: [{ name: "username", required: true }],
 	},
 	{
 		name: "vip",
 		description: "Grant VIP status to a user",
+		args: [{ name: "username", required: true }],
 	},
 	{
 		name: "unvip",
 		description: "Revoke VIP status from a user",
+		args: [{ name: "username", required: true }],
 	},
 	{
 		name: "warn",
 		description:
 			"Issue a warning to a user that they must acknowledge before sending more messages",
+		args: [
+			{ name: "username", required: true },
+			{ name: "reason", required: true },
+		],
 	},
 ];
