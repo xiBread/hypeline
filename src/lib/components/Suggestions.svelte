@@ -1,12 +1,13 @@
 <script lang="ts" module>
+	import type { Command } from "$lib/commands";
+
 	interface BaseSuggestion {
 		value: string;
 		display: string;
 	}
 
-	export interface CommandSuggestion extends BaseSuggestion {
+	export interface CommandSuggestion extends BaseSuggestion, Omit<Required<Command>, "name"> {
 		type: "command";
-		description: string;
 	}
 
 	interface EmoteSuggestion extends BaseSuggestion {
@@ -72,9 +73,19 @@
 					{#if suggestion.type === "command"}
 						<div class="flex w-full items-center justify-between">
 							<div class="flex flex-col">
-								<span class="font-medium">{suggestion.display}</span>
+								<div class="flex items-center gap-1">
+									<span class="font-medium">{suggestion.display}</span>
 
-								<p class="text-muted-foreground text-xs">
+									{#each suggestion.args as arg}
+										<span
+											class="bg-background border-primary/20 rounded border px-1 py-0.5 text-xs"
+										>
+											{arg.name}
+										</span>
+									{/each}
+								</div>
+
+								<p class="text-muted-foreground mt-px text-xs">
 									{suggestion.description}
 								</p>
 							</div>
