@@ -2,7 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { SvelteMap } from "svelte/reactivity";
 import { PUBLIC_TWITCH_CLIENT_ID } from "$env/static/public";
 import { commands } from "./commands";
-import type { Command } from "./commands";
+import type { Command } from "./commands/helper";
 import { log } from "./log";
 import { SystemMessage } from "./message";
 import type { Message } from "./message";
@@ -176,6 +176,15 @@ export class Channel {
 		const user = this.viewers.get(app.user.id) ?? app.user;
 
 		const elevated = user.isMod || user.isVip;
+
+		if (message.startsWith("/")) {
+			const [name, ...args] = message.slice(1).split(" ");
+
+			const command = this.commands.get(name);
+			if (!command || (command.mod && !user.isMod)) return;
+
+			await command.exec(args, this, user);
+		}
 
 		const rateLimited = this.#checkRateLimit(elevated);
 		if (rateLimited) return;

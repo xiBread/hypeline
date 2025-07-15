@@ -1,5 +1,5 @@
 import { commands } from "./commands";
-import type { Command } from "./commands";
+import type { Command } from "./commands/helper";
 import type { Suggestion } from "./components/Suggestions.svelte";
 import { app } from "./state.svelte";
 import type { Emote } from "./tauri";
