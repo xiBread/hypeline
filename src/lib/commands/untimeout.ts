@@ -1,4 +1,5 @@
 import { defineCommand } from "./helper";
+import unban from "./unban";
 
 export default defineCommand({
 	name: "untimeout",
@@ -9,5 +10,5 @@ export default defineCommand({
 			required: true,
 		},
 	],
-	async exec(args, channel, user) {},
+	exec: unban.exec,
 });
