@@ -69,8 +69,6 @@
 					{/if}!
 				</p>
 			{:else if type === "raid"}
-				<Timestamp date={message.timestamp} />
-
 				<p class="inline">
 					{@html colorizeName(message.author)}
 					is raiding with {message.event.viewer_count}
