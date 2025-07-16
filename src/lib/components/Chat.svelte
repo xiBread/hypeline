@@ -83,8 +83,8 @@
 		bind:this={list}
 	>
 		{#snippet children(message: Message, i)}
-			{@const prev = app.joined?.messages.at(i - 1)}
-			{@const isNewDay = prev?.timestamp.getDate() !== message.timestamp.getDate()}
+			{@const prev = app.joined?.messages[i - 1]}
+			{@const isNewDay = prev && prev?.timestamp.getDate() !== message.timestamp.getDate()}
 
 			{#if isNewDay}
 				<div class="relative px-3.5">
