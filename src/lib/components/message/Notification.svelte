@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { app } from "$lib/state.svelte";
+	import { colorizeName } from "$lib/util";
 	import { UserMessage } from "../../message";
 	import Timestamp from "../Timestamp.svelte";
 	import Message from "./Message.svelte";
@@ -36,39 +37,46 @@
 				<Message {message} />
 			</div>
 		</div>
-	{:else if type === "bits_badge_tier"}
-		<div class="bg-muted/50 my-0.5 border-l-4 p-2" style:border-color={app.joined?.user.color}>
-			<div class="flex gap-1">
-				<span class="iconify lucide--party-popper mt-px size-4 shrink-0"></span>
-
-				<p>
-					<span class="font-semibold" style:color={message.author.color}>
-						{message.author.displayName}
-					</span>
-					unlocked the {message.event.threshold} bits badge!
-				</p>
-			</div>
-
-			{#if message.data.message_text}
-				<div class="mt-2">
-					<Message {message} />
-				</div>
-			{/if}
-		</div>
-	{:else if type === "raid"}
-		<div class="bg-muted/50 my-0.5 border-l-4 p-2" style:border-color={app.joined?.user.color}>
-			<Timestamp date={message.timestamp} />
-
-			<p class="inline">
-				<span class="font-semibold" style:color={message.author.color}>
-					{message.author.displayName}
-				</span>
-
-				is raiding with {message.event.viewer_count}
-				{message.event.viewer_count > 1 ? "viewers" : "viewer"}!
-			</p>
-		</div>
 	{:else if type === "sub_or_resub" || type === "sub_mystery_gift" || type === "sub_gift"}
 		<Sub {message} sub={message.event} />
+	{:else}
+		<div class="bg-muted/50 my-0.5 border-l-4 p-2" style:border-color={app.joined?.user.color}>
+			{#if type === "bits_badge_tier"}
+				<div class="flex gap-1">
+					<span class="iconify lucide--party-popper mt-px size-4 shrink-0"></span>
+
+					<p>
+						{@html colorizeName(message.author)}
+						unlocked the {message.event.threshold} bits badge!
+					</p>
+				</div>
+
+				{#if message.data.message_text}
+					<div class="mt-2">
+						<Message {message} />
+					</div>
+				{/if}
+			{:else if type === "community_pay_forward"}
+				{@const gifter = app.joined?.viewers.get(message.event.gifter.id)}
+
+				<p>
+					{@html colorizeName(message.author)}
+					is paying forward the gifted sub they received from
+					{#if gifter}
+						{@html colorizeName(gifter)}
+					{:else}
+						<span class="font-semibold">{message.event.gifter.name}</span>
+					{/if}!
+				</p>
+			{:else if type === "raid"}
+				<Timestamp date={message.timestamp} />
+
+				<p class="inline">
+					{@html colorizeName(message.author)}
+					is raiding with {message.event.viewer_count}
+					{message.event.viewer_count > 1 ? "viewers" : "viewer"}!
+				</p>
+			{/if}
+		</div>
 	{/if}
 {/if}
