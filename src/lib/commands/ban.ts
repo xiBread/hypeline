@@ -1,7 +1,7 @@
+import { invoke } from "@tauri-apps/api/core";
 import type { UserWithColor } from "$lib/tauri";
 import { User } from "$lib/user.svelte";
 import { find } from "$lib/util";
-import { invoke } from "@tauri-apps/api/core";
 import { defineCommand } from "./helper";
 
 export default defineCommand({
