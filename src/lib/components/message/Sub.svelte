@@ -24,9 +24,7 @@
 
 		{#if sub.type === "sub_or_resub"}
 			<div class="flex flex-col gap-0.5">
-				<span class="font-semibold" style:color={message.author.color}>
-					{message.author.displayName}
-				</span>
+				{@html colorizeName(message.author)}
 
 				<p>
 					Subscribed with
@@ -39,15 +37,15 @@
 							Prime
 						</a>
 					{:else}
-						<span class="font-medium">Tier {sub.sub_plan[0]}</span>
+						<span class="font-semibold">Tier {sub.sub_plan[0]}</span>
 					{/if}.
 
 					{#if sub.cumulative_months > 1}
 						They've subscribed for
-						<span class="font-medium">{sub.cumulative_months} months</span
+						<span class="font-semibold">{sub.cumulative_months} months</span
 						>{#if sub.streak_months}
 							, currently on a
-							<span class="font-medium">{sub.streak_months} month</span>
+							<span class="font-semibold">{sub.streak_months} month</span>
 							streak
 						{/if}!
 					{/if}
@@ -56,53 +54,53 @@
 		{:else if sub.type === "sub_mystery_gift"}
 			{@const singular = sub.mass_gift_count === 1}
 
-			<p>
-				{@html colorizeName(message.author)} is gifting
-				{singular ? "a" : sub.mass_gift_count}
-				<span class="font-medium"> Tier {sub.sub_plan[0]}</span>
-				sub{singular ? null : "s"}!
+			<div class="flex flex-col gap-0.5">
+				{@html colorizeName(message.author)}
 
-				{#if sub.sender_total_gifts && sub.sender_total_gifts > sub.mass_gift_count}
-					They've gifted a total of
-					<span class="font-medium">{sub.sender_total_gifts} subs</span> to the channel.
-				{/if}
-			</p>
+				<p>
+					Gifting
+					{singular ? "a" : sub.mass_gift_count}
+					<span class="font-semibold"> Tier {sub.sub_plan[0]}</span>
+					sub{singular ? null : "s"}!
+
+					{#if sub.sender_total_gifts && sub.sender_total_gifts > sub.mass_gift_count}
+						They've gifted a total of
+						<span class="font-semibold">{sub.sender_total_gifts} subs</span> to the channel.
+					{/if}
+				</p>
+			</div>
 		{:else}
 			{@const recipient = app.joined?.viewers.get(sub.recipient.id)}
 
 			{#snippet tier()}
-				<span class="font-medium">Tier {sub.sub_plan[0]}</span>
+				<span class="font-semibold">Tier {sub.sub_plan[0]}</span>
 			{/snippet}
 
-			<div class="flex flex-col gap-0.5">
+			<p>
 				{#if sub.is_sender_anonymous}
 					<span class="font-semibold">An Anonymous Viewer</span>
 				{:else}
-					<span class="font-semibold" style:color={message.author.color}>
-						{message.author.displayName}
-					</span>
+					{@html colorizeName(message.author)}
 				{/if}
 
-				<p>
-					Gifted {#if sub.num_gifted_months > 1}
-						{sub.num_gifted_months} months of a {@render tier()} sub
-					{:else}
-						a {@render tier()} sub
-					{/if}
+				gifted {#if sub.num_gifted_months > 1}
+					{sub.num_gifted_months} months of a {@render tier()} sub
+				{:else}
+					a {@render tier()} sub
+				{/if}
 
-					to {#if recipient}
-						{@html colorizeName(recipient)}
-					{:else}
-						<span class="font-semibold">{sub.recipient.name}</span>
-					{/if}!
+				to {#if recipient}
+					{@html colorizeName(recipient)}
+				{:else}
+					<span class="font-semibold">{sub.recipient.name}</span>
+				{/if}!
 
-					{#if sub.sender_total_months > sub.num_gifted_months}
-						They've gifted a total of
-						<span class="font-medium">{sub.sender_total_months} months</span>
-						of subs to the channel.
-					{/if}
-				</p>
-			</div>
+				{#if sub.sender_total_months > sub.num_gifted_months}
+					They've gifted a total of
+					<span class="font-semibold">{sub.sender_total_months} months</span>
+					of subs to the channel.
+				{/if}
+			</p>
 		{/if}
 	</div>
 
