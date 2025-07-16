@@ -46,6 +46,31 @@ export class Completer {
 		};
 	}
 
+	public tab(shift: boolean) {
+		// Ignore if in the middle of a word
+		if (this.input.value.charAt(this.input.selectionStart ?? 0).trim() !== "") {
+			return;
+		}
+
+		if (this.prefixed && this.suggestions.length) {
+			this.complete();
+		} else if (this.suggestions.length) {
+			if (shift) {
+				this.prev();
+			} else {
+				this.next();
+			}
+
+			this.complete(false);
+		} else {
+			this.search(true);
+
+			if (this.suggestions.length) {
+				this.complete(false);
+			}
+		}
+	}
+
 	public complete(reset = true) {
 		const suggestion = this.suggestions[this.current];
 		let end = this.input.value.lastIndexOf(this.query);

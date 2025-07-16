@@ -44,29 +44,7 @@
 
 		if (event.key === "Tab") {
 			event.preventDefault();
-
-			// Ignore if in the middle of a word
-			if (input.value.charAt(input.selectionStart ?? 0).trim() !== "") {
-				return;
-			}
-
-			if (completer.prefixed && completer.suggestions.length) {
-				completer.complete();
-			} else if (completer.suggestions.length) {
-				if (event.shiftKey) {
-					completer.prev();
-				} else {
-					completer.next();
-				}
-
-				completer.complete(false);
-			} else {
-				completer.search(true);
-
-				if (completer.suggestions.length) {
-					completer.complete(false);
-				}
-			}
+			completer.tab(event.shiftKey);
 		} else if (event.key === "Escape") {
 			replyTarget.value = null;
 		} else if (event.key === "ArrowUp") {
