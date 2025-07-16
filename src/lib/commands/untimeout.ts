@@ -1,5 +1,5 @@
-import { defineCommand } from "./helper";
 import unban from "./unban";
+import { defineCommand } from "./util";
 
 export default defineCommand({
 	name: "untimeout",

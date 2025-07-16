@@ -2,7 +2,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { SvelteMap } from "svelte/reactivity";
 import { PUBLIC_TWITCH_CLIENT_ID } from "$env/static/public";
 import { commands } from "./commands";
-import type { Command } from "./commands/helper";
+import type { Command } from "./commands/util";
 import { log } from "./log";
 import { SystemMessage } from "./message";
 import type { Message } from "./message";

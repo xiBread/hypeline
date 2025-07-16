@@ -1,4 +1,4 @@
-import { defineCommand } from "./helper";
+import { defineCommand } from "./util";
 
 export default defineCommand({
 	name: "user",

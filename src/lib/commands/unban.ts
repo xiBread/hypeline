@@ -1,8 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { defineCommand } from "./helper";
-import { find } from "$lib/util";
-import type { UserWithColor } from "$lib/tauri";
-import { User } from "$lib/user.svelte";
+import { defineCommand, getTarget } from "./util";
 
 export default defineCommand({
 	name: "unban",
@@ -14,17 +11,8 @@ export default defineCommand({
 		},
 	],
 	async exec(args, channel) {
-		const username = args[0].toLowerCase();
-		let target = find(channel.viewers, (user) => user.username === username);
-
-		if (!target) {
-			const fetched = await invoke<UserWithColor>("get_user_from_login", {
-				login: username,
-			});
-			if (!fetched) return;
-
-			target = new User(fetched);
-		}
+		const target = await getTarget(args[0], channel);
+		if (!target) return;
 
 		try {
 			await invoke("unban", {
