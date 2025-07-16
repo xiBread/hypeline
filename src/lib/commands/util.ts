@@ -33,6 +33,7 @@ export async function getTarget(username: string, channel: Channel) {
 
 		if (fetched) {
 			target = new User(fetched);
+			channel.viewers.set(target.id, target);
 		}
 	}
 
