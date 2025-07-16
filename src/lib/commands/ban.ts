@@ -29,7 +29,7 @@ export default defineCommand({
 				broadcasterId: channel.user.id,
 				userId: target.id,
 				duration: null,
-				reason: args[1] ?? null,
+				reason: args.slice(1).join(" ") || null,
 			});
 		} catch (error) {}
 	},

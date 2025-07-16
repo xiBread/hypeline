@@ -30,7 +30,7 @@ export default defineCommand({
 				broadcasterId: channel.user.id,
 				userId: target.id,
 				duration: Number(args[1]) || 600,
-				reason: args[2] ?? null,
+				reason: args.slice(2).join(" ") || null,
 			});
 		} catch (error) {}
 	},
