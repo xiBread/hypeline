@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { defineCommand } from "./helper";
+import { defineCommand } from "./util";
 
 export default defineCommand({
 	name: "announce",
