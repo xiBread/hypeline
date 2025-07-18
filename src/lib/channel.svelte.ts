@@ -46,6 +46,32 @@ export class Channel {
 	public history = $state<string[]>([]);
 	public messages = $state<Message[]>([]);
 
+	/**
+	 * Whether the channel is in emote-only mode.
+	 */
+	public emoteOnly = $state(false);
+
+	/**
+	 * Whether the channel is in unique-chat mode.
+	 */
+	public uniqueMode = $state(false);
+
+	/**
+	 * The time between which messages can be sent in the channel if it's in
+	 * slow mode.
+	 */
+	public slowMode = $state<number>();
+
+	/**
+	 * Whether the channel is in follower-only mode.
+	 */
+	public followerOnly = $state<number | boolean>(false);
+
+	/**
+	 * Whether the channel is in subscriber-only mode.
+	 */
+	public subOnly = $state(false);
+
 	public constructor(
 		/**
 		 * The user for the channel.
