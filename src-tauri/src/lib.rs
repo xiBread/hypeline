@@ -169,6 +169,7 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         api::moderation::update_held_message,
         api::moderation::ban,
         api::moderation::unban,
+        api::moderation::warn,
         api::users::get_user_from_id,
         api::users::get_user_from_login,
         api::users::get_user_emotes,
