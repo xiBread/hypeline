@@ -10,12 +10,23 @@ export default defineCommand({
 			required: true,
 		},
 	],
-	async exec(args, channel, user) {
-		// todo: handle empty message
+	async exec(args, channel) {
+		const message = args.join(" ");
 
-		await invoke("announce", {
-			broadcasterId: channel.user.id,
-			message: args.join(" "),
-		});
+		if (!message) {
+			channel.error = "Missing message argument.";
+			return;
+		}
+
+		try {
+			await invoke("announce", {
+				broadcasterId: channel.user.id,
+				message,
+			});
+		} catch (error) {
+			if (typeof error !== "string") return;
+
+			channel.error = "An unknown error occurred while trying to send an announcement.";
+		}
 	},
 });

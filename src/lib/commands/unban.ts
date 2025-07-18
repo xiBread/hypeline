@@ -19,6 +19,14 @@ export default defineCommand({
 				broadcasterId: channel.user.id,
 				userId: target.id,
 			});
-		} catch (error) {}
+		} catch (error) {
+			if (typeof error !== "string") return;
+
+			if (error.includes("not banned")) {
+				channel.error = `${target.displayName} is not banned.`;
+			} else {
+				channel.error = "An unknown error occurred while trying to unban.";
+			}
+		}
 	},
 });

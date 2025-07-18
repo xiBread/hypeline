@@ -19,6 +19,16 @@ export default defineCommand({
 				duration: null,
 				reason: args.slice(1).join(" ") || null,
 			});
-		} catch (error) {}
+		} catch (error) {
+			if (typeof error !== "string") return;
+
+			if (error.includes("already banned")) {
+				channel.error = `${target.displayName} is already banned.`;
+			} else if (error.includes("may not be banned")) {
+				channel.error = `${target.displayName} may not be banned.`;
+			} else {
+				channel.error = "An unknown error occurred while trying to ban.";
+			}
+		}
 	},
 });
