@@ -106,3 +106,32 @@ pub async fn get_followed_channels(
     tracing::info!("Fetched {} followed channels", followed.len());
     Ok(followed)
 }
+
+#[tracing::instrument(skip(state))]
+#[tauri::command]
+pub async fn raid(
+    state: State<'_, Mutex<AppState>>,
+    from_id: String,
+    to_id: String,
+) -> Result<(), Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state)?;
+
+    state.helix.start_a_raid(&from_id, &to_id, token).await?;
+
+    Ok(())
+}
+
+#[tracing::instrument(skip(state))]
+#[tauri::command]
+pub async fn cancel_raid(
+    state: State<'_, Mutex<AppState>>,
+    broadcaster_id: String,
+) -> Result<(), Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state)?;
+
+    state.helix.cancel_a_raid(&broadcaster_id, token).await?;
+
+    Ok(())
+}
