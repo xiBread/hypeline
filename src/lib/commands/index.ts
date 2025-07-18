@@ -2,7 +2,6 @@ import announce from "./announce";
 import ban from "./ban";
 import block from "./block";
 import clear from "./clear";
-import color from "./color";
 import emoteOnly from "./emote-only";
 import followerOnly from "./follower-only";
 import marker from "./marker";
@@ -37,7 +36,7 @@ export const commands = [
 	ban,
 	block,
 	clear,
-	color,
+
 	emoteOnly,
 	followerOnly,
 	marker,
