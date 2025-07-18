@@ -7,7 +7,6 @@ import followerOnly from "./follower-only";
 import marker from "./marker";
 import mod from "./mod";
 import mods from "./mods";
-import pin from "./pin";
 import raid from "./raid";
 import sharedChat from "./shared-chat";
 import shield from "./shield";
@@ -37,7 +36,6 @@ export const commands = [
 	marker,
 	mod,
 	mods,
-	pin,
 	raid,
 	sharedChat,
 	shield,
