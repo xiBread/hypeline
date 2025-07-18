@@ -1,10 +1,12 @@
+use anyhow::anyhow;
 use tauri::State;
 use tokio::sync::Mutex;
 use twitch_api::helix::moderation::manage_held_automod_messages;
+use twitch_api::twitch_oauth2::TwitchToken;
 
 use super::get_access_token;
-use crate::AppState;
 use crate::error::Error;
+use crate::{AppState, HTTP};
 
 #[tracing::instrument(skip(state))]
 #[tauri::command]
@@ -141,4 +143,68 @@ pub async fn warn(
     tracing::debug!("Warned user");
 
     Ok(())
+}
+
+#[tracing::instrument(skip(state))]
+#[tauri::command]
+pub async fn add_moderator(
+    state: State<'_, Mutex<AppState>>,
+    broadcaster_id: String,
+    user_id: String,
+) -> Result<(), Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state)?;
+
+    let response = HTTP
+        .post("https://api.twitch.tv/helix/moderation/moderators")
+        .query(&[("broadcaster_id", broadcaster_id), ("user_id", user_id)])
+        .header("Client-Id", token.client_id().as_str())
+        .bearer_auth(token.access_token.as_str())
+        .send()
+        .await?;
+
+    if response.status().is_client_error() {
+        let error = response.json::<serde_json::Value>().await?;
+
+        Err(Error::Generic(anyhow!(
+            "{}",
+            error["message"].as_str().unwrap_or_default()
+        )))
+    } else {
+        tracing::debug!("Added moderator");
+
+        Ok(())
+    }
+}
+
+#[tracing::instrument(skip(state))]
+#[tauri::command]
+pub async fn remove_moderator(
+    state: State<'_, Mutex<AppState>>,
+    broadcaster_id: String,
+    user_id: String,
+) -> Result<(), Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state)?;
+
+    let response = HTTP
+        .delete("https://api.twitch.tv/helix/moderation/moderators")
+        .query(&[("broadcaster_id", broadcaster_id), ("user_id", user_id)])
+        .header("Client-Id", token.client_id().as_str())
+        .bearer_auth(token.access_token.as_str())
+        .send()
+        .await?;
+
+    if response.status().is_client_error() {
+        let error = response.json::<serde_json::Value>().await?;
+
+        Err(Error::Generic(anyhow!(
+            "{}",
+            error["message"].as_str().unwrap_or_default()
+        )))
+    } else {
+        tracing::debug!("Removed moderator");
+
+        Ok(())
+    }
 }
