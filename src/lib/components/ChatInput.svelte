@@ -40,11 +40,13 @@
 	$effect(() => {
 		void app.joined?.error;
 
-		setTimeout(() => {
+		const timeout = setTimeout(() => {
 			if (app.joined?.error) {
 				app.joined.error = "";
 			}
 		}, 5000);
+
+		return () => clearTimeout(timeout);
 	});
 
 	const send: KeyboardEventHandler<HTMLInputElement> = async (event) => {
