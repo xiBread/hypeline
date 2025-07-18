@@ -7,10 +7,8 @@ import followerOnly from "./follower-only";
 import marker from "./marker";
 import mod from "./mod";
 import mods from "./mods";
-import monitor from "./monitor";
 import pin from "./pin";
 import raid from "./raid";
-import restrict from "./restrict";
 import sharedChat from "./shared-chat";
 import shield from "./shield";
 import shoutout from "./shoutout";
@@ -21,9 +19,7 @@ import unban from "./unban";
 import unblock from "./unblock";
 import unique from "./unique";
 import unmod from "./unmod";
-import unmonitor from "./unmonitor";
 import unraid from "./unraid";
-import unrestrict from "./unrestrict";
 import untimeout from "./untimeout";
 import unvip from "./unvip";
 import user from "./user";
@@ -36,16 +32,13 @@ export const commands = [
 	ban,
 	block,
 	clear,
-
 	emoteOnly,
 	followerOnly,
 	marker,
 	mod,
 	mods,
-	monitor,
 	pin,
 	raid,
-	restrict,
 	sharedChat,
 	shield,
 	shoutout,
@@ -56,9 +49,7 @@ export const commands = [
 	unblock,
 	unique,
 	unmod,
-	unmonitor,
 	unraid,
-	unrestrict,
 	untimeout,
 	unvip,
 	user,
