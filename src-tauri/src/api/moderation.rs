@@ -121,3 +121,24 @@ pub async fn unban(
 
     Ok(())
 }
+
+#[tracing::instrument(skip(state))]
+#[tauri::command]
+pub async fn warn(
+    state: State<'_, Mutex<AppState>>,
+    broadcaster_id: String,
+    user_id: String,
+    reason: String,
+) -> Result<(), Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state)?;
+
+    state
+        .helix
+        .warn_chat_user(user_id, &*reason, broadcaster_id, &token.user_id, token)
+        .await?;
+
+    tracing::debug!("Warned user");
+
+    Ok(())
+}
