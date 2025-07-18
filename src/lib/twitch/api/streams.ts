@@ -15,9 +15,9 @@ export interface Stream {
 	is_mature: boolean;
 }
 
-export interface FollowedChannel {
-	broadcaster_id: string;
-	broadcaster_login: string;
-	broadcaster_name: string;
-	followed_at: string;
+export interface StreamMarker {
+	id: string;
+	created_at: string;
+	position_seconds: number;
+	description: string;
 }

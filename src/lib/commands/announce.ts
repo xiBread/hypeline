@@ -23,9 +23,7 @@ export default defineCommand({
 				broadcasterId: channel.user.id,
 				message,
 			});
-		} catch (error) {
-			if (typeof error !== "string") return;
-
+		} catch {
 			channel.error = "An unknown error occurred while trying to send an announcement.";
 		}
 	},

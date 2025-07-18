@@ -11,8 +11,8 @@ use twitch_api::helix::chat::{BadgeSet, get_channel_chat_badges, get_global_chat
 use twitch_api::helix::streams::Stream;
 use twitch_api::twitch_oauth2::UserToken;
 
-use super::channels::get_stream;
 use super::get_access_token;
+use super::streams::get_stream;
 use super::users::{User, get_user_from_login};
 use crate::AppState;
 use crate::emotes::{Emote, EmoteMap, fetch_user_emotes};
