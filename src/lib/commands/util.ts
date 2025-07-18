@@ -27,7 +27,7 @@ export async function getTarget(username: string, channel: Channel) {
 	let target = find(channel.viewers, (user) => user.username === username);
 
 	if (!target) {
-		const fetched = await invoke<UserWithColor>("get_user_from_login", {
+		const fetched = await invoke<UserWithColor | null>("get_user_from_login", {
 			login: username,
 		});
 
