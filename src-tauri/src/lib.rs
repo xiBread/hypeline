@@ -165,6 +165,7 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         api::chat::fetch_global_badges,
         api::chat::announce,
         api::moderation::delete_message,
+        api::moderation::clear_chat,
         api::moderation::update_held_message,
         api::moderation::ban,
         api::moderation::unban,

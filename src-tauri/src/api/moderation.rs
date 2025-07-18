@@ -28,6 +28,25 @@ pub async fn delete_message(
 
 #[tracing::instrument(skip(state))]
 #[tauri::command]
+pub async fn clear_chat(
+    state: State<'_, Mutex<AppState>>,
+    broadcaster_id: String,
+) -> Result<(), Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state)?;
+
+    state
+        .helix
+        .delete_all_chat_message(broadcaster_id, &token.user_id, token)
+        .await?;
+
+    tracing::debug!("Cleared chat");
+
+    Ok(())
+}
+
+#[tracing::instrument(skip(state))]
+#[tauri::command]
 pub async fn update_held_message(
     state: State<'_, Mutex<AppState>>,
     message_id: String,
