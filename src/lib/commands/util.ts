@@ -22,6 +22,11 @@ export function defineCommand(command: Command) {
 }
 
 export async function getTarget(username: string, channel: Channel) {
+	if (!username) {
+		channel.error = "Missing username argument.";
+		return;
+	}
+
 	username = username.toLowerCase();
 
 	let target = find(channel.viewers, (user) => user.username === username);
@@ -35,6 +40,11 @@ export async function getTarget(username: string, channel: Channel) {
 			target = new User(fetched);
 			channel.viewers.set(target.id, target);
 		}
+	}
+
+	if (!target) {
+		channel.error = "User not found.";
+		return;
 	}
 
 	return target;
