@@ -19,6 +19,7 @@ import slow from "./slow";
 import subscriberOnly from "./subscriber-only";
 import timeout from "./timeout";
 import unban from "./unban";
+import unblock from "./unblock";
 import unique from "./unique";
 import unmod from "./unmod";
 import unmonitor from "./unmonitor";
@@ -53,6 +54,7 @@ export const commands = [
 	subscriberOnly,
 	timeout,
 	unban,
+	unblock,
 	unique,
 	unmod,
 	unmonitor,
