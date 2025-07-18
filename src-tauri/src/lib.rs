@@ -158,6 +158,8 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
     tauri::generate_handler![
         detach_settings,
         api::channels::get_followed_channels,
+        api::channels::raid,
+        api::channels::cancel_raid,
         api::chat::join,
         api::chat::leave,
         api::chat::fetch_global_badges,
