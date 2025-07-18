@@ -37,6 +37,16 @@
 		completer = new Completer(input.value!);
 	});
 
+	$effect(() => {
+		void app.joined?.error;
+
+		setTimeout(() => {
+			if (app.joined?.error) {
+				app.joined.error = "";
+			}
+		}, 5000);
+	});
+
 	const send: KeyboardEventHandler<HTMLInputElement> = async (event) => {
 		if (!app.joined || !completer) return;
 
@@ -139,13 +149,24 @@
 			<Message message={replyTarget.value} />
 		</div>
 	</div>
+{:else if app.joined?.error}
+	<div
+		class="bg-muted/50 border-muted has-[+div>input:focus-visible]:border-input rounded-t-md border border-b-0 px-3 py-2.5 text-sm transition-colors duration-200"
+	>
+		<div class="flex gap-1">
+			<span class="iconify lucide--triangle-alert mt-px size-4 shrink-0 text-yellow-400">
+			</span>
+
+			<p class="text-muted-foreground">{app.joined.error}</p>
+		</div>
+	</div>
 {/if}
 
 <div class="relative">
 	<Input
 		class={[
 			"focus-visible:border-input border-muted h-12 pr-10 transition-colors duration-200 focus-visible:ring-0",
-			replyTarget.value && "rounded-t-none",
+			(replyTarget.value || app.joined?.error) && "rounded-t-none",
 			className,
 		]}
 		type="text"

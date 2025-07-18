@@ -13,6 +13,13 @@ export default defineCommand({
 		const target = await getTarget(args[0], channel);
 		if (!target) return;
 
+		const duration = Number(args[1]) || 600;
+
+		if (duration < 0 || duration > 1209600) {
+			channel.error =
+				"Timeout duration must be greater than 0 and less than 1,209,600 seconds (14 days).";
+		}
+
 		try {
 			await invoke("ban", {
 				broadcasterId: channel.user.id,
@@ -20,6 +27,14 @@ export default defineCommand({
 				duration: Number(args[1]) || 600,
 				reason: args.slice(2).join(" ") || null,
 			});
-		} catch (error) {}
+		} catch (error) {
+			if (typeof error !== "string") return;
+
+			if (error.includes("may not be banned")) {
+				channel.error = `${target.username} may not be timed out.`;
+			} else {
+				channel.error = "An unknown error occurred while trying to time out.";
+			}
+		}
 	},
 });

@@ -49,6 +49,11 @@ export class Channel {
 	public history = $state<string[]>([]);
 	public messages = $state<Message[]>([]);
 
+	/**
+	 * The error message from the last failed command if any.
+	 */
+	public error = $state<string>("");
+
 	public constructor(
 		/**
 		 * The user for the channel.
