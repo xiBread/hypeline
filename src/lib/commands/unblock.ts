@@ -2,8 +2,8 @@ import { invoke } from "@tauri-apps/api/core";
 import { defineCommand, getTarget } from "./util";
 
 export default defineCommand({
-	name: "block",
-	description: "Block a user from interacting with you on Twitch",
+	name: "unblock",
+	description: "Remove a user from your block list",
 	args: [
 		{
 			name: "username",
@@ -15,9 +15,9 @@ export default defineCommand({
 		if (!target) return;
 
 		try {
-			await invoke("block", { userId: target.id });
+			await invoke("unblock", { userId: target.id });
 		} catch {
-			channel.error = "An unknown error occurred while trying to block.";
+			channel.error = "An unknown error occurred while trying to unblock.";
 		}
 	},
 });

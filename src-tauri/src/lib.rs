@@ -172,6 +172,8 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         api::users::get_user_from_login,
         api::users::get_user_emotes,
         api::users::get_moderated_channels,
+        api::users::block,
+        api::users::unblock,
         emotes::fetch_global_emotes,
         eventsub::connect_eventsub,
         irc::connect_irc,

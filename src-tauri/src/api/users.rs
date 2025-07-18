@@ -2,11 +2,12 @@ use std::collections::{HashMap, HashSet};
 
 use futures::TryStreamExt;
 use serde::Serialize;
-use tauri::async_runtime::Mutex;
 use tauri::State;
+use tauri::async_runtime::Mutex;
 use twitch_api::helix::users::User as HelixUser;
 use twitch_api::types::{Collection, EmoteAnimationSetting, UserId};
 
+use crate::api::get_access_token;
 use crate::error::Error;
 use crate::{AppState, HTTP};
 
@@ -198,4 +199,24 @@ pub async fn get_moderated_channels(
         .collect();
 
     Ok(pairs)
+}
+
+#[tauri::command]
+pub async fn block(state: State<'_, Mutex<AppState>>, user_id: String) -> Result<(), Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state)?;
+
+    state.helix.block_user(&user_id, token).await?;
+
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn unblock(state: State<'_, Mutex<AppState>>, user_id: String) -> Result<(), Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state)?;
+
+    state.helix.unblock_user(&user_id, token).await?;
+
+    Ok(())
 }
