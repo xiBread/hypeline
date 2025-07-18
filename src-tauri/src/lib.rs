@@ -160,6 +160,7 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         api::channels::get_followed_channels,
         api::channels::raid,
         api::channels::cancel_raid,
+        api::channels::shoutout,
         api::chat::join,
         api::chat::leave,
         api::chat::fetch_global_badges,

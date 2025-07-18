@@ -6,6 +6,7 @@ use tauri::State;
 use tauri::async_runtime::Mutex;
 use tokio::try_join;
 use twitch_api::helix::channels::FollowedBroadcaster;
+use twitch_api::helix::chat::SendAShoutoutRequest;
 use twitch_api::helix::streams::Stream;
 use twitch_api::types::Collection;
 
@@ -132,6 +133,26 @@ pub async fn cancel_raid(
     let token = get_access_token(&state)?;
 
     state.helix.cancel_a_raid(&broadcaster_id, token).await?;
+
+    Ok(())
+}
+
+#[tracing::instrument(skip(state))]
+#[tauri::command]
+pub async fn shoutout(
+    state: State<'_, Mutex<AppState>>,
+    from_id: String,
+    to_id: String,
+) -> Result<(), Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state)?;
+
+    let request = SendAShoutoutRequest::new(&from_id, &to_id, &token.user_id);
+
+    state
+        .helix
+        .req_post(request, Default::default(), token)
+        .await?;
 
     Ok(())
 }
