@@ -8,7 +8,7 @@ import marker from "./marker";
 import mod from "./mod";
 import mods from "./mods";
 import raid from "./raid";
-import sharedChat from "./shared-chat";
+// import sharedChat from "./shared-chat";
 import shield from "./shield";
 import shoutout from "./shoutout";
 import slow from "./slow";
@@ -21,7 +21,7 @@ import unmod from "./unmod";
 import unraid from "./unraid";
 import untimeout from "./untimeout";
 import unvip from "./unvip";
-import user from "./user";
+// import user from "./user";
 import vip from "./vip";
 import vips from "./vips";
 import warn from "./warn";
@@ -37,7 +37,7 @@ export const commands = [
 	mod,
 	mods,
 	raid,
-	sharedChat,
+	// sharedChat,
 	shield,
 	shoutout,
 	slow,
@@ -50,7 +50,7 @@ export const commands = [
 	unraid,
 	untimeout,
 	unvip,
-	user,
+	// user,
 	vip,
 	vips,
 	warn,
