@@ -227,6 +227,11 @@ export interface BitsBadgeTierEvent {
 	threshold: number;
 }
 
+export interface CommunityPayForwardEvent {
+	type: "community_pay_forward";
+	gifter: BasicUser;
+}
+
 export type UserNoticeEvent =
 	| AnnouncementEvent
 	| SubOrResubEvent
@@ -237,7 +242,8 @@ export type UserNoticeEvent =
 	| GiftPaidUpgradeEvent
 	| AnonGiftPaidUpgradeEvent
 	| RitualEvent
-	| BitsBadgeTierEvent;
+	| BitsBadgeTierEvent
+	| CommunityPayForwardEvent;
 
 export interface UserNoticeMessage extends BaseUserMessage {
 	type: "usernotice";

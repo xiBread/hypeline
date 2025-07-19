@@ -16,6 +16,7 @@ export interface MessageHistorySettings {
 }
 
 export interface ChatSettings {
+	bypassDuplicate: boolean;
 	mentionStyle: "none" | "colored" | "painted";
 	localizedNames: boolean;
 	readableColors: boolean;
@@ -86,6 +87,7 @@ export const settings = new RuneStore<Settings>("settings", {
 		},
 	},
 	chat: {
+		bypassDuplicate: true,
 		mentionStyle: "painted",
 		localizedNames: true,
 		readableColors: true,

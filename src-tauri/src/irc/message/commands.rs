@@ -536,6 +536,9 @@ pub enum UserNoticeEvent {
     Announcement {
         color: String,
     },
+    CommunityPayForward {
+        gifter: BasicUser,
+    },
     SubOrResub {
         is_resub: bool,
         cumulative_months: u64,
@@ -605,6 +608,19 @@ impl TryFrom<IrcMessage> for UserNoticeMessage {
                 color: source
                     .try_get_nonempty_tag_value("msg-param-color")?
                     .to_owned(),
+            },
+            "communitypayforward" => UserNoticeEvent::CommunityPayForward {
+                gifter: BasicUser {
+                    id: source
+                        .try_get_nonempty_tag_value("msg-param-prior-gifter-id")?
+                        .to_owned(),
+                    login: source
+                        .try_get_nonempty_tag_value("msg-param-prior-gifter-user-name")?
+                        .to_owned(),
+                    name: source
+                        .try_get_nonempty_tag_value("msg-param-prior-gifter-display-name")?
+                        .to_owned(),
+                },
             },
             "sub" | "resub" => UserNoticeEvent::SubOrResub {
                 is_resub: event_id == "resub",

@@ -19,6 +19,7 @@ const RATE_LIMIT_GRACE = 1000;
 
 export class Channel {
 	#stream = $state<Stream | null>(null);
+	#bypassNext = false;
 	#lastRecentAt: number | null = null;
 
 	#lastMessage: number[] = [];
@@ -200,8 +201,20 @@ export class Channel {
 			return;
 		}
 
-		const rateLimited = this.#checkRateLimit(user.isBroadcaster || user.isMod || user.isVip);
+		const elevated = user.isBroadcaster || user.isMod || user.isVip;
+
+		const rateLimited = this.#checkRateLimit(elevated);
 		if (rateLimited) return;
+
+		if (!elevated && settings.state.chat.bypassDuplicate && this.history.at(-1) === message) {
+			this.#bypassNext = !this.#bypassNext;
+
+			if (this.#bypassNext) {
+				message = `${message} \u{E0000}`;
+			}
+		} else {
+			this.#bypassNext = false;
+		}
 
 		log.info(`Sending message in ${this.user.username} (${this.user.id})`);
 

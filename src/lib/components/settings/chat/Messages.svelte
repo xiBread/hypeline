@@ -6,6 +6,14 @@
 </script>
 
 <Group title="Messages">
+	<Switch bind:checked={settings.state.chat.bypassDuplicate}>
+		<span class="font-medium">Bypass duplicate message warning</span>
+
+		{#snippet description()}
+			Allows you to send identical messages even if you're not a moderator or a VIP.
+		{/snippet}
+	</Switch>
+
 	<Group title="Message History" nested>
 		<Switch bind:checked={settings.state.chat.history.enabled}>
 			<span class="text-sm font-medium">Fetch recent messages upon joining a channel</span>
