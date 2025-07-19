@@ -49,3 +49,14 @@ export async function getTarget(username: string, channel: Channel) {
 
 	return target;
 }
+
+export function booleanArg(arg: string | undefined): boolean | null {
+	if (!arg) return true;
+
+	arg = arg.toLowerCase();
+
+	const truthy = arg === "true" || arg === "on";
+	const falsy = arg === "false" || arg === "off";
+
+	return !truthy && !falsy ? null : truthy || !falsy;
+}
