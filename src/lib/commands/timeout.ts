@@ -13,11 +13,11 @@ export default defineCommand({
 		const target = await getTarget(args[0], channel);
 		if (!target) return;
 
-		const duration = Number(args[1]) || 600;
+		let duration = Number(args[1]);
+		duration = Number.isNaN(duration) ? 600 : duration;
 
 		if (duration < 0 || duration > 1209600) {
-			channel.error =
-				"Timeout duration must be greater than 0 and less than 1,209,600 seconds (14 days).";
+			channel.error = "Duration must be between 0 and 1,209,600 seconds (14 days).";
 		}
 
 		try {
