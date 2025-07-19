@@ -2,6 +2,9 @@ use anyhow::anyhow;
 use tauri::State;
 use tokio::sync::Mutex;
 use twitch_api::helix::moderation::manage_held_automod_messages;
+use twitch_api::helix::moderation::update_shield_mode_status::{
+    UpdateShieldModeStatusBody, UpdateShieldModeStatusRequest,
+};
 use twitch_api::twitch_oauth2::TwitchToken;
 
 use super::get_access_token;
@@ -207,4 +210,21 @@ pub async fn remove_moderator(
 
         Ok(())
     }
+}
+
+#[tauri::command]
+pub async fn shield(
+    state: State<'_, Mutex<AppState>>,
+    broadcaster_id: String,
+    active: bool,
+) -> Result<(), Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state)?;
+
+    let request = UpdateShieldModeStatusRequest::new(&broadcaster_id, &token.user_id);
+    let body = UpdateShieldModeStatusBody::is_active(active);
+
+    state.helix.req_put(request, body, token).await?;
+
+    Ok(())
 }

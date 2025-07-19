@@ -173,6 +173,7 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         api::moderation::warn,
         api::moderation::add_moderator,
         api::moderation::remove_moderator,
+        api::moderation::shield,
         api::streams::get_stream,
         api::streams::get_streams,
         api::streams::create_marker,
