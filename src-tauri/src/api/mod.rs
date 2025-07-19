@@ -10,6 +10,7 @@ use crate::error::Error;
 pub mod channels;
 pub mod chat;
 pub mod moderation;
+pub mod streams;
 pub mod users;
 
 #[derive(Debug, Deserialize)]
