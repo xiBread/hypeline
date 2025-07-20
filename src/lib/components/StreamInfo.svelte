@@ -23,7 +23,10 @@
 	});
 
 	function getUptime() {
-		return dayjs.duration(dayjs().diff(dayjs(stream.started_at))).format("HH:mm:ss");
+		const diff = dayjs.duration(dayjs().diff(dayjs(stream.started_at)));
+		const hours = Math.floor(diff.asHours()).toString().padStart(2, "0");
+
+		return `${hours}:${diff.format("mm:ss")}`;
 	}
 </script>
 
