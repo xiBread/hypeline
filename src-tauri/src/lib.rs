@@ -175,6 +175,8 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         api::moderation::remove_moderator,
         api::moderation::shield,
         api::moderation::update_chat_settings,
+        api::moderation::add_vip,
+        api::moderation::remove_vip,
         api::streams::get_stream,
         api::streams::get_streams,
         api::streams::create_marker,

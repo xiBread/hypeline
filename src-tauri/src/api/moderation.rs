@@ -276,3 +276,43 @@ pub async fn update_chat_settings(
 
     Ok(())
 }
+
+#[tracing::instrument(skip(state))]
+#[tauri::command]
+pub async fn add_vip(
+    state: State<'_, Mutex<AppState>>,
+    broadcaster_id: String,
+    user_id: String,
+) -> Result<(), Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state)?;
+
+    state
+        .helix
+        .add_channel_vip(&broadcaster_id, &user_id, token)
+        .await?;
+
+    tracing::debug!("Added VIP");
+
+    Ok(())
+}
+
+#[tracing::instrument(skip(state))]
+#[tauri::command]
+pub async fn remove_vip(
+    state: State<'_, Mutex<AppState>>,
+    broadcaster_id: String,
+    user_id: String,
+) -> Result<(), Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state)?;
+
+    state
+        .helix
+        .remove_channel_vip(&broadcaster_id, &user_id, token)
+        .await?;
+
+    tracing::debug!("Removed VIP");
+
+    Ok(())
+}
