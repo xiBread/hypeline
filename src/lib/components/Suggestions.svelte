@@ -1,7 +1,13 @@
 <script lang="ts" module>
+	import type { Command } from "$lib/commands/util";
+
 	interface BaseSuggestion {
 		value: string;
 		display: string;
+	}
+
+	interface CommandSuggestion extends BaseSuggestion, Omit<Required<Command>, "name" | "exec"> {
+		type: "command";
 	}
 
 	interface EmoteSuggestion extends BaseSuggestion {
@@ -14,7 +20,7 @@
 		style: string;
 	}
 
-	export type Suggestion = EmoteSuggestion | UserSuggestion;
+	export type Suggestion = CommandSuggestion | EmoteSuggestion | UserSuggestion;
 </script>
 
 <script lang="ts">
@@ -64,7 +70,29 @@
 					onmouseenter={() => (index = i)}
 					bind:ref={items[i]}
 				>
-					{#if suggestion.type === "emote"}
+					{#if suggestion.type === "command"}
+						<div class="flex w-full items-center justify-between">
+							<div class="flex flex-col">
+								<div class="flex items-center gap-1">
+									<span class="font-medium">{suggestion.display}</span>
+
+									{#each suggestion.args as arg}
+										<span
+											class="bg-background border-primary/20 rounded border px-1 py-0.5 text-xs"
+										>
+											{arg}
+										</span>
+									{/each}
+								</div>
+
+								<p class="text-muted-foreground mt-px text-xs">
+									{suggestion.description}
+								</p>
+							</div>
+
+							<span class="text-muted-foreground">Built-in</span>
+						</div>
+					{:else if suggestion.type === "emote"}
 						<img
 							class="size-8 object-contain"
 							src={suggestion.imageUrl}

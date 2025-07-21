@@ -1,3 +1,5 @@
+import { commands } from "./commands";
+import type { Command } from "./commands/util";
 import type { Suggestion } from "./components/Suggestions.svelte";
 import { app } from "./state.svelte";
 import type { Emote } from "./tauri";
@@ -10,9 +12,10 @@ interface SearchOptions<T> {
 }
 
 export class Completer {
-	#emotes = $derived(() => app.joined?.emotes.values());
-	#viewers = $derived(() => app.joined?.viewers.values());
+	#emotes = () => app.joined?.emotes.values();
+	#viewers = () => app.joined?.viewers.values();
 
+	#commandOptions: SearchOptions<Command>;
 	#emoteOptions: SearchOptions<Emote>;
 	#viewerOptions: SearchOptions<User>;
 
@@ -23,6 +26,20 @@ export class Completer {
 	public suggestions = $state<Suggestion[]>([]);
 
 	public constructor(public readonly input: HTMLInputElement) {
+		this.#commandOptions = {
+			source: () => commands,
+			comparee: (item) => item.name,
+			map: (item) => ({
+				type: "command" as const,
+				value: item.name,
+				display: `/${item.name}`,
+				description: item.description,
+				args: item.args ?? [],
+				broadcasterOnly: item.broadcasterOnly ?? false,
+				modOnly: item.modOnly ?? false,
+			}),
+		};
+
 		this.#emoteOptions = {
 			source: () => this.#emotes()?.toArray() ?? [],
 			comparee: (item) => item.name,
@@ -109,12 +126,29 @@ export class Completer {
 
 		this.query = lastWord;
 
-		if (this.query.startsWith("@")) {
+		if (this.query.startsWith("/")) {
 			this.prefixed = true;
-			this.suggestions = this.#search(this.#viewerOptions);
+			this.suggestions = this.#search(this.#commandOptions).filter((suggestion) => {
+				if (!app.joined || suggestion.type !== "command") {
+					return false;
+				}
+
+				if (suggestion.broadcasterOnly && !app.user?.isBroadcaster) {
+					return false;
+				}
+
+				if (suggestion.modOnly && !app.user?.moderating.has(app.joined.user.id)) {
+					return false;
+				}
+
+				return true;
+			});
 		} else if (this.query.startsWith(":")) {
 			this.prefixed = true;
 			this.suggestions = this.#search(this.#emoteOptions);
+		} else if (this.query.startsWith("@")) {
+			this.prefixed = true;
+			this.suggestions = this.#search(this.#viewerOptions);
 		} else if (tab) {
 			this.suggestions = [
 				...this.#search(this.#emoteOptions, true),

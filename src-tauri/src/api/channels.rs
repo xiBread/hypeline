@@ -2,44 +2,18 @@ use std::collections::HashMap;
 
 use futures::TryStreamExt;
 use serde::Serialize;
-use tauri::async_runtime::Mutex;
 use tauri::State;
+use tauri::async_runtime::Mutex;
 use tokio::try_join;
 use twitch_api::helix::channels::FollowedBroadcaster;
+use twitch_api::helix::chat::SendAShoutoutRequest;
 use twitch_api::helix::streams::Stream;
 use twitch_api::types::Collection;
 
 use super::get_access_token;
 use super::users::User;
-use crate::error::Error;
 use crate::AppState;
-
-#[tauri::command]
-pub async fn get_stream(
-    state: State<'_, Mutex<AppState>>,
-    id: String,
-) -> Result<Option<Stream>, Error> {
-    let mut streams = get_streams(state, vec![id]).await?;
-
-    Ok(streams.pop())
-}
-
-#[tauri::command]
-pub async fn get_streams(
-    state: State<'_, Mutex<AppState>>,
-    ids: Vec<String>,
-) -> Result<Vec<Stream>, Error> {
-    let state = state.lock().await;
-    let token = get_access_token(&state)?;
-
-    let streams = state
-        .helix
-        .get_streams_from_ids(&ids.into(), token)
-        .try_collect()
-        .await?;
-
-    Ok(streams)
-}
+use crate::error::Error;
 
 #[derive(Serialize)]
 pub struct FullChannel {
@@ -132,4 +106,53 @@ pub async fn get_followed_channels(
 
     tracing::info!("Fetched {} followed channels", followed.len());
     Ok(followed)
+}
+
+#[tracing::instrument(skip(state))]
+#[tauri::command]
+pub async fn raid(
+    state: State<'_, Mutex<AppState>>,
+    from_id: String,
+    to_id: String,
+) -> Result<(), Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state)?;
+
+    state.helix.start_a_raid(&from_id, &to_id, token).await?;
+
+    Ok(())
+}
+
+#[tracing::instrument(skip(state))]
+#[tauri::command]
+pub async fn cancel_raid(
+    state: State<'_, Mutex<AppState>>,
+    broadcaster_id: String,
+) -> Result<(), Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state)?;
+
+    state.helix.cancel_a_raid(&broadcaster_id, token).await?;
+
+    Ok(())
+}
+
+#[tracing::instrument(skip(state))]
+#[tauri::command]
+pub async fn shoutout(
+    state: State<'_, Mutex<AppState>>,
+    from_id: String,
+    to_id: String,
+) -> Result<(), Error> {
+    let state = state.lock().await;
+    let token = get_access_token(&state)?;
+
+    let request = SendAShoutoutRequest::new(&from_id, &to_id, &token.user_id);
+
+    state
+        .helix
+        .req_post(request, Default::default(), token)
+        .await?;
+
+    Ok(())
 }
