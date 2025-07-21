@@ -13,7 +13,8 @@ export interface Command {
 	name: string;
 	description: string;
 	args?: CommandArg[];
-	mod?: boolean;
+	broadcasterOnly?: boolean;
+	modOnly?: boolean;
 	exec: (args: string[], channel: Channel, user: User) => Promise<void>;
 }
 

@@ -35,7 +35,8 @@ export class Completer {
 				display: `/${item.name}`,
 				description: item.description,
 				args: item.args ?? [],
-				mod: item.mod ?? false,
+				broadcasterOnly: item.broadcasterOnly ?? false,
+				modOnly: item.modOnly ?? false,
 			}),
 		};
 
@@ -127,7 +128,21 @@ export class Completer {
 
 		if (this.query.startsWith("/")) {
 			this.prefixed = true;
-			this.suggestions = this.#search(this.#commandOptions);
+			this.suggestions = this.#search(this.#commandOptions).filter((suggestion) => {
+				if (!app.joined || suggestion.type !== "command") {
+					return false;
+				}
+
+				if (suggestion.broadcasterOnly && !app.user?.isBroadcaster) {
+					return false;
+				}
+
+				if (suggestion.modOnly && !app.user?.moderating.has(app.joined.user.id)) {
+					return false;
+				}
+
+				return true;
+			});
 		} else if (this.query.startsWith(":")) {
 			this.prefixed = true;
 			this.suggestions = this.#search(this.#emoteOptions);

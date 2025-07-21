@@ -4,6 +4,7 @@ import { defineCommand, getTarget } from "./util";
 export default defineCommand({
 	name: "unmod",
 	description: "Revoke moderator status from a user",
+	broadcasterOnly: true,
 	args: [
 		{
 			name: "username",

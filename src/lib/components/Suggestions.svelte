@@ -6,9 +6,7 @@
 		display: string;
 	}
 
-	export interface CommandSuggestion
-		extends BaseSuggestion,
-			Omit<Required<Command>, "name" | "exec"> {
+	interface CommandSuggestion extends BaseSuggestion, Omit<Required<Command>, "name" | "exec"> {
 		type: "command";
 	}
 

@@ -4,6 +4,7 @@ import { booleanArg, defineCommand } from "./util";
 export default defineCommand({
 	name: "subscriber-only",
 	description: "Restrict chat to subscribers only",
+	modOnly: true,
 	args: [
 		{
 			name: "enabled",

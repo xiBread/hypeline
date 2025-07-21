@@ -4,6 +4,7 @@ import { defineCommand } from "./util";
 export default defineCommand({
 	name: "announce",
 	description: "Call attention to your message with a colored highlight",
+	modOnly: true,
 	args: [
 		{
 			name: "message",

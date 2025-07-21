@@ -186,7 +186,7 @@ export class Channel {
 			const [name, ...args] = message.slice(1).split(" ");
 
 			const command = this.commands.get(name);
-			if (!command || (command.mod && !user.isMod)) return;
+			if (!command || (command.modOnly && !user.isMod)) return;
 
 			await command.exec(args, this, user);
 			return;

@@ -4,6 +4,7 @@ import { booleanArg, defineCommand } from "./util";
 export default defineCommand({
 	name: "follower-only",
 	description: "Restrict chat to followers based on their follow duration",
+	modOnly: true,
 	args: [
 		{
 			name: "enabled",
