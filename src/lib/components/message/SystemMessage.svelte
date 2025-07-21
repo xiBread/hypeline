@@ -3,6 +3,7 @@
 	import type {
 		AutoModContext,
 		BanStatusContext,
+		BlockStatusContext,
 		ClearContext,
 		DeleteContext,
 		EmoteSetUpdateContext,
@@ -60,7 +61,9 @@
 
 	<p class="inline">
 		{#if ctx}
-			{#if ctx.type === "join"}
+			{#if ctx.type === "blockStatus"}
+				{ctx.blocked ? "Blocked" : "Unblocked"} {@html colorizeName(ctx.user)}
+			{:else if ctx.type === "join"}
 				Joined {@html colorizeName(ctx.channel)}
 			{:else if ctx.type === "untimeout"}
 				{@html colorizeName(ctx.moderator)} removed timeout on {@html colorizeName(
