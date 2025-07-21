@@ -4,6 +4,7 @@ import { booleanArg, defineCommand } from "./util";
 export default defineCommand({
 	name: "shield",
 	description: "Restrict chat and ban harassing chatters",
+	modOnly: true,
 	args: [
 		{
 			name: "enabled",

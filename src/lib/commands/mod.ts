@@ -4,6 +4,7 @@ import { defineCommand, getTarget } from "./util";
 export default defineCommand({
 	name: "mod",
 	description: "Grant moderator status to a user",
+	broadcasterOnly: true,
 	args: [
 		{
 			name: "username",
@@ -20,7 +21,6 @@ export default defineCommand({
 				userId: target.id,
 			});
 		} catch (error) {
-			console.log(error);
 			if (typeof error !== "string") return;
 
 			if (error.includes("already")) {

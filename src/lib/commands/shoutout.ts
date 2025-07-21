@@ -4,6 +4,7 @@ import { defineCommand, getTarget } from "./util";
 export default defineCommand({
 	name: "shoutout",
 	description: "Highlight a channel for viewers to follow",
+	modOnly: true,
 	args: [
 		{
 			name: "channel",

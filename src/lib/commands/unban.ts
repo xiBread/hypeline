@@ -4,6 +4,7 @@ import { defineCommand, getTarget } from "./util";
 export default defineCommand({
 	name: "unban",
 	description: "Remove a permanent ban on a user",
+	modOnly: true,
 	args: [
 		{
 			name: "username",

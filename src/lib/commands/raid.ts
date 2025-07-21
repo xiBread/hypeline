@@ -4,6 +4,7 @@ import { defineCommand, getTarget } from "./util";
 export default defineCommand({
 	name: "raid",
 	description: "Send viewers to another channel when the stream ends",
+	modOnly: true,
 	args: [
 		{
 			name: "channel",

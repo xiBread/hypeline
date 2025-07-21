@@ -193,7 +193,7 @@ export class Channel {
 			const [name, ...args] = message.slice(1).split(" ");
 
 			const command = this.commands.get(name);
-			if (!command || (command.mod && !user.isMod && !user.isBroadcaster)) {
+			if (!command || (command.modOnly && !user.isMod && !user.isBroadcaster)) {
 				return;
 			}
 

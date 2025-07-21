@@ -4,6 +4,7 @@ import { defineCommand } from "./util";
 export default defineCommand({
 	name: "slow",
 	description: "Limit how frequently users can send messages",
+	modOnly: true,
 	args: [
 		{
 			name: "duration",

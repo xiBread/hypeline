@@ -7,6 +7,7 @@ import { defineCommand } from "./util";
 export default defineCommand({
 	name: "marker",
 	description: "Add a stream marker at the current timestamp",
+	modOnly: true,
 	args: [
 		{
 			name: "description",

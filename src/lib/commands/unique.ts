@@ -4,6 +4,7 @@ import { booleanArg, defineCommand } from "./util";
 export default defineCommand({
 	name: "unique",
 	description: "Prevent users from sending duplicate messages",
+	modOnly: true,
 	args: [
 		{
 			name: "enabled",
