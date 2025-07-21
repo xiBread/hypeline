@@ -8,12 +8,7 @@ export default defineCommand({
 	name: "marker",
 	description: "Add a stream marker at the current timestamp",
 	modOnly: true,
-	args: [
-		{
-			name: "description",
-			required: false,
-		},
-	],
+	args: ["description"],
 	async exec(args, channel) {
 		if (!channel.stream) {
 			channel.error = "Markers can only be created when the channel is live.";

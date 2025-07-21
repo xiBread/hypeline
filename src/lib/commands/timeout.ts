@@ -5,20 +5,7 @@ export default defineCommand({
 	name: "timeout",
 	description: "Temporarily restrict a user from sending messages",
 	modOnly: true,
-	args: [
-		{
-			name: "username",
-			required: true,
-		},
-		{
-			name: "duration",
-			required: false,
-		},
-		{
-			name: "reason",
-			required: false,
-		},
-	],
+	args: ["username", "duration", "reason"],
 	async exec(args, channel) {
 		const target = await getTarget(args[0], channel);
 		if (!target) return;

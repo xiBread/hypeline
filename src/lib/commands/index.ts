@@ -57,12 +57,7 @@ export const commands = [
 	{
 		name: "me",
 		description: "Express an action in the third person",
-		args: [
-			{
-				name: "message",
-				required: true,
-			},
-		],
+		args: ["message"],
 		async exec() {
 			// no-op since /me is the only command that Twitch allows to be sent
 		},

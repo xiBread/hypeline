@@ -5,12 +5,7 @@ export default defineCommand({
 	name: "emote-only",
 	description: "Restrict chat to emote only messages",
 	modOnly: true,
-	args: [
-		{
-			name: "enabled",
-			required: false,
-		},
-	],
+	args: ["enabled"],
 	async exec(args, channel) {
 		const enabled = booleanArg(args[0]);
 

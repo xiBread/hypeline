@@ -5,12 +5,7 @@ export default defineCommand({
 	name: "vip",
 	description: "Grant VIP status to a user",
 	broadcasterOnly: true,
-	args: [
-		{
-			name: "username",
-			required: true,
-		},
-	],
+	args: ["username"],
 	async exec(args, channel) {
 		const target = await getTarget(args[0], channel);
 		if (!target) return;

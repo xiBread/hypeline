@@ -5,12 +5,7 @@ export default defineCommand({
 	name: "announce",
 	description: "Call attention to your message with a colored highlight",
 	modOnly: true,
-	args: [
-		{
-			name: "message",
-			required: true,
-		},
-	],
+	args: ["message"],
 	async exec(args, channel) {
 		const message = args.join(" ");
 

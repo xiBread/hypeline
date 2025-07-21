@@ -5,12 +5,7 @@ export default defineCommand({
 	name: "raid",
 	description: "Send viewers to another channel when the stream ends",
 	modOnly: true,
-	args: [
-		{
-			name: "channel",
-			required: true,
-		},
-	],
+	args: ["channel"],
 	async exec(args, channel) {
 		const target = await getTarget(args[0], channel);
 		if (!target) return;
@@ -24,12 +19,6 @@ export default defineCommand({
 			await invoke("raid", { fromId: channel.user.id, toId: target.id });
 		} catch (error) {
 			if (typeof error !== "string") return;
-
-			if (error.includes("cannot be") || error.includes("channel's settings")) {
-				channel.error = `${target.displayName} cannot be raided.`;
-			} else {
-				channel.error = "An unknown error occurred while trying to raid.";
-			}
 		}
 	},
 });

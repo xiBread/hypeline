@@ -5,12 +5,7 @@ export default defineCommand({
 	name: "shield",
 	description: "Restrict chat and ban harassing chatters",
 	modOnly: true,
-	args: [
-		{
-			name: "enabled",
-			required: false,
-		},
-	],
+	args: ["enabled"],
 	async exec(args, channel) {
 		const enabled = booleanArg(args[0]);
 

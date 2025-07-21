@@ -5,12 +5,7 @@ import { SystemMessage } from "$lib/message";
 export default defineCommand({
 	name: "unblock",
 	description: "Remove a user from your block list",
-	args: [
-		{
-			name: "username",
-			required: true,
-		},
-	],
+	args: ["username"],
 	async exec(args, channel) {
 		const target = await getTarget(args[0], channel);
 		if (!target) return;

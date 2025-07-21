@@ -5,12 +5,7 @@ export default defineCommand({
 	name: "unique",
 	description: "Prevent users from sending duplicate messages",
 	modOnly: true,
-	args: [
-		{
-			name: "enabled",
-			required: false,
-		},
-	],
+	args: ["unique"],
 	async exec(args, channel) {
 		const enabled = booleanArg(args[0]);
 

@@ -5,12 +5,7 @@ export default defineCommand({
 	name: "shoutout",
 	description: "Highlight a channel for viewers to follow",
 	modOnly: true,
-	args: [
-		{
-			name: "channel",
-			required: true,
-		},
-	],
+	args: ["channel"],
 	async exec(args, channel) {
 		const target = await getTarget(args[0], channel);
 		if (!target) return;
