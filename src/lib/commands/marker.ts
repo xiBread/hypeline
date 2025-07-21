@@ -31,8 +31,6 @@ export default defineCommand({
 				description: args[0] ?? "",
 			});
 
-			console.log(marker);
-
 			const duration = dayjs.duration(marker.position_seconds, "s");
 			const format = duration.asHours() > 0 ? "H[h] mm[m] ss[s]" : "mm[m] ss[s]";
 

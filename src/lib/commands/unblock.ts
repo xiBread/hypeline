@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { defineCommand, getTarget } from "./util";
+import { SystemMessage } from "$lib/message";
 
 export default defineCommand({
 	name: "unblock",
@@ -16,6 +17,16 @@ export default defineCommand({
 
 		try {
 			await invoke("unblock", { userId: target.id });
+
+			const message = new SystemMessage();
+
+			message.setContext({
+				type: "blockStatus",
+				blocked: false,
+				user: target,
+			});
+
+			channel.addMessage(message);
 		} catch {
 			channel.error = "An unknown error occurred while trying to unblock.";
 		}
