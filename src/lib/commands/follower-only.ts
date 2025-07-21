@@ -5,16 +5,7 @@ export default defineCommand({
 	name: "follower-only",
 	description: "Restrict chat to followers based on their follow duration",
 	modOnly: true,
-	args: [
-		{
-			name: "enabled",
-			required: false,
-		},
-		{
-			name: "duration",
-			required: false,
-		},
-	],
+	args: ["enabled", "duration"],
 	async exec(args, channel) {
 		let enabled: boolean | null = true;
 		let duration = 0;

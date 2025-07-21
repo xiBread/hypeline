@@ -80,7 +80,7 @@
 										<span
 											class="bg-background border-primary/20 rounded border px-1 py-0.5 text-xs"
 										>
-											{arg.name}
+											{arg}
 										</span>
 									{/each}
 								</div>

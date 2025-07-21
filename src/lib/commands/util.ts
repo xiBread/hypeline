@@ -4,15 +4,10 @@ import type { UserWithColor } from "$lib/tauri";
 import { User } from "$lib/user.svelte";
 import { find } from "$lib/util";
 
-export interface CommandArg {
-	name: string;
-	required: boolean;
-}
-
 export interface Command {
 	name: string;
 	description: string;
-	args?: CommandArg[];
+	args?: string[];
 	broadcasterOnly?: boolean;
 	modOnly?: boolean;
 	exec: (args: string[], channel: Channel, user: User) => Promise<void>;

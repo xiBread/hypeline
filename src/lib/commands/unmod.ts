@@ -5,12 +5,7 @@ export default defineCommand({
 	name: "unmod",
 	description: "Revoke moderator status from a user",
 	broadcasterOnly: true,
-	args: [
-		{
-			name: "username",
-			required: true,
-		},
-	],
+	args: ["username"],
 	async exec(args, channel) {
 		const target = await getTarget(args[0], channel);
 		if (!target) return;

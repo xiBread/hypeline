@@ -5,12 +5,7 @@ export default defineCommand({
 	name: "unban",
 	description: "Remove a permanent ban on a user",
 	modOnly: true,
-	args: [
-		{
-			name: "username",
-			required: true,
-		},
-	],
+	args: ["username"],
 	async exec(args, channel) {
 		const target = await getTarget(args[0], channel);
 		if (!target) return;

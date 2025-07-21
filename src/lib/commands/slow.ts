@@ -5,12 +5,7 @@ export default defineCommand({
 	name: "slow",
 	description: "Limit how frequently users can send messages",
 	modOnly: true,
-	args: [
-		{
-			name: "duration",
-			required: false,
-		},
-	],
+	args: ["duration"],
 	async exec(args, channel) {
 		let duration = Number(args[0]);
 		duration = Number.isNaN(duration) ? 30 : duration;

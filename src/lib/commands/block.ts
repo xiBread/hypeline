@@ -5,12 +5,7 @@ import { SystemMessage } from "$lib/message";
 export default defineCommand({
 	name: "block",
 	description: "Block a user from interacting with you on Twitch",
-	args: [
-		{
-			name: "username",
-			required: true,
-		},
-	],
+	args: ["username"],
 	async exec(args, channel) {
 		const target = await getTarget(args[0], channel);
 		if (!target) return;
