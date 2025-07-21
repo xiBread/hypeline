@@ -8,7 +8,7 @@ export default defineHandler({
 		const message = new UserMessage(data);
 
 		message.author.isBroadcaster = message.badges.some((b) => b.name === "broadcaster");
-		message.author.isMod = data.is_mod;
+		message.author.isMod = message.author.isBroadcaster || data.is_mod;
 		message.author.isSub = data.is_subscriber;
 		message.author.isVip = message.badges.some((b) => b.name === "vip");
 		message.author.isReturning = data.is_returning_chatter;

@@ -172,7 +172,7 @@ export class Channel {
 		if (!app.user) return;
 		const user = this.viewers.get(app.user.id) ?? app.user;
 
-		const elevated = user.isBroadcaster || user.isMod || user.isVip;
+		const elevated = user.isMod || user.isVip;
 
 		const rateLimited = this.#checkRateLimit(elevated);
 		if (rateLimited) return;
