@@ -105,7 +105,7 @@
 					<Tabs.List class="space-y-1">
 						{#each categories as category (category.name)}
 							<Tabs.Trigger
-								class="settings-btn data-[state=active]:bg-muted data-[state=active]:text-foreground"
+								class="settings-btn text-muted-foreground data-[state=active]:bg-muted data-[state=active]:text-foreground"
 								value={category.name}
 							>
 								<span class="iconify size-4 {category.icon}"></span>
@@ -118,20 +118,28 @@
 
 					<div class="space-y-1">
 						{#if !detached}
-							<button class="settings-btn" type="button" onclick={detach}>
+							<button
+								class="settings-btn text-muted-foreground"
+								type="button"
+								onclick={detach}
+							>
 								<span class="iconify lucide--external-link size-4"></span>
 								<span class="text-sm">Popout settings</span>
 							</button>
 						{/if}
 
-						<button class="settings-btn" type="button" onclick={openLogDir}>
+						<button
+							class="settings-btn text-muted-foreground"
+							type="button"
+							onclick={openLogDir}
+						>
 							<span class="iconify lucide--folder-open size-4"></span>
 							<span class="text-sm">Open logs</span>
 						</button>
 
 						<Popover.Root bind:open={() => copied, () => {}}>
 							<Popover.Trigger
-								class="settings-btn"
+								class="settings-btn text-muted-foreground"
 								type="button"
 								onclick={copyDebugInfo}
 							>
@@ -151,8 +159,9 @@
 					<Separator.Root class="bg-border my-1 h-px w-full" />
 
 					<button
-						class="settings-btn text-destructive! hover:text-destructive hover:bg-destructive/10!"
+						class="settings-btn text-destructive hover:bg-destructive/10!"
 						type="button"
+						data-logout
 						onclick={logOut}
 					>
 						<span class="iconify lucide--log-out size-4"></span>
@@ -187,7 +196,6 @@
 	@reference "../../../app.css";
 
 	:global(.settings-btn) {
-		color: var(--color-muted-foreground);
 		width: 100%;
 		display: flex;
 		align-items: center;
@@ -198,7 +206,7 @@
 		transition-duration: 100ms;
 		transition-timing-function: var(--default-transition-timing-function);
 
-		&:hover {
+		&:not([data-logout]):hover {
 			color: var(--color-foreground);
 			background-color: var(--color-muted);
 		}
