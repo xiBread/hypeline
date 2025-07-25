@@ -126,3 +126,15 @@ export function find<V>(
 		if (predicate(value)) return value;
 	}
 }
+
+export function debounce<F extends (...args: Parameters<F>) => ReturnType<F>>(
+	fn: F,
+	timeout: number,
+) {
+	let id: number;
+
+	return (...args: Parameters<F>) => {
+		clearTimeout(id);
+		id = setTimeout(() => fn(...args), timeout);
+	};
+}
