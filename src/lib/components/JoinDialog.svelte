@@ -100,7 +100,7 @@
 			</div>
 
 			<form class="space-y-4" onsubmit={join}>
-				<Combobox.Root type="single" onValueChange={(v) => (value = v)}>
+				<Combobox.Root type="single" loop onValueChange={(v) => (value = v)}>
 					<div>
 						<label class="mb-1.5 block text-sm font-medium" for="name">
 							Channel name
