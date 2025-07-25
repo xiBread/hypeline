@@ -1,9 +1,74 @@
 <script lang="ts">
-	import { Dialog } from "bits-ui";
+	import { Combobox, Dialog } from "bits-ui";
 	import { settings } from "$lib/settings";
+	import { debounce } from "$lib/util";
 	import Input from "./ui/Input.svelte";
 
+	interface Suggestion {
+		id: string;
+		displayName: string;
+		isLive: boolean;
+		profileImageURL: string;
+	}
+
 	let { open = $bindable(false) } = $props();
+
+	let value = $state("");
+	let suggestions = $state<Suggestion[]>([]);
+
+	const suggest = debounce(search, 300);
+
+	$effect(() => {
+		suggest(value);
+	});
+
+	async function search(query: string) {
+		suggestions = [];
+
+		if (!query) return;
+
+		const response = await fetch("https://gql.twitch.tv/gql", {
+			method: "POST",
+			headers: {
+				"Client-Id": "kimne78kx3ncx6brgo4mv6wki5h1ko",
+			},
+			body: JSON.stringify({
+				query: `query {
+					searchSuggestions(queryFragment: "${query}", withOfflineChannelContent: true) {
+						edges {
+							node {
+								text
+								content {
+									__typename
+									... on SearchSuggestionChannel {
+										id
+										isLive
+										profileImageURL(width: 50)
+										user {
+											displayName
+										}
+									}
+								}
+							}
+						}
+					}
+				}`,
+			}),
+		});
+
+		if (!response.ok) return;
+
+		const { data } = await response.json();
+
+		for (const { node } of data.searchSuggestions.edges) {
+			if (node.content?.__typename !== "SearchSuggestionChannel") continue;
+
+			suggestions.push({
+				displayName: node.content.user.displayName,
+				...node.content,
+			});
+		}
+	}
 
 	async function join(event: SubmitEvent) {
 		event.preventDefault();
@@ -35,19 +100,66 @@
 			</div>
 
 			<form class="space-y-4" onsubmit={join}>
-				<div>
-					<label class="mb-1.5 block text-sm font-medium" for="name">Channel name</label>
-					<Input id="name" type="text" autocapitalize="off" autocorrect="off" />
-				</div>
+				<Combobox.Root type="single" loop onValueChange={(v) => (value = v)}>
+					<div>
+						<label class="mb-1.5 block text-sm font-medium" for="name">
+							Channel name
+						</label>
 
-				<div class="flex justify-end">
-					<button
-						class="bg-twitch rounded-md px-3.5 py-2 text-sm font-medium text-white"
-						type="submit"
-					>
-						Join
-					</button>
-				</div>
+						<Combobox.Input id="name">
+							{#snippet child({ props })}
+								<Input
+									type="text"
+									autocapitalize="off"
+									autocorrect="off"
+									bind:value
+									{...props}
+								/>
+							{/snippet}
+						</Combobox.Input>
+					</div>
+
+					{#if suggestions.length}
+						<Combobox.Content
+							class="bg-card mt-2 max-h-72 w-[var(--bits-combobox-anchor-width)] min-w-[var(--bits-combobox-anchor-width)] overflow-y-auto rounded-lg border p-1"
+						>
+							{#each suggestions as suggestion (suggestion.id)}
+								<Combobox.Item
+									class="data-highlighted:bg-accent flex cursor-pointer items-center gap-2 rounded-md px-1 py-1"
+									value={suggestion.displayName}
+								>
+									<img
+										class="size-6 rounded-full"
+										src={suggestion.profileImageURL}
+										alt={suggestion.displayName}
+									/>
+
+									<div class="flex w-full items-center justify-between">
+										<span class="text-sm">{suggestion.displayName}</span>
+
+										{#if suggestion.isLive}
+											<div class="flex items-center text-red-500">
+												<div
+													class="mr-1 size-2 animate-pulse rounded-full bg-current"
+												></div>
+												<span class="text-sm font-medium">Live</span>
+											</div>
+										{/if}
+									</div>
+								</Combobox.Item>
+							{/each}
+						</Combobox.Content>
+					{/if}
+
+					<div class="flex justify-end">
+						<button
+							class="bg-twitch rounded-md px-3.5 py-2 text-sm font-medium text-white"
+							type="submit"
+						>
+							Join
+						</button>
+					</div>
+				</Combobox.Root>
 			</form>
 		</Dialog.Content>
 	</Dialog.Portal>
