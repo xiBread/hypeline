@@ -106,10 +106,9 @@
 							Channel name
 						</label>
 
-						<Combobox.Input>
+						<Combobox.Input id="name">
 							{#snippet child({ props })}
 								<Input
-									id="name"
 									type="text"
 									autocapitalize="off"
 									autocorrect="off"
