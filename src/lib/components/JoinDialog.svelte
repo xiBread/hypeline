@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Combobox, Dialog } from "bits-ui";
 	import { settings } from "$lib/settings";
+	import { app } from "$lib/state.svelte";
 	import { debounce } from "$lib/util";
 	import Input from "./ui/Input.svelte";
 
@@ -76,7 +77,9 @@
 		const form = event.currentTarget as HTMLFormElement;
 		const input = form.elements.namedItem("name") as HTMLInputElement;
 
-		settings.state.lastJoined = `ephemeral:${input.value}`;
+		const existing = app.channels.find((c) => c.user.username === input.value.toLowerCase());
+
+		settings.state.lastJoined = existing?.user.username ?? `ephemeral:${input.value}`;
 		open = false;
 	}
 </script>
