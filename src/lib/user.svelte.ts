@@ -25,7 +25,10 @@ const requests = new Map<string, Promise<User>>();
 
 export class User implements PartialUser {
 	readonly #data: HelixUser;
+
 	#color: string | null = null;
+	#username: string;
+	#displayName: string;
 
 	/**
 	 * Whether the user is the broadcaster.
@@ -92,6 +95,9 @@ export class User implements PartialUser {
 
 	public constructor(data: UserWithColor) {
 		this.#data = data.data;
+
+		this.#username = this.#data.login;
+		this.#displayName = this.#data.display_name;
 		this.#color = data.color;
 
 		this.moderating.set(this.id, this.username);
@@ -280,6 +286,16 @@ export class User implements PartialUser {
 
 	public setColor(color: string | null) {
 		this.#color = color;
+		return this;
+	}
+
+	public setUsername(username: string) {
+		this.#username = username;
+		return this;
+	}
+
+	public setDisplayName(displayName: string) {
+		this.#displayName = displayName;
 		return this;
 	}
 }

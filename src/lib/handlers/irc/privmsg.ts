@@ -7,6 +7,9 @@ export default defineHandler({
 	handle(data, channel) {
 		const message = new UserMessage(data);
 
+		message.author.setUsername(data.sender.login);
+		message.author.setDisplayName(data.sender.login);
+
 		message.author.isBroadcaster = message.badges.some((b) => b.name === "broadcaster");
 		message.author.isMod = message.author.isBroadcaster || data.is_mod;
 		message.author.isSub = data.is_subscriber;
