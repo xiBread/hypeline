@@ -2,7 +2,6 @@
 	import { app } from "$lib/state.svelte";
 	import { colorizeName } from "$lib/util";
 	import { UserMessage } from "../../message";
-	import Timestamp from "../Timestamp.svelte";
 	import Message from "./Message.svelte";
 	import Sub from "./Sub.svelte";
 
@@ -37,7 +36,7 @@
 				<Message {message} />
 			</div>
 		</div>
-	{:else if type === "sub_or_resub" || type === "sub_mystery_gift" || type === "sub_gift"}
+	{:else if type === "sub_or_resub" || type === "sub_mystery_gift" || type === "sub_gift" || type === "prime_paid_upgrade" || type === "gift_paid_upgrade"}
 		<Sub {message} sub={message.event} />
 	{:else}
 		<div class="bg-muted/50 my-0.5 border-l-4 p-2" style:border-color={app.joined?.user.color}>

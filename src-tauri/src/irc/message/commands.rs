@@ -568,6 +568,9 @@ pub enum UserNoticeEvent {
         mass_gift_count: u64,
         sub_plan: String,
     },
+    PrimePaidUpgrade {
+        sub_plan: String,
+    },
     GiftPaidUpgrade {
         gifter_login: String,
         gifter_name: String,
@@ -667,6 +670,11 @@ impl TryFrom<IrcMessage> for UserNoticeMessage {
                 sender_total_months: source
                     .try_get_optional_number("msg-param-sender-count")?
                     .unwrap_or_default(),
+            },
+            "primepaidupgrade" => UserNoticeEvent::PrimePaidUpgrade {
+                sub_plan: source
+                    .try_get_nonempty_tag_value("msg-param-sub-plan")?
+                    .to_owned(),
             },
             _ if (sender.id == "274598607" && event_id == "submysterygift")
                 || event_id == "anonsubmysterygift" =>

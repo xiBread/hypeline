@@ -205,6 +205,11 @@ export interface AnonSubMysteryGiftEvent {
 	sub_plan: string;
 }
 
+export interface PrimePaidUpgradeEvent {
+	type: "prime_paid_upgrade";
+	sub_plan: string;
+}
+
 export interface GiftPaidUpgradeEvent {
 	type: "gift_paid_upgrade";
 	gifter_login: string;
@@ -239,6 +244,7 @@ export type UserNoticeEvent =
 	| SubGiftEvent
 	| SubMysteryGiftEvent
 	| AnonSubMysteryGiftEvent
+	| PrimePaidUpgradeEvent
 	| GiftPaidUpgradeEvent
 	| AnonGiftPaidUpgradeEvent
 	| RitualEvent

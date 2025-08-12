@@ -1,13 +1,24 @@
 <script lang="ts">
 	import type { UserMessage } from "$lib/message";
 	import { app } from "$lib/state.svelte";
-	import type { SubGiftEvent, SubMysteryGiftEvent, SubOrResubEvent } from "$lib/twitch/irc";
-	import { colorizeName } from "$lib/util";
+	import type {
+		GiftPaidUpgradeEvent,
+		PrimePaidUpgradeEvent,
+		SubGiftEvent,
+		SubMysteryGiftEvent,
+		SubOrResubEvent,
+	} from "$lib/twitch/irc";
+	import { colorizeName, find } from "$lib/util";
 	import Message from "./Message.svelte";
 
 	interface Props {
 		message: UserMessage;
-		sub: SubOrResubEvent | SubMysteryGiftEvent | SubGiftEvent;
+		sub:
+			| SubOrResubEvent
+			| SubMysteryGiftEvent
+			| SubGiftEvent
+			| PrimePaidUpgradeEvent
+			| GiftPaidUpgradeEvent;
 	}
 
 	const { message, sub }: Props = $props();
@@ -15,8 +26,8 @@
 
 <div class="bg-muted/50 my-0.5 border-l-4 p-2" style:border-color={app.joined?.user.color}>
 	<div class="flex gap-1">
-		{#if sub.type === "sub_or_resub"}
-			{#if sub.sub_plan === "Prime"}
+		{#if sub.type === "sub_or_resub" || sub.type === "prime_paid_upgrade" || sub.type === "gift_paid_upgrade"}
+			{#if sub.type === "sub_or_resub" && sub.sub_plan === "Prime"}
 				<svg class="fill-current" width="20" height="20" viewBox="0 0 20 20">
 					<g>
 						<path
@@ -52,12 +63,7 @@
 					Subscribed with
 
 					{#if sub.sub_plan === "Prime"}
-						<a
-							class="text-twitch-link font-medium underline"
-							href="https://gaming.amazon.com/home"
-						>
-							Prime
-						</a>
+						{@render prime()}
 					{:else}
 						<span class="font-semibold">Tier {sub.sub_plan[0]}</span>
 					{/if}.
@@ -88,6 +94,32 @@
 					{#if sub.sender_total_gifts && sub.sender_total_gifts > sub.mass_gift_count}
 						They've gifted a total of
 						<span class="font-semibold">{sub.sender_total_gifts} subs</span> to the channel.
+					{/if}
+				</p>
+			</div>
+		{:else if sub.type === "prime_paid_upgrade"}
+			<div class="flex flex-col gap-0.5">
+				{@html colorizeName(message.author)}
+
+				<p>
+					Converted their {@render prime()} sub to a
+					<span class="font-semibold">Tier {sub.sub_plan[0]}</span> sub!
+				</p>
+			</div>
+		{:else if sub.type === "gift_paid_upgrade"}
+			{@const gifter = find(
+				app.joined?.viewers ?? [],
+				(u) => u.username === sub.gifter_login,
+			)}
+
+			<div class="flex flex-col gap-0.5">
+				{@html colorizeName(message.author)}
+
+				<p>
+					Continuing the gifted sub they got from {#if gifter}
+						{@html colorizeName(gifter)}
+					{:else}
+						<span class="font-semibold">{sub.gifter_name}</span>
 					{/if}
 				</p>
 			</div>
@@ -132,3 +164,9 @@
 		</div>
 	{/if}
 </div>
+
+{#snippet prime()}
+	<a class="text-twitch-link font-medium underline" href="https://gaming.amazon.com/home">
+		Prime
+	</a>
+{/snippet}

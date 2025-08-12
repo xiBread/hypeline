@@ -14,13 +14,13 @@ use config::ClientConfig;
 use error::Error;
 use message::ServerMessage;
 use tauri::ipc::Channel;
-use tauri::{async_runtime, State};
+use tauri::{State, async_runtime};
 use tokio::sync::Mutex;
 use tracing::Instrument;
 
+use crate::AppState;
 use crate::api::get_access_token;
 use crate::error::Error as AppError;
-use crate::AppState;
 
 #[tracing::instrument(skip_all)]
 #[tauri::command]
