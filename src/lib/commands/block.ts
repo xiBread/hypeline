@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
-import { defineCommand, getTarget } from "./util";
 import { SystemMessage } from "$lib/message";
+import { defineCommand, getTarget } from "./util";
 
 export default defineCommand({
 	name: "block",

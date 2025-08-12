@@ -19,6 +19,14 @@ export default defineCommand({
 			await invoke("raid", { fromId: channel.user.id, toId: target.id });
 		} catch (error) {
 			if (typeof error !== "string") return;
+
+			if (error.includes("settings do not")) {
+				channel.error = `${target.displayName}'s channel settings do not allow raids at this time.`;
+			} else if (error.includes("cannot be")) {
+				channel.error = `${target.displayName} cannot be raided.`;
+			} else {
+				channel.error = "An unknown error occurred while trying to raid.";
+			}
 		}
 	},
 });
