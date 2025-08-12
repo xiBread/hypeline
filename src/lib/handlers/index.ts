@@ -8,6 +8,7 @@ import join from "./irc/join";
 import notice from "./irc/notice";
 import part from "./irc/part";
 import privmsg from "./irc/privmsg";
+import roomstate from "./irc/roomstate";
 import usernotice from "./irc/usernotice";
 //
 import automodMessageHold from "./eventsub/automod-message-hold";
@@ -40,6 +41,7 @@ register(join);
 register(notice);
 register(part);
 register(privmsg);
+register(roomstate);
 register(usernotice);
 
 register(automodMessageHold);
