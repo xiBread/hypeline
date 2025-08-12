@@ -1,18 +1,28 @@
+/* eslint-disable unicorn/error-message */
+
 import { SystemMessage } from "$lib/message";
 import { defineCommand } from "./util";
 
-interface GqlResponse {
-	user: {
-		vips: {
-			edges: {
-				node: {
-					id: string;
-					displayName: string;
+type GqlResponse =
+	| {
+			data: {
+				user: {
+					vips: {
+						edges: {
+							node: {
+								id: string;
+								displayName: string;
+							};
+						}[];
+					};
 				};
-			}[];
-		};
-	};
-}
+			};
+			errors?: never;
+	  }
+	| {
+			data?: never;
+			errors: [];
+	  };
 
 export default defineCommand({
 	name: "vips",
@@ -40,13 +50,12 @@ export default defineCommand({
 			}),
 		});
 
-		if (!response.ok) {
-			channel.error = "An unknown error occurred while fetching VIPs.";
-			return;
-		}
+		if (!response.ok) throw new Error();
 
-		const body: { data: GqlResponse } = await response.json();
+		const body: GqlResponse = await response.json();
 		const vips: string[] = [];
+
+		if (body.errors) throw new Error();
 
 		for (const { node } of body.data.user.vips.edges) {
 			const user = channel.viewers.get(node.id);

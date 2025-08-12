@@ -14,16 +14,11 @@ export default defineCommand({
 			return;
 		}
 
-		try {
-			await invoke("update_chat_settings", {
-				broadcasterId: channel.user.id,
-				settings: {
-					subscriber_only: enabled,
-				},
-			});
-		} catch {
-			channel.error =
-				"An unknown error occurred while trying to enable subscriber-only mode.";
-		}
+		await invoke("update_chat_settings", {
+			broadcasterId: channel.user.id,
+			settings: {
+				subscriber_only: enabled,
+			},
+		});
 	},
 });

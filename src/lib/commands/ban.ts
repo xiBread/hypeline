@@ -25,7 +25,7 @@ export default defineCommand({
 			} else if (error.includes("may not be banned")) {
 				channel.error = `${target.displayName} may not be banned.`;
 			} else {
-				channel.error = "An unknown error occurred while trying to ban.";
+				throw error;
 			}
 		}
 	},

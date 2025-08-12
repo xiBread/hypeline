@@ -14,13 +14,9 @@ export default defineCommand({
 			return;
 		}
 
-		try {
-			await invoke("shield", {
-				broadcasterId: channel.user.id,
-				active: enabled,
-			});
-		} catch (error) {
-			channel.error = "An unknown error occurred while trying to update shield mode.";
-		}
+		await invoke("shield", {
+			broadcasterId: channel.user.id,
+			active: enabled,
+		});
 	},
 });

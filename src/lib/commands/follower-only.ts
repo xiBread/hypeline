@@ -37,16 +37,12 @@ export default defineCommand({
 			return;
 		}
 
-		try {
-			await invoke("update_chat_settings", {
-				broadcasterId: channel.user.id,
-				settings: {
-					follower_only: enabled,
-					follower_only_duration: duration,
-				},
-			});
-		} catch {
-			channel.error = "An unknown error occurred while trying to enable follower-only mode.";
-		}
+		await invoke("update_chat_settings", {
+			broadcasterId: channel.user.id,
+			settings: {
+				follower_only: enabled,
+				follower_only_duration: duration,
+			},
+		});
 	},
 });

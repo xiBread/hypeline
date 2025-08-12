@@ -30,7 +30,7 @@ export default defineCommand({
 			if (error.includes("may not be warned")) {
 				channel.error = `${target.displayName} may not be warned.`;
 			} else {
-				channel.error = "An unknown error occurred while trying to ban.";
+				throw error;
 			}
 		}
 	},

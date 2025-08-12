@@ -30,7 +30,7 @@ export default defineCommand({
 			if (error.includes("may not be banned")) {
 				channel.error = `${target.username} may not be timed out.`;
 			} else {
-				channel.error = "An unknown error occurred while trying to time out.";
+				throw error;
 			}
 		}
 	},

@@ -14,15 +14,11 @@ export default defineCommand({
 			return;
 		}
 
-		try {
-			await invoke("update_chat_settings", {
-				broadcasterId: channel.user.id,
-				settings: {
-					unique: enabled,
-				},
-			});
-		} catch {
-			channel.error = "An unknown error occurred while trying to enable unique chat mode.";
-		}
+		await invoke("update_chat_settings", {
+			broadcasterId: channel.user.id,
+			settings: {
+				unique: enabled,
+			},
+		});
 	},
 });

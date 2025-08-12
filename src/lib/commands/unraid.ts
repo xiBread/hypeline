@@ -16,7 +16,7 @@ export default defineCommand({
 			if (error.includes("doesn't have")) {
 				channel.error = "No pending raid to stop.";
 			} else {
-				channel.error = "An unknown error occurred while trying to cancel raid.";
+				throw error;
 			}
 		}
 	},

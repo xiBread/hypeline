@@ -20,10 +20,6 @@ export default defineCommand({
 			return;
 		}
 
-		try {
-			await invoke("shoutout", { fromId: channel.user.id, toId: target.id });
-		} catch (error) {
-			channel.error = "An unknown error occurred while trying to send a shoutout.";
-		}
+		await invoke("shoutout", { fromId: channel.user.id, toId: target.id });
 	},
 });

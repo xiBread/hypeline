@@ -21,7 +21,7 @@ export default defineCommand({
 			if (error.includes("is not")) {
 				channel.error = `${target.displayName} is not a moderator.`;
 			} else {
-				channel.error = "An unknown error occurred while trying to remove moderator.";
+				throw error;
 			}
 		}
 	},

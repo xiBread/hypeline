@@ -188,7 +188,16 @@ export class Channel {
 			const command = this.commands.get(name);
 			if (!command || (command.modOnly && !user.isMod)) return;
 
-			await command.exec(args, this, user);
+			try {
+				await command.exec(args, this, user);
+			} catch (error) {
+				log.error(
+					`Error executing command ${name} in channel ${this.user.username}: ${error}`,
+				);
+
+				this.error = "An unknown error occurred while trying to execute command.";
+			}
+
 			return;
 		}
 

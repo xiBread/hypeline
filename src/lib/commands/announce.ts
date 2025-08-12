@@ -14,13 +14,9 @@ export default defineCommand({
 			return;
 		}
 
-		try {
-			await invoke("announce", {
-				broadcasterId: channel.user.id,
-				message,
-			});
-		} catch {
-			channel.error = "An unknown error occurred while trying to send an announcement.";
-		}
+		await invoke("announce", {
+			broadcasterId: channel.user.id,
+			message,
+		});
 	},
 });

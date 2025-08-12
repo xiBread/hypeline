@@ -20,21 +20,17 @@ export default defineCommand({
 			return;
 		}
 
-		try {
-			const marker = await invoke<StreamMarker>("create_marker", {
-				broadcasterId: channel.user.id,
-				description: args[0] ?? "",
-			});
+		const marker = await invoke<StreamMarker>("create_marker", {
+			broadcasterId: channel.user.id,
+			description: args[0] ?? "",
+		});
 
-			const duration = dayjs.duration(marker.position_seconds, "s");
-			const format = duration.asHours() > 0 ? "H[h] mm[m] ss[s]" : "mm[m] ss[s]";
+		const duration = dayjs.duration(marker.position_seconds, "s");
+		const format = duration.asHours() > 0 ? "H[h] mm[m] ss[s]" : "mm[m] ss[s]";
 
-			const message = new SystemMessage();
-			message.setText(`Stream marker created at ${duration.format(format)}`);
+		const message = new SystemMessage();
+		message.setText(`Stream marker created at ${duration.format(format)}`);
 
-			channel.addMessage(message);
-		} catch (error) {
-			channel.error = "An unknown error occurred while trying to create a marker.";
-		}
+		channel.addMessage(message);
 	},
 });

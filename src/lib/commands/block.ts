@@ -10,20 +10,16 @@ export default defineCommand({
 		const target = await getTarget(args[0], channel);
 		if (!target) return;
 
-		try {
-			await invoke("block", { userId: target.id });
+		await invoke("block", { userId: target.id });
 
-			const message = new SystemMessage();
+		const message = new SystemMessage();
 
-			message.setContext({
-				type: "blockStatus",
-				blocked: true,
-				user: target,
-			});
+		message.setContext({
+			type: "blockStatus",
+			blocked: true,
+			user: target,
+		});
 
-			channel.addMessage(message);
-		} catch {
-			channel.error = "An unknown error occurred while trying to block.";
-		}
+		channel.addMessage(message);
 	},
 });

@@ -25,7 +25,7 @@ export default defineCommand({
 			} else if (error.includes("vip")) {
 				channel.error = `${target.displayName} is a VIP and cannot be made a moderator.`;
 			} else {
-				channel.error = "An unknown error occurred while trying to add moderator.";
+				throw error;
 			}
 		}
 	},

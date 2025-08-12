@@ -25,7 +25,7 @@ export default defineCommand({
 			} else if (error.includes("cannot be")) {
 				channel.error = `${target.displayName} cannot be raided.`;
 			} else {
-				channel.error = "An unknown error occurred while trying to raid.";
+				throw error;
 			}
 		}
 	},
