@@ -152,18 +152,9 @@ export class Channel {
 	}
 
 	public clearMessages(id?: string) {
-		if (id) {
-			for (const message of this.messages) {
-				if (message.isUser() && message.author.id === id) {
-					message.setDeleted();
-				}
-			}
-		} else {
-			for (const message of this.messages) {
-				// System messages can also be deleted, but there's no reliable
-				// way to identify which ones (that doesn't involve more
-				// complexity), so they're only deleted if it's recent.
-				if (message.isUser()) message.setDeleted();
+		for (const message of this.messages) {
+			if (message.isUser() && (!id || message.author.id === id)) {
+				message.setDeleted();
 			}
 		}
 	}
