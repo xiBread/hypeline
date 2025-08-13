@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { defineCommand, getTarget } from "./util";
+import { defineCommand, getTarget, parseDuration } from "./util";
 
 export default defineCommand({
 	name: "timeout",
@@ -10,18 +10,18 @@ export default defineCommand({
 		const target = await getTarget(args[0], channel);
 		if (!target) return;
 
-		let duration = Number(args[1]);
-		duration = Number.isNaN(duration) ? 600 : duration;
+		const duration = parseDuration(args[1]) ?? 600;
 
-		if (duration < 0 || duration > 1209600) {
+		if (duration < 0 || duration > 1_209_600) {
 			channel.error = "Duration must be between 0 and 1,209,600 seconds (14 days).";
+			return;
 		}
 
 		try {
 			await invoke("ban", {
 				broadcasterId: channel.user.id,
 				userId: target.id,
-				duration: Number(args[1]) || 600,
+				duration,
 				reason: args.slice(2).join(" ") || null,
 			});
 		} catch (error) {

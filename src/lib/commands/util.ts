@@ -46,7 +46,7 @@ export async function getTarget(username: string, channel: Channel) {
 	return target;
 }
 
-export function booleanArg(arg: string | undefined): boolean | null {
+export function parseBool(arg: string | undefined): boolean | null {
 	if (!arg) return true;
 
 	arg = arg.toLowerCase();
@@ -55,4 +55,23 @@ export function booleanArg(arg: string | undefined): boolean | null {
 	const falsy = arg === "false" || arg === "off";
 
 	return !truthy && !falsy ? null : truthy || !falsy;
+}
+
+const unitMap: Record<string, number> = {
+	s: 1,
+	m: 60,
+	h: 60 * 60,
+	d: 60 * 60 * 24,
+	w: 60 * 60 * 24 * 7,
+	mo: 60 * 60 * 24 * 30,
+};
+
+export function parseDuration(arg: string | undefined): number | null {
+	const match = arg ? /^(\d+(?:\.\d+)?)([shdw]|mo?)?$/i.exec(arg) : null;
+	if (!match) return null;
+
+	const value = Number(match[1]);
+	const unit = match[2].toLowerCase() ?? "s";
+
+	return value * unitMap[unit];
 }

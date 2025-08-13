@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api/core";
-import { defineCommand } from "./util";
+import { defineCommand, parseDuration } from "./util";
 
 export default defineCommand({
 	name: "slow",
@@ -7,8 +7,7 @@ export default defineCommand({
 	modOnly: true,
 	args: ["duration"],
 	async exec(args, channel) {
-		let duration = Number(args[0]);
-		duration = Number.isNaN(duration) ? 30 : duration;
+		const duration = parseDuration(args[0]) ?? 30;
 
 		if (duration !== 0 && (duration < 3 || duration > 120)) {
 			channel.error = "Duration must be between 3 and 120 seconds (2 minutes).";
