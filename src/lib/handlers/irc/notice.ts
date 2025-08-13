@@ -31,9 +31,20 @@ export default defineHandler({
 					.replace("This room", "The chat")
 					.replace("s-only", "-only");
 
-				channel.addMessage(message.setText(text));
+				message.setText(text);
+				break;
+			}
+
+			case "msg_banned": {
+				if (app.user) {
+					app.user.banned = true;
+				}
+
+				message.setText(data.message_text.replace(/ \w+\.$/, " the channel."));
 				break;
 			}
 		}
+
+		channel.addMessage(message);
 	},
 });
