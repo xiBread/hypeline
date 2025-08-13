@@ -172,6 +172,10 @@ export default defineHandler({
 
 				break;
 			}
+
+			default: {
+				return;
+			}
 		}
 
 		channel.addMessage(message);
