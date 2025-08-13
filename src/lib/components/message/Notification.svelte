@@ -73,6 +73,10 @@
 					is raiding with {message.event.viewer_count}
 					{message.event.viewer_count > 1 ? "viewers" : "viewer"}!
 				</p>
+			{:else if type === "unraid"}
+				<p class="inline">
+					{@html colorizeName(message.author)} canceled the raid.
+				</p>
 			{/if}
 		</div>
 	{/if}

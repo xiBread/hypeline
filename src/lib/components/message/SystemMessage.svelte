@@ -65,6 +65,13 @@
 				{ctx.blocked ? "Blocked" : "Unblocked"} {@html colorizeName(ctx.user)}
 			{:else if ctx.type === "join"}
 				Joined {@html colorizeName(ctx.channel)}
+			{:else if ctx.type === "raid"}
+				{@html colorizeName(ctx.moderator)} is raiding {@html colorizeName(ctx.user)} with {@html ctx.viewers}
+				viewers.
+			{:else if ctx.type === "unraid"}
+				{@html colorizeName(ctx.moderator)} canceled the raid on {@html colorizeName(
+					ctx.user,
+				)}.
 			{:else if ctx.type === "untimeout"}
 				{@html colorizeName(ctx.moderator)} removed timeout on {@html colorizeName(
 					ctx.user,

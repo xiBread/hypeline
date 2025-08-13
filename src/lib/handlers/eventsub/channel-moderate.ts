@@ -173,6 +173,27 @@ export default defineHandler({
 				break;
 			}
 
+			case "raid": {
+				message.setContext({
+					type: "raid",
+					viewers: data.raid.viewer_count,
+					user: User.fromBasic(data.raid),
+					moderator,
+				});
+
+				break;
+			}
+
+			case "unraid": {
+				message.setContext({
+					type: "unraid",
+					user: User.fromBasic(data.unraid),
+					moderator,
+				});
+
+				break;
+			}
+
 			default: {
 				return;
 			}

@@ -69,6 +69,13 @@ export interface ModeContext {
 	moderator: User;
 }
 
+export interface RaidContext {
+	type: "raid";
+	viewers: number;
+	user: User;
+	moderator: User;
+}
+
 export interface RoleStatusContext {
 	type: "roleStatus";
 	role: string;
@@ -112,6 +119,12 @@ export interface UnbanRequestContext {
 	moderator?: User;
 }
 
+export interface UnraidContext {
+	type: "unraid";
+	user: User;
+	moderator: User;
+}
+
 export interface UntimeoutContext {
 	type: "untimeout";
 	user: User;
@@ -139,12 +152,14 @@ export type SystemMessageContext =
 	| EmoteSetUpdateContext
 	| JoinContext
 	| ModeContext
+	| RaidContext
 	| RoleStatusContext
 	| StreamStatusContext
 	| SuspicionStatusContext
 	| TermContext
 	| TimeoutContext
 	| UnbanRequestContext
+	| UnraidContext
 	| UntimeoutContext
 	| WarnContext
 	| WarnAckContext;

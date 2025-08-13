@@ -182,6 +182,10 @@ export interface RaidEvent {
 	profile_image_url: string;
 }
 
+export interface UnraidEvent {
+	type: "unraid";
+}
+
 export interface SubGiftEvent {
 	type: "sub_gift";
 	is_sender_anonymous: boolean;
@@ -241,6 +245,7 @@ export type UserNoticeEvent =
 	| AnnouncementEvent
 	| SubOrResubEvent
 	| RaidEvent
+	| UnraidEvent
 	| SubGiftEvent
 	| SubMysteryGiftEvent
 	| AnonSubMysteryGiftEvent

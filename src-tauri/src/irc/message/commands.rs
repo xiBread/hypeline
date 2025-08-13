@@ -550,6 +550,7 @@ pub enum UserNoticeEvent {
         viewer_count: u64,
         profile_image_url: String,
     },
+    Unraid,
     SubGift {
         is_sender_anonymous: bool,
         cumulative_months: u64,
@@ -646,6 +647,7 @@ impl TryFrom<IrcMessage> for UserNoticeMessage {
                     .try_get_nonempty_tag_value("msg-param-profileImageURL")?
                     .to_owned(),
             },
+            "unraid" => UserNoticeEvent::Unraid,
             "subgift" | "anonsubgift" => UserNoticeEvent::SubGift {
                 is_sender_anonymous: event_id == "anonsubgift" || sender.id == "274598607",
                 cumulative_months: source.try_get_number("msg-param-months")?,
