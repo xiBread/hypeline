@@ -9,6 +9,9 @@ export default defineHandler({
 		const user = find(channel.viewers, (user) => user.username === data.channel_login);
 		if (!user) return;
 
+		user.isBroadcaster = true;
+		user.isMod = true;
+
 		channel.messages.push(SystemMessage.joined(user));
 	},
 });

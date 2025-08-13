@@ -30,6 +30,12 @@ export interface BanStatusContext {
 	moderator?: User;
 }
 
+export interface BlockStatusContext {
+	type: "blockStatus";
+	blocked: boolean;
+	user: User;
+}
+
 export interface ClearContext {
 	type: "clear";
 	moderator?: User;
@@ -127,6 +133,7 @@ export interface WarnAckContext {
 export type SystemMessageContext =
 	| AutoModContext
 	| BanStatusContext
+	| BlockStatusContext
 	| ClearContext
 	| DeleteContext
 	| EmoteSetUpdateContext

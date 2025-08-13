@@ -1,6 +1,8 @@
 import { invoke } from "@tauri-apps/api/core";
 import { SvelteMap } from "svelte/reactivity";
 import { PUBLIC_TWITCH_CLIENT_ID } from "$env/static/public";
+import { commands } from "./commands";
+import type { Command } from "./commands/util";
 import { log } from "./log";
 import { SystemMessage } from "./message";
 import type { Message } from "./message";
@@ -26,6 +28,7 @@ export class Channel {
 	#lastHitAmtAt: number;
 
 	public readonly badges = new SvelteMap<string, Record<string, Badge>>();
+	public readonly commands = new SvelteMap<string, Command>();
 	public readonly emotes = new SvelteMap<string, Emote>();
 	public readonly cheermotes = $state<Cheermote[]>([]);
 	public readonly viewers = new SvelteMap<string, User>();
@@ -45,6 +48,11 @@ export class Channel {
 	 */
 	public history = $state<string[]>([]);
 	public messages = $state<Message[]>([]);
+
+	/**
+	 * The error message from the last failed command if any.
+	 */
+	public error = $state<string>("");
 
 	public constructor(
 		/**
@@ -79,6 +87,7 @@ export class Channel {
 
 		channel = channel
 			.addBadges(joined.badges)
+			.addCommands(commands)
 			.addEmotes(joined.emotes)
 			.addCheermotes(joined.cheermotes)
 			.setStream(joined.stream);
@@ -108,6 +117,14 @@ export class Channel {
 			}
 
 			this.badges.set(set.set_id, badges);
+		}
+
+		return this;
+	}
+
+	public addCommands(commands: Command[]) {
+		for (const command of commands) {
+			this.commands.set(command.name, command);
 		}
 
 		return this;
@@ -164,6 +181,25 @@ export class Channel {
 		const user = this.viewers.get(app.user.id) ?? app.user;
 
 		const elevated = user.isMod || user.isVip;
+
+		if (message.startsWith("/")) {
+			const [name, ...args] = message.slice(1).split(" ");
+
+			const command = this.commands.get(name);
+			if (!command || (command.modOnly && !user.isMod)) return;
+
+			try {
+				await command.exec(args, this, user);
+			} catch (error) {
+				log.error(
+					`Error executing command ${name} in channel ${this.user.username}: ${error}`,
+				);
+
+				this.error = "An unknown error occurred while trying to execute command.";
+			}
+
+			return;
+		}
 
 		const rateLimited = this.#checkRateLimit(elevated);
 		if (rateLimited) return;

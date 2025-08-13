@@ -29,4 +29,19 @@
 			"})",
 		],
 	},
+	"Command handler": {
+		"scope": "typescript",
+		"prefix": "cmd",
+		"body": [
+			"import { defineCommand } from \"./util\";",
+			"",
+			"export default defineCommand({",
+			"\tname: \"${TM_FILENAME_BASE}\",",
+			"\tdescription: \"${2}\",",
+			"\tasync exec(args, channel, user) {",
+			"\t\t$0",
+			"\t},",
+			"})",
+		],
+	},
 }
