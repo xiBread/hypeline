@@ -15,7 +15,7 @@ export type Fragment =
 	| ({ type: "cheermote"; prefix: string; bits: number; marked?: boolean } & CheermoteTier);
 
 const URL_RE =
-	/https?:\/\/(?:www\.)?[-\w@:%.+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-\w()@:%+.~#?&/=]*/g;
+	/(?<=\s)https?:\/\/(?:www\.)?[-\w@:%.+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-\w()@:%+.~#?&/=]*/g;
 
 interface TextSegment extends Range {
 	type: "emote" | "cheermote" | "mention" | "url";
@@ -235,7 +235,7 @@ export class UserMessage extends Message {
 			});
 		}
 
-		const mentionRe = /@(\w+)/g;
+		const mentionRe = /(?<=\s)@(\w+)/g;
 		let match: RegExpExecArray | null;
 
 		// eslint-disable-next-line no-cond-assign
