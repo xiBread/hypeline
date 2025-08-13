@@ -54,7 +54,7 @@ export function parseBool(arg: string | undefined): boolean | null {
 	const truthy = arg === "true" || arg === "on";
 	const falsy = arg === "false" || arg === "off";
 
-	return !truthy && !falsy ? null : truthy || !falsy;
+	return truthy ? true : falsy ? false : null;
 }
 
 const unitMap: Record<string, number> = {
