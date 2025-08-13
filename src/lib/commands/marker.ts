@@ -10,26 +10,30 @@ export default defineCommand({
 	modOnly: true,
 	args: ["description"],
 	async exec(args, channel) {
+		const description = args.join(" ");
+
 		if (!channel.stream) {
 			channel.error = "Markers can only be created when the channel is live.";
 			return;
 		}
 
-		if (args[0]?.length > 140) {
+		if (description.length > 140) {
 			channel.error = "Marker description must be 140 characters or less.";
 			return;
 		}
 
 		const marker = await invoke<StreamMarker>("create_marker", {
 			broadcasterId: channel.user.id,
-			description: args[0] ?? "",
+			description,
 		});
 
 		const duration = dayjs.duration(marker.position_seconds, "s");
 		const format = duration.asHours() > 0 ? "H[h] mm[m] ss[s]" : "mm[m] ss[s]";
 
 		const message = new SystemMessage();
-		message.setText(`Stream marker created at ${duration.format(format)}`);
+		const echo = description ? `: ${description}` : "";
+
+		message.setText(`Stream marker created at ${duration.format(format) + echo}`);
 
 		channel.addMessage(message);
 	},
