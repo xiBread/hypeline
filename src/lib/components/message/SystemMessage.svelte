@@ -3,7 +3,6 @@
 	import type {
 		AutoModContext,
 		BanStatusContext,
-		BlockStatusContext,
 		ClearContext,
 		DeleteContext,
 		EmoteSetUpdateContext,
