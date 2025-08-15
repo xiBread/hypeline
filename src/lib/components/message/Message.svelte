@@ -1,13 +1,12 @@
 <script lang="ts">
 	import { openUrl } from "@tauri-apps/plugin-opener";
-	import type { UserMessage } from "$lib/message";
+	import type { Node, UserMessage } from "$lib/message";
 	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
 	import type { Badge } from "$lib/twitch/api";
 	import Emote from "../Emote.svelte";
 	import Timestamp from "../Timestamp.svelte";
 	import Tooltip from "../ui/Tooltip.svelte";
-	import type { Node } from "$lib/message/parse";
 
 	const { message }: { message: UserMessage } = $props();
 

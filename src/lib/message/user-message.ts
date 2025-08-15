@@ -1,10 +1,10 @@
 import { app } from "$lib/state.svelte";
 import type { AutoModMetadata, StructuredMessage } from "$lib/twitch/eventsub";
-import type { Badge, BasicUser, PrivmsgMessage, Range, UserNoticeMessage } from "$lib/twitch/irc";
+import type { Badge, BasicUser, PrivmsgMessage, UserNoticeMessage } from "$lib/twitch/irc";
 import { User } from "$lib/user.svelte";
 import { extractEmotes } from "$lib/util";
-import { Message } from ".";
-import { parse, type Node } from "./parse";
+import { Message, parse } from "./";
+import type { Node } from "./";
 
 /**
  * User messages are either messages received by `PRIVMSG` commands or
