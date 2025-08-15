@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { openUrl } from "@tauri-apps/plugin-opener";
-	import type { Fragment, UserMessage } from "$lib/message";
+	import type { Node, UserMessage } from "$lib/message";
 	import { settings } from "$lib/settings";
 	import { app } from "$lib/state.svelte";
 	import type { Badge } from "$lib/twitch/api";
@@ -10,7 +10,6 @@
 
 	const { message }: { message: UserMessage } = $props();
 
-	const fragments = message.toFragments();
 	const badges = $state<Badge[]>([]);
 
 	for (const badge of message.badges) {
@@ -28,16 +27,16 @@
 		badges.push(message.author.badge);
 	}
 
-	function getMentionStyle(fragment: Extract<Fragment, { type: "mention" }>) {
-		if (fragment.marked) return null;
+	function getMentionStyle(node: Extract<Node, { type: "mention" }>) {
+		if (node.marked) return null;
 
 		switch (settings.state.chat.mentionStyle) {
 			case "none":
 				return null;
 			case "colored":
-				return `color: ${fragment.user?.color}`;
+				return `color: ${node.data.user?.color}`;
 			case "painted":
-				return fragment.user?.style;
+				return node.data.user?.style;
 		}
 	}
 </script>
@@ -70,57 +69,59 @@ render properly without an extra space in between. -->
 	class={["inline", message.isAction && "italic"]}
 	style:color={message.isAction ? message.author.color : null}
 >
-	{#each fragments as fragment, i}
-		{#if fragment.type === "mention"}
-			{#if !message.reply || (message.reply && i > 0)}
-				<svelte:element
-					this={fragment.marked ? "mark" : "span"}
-					class="font-semibold break-words"
-					style={getMentionStyle(fragment)}
-				>
-					@{fragment.user?.displayName ?? fragment.fallback}
-				</svelte:element>
-			{/if}
-		{:else if fragment.type === "url"}
+	{#each message.nodes as node, i}
+		{#if node.type === "link"}
 			<svelte:element
-				this={fragment.marked ? "mark" : "span"}
+				this={node.marked ? "mark" : "span"}
 				class={[
 					"wrap-anywhere underline hover:cursor-pointer",
-					!fragment.marked && "text-twitch-link",
+					!node.marked && "text-twitch-link",
 				]}
 				role="link"
 				tabindex="-1"
-				onclick={() => openUrl(fragment.url.toString())}
+				onclick={() => openUrl(node.data.url.toString())}
 			>
-				{fragment.text}
+				{node.value}
 			</svelte:element>
-		{:else if fragment.type === "cheermote"}
-			{#if fragment.marked}
-				<mark class="wrap-anywhere">{fragment.prefix + fragment.bits}</mark>
+		{:else if node.type === "mention"}
+			{#if !message.reply || (message.reply && i > 0)}
+				<svelte:element
+					this={node.marked ? "mark" : "span"}
+					class="font-semibold break-words"
+					style={getMentionStyle(node)}
+				>
+					@{node.data.user?.displayName ?? node.value}
+				</svelte:element>
+			{/if}
+		{:else if node.type === "cheer"}
+			{#if node.marked}
+				<mark class="wrap-anywhere">{node.data.prefix + node.data.bits}</mark>
 			{:else}
 				<img
 					class="-my-2 inline-block align-middle"
-					src={fragment.images.dark.animated[2]}
-					alt="{fragment.prefix} {fragment.bits}"
+					src={node.data.tier.images.dark.animated[2]}
+					alt="{node.data.prefix} {node.data.bits}"
 					width="32"
 					height="32"
 				/>
 
-				<span class="font-semibold" style:color={fragment.color}>{fragment.bits}</span>
+				<span class="font-semibold" style:color={node.data.tier.color}
+					>{node.data.bits}</span
+				>
 			{/if}
-		{:else if fragment.type === "emote"}
-			{#if fragment.marked}
-				<mark class="wrap-anywhere">{fragment.name}</mark>
+		{:else if node.type === "emote"}
+			{#if node.marked}
+				<mark class="wrap-anywhere">{node.data.emote.name}</mark>
 			{:else}
-				<Emote emote={fragment} overlays={fragment.overlays} />
+				<Emote emote={node.data.emote} layers={node.data.layers} />
 			{/if}
 		{:else}
-			<svelte:element this={fragment.marked ? "mark" : "span"} class="wrap-anywhere">
-				{fragment.value}
+			<svelte:element this={node.marked ? "mark" : "span"} class="wrap-anywhere">
+				{node.value}
 			</svelte:element>
 		{/if}
 
-		{#if i < fragments.length - 1}
+		{#if i < message.nodes.length - 1}
 			<!-- eslint-disable-next-line svelte/no-useless-mustaches -->
 			<span>{" "}</span>
 		{/if}
