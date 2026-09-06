@@ -5,14 +5,14 @@
 
 	import Button from "$lib/components/ui/Button.svelte";
 	import { log } from "$lib/log";
-	import { completeLogin } from "$lib/twitch/auth";
+	import { completeLogin, type TwitchAuth } from "$lib/twitch/auth";
 
 	import Twitch from "~icons/local/twitch";
 
 	let error = $state<string | null>(null);
 
 	onMount(() => {
-		const unlisten = listen<string>("twitch-auth-success", async ({ payload }) => {
+		const unlisten = listen<TwitchAuth>("twitch-auth-success", async ({ payload }) => {
 			try {
 				await completeLogin(payload);
 			} catch (err) {

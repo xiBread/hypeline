@@ -13,10 +13,18 @@ interface AuthUser {
 	login: string;
 }
 
-export async function completeLogin(accessToken: string) {
-	const account = await invoke<AuthUser>("store_token", { accessToken });
+export interface TwitchAuth {
+	accessToken: string;
+	integrityToken: string | null;
+	deviceId: string;
+}
 
-	app.twitch.token = accessToken;
+export async function completeLogin(auth: TwitchAuth) {
+	const account = await invoke<AuthUser>("store_token", {
+		accessToken: auth.accessToken,
+	});
+
+	app.twitch.token = auth.accessToken;
 
 	const user = await app.twitch.users.fetch(account.id);
 	storage.state.user = user.data;
