@@ -40,6 +40,7 @@ export async function completeLogin(auth: TwitchAuth) {
 
 	log.info(`Logged in as ${account.login}`);
 
+	await tick();
 	await storage.saveNow();
 	await goto("/");
 }

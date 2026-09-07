@@ -75,13 +75,21 @@ pub struct TwitchAuth {
     integrity: Option<Integrity>,
 }
 
+// WebView2 serializes JS numbers as doubles :/
+fn deserialize_epoch_ms<'de, D>(deserializer: D) -> Result<Option<i64>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    Ok(Option::<f64>::deserialize(deserializer)?.map(|millis| millis as i64))
+}
+
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct IntegrityResult {
     device_id: String,
     #[serde(default)]
     token: Option<String>,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "deserialize_epoch_ms")]
     expiration: Option<i64>,
     #[serde(default)]
     error: Option<String>,
