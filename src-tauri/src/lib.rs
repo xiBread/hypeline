@@ -2,6 +2,7 @@
 
 use std::sync::{Arc, LazyLock};
 
+use auth::Integrity;
 use eventsub::EventSubClient;
 use eventsub::client::NotificationPayload;
 use irc::IrcClient;
@@ -46,6 +47,10 @@ pub static HTTP: LazyLock<reqwest::Client> = LazyLock::new(|| {
 pub struct AppState {
     helix: HelixClient<'static, reqwest::Client>,
     token: Option<UserToken>,
+    integrity: Option<Integrity>,
+    // Held across an integrity refresh so concurrent callers queue behind the
+    // one webview instead of each opening their own.
+    integrity_refresh: Arc<Mutex<()>>,
     irc: Option<IrcClient>,
     eventsub: Option<Arc<EventSubClient>>,
     seventv: Option<Arc<SeventTvClient>>,
@@ -63,6 +68,8 @@ impl Default for AppState {
         Self {
             helix: HelixClient::new(),
             token: None,
+            integrity: None,
+            integrity_refresh: Arc::new(Mutex::new(())),
             irc: None,
             eventsub: None,
             seventv: None,
@@ -117,14 +124,20 @@ pub fn run() {
 
             app_handle.plugin(svelte)?;
 
-            // Validate any stored token before the frontend's first layout load
-            // asks for it; an invalid one resolves to `None` and the frontend
-            // redirects to the login screen.
             async_runtime::block_on(async {
-                state.token = auth::restore_token(&state.helix).await;
+                let restored = auth::restore_credentials(&state.helix).await;
+
+                state.token = restored.token;
+                state.integrity = restored.integrity;
             });
 
             app.manage(Mutex::new(state));
+
+            let handle = app_handle.clone();
+
+            async_runtime::spawn(async move {
+                auth::ensure_integrity(&handle).await;
+            });
 
             Ok(())
         })
@@ -139,6 +152,7 @@ fn get_handler() -> impl Fn(Invoke) -> bool {
         api::leave,
         api::rejoin,
         auth::clear_token,
+        auth::get_integrity,
         auth::get_token,
         auth::open_twitch_login,
         auth::store_token,

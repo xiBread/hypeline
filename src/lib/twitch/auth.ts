@@ -13,16 +13,23 @@ interface AuthUser {
 	login: string;
 }
 
+export interface Integrity {
+	token: string;
+	deviceId: string;
+	expiration: number;
+}
+
 export interface TwitchAuth {
 	accessToken: string;
-	integrityToken: string | null;
-	deviceId: string;
+	integrity: Integrity | null;
+}
+
+export function getIntegrity() {
+	return invoke<Integrity | null>("get_integrity");
 }
 
 export async function completeLogin(auth: TwitchAuth) {
-	const account = await invoke<AuthUser>("store_token", {
-		accessToken: auth.accessToken,
-	});
+	const account = await invoke<AuthUser>("store_token", { auth });
 
 	app.twitch.token = auth.accessToken;
 
